@@ -6,15 +6,18 @@
 class TwitchBot {
 
 	public:
-		TwitchBot(const std::string name, const std::string address, const std::string port, const std::string channel, const std::string password = "");
+		TwitchBot(const std::string name, const std::string channel, const std::string password = "");
 		~TwitchBot();
-		inline bool isActive() { return m_active; };
+		inline bool isConnected() { return m_connected; };
+		void disconnect();
+		bool sendData(const std::string &data);
 		bool sendMsg(const std::string &msg);
+		void serverLoop();
 
 	private:
 		SOCKET m_socket;
 		WSADATA m_wsa;
-		bool m_active;
+		bool m_connected;
 		std::string m_nick;
 		std::string m_channelName;
 

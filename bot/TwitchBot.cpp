@@ -3,14 +3,18 @@
 // library for winsock2
 #pragma comment(lib, "ws2_32.lib")
 
-TwitchBot::TwitchBot(const std::string nick, const std::string address, const std::string port, const std::string channel, const std::string password)
-	: m_active(false), m_nick(nick), m_channelName(channel), m_socket(NULL) {
+#define MAXBUFFERSIZE 2048
+
+TwitchBot::TwitchBot(const std::string nick, const std::string channel, const std::string password)
+	: m_connected(false), m_nick(nick), m_channelName(channel), m_socket(NULL) {
+
+	const char *serv = "irc.twitch.tv", *port = "6667";
 
 	struct addrinfo hints, *servinfo;
 
-	memset(&hints, 0, sizeof hints);
+	memset(&hints, 0, sizeof(hints));
 
-	hints.ai_family = AF_INET;
+	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 
 	if (int32_t error = WSAStartup(MAKEWORD(2, 2), &m_wsa)) {
@@ -21,7 +25,7 @@ TwitchBot::TwitchBot(const std::string nick, const std::string address, const st
 		std::clog << "WSAStartup successful." << std::endl;
 
 		// set up the server info
-		if (uint32_t error = getaddrinfo(address.c_str(), port.c_str(), &hints, &servinfo)) {
+		if (int32_t error = getaddrinfo(serv, port, &hints, &servinfo)) {
 			std::cerr << "Getaddrinfo failed. Error: " << gai_strerror(error);
 		}
 		else {
@@ -38,40 +42,20 @@ TwitchBot::TwitchBot(const std::string nick, const std::string address, const st
 				// connect to socket
 				if (connect(m_socket, servinfo->ai_addr, servinfo->ai_addrlen) == SOCKET_ERROR) {
 					std::cerr << "Socket connection failed with error " << WSAGetLastError() << std::endl;
+					disconnect();
 				}
 				else {
 
-					std::clog << "Socket connection successful." << std::endl;
+					std::clog << "Connected to " << serv << std::endl;
+					m_connected = true;
 					freeaddrinfo(servinfo);
 					
-					int32_t bytes, count = 0;
-					char buf[100];
+					// send required IRC data: PASS, NICK, USER
+					sendData("PASS " + password);
+					sendData("NICK " + nick);
+					sendData("USER " + nick);
 
-					for (;;) {
-
-						std::clog << ++count << std::endl;
-						
-						if (count == 1) {
-							// send required IRC data: PASS, NICK, USER
-							sendMsg("PASS " + password);
-							sendMsg("NICK " + nick);
-							sendMsg("USER " + nick + " 0 * :" + nick);
-						}
-						else if (count == 2) {
-							// connect to channel
-							sendMsg("JOIN " + channel);
-						}
-
-						bytes = recv(m_socket, buf, 99, 0);
-						buf[bytes] = '\0';
-						std::clog << buf;
-
-						if (bytes == 0) {
-							std::cout << "No data recieved. Exiting." << std::endl;
-							break;
-						}
-
-					}
+					sendData("JOIN " + channel);
 
 				}
 
@@ -88,18 +72,51 @@ TwitchBot::~TwitchBot() {
 	WSACleanup();
 }
 
+void TwitchBot::disconnect() {
+	m_connected = false;
+	closesocket(m_socket);
+	WSACleanup();
+}
+
+bool TwitchBot::sendData(const std::string &data) {
+
+	// add win newline and covert to char array
+	std::string rn = data + "\r\n";
+	const char *formatted = rn.c_str();
+
+	// send formatted data
+	int32_t bytes = send(m_socket, formatted, strlen(formatted), NULL);
+	std::clog << (bytes > 0 ? "[SENT] " : "Failed to send: ") << formatted << std::endl;
+
+	// return true iff data was sent succesfully
+	return bytes > 0;
+
+}
+
 bool TwitchBot::sendMsg(const std::string &msg) {
+	return sendData("PRIVMSG " + m_channelName + " :" + msg);
+}
 
-	// add win style newline and covert to char
-	const char *formatted = (msg + "\r\n").c_str();
+void TwitchBot::serverLoop() {
 
-	// if no data is sent
-	if (send(m_socket, formatted, strlen(formatted), NULL) == SOCKET_ERROR) {
-		std::cerr << "Failed to send: " << msg << std::endl;
-		return false;
+	int32_t bytes;
+	char buf[MAXBUFFERSIZE];
+
+	for (;;) {
+
+		// recieve data from server
+		bytes = recv(m_socket, buf, MAXBUFFERSIZE - 1, 0);
+		buf[bytes] = '\0';
+
+		std::clog << "[RECV] " << buf << std::endl;
+
+		// quit program if no data is recieved
+		if (bytes <= 0) {
+			std::cerr << "No data received. Exiting." << std::endl;
+			disconnect();
+			break;
+		}
+
 	}
-
-	std::clog << "Sent: " << msg << std::endl;
-	return true;
 
 }

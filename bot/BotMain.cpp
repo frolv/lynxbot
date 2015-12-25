@@ -3,10 +3,11 @@
 
 int main() {
 
-	TwitchBot bot("bot_test_", "irc.twitch.tv", "6667", "#brainsoldier", "oauth:swoqkwa5cagrf5qbvmpvqbgua5e3ia");
+	TwitchBot bot("bot_test_", "#brainsoldier", "oauth:heri34fz0206epagbry8acezxt8dst");
 
-	// temp to prevent closing
-	std::cin.get();
+	if (bot.isConnected()) {
+		bot.serverLoop();
+	}
 
 	return 0;
 
