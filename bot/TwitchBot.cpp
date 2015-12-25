@@ -3,8 +3,8 @@
 // library for winsock2
 #pragma comment(lib, "ws2_32.lib")
 
-TwitchBot::TwitchBot(const std::string name, const std::string user, const std::string address, const std::string port, const std::string channel, const std::string password)
-	: m_channelName(channel), m_socket(NULL) {
+TwitchBot::TwitchBot(const std::string nick, const std::string address, const std::string port, const std::string channel, const std::string password)
+	: m_active(false), m_nick(nick), m_channelName(channel), m_socket(NULL) {
 
 	struct addrinfo hints, *servinfo;
 
@@ -29,18 +29,50 @@ TwitchBot::TwitchBot(const std::string name, const std::string user, const std::
 			// create the socket
 			m_socket = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
 			if (m_socket == INVALID_SOCKET) {
-				std::cerr << "Socket function failed with error " << WSAGetLastError() << std::endl;
+				std::cerr << "Socket creation failed with error " << WSAGetLastError() << std::endl;
 			}
 			else {
 
-				std::clog << "Socket function succeeded." << std::endl;
+				std::clog << "Socket creation succeeded." << std::endl;
 
 				// connect to socket
-				if (int32_t error = connect(m_socket, servinfo->ai_addr, servinfo->ai_addrlen)) {
+				if (connect(m_socket, servinfo->ai_addr, servinfo->ai_addrlen) == SOCKET_ERROR) {
 					std::cerr << "Socket connection failed with error " << WSAGetLastError() << std::endl;
 				}
 				else {
+
 					std::clog << "Socket connection successful." << std::endl;
+					freeaddrinfo(servinfo);
+					
+					int32_t bytes, count = 0;
+					char buf[100];
+
+					for (;;) {
+
+						std::clog << ++count << std::endl;
+						
+						if (count == 1) {
+							// send required IRC data: PASS, NICK, USER
+							sendMsg("PASS " + password);
+							sendMsg("NICK " + nick);
+							sendMsg("USER " + nick + " 0 * :" + nick);
+						}
+						else if (count == 2) {
+							// connect to channel
+							sendMsg("JOIN " + channel);
+						}
+
+						bytes = recv(m_socket, buf, 99, 0);
+						buf[bytes] = '\0';
+						std::clog << buf;
+
+						if (bytes == 0) {
+							std::cout << "No data recieved. Exiting." << std::endl;
+							break;
+						}
+
+					}
+
 				}
 
 			}
@@ -51,6 +83,23 @@ TwitchBot::TwitchBot(const std::string name, const std::string user, const std::
 
 }
 
-TwitchBot::~TwitchBot()
-{
+TwitchBot::~TwitchBot() {
+	closesocket(m_socket);
+	WSACleanup();
+}
+
+bool TwitchBot::sendMsg(const std::string &msg) {
+
+	// add win style newline and covert to char
+	const char *formatted = (msg + "\r\n").c_str();
+
+	// if no data is sent
+	if (send(m_socket, formatted, strlen(formatted), NULL) == SOCKET_ERROR) {
+		std::cerr << "Failed to send: " << msg << std::endl;
+		return false;
+	}
+
+	std::clog << "Sent: " << msg << std::endl;
+	return true;
+
 }
