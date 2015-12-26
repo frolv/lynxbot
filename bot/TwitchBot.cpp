@@ -55,6 +55,7 @@ TwitchBot::TwitchBot(const std::string nick, const std::string channel, const st
 					sendData("NICK " + nick);
 					sendData("USER " + nick);
 
+					// join channel
 					sendData("JOIN " + channel);
 
 				}
@@ -78,14 +79,39 @@ void TwitchBot::disconnect() {
 	WSACleanup();
 }
 
+void TwitchBot::serverLoop() {
+
+	int32_t bytes;
+	char buf[MAXBUFFERSIZE];
+
+	while (true) {
+
+		// recieve data from server
+		bytes = recv(m_socket, buf, MAXBUFFERSIZE - 1, 0);
+		buf[bytes] = '\0';
+
+		// quit program if no data is recieved
+		if (bytes <= 0) {
+			std::cerr << "No data received. Exiting." << std::endl;
+			disconnect();
+			break;
+		}
+
+		std::clog << "[RECV] " << buf << std::endl;
+
+		processData(std::string(buf));
+
+	}
+
+}
+
 bool TwitchBot::sendData(const std::string &data) {
 
-	// add win newline and covert to char array
-	std::string rn = data + "\r\n";
-	const char *formatted = rn.c_str();
+	// format string by adding win newline
+	std::string formatted = data + "\r\n";
 
 	// send formatted data
-	int32_t bytes = send(m_socket, formatted, strlen(formatted), NULL);
+	int32_t bytes = send(m_socket, formatted.c_str(), formatted.length(), NULL);
 	std::clog << (bytes > 0 ? "[SENT] " : "Failed to send: ") << formatted << std::endl;
 
 	// return true iff data was sent succesfully
@@ -97,26 +123,59 @@ bool TwitchBot::sendMsg(const std::string &msg) {
 	return sendData("PRIVMSG " + m_channelName + " :" + msg);
 }
 
-void TwitchBot::serverLoop() {
+bool TwitchBot::sendPong(const std::string &ping) {
+	// first six chars are "PING :", server name starts after
+	return sendData("PONG " + ping.substr(6));
+}
 
-	int32_t bytes;
-	char buf[MAXBUFFERSIZE];
+void TwitchBot::processData(const std::string &data) {
 
-	for (;;) {
+	if (startsWith(data, "PING")) {
+		sendPong(data);
+	}
+	else if (data.find("PRIVMSG") != std::string::npos) {
+		processPRIVMSG(data);
+	}
 
-		// recieve data from server
-		bytes = recv(m_socket, buf, MAXBUFFERSIZE - 1, 0);
-		buf[bytes] = '\0';
+}
 
-		std::clog << "[RECV] " << buf << std::endl;
+bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 
-		// quit program if no data is recieved
-		if (bytes <= 0) {
-			std::cerr << "No data received. Exiting." << std::endl;
-			disconnect();
-			break;
+	// regex to extract all necessary data from message
+	std::regex privmsgRegex("^:(\\w+)!\\1@\\1.* PRIVMSG (#\\w+) :(.+)");
+	std::smatch match;
+
+	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), match, privmsgRegex)) {
+		
+		const std::string nick = match[1];
+		const std::string channel = match[2];
+		const std::string msg = match[3];
+
+		// confirm message is from current channel
+		if (channel != m_channelName) {
+			return false;
 		}
 
+		// all chat commands start with $
+		if (startsWith(msg, "$") && msg.length() > 1 && nick == "brainsoldier") {
+			std::string output = m_cmdHandler.processCommand(nick, msg.substr(1));
+			if (output != "Invalid command") {
+				sendMsg(output);
+			}
+			return true;
+		}
+		// not enough command
+		std::regex howRegex("how ?(much|many|often)", std::regex_constants::ECMAScript | std::regex_constants::icase);
+		if (std::regex_search(msg.begin(), msg.end(), match, howRegex)) {
+			return sendMsg("@" + nick + ", not enough.");
+		}
+
+		return true;
+
+	}
+	else {
+		std::cerr << "Could not extract data." << std::endl;
+		return false;
 	}
 
 }

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "TwitchBot.h"
 
 int main() {
 

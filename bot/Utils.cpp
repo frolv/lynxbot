@@ -1,12 +1,16 @@
-#include "Utils.h"
+#include "stdafx.h"
 
-bool endsWith(const std::string &str, const std::string &ending) {
+bool startsWith(const std::string &str, const std::string &prefix) {
+	return str.find(prefix) == 0;
+}
 
-	if (str.length() < ending.length()) {
-		return false;
+std::vector<std::string> &split(const std::string &str, char delim, std::vector<std::string> &elems) {
+	std::stringstream ss(str);
+	std::string item;
+	while (std::getline(ss, item, delim)) {
+		if (!item.empty()) {
+			elems.push_back(item);
+		}
 	}
-
-	// if string::compare returns 0 the two strings have the same character sequence
-	return str.compare(str.length() - ending.length(), ending.length(), ending) == 0;
-
+	return elems;
 }
