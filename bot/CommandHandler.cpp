@@ -22,11 +22,40 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 			output = "Invalid syntax. Use \"$ehp [RSN]\".";
 		}
 	}
+	else if (cmd == "calc") {
+		try {
+			output = handleCalc(fullCmd);
+		}
+		catch (std::runtime_error &e) {
+			output = e.what();
+		}
+	}
 	else {
 		output = "Invalid command";
 		std::cerr << output << ": " << cmd << std::endl << std::endl;
 	}
 
 	return output;
+
+}
+
+std::string CommandHandler::handleCalc(const std::string &fullCmd) {
+
+	if (fullCmd.length() < 6) {
+		throw std::runtime_error("Invalid mathematical expression.");
+	}
+
+	std::string expr = fullCmd.substr(5);
+	// remove all whitespace
+	expr.erase(std::remove_if(expr.begin(), expr.end(), isspace), expr.end());
+	
+	std::ostringstream result;
+
+	ExpressionParser exprP(expr);
+	exprP.tokenizeExpr();
+	double res = exprP.eval();
+	result << res;
+
+	return result.str();
 
 }

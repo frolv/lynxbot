@@ -9,8 +9,11 @@
 #include <regex>
 #include <vector>
 #include <sstream>
+#include <stack>
+#include <queue>
 
 // project headers
 #include "TwitchBot.h"
 #include "CommandHandler.h"
 #include "Utils.h"
+#include "cmdmodules\ExpressionParser.h"
