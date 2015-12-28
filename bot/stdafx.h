@@ -11,6 +11,7 @@
 #include <sstream>
 #include <stack>
 #include <queue>
+#include <fstream>
 
 // project headers
 #include "TwitchBot.h"

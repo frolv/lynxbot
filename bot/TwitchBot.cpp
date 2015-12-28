@@ -27,40 +27,40 @@ TwitchBot::TwitchBot(const std::string nick, const std::string channel, const st
 		}
 		else {
 
-			// create the socket
-			m_socket = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
-			if (m_socket == INVALID_SOCKET) {
-				std::cerr << "Socket creation failed with error " << WSAGetLastError() << std::endl;
-			}
-			else {
+// create the socket
+m_socket = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+if (m_socket == INVALID_SOCKET) {
+	std::cerr << "Socket creation failed with error " << WSAGetLastError() << std::endl;
+}
+else {
 
-				std::clog << "Socket creation succeeded." << std::endl;
+	std::clog << "Socket creation succeeded." << std::endl;
 
-				// connect to socket
-				if (connect(m_socket, servinfo->ai_addr, servinfo->ai_addrlen) == SOCKET_ERROR) {
-					std::cerr << "Socket connection failed with error " << WSAGetLastError() << std::endl;
-					disconnect();
-				}
-				else {
+	// connect to socket
+	if (connect(m_socket, servinfo->ai_addr, servinfo->ai_addrlen) == SOCKET_ERROR) {
+		std::cerr << "Socket connection failed with error " << WSAGetLastError() << std::endl;
+		disconnect();
+	}
+	else {
 
-					std::clog << "Connected to " << serv << std::endl;
-					m_connected = true;
-					freeaddrinfo(servinfo);
-					
-					// send required IRC data: PASS, NICK, USER
-					sendData("PASS " + password);
-					sendData("NICK " + nick);
-					sendData("USER " + nick);
+		std::clog << "Connected to " << serv << std::endl;
+		m_connected = true;
+		freeaddrinfo(servinfo);
 
-					// join channel
-					sendData("JOIN " + channel);
+		// send required IRC data: PASS, NICK, USER
+		sendData("PASS " + password);
+		sendData("NICK " + nick);
+		sendData("USER " + nick);
 
-				}
+		// join channel
+		sendData("JOIN " + channel);
 
-			}
-		
+	}
+
+}
+
 		}
-	
+
 	}
 
 }
@@ -127,7 +127,12 @@ bool TwitchBot::sendPong(const std::string &ping) {
 
 void TwitchBot::processData(const std::string &data) {
 
-	if (startsWith(data, "PING")) {
+	if (data.find("Error logging in") != std::string::npos) {
+		disconnect();
+		std::cerr << "\nCould not log in to Twitch IRC. Make sure your settings.cfg file is configured correctly." << std::endl;
+		std::cin.get();
+	}
+	else if (startsWith(data, "PING")) {
 		sendPong(data);
 	}
 	else if (data.find("PRIVMSG") != std::string::npos) {

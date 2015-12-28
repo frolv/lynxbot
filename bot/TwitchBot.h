@@ -18,8 +18,9 @@ class TwitchBot {
 		WSADATA m_wsa;
 		CommandHandler m_cmdHandler;
 		bool m_connected;
-		std::string m_nick;
-		std::string m_channelName;
+		const std::string m_nick;
+		const std::string m_channelName;
+		const std::vector<std::string> m_keys;
 		bool sendData(const std::string &data);
 		bool sendMsg(const std::string &msg);
 		bool sendPong(const std::string &ping);
