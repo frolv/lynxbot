@@ -15,6 +15,20 @@ std::vector<std::string> &split(const std::string &str, char delim, std::vector<
 	return elems;
 }
 
+std::string formatInteger(std::string &integer) {
+
+	int pos = integer.length() - 3;
+	if (pos < 1) {
+		return integer;
+	}
+	while (pos > 0) {
+		integer.insert(pos, ",");
+		pos -= 3;
+	}
+	return integer;
+
+}
+
 std::vector<std::string> readSettings() {
 
 	// get application directory

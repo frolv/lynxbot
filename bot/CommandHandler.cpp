@@ -16,7 +16,7 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 		if (tokens.size() == 2) {
 			// a username was provided
 			const std::string httpResp = HTTPReq(CML_HOST, CML_EHP_AHI + tokens[1]);
-			std::clog << httpResp << std::endl;
+			std::clog << httpResp << std::endl << std::endl;
 			output = "[EHP] " + extractCMLData(httpResp, tokens[1]);
 
 		}
@@ -27,6 +27,31 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 		else {
 			output = "Invalid syntax. Use \"$ehp [RSN]\".";
 		}
+	}
+	else if (cmd == "level" || cmd == "lvl") {
+	
+		if (tokens.size() == 3) {
+
+			if (skillMap.find(tokens[1]) == skillMap.end() && skillNickMap.find(tokens[1]) == skillNickMap.end()) {
+				return "Invalid skill name.";
+			}
+			uint8_t skillID = skillMap.find(tokens[1]) == skillMap.end() ? skillNickMap.find(tokens[1])->second : skillMap.find(tokens[1])->second;
+			
+			const std::string httpResp = HTTPReq(RS_HOST, RS_HS_API + tokens[2]);
+			std::clog << httpResp << std::endl;
+			if (httpResp.find("404 - Page not found") != std::string::npos) {
+				return "Player not found on hiscores.";
+			}
+
+			std::string nick = getSkillNick(skillID);
+			std::transform(nick.begin(), nick.end(), nick.begin(), ::toupper);
+
+			output = "[" + nick + "] Name: " + tokens[2] + ", " + extractHSData(httpResp, skillID);
+		}
+		else {
+			output = "Invalid syntax. Use \"$lvl SKILL RSN\".";
+		}
+
 	}
 	else if (cmd == "calc") {
 		try {
@@ -69,5 +94,43 @@ std::string CommandHandler::handleCalc(const std::string &fullCmd) {
 	}
 
 	return resultStr;
+
+}
+
+std::string CommandHandler::extractCMLData(const std::string &httpResp, const std::string &rsn) {
+
+	std::regex dataRegex("(\\d+," + rsn + ",[\\d\\.]+,[\\d\\.]+)", std::regex_constants::ECMAScript | std::regex_constants::icase);
+	std::smatch match;
+	// find the required data
+	if (std::regex_search(httpResp.begin(), httpResp.end(), match, dataRegex)) {
+
+		std::string data = match[1];
+		std::vector<std::string> elems;
+		// split data into tokens
+		split(data, ',', elems);
+		std::string ehp = elems[2];
+
+		if (ehp.find(".") != std::string::npos) {
+			// truncate to one decimal place
+			ehp = ehp.substr(0, ehp.find(".") + 2);
+		}
+		return "Name: " + elems[1] + ", Rank: " + elems[0] + ", EHP: " + ehp + " (+" + elems[3] + " this week).";
+
+	}
+	else {
+		return "Player either does not exist or has not been tracked on CML.";
+	}
+
+}
+
+std::string CommandHandler::extractHSData(const std::string &httpResp, uint8_t skillID) {
+
+	std::vector<std::string> skills;
+	split(httpResp, '\n', skills);
+	
+	std::vector<std::string> tokens;
+	split(skills[skillID], ',', tokens);
+
+	return "Level: " + tokens[1] + ", Exp: " + formatInteger(tokens[2]) + ", Rank: " + formatInteger(tokens[0]) + ".";
 
 }

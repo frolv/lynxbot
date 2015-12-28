@@ -11,6 +11,7 @@
 #include <sstream>
 #include <stack>
 #include <queue>
+#include <map>
 #include <fstream>
 
 // project headers
@@ -18,7 +19,8 @@
 #include "CommandHandler.h"
 #include "Utils.h"
 #include "cmdmodules\ExpressionParser.h"
-#include "cmdmodules\URLTools.h"
+#include "cmdmodules\HTTPTools.h"
+#include "cmdmodules\SkillMap.h"
 
 // library for winsock2
 #pragma comment(lib, "ws2_32.lib")
