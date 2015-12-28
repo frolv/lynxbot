@@ -2,12 +2,12 @@
 
 int main() {
 
-	std::vector<std::string> config;
+	std::vector<std::string> settings;
 
 	try {
-		config = readCFG();
-		if (config.size() != 3) {
-			throw std::runtime_error("settings.cfg is improperly configured.");
+		settings = readSettings();
+		if (settings.size() != 3) {
+			throw std::runtime_error("settings.txt is improperly configured.");
 		}
 	}
 	catch (std::runtime_error &e) {
@@ -16,7 +16,7 @@ int main() {
 		return 1;
 	}
 
-	TwitchBot bot(config[0], config[1], config[2]);
+	TwitchBot bot(settings[0], settings[1], settings[2]);
 
 	if (bot.isConnected()) {
 		bot.serverLoop();

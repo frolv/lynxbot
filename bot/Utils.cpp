@@ -15,7 +15,7 @@ std::vector<std::string> &split(const std::string &str, char delim, std::vector<
 	return elems;
 }
 
-std::vector<std::string> readCFG() {
+std::vector<std::string> readSettings() {
 
 	// get application directory
 	char pBuf[1000];
@@ -29,9 +29,9 @@ std::vector<std::string> readCFG() {
 	path = path.substr(0, path.find_last_of("\\"));
 
 	// open settings.cfg
-	std::ifstream cfgreader(path + "\\settings.cfg");
+	std::ifstream cfgreader(path + "\\settings.txt");
 	if (!cfgreader.is_open()) {
-		throw std::runtime_error("Could not locate settings.cfg");
+		throw std::runtime_error("Could not locate settings.txt");
 	}
 
 	std::string line;
@@ -49,7 +49,7 @@ std::vector<std::string> readCFG() {
 		else {
 			// line format is key:value
 			if (line.find(":") == std::string::npos) {
-				throw std::runtime_error("Invalid config file.");
+				throw std::runtime_error("Invalid settings file.");
 			}
 			info.push_back(line.substr(line.find(":") + 1));
 		}

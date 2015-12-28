@@ -129,7 +129,7 @@ void TwitchBot::processData(const std::string &data) {
 
 	if (data.find("Error logging in") != std::string::npos) {
 		disconnect();
-		std::cerr << "\nCould not log in to Twitch IRC. Make sure your settings.cfg file is configured correctly." << std::endl;
+		std::cerr << "\nCould not log in to Twitch IRC. Make sure your settings.txt file is configured correctly." << std::endl;
 		std::cin.get();
 	}
 	else if (startsWith(data, "PING")) {
