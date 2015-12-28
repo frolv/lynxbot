@@ -1,8 +1,5 @@
 #include "stdafx.h"
 
-// library for winsock2
-#pragma comment(lib, "ws2_32.lib")
-
 #define MAXBUFFERSIZE 2048
 
 TwitchBot::TwitchBot(const std::string nick, const std::string channel, const std::string password)
