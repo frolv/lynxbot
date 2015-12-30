@@ -3,10 +3,10 @@
 /bot.opensdf
 /bot.sdf
 /bot.sln
-/bot/Debug/
-/bot/bot.vcxproj
-/bot/bot.vcxproj.filters
+/src/Debug/
+/src/bot.vcxproj
+/src/bot.vcxproj.filters
 /bot.VC.opendb
 /x64/
-/bot/x64/
+/src/x64/
 /enc_temp_folder/

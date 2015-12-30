@@ -157,7 +157,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 		if (channel != m_channelName) {
 			return false;
 		}
-
+	
 		// all chat commands start with $
 		if (startsWith(msg, "$") && msg.length() > 1 && nick == "brainsoldier") {
 			std::string output = m_cmdHandler.processCommand(nick, msg.substr(1));

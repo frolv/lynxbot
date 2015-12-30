@@ -13,12 +13,17 @@
 #include <queue>
 #include <map>
 #include <fstream>
+#include <algorithm>
+
+// project libraries
+#include <json\json.h>
+#include <json\json-forwards.h>
+#include <ExpressionParser.h>
 
 // project headers
 #include "TwitchBot.h"
 #include "CommandHandler.h"
 #include "Utils.h"
-#include "cmdmodules\ExpressionParser.h"
 #include "cmdmodules\HTTPTools.h"
 #include "cmdmodules\SkillMap.h"
 

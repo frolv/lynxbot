@@ -1,4 +1,9 @@
-#include "..\stdafx.h"
+#include <regex>
+#include <sstream>
+#include <stack>
+#include <queue>
+
+#include "ExpressionParser.h"
 #include "OpMap.h"
 
 ExpressionParser::ExpressionParser(const std::string &expr) : m_expr(expr) {

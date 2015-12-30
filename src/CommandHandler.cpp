@@ -15,9 +15,11 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 
 		if (tokens.size() == 2) {
 			// a username was provided
-			const std::string httpResp = HTTPReq(CML_HOST, CML_EHP_AHI + tokens[1]);
+			std::string rsn = tokens[1];
+			std::replace(rsn.begin(), rsn.end(), '-', '_');
+			const std::string httpResp = HTTPReq(CML_HOST, CML_EHP_AHI + rsn);
 			std::clog << httpResp << std::endl << std::endl;
-			output = "[EHP] " + extractCMLData(httpResp, tokens[1]);
+			output = "[EHP] " + extractCMLData(httpResp, rsn);
 
 		}
 		else if (tokens.size() == 1) {
@@ -37,7 +39,10 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 			}
 			uint8_t skillID = skillMap.find(tokens[1]) == skillMap.end() ? skillNickMap.find(tokens[1])->second : skillMap.find(tokens[1])->second;
 			
-			const std::string httpResp = HTTPReq(RS_HOST, RS_HS_API + tokens[2]);
+			std::string rsn = tokens[2];
+			std::replace(rsn.begin(), rsn.end(), '-', '_');
+
+			const std::string httpResp = HTTPReq(RS_HOST, RS_HS_API + rsn);
 			std::clog << httpResp << std::endl;
 			if (httpResp.find("404 - Page not found") != std::string::npos) {
 				return "Player not found on hiscores.";
@@ -46,7 +51,7 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 			std::string nick = getSkillNick(skillID);
 			std::transform(nick.begin(), nick.end(), nick.begin(), ::toupper);
 
-			output = "[" + nick + "] Name: " + tokens[2] + ", " + extractHSData(httpResp, skillID);
+			output = "[" + nick + "] Name: " + rsn + ", " + extractHSData(httpResp, skillID);
 		}
 		else {
 			output = "Invalid syntax. Use \"$lvl SKILL RSN\".";
