@@ -29,7 +29,7 @@ std::string formatInteger(std::string &integer) {
 
 }
 
-std::vector<std::string> readSettings() {
+std::string getApplicationDirectory() {
 
 	// get application directory
 	char pBuf[1000];
@@ -42,8 +42,14 @@ std::vector<std::string> readSettings() {
 	std::string path(pBuf);
 	path = path.substr(0, path.find_last_of("\\"));
 
+	return path;
+
+}
+
+std::vector<std::string> readSettings(const std::string &appDir) {
+
 	// open settings.cfg
-	std::ifstream cfgreader(path + "\\settings.txt");
+	std::ifstream cfgreader(appDir + "\\settings.txt");
 	if (!cfgreader.is_open()) {
 		throw std::runtime_error("Could not locate settings.txt");
 	}

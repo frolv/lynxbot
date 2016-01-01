@@ -58,6 +58,23 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 		}
 
 	}
+	else if (cmd == "ge") {
+
+		std::string itemName = fullCmd.substr(3);
+		std::replace(itemName.begin(), itemName.end(), '_', ' ');
+
+		Json::Value item = m_GEReader.getItem(itemName);
+
+		if (item.empty()) {
+			return "Item not found: " + itemName;
+		}
+
+		const std::string httpResp = HTTPReq(EXCHANGE_HOST, EXCHANGE_API + std::to_string(item["id"].asInt()));
+		std::clog << httpResp;
+
+		output = "[GE] " + item["name"].asString() + ": " + extractGEData(httpResp) + " gp.";
+
+	}
 	else if (cmd == "calc") {
 		try {
 			output = "[CALC] " + handleCalc(fullCmd);
@@ -65,6 +82,9 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 		catch (std::runtime_error &e) {
 			output = e.what();
 		}
+	}
+	else if (cmd == "cml") {
+		output = "[CML] http://" + CML_HOST;
 	}
 	else {
 		output = "Invalid command";
@@ -137,5 +157,20 @@ std::string CommandHandler::extractHSData(const std::string &httpResp, uint8_t s
 	split(skills[skillID], ',', tokens);
 
 	return "Level: " + tokens[1] + ", Exp: " + formatInteger(tokens[2]) + ", Rank: " + formatInteger(tokens[0]) + ".";
+
+}
+
+std::string CommandHandler::extractGEData(const std::string &httpResp) {
+
+	std::regex jsonRegex("(\\{.+\\})");
+	std::smatch match;
+
+	if (std::regex_search(httpResp.begin(), httpResp.end(), match, jsonRegex)) {
+		const std::string json = match[1];
+		return m_GEReader.extractItemPrice(json);
+	}
+	else {
+		return "An error occured. Please try again.";
+	}
 
 }
