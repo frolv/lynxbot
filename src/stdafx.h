@@ -14,6 +14,7 @@
 #include <map>
 #include <fstream>
 #include <algorithm>
+#include <time.h>
 
 // project libraries
 #include <json\json.h>
@@ -25,6 +26,7 @@
 #include "CommandHandler.h"
 #include "Utils.h"
 #include "GEReader.h"
+#include "TimerManager.h"
 #include "cmdmodules\HTTPTools.h"
 #include "cmdmodules\SkillMap.h"
 

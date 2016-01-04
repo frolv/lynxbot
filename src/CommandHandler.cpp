@@ -105,20 +105,18 @@ std::string CommandHandler::handleCalc(const std::string &fullCmd) {
 	// remove all whitespace
 	expr.erase(std::remove_if(expr.begin(), expr.end(), isspace), expr.end());
 	
-	std::ostringstream result;
+	std::string result;
 
 	ExpressionParser exprP(expr);
 	exprP.tokenizeExpr();
 	double res = exprP.eval();
-	result << res;
+	result += std::to_string(res);
 
-	std::string resultStr = result.str();
-
-	if (resultStr == "inf" || resultStr == "-nan(ind)") {
-		resultStr = "Error: division by 0.";
+	if (result == "inf" || result == "-nan(ind)") {
+		result= "Error: division by 0.";
 	}
 
-	return resultStr;
+	return result;
 
 }
 

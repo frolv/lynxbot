@@ -27,37 +27,40 @@ TwitchBot::TwitchBot(const std::string nick, const std::string channel, const st
 		}
 		else {
 
-// create the socket
-m_socket = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
-if (m_socket == INVALID_SOCKET) {
-	std::cerr << "Socket creation failed with error " << WSAGetLastError() << std::endl;
-}
-else {
+			// create the socket
+			m_socket = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+			if (m_socket == INVALID_SOCKET) {
+				std::cerr << "Socket creation failed with error " << WSAGetLastError() << std::endl;
+			}
+			else {
 
-	std::clog << "Socket creation succeeded." << std::endl;
+				std::clog << "Socket creation succeeded." << std::endl;
 
-	// connect to socket
-	if (connect(m_socket, servinfo->ai_addr, servinfo->ai_addrlen) == SOCKET_ERROR) {
-		std::cerr << "Socket connection failed with error " << WSAGetLastError() << std::endl;
-		disconnect();
-	}
-	else {
+				// connect to socket
+				if (connect(m_socket, servinfo->ai_addr, servinfo->ai_addrlen) == SOCKET_ERROR) {
+					std::cerr << "Socket connection failed with error " << WSAGetLastError() << std::endl;
+					disconnect();
+				}
+				else {
 
-		std::clog << "Connected to " << serv << std::endl;
-		m_connected = true;
-		freeaddrinfo(servinfo);
+					std::clog << "Connected to " << serv << std::endl;
+					m_connected = true;
+					freeaddrinfo(servinfo);
 
-		// send required IRC data: PASS, NICK, USER
-		sendData("PASS " + password);
-		sendData("NICK " + nick);
-		sendData("USER " + nick);
+					// send required IRC data: PASS, NICK, USER
+					sendData("PASS " + password);
+					sendData("NICK " + nick);
+					sendData("USER " + nick);
 
-		// join channel
-		sendData("JOIN " + channel);
+					// enables tags in PRIVMSGs
+					sendData("CAP REQ :twitch.tv/tags");
 
-	}
+					// join channel
+					sendData("JOIN " + channel);
 
-}
+				}
+
+			}
 
 		}
 
@@ -144,11 +147,12 @@ void TwitchBot::processData(const std::string &data) {
 bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 
 	// regex to extract all necessary data from message
-	std::regex privmsgRegex("^:(\\w+)!\\1@\\1.* PRIVMSG (#\\w+) :(.+)");
+	std::regex privmsgRegex(":(\\w+)!\\1@\\1.* PRIVMSG (#\\w+) :(.+)");
 	std::smatch match;
 
 	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), match, privmsgRegex)) {
 		
+		//const std::string type = match[1];
 		const std::string nick = match[1];
 		const std::string channel = match[2];
 		const std::string msg = match[3];
@@ -168,8 +172,15 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 		}
 		// not enough command
 		std::regex howRegex("how ?(much|many|often)", std::regex_constants::ECMAScript | std::regex_constants::icase);
-		if (std::regex_search(msg.begin(), msg.end(), match, howRegex)) {
+		if (std::regex_search(msg.begin(), msg.end(), match, howRegex) && m_timerManager.ready("not enough")) {
+			m_timerManager.setUsed("not enough");
 			return sendMsg("@" + nick + ", not enough.");
+		}
+
+		std::regex imbueRegex("((imb(ue|ew))|(wh?at(.*casting)|(spell is that)))", std::regex_constants::ECMAScript | std::regex_constants::icase);
+		if (std::regex_search(msg.begin(), msg.end(), match, imbueRegex) && m_timerManager.ready("imbue")) {
+			m_timerManager.setUsed("imbue");
+			return sendMsg("@" + nick + ", Magic Imbue is a spell can be cast without losing ticks so players use it for zero time Magic XP.");
 		}
 
 		return true;

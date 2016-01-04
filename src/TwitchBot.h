@@ -1,8 +1,10 @@
 #pragma once
 
 #include "CommandHandler.h"
+#include "TimerManager.h"
 
 class CommandHandler;
+class TimerManager;
 
 class TwitchBot {
 
@@ -17,6 +19,7 @@ class TwitchBot {
 		SOCKET m_socket;
 		WSADATA m_wsa;
 		CommandHandler m_cmdHandler;
+		TimerManager m_timerManager;
 		bool m_connected;
 		const std::string m_nick;
 		const std::string m_channelName;
