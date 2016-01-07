@@ -1,0 +1,28 @@
+{
+  "responses": [
+    {
+      "name": "not enough",
+      "regex": "how ?(much|many|often)",
+      "response": "not enough.",
+      "cooldown": 10
+    },
+    {
+      "name": "imbue",
+      "regex": "(wh?at.+(imb(ue|ew|ue?ing)|casting?|spell is that))|(why.*(casting?|imb(ue|ew|ue?ing)))",
+      "response": "Magic Imbue is a spell can that be cast without losing ticks so players use it for zero time Magic XP.",
+      "cooldown": 15
+    },
+    {
+      "name": "chin",
+      "regex": "(where( are you[ ?]|( i|')s this))|(what (spot|place).*(hunt|is that))",
+      "response": "the Red Chinchompa cave unlocked with the Western Provinces hard diary.",
+      "cooldown": 15
+    },
+    {
+      "name": "alt",
+      "regex": "(alt.*(name|called|rsn|ign))|((name|rsn|ign).*alt)",
+      "response": "Lynx Titan.",
+      "cooldown": 10
+    }
+  ]
+}

@@ -1,7 +1,23 @@
 #include "stdafx.h"
 
 // will be changed when custom commands are added
-CommandHandler::CommandHandler() {}
+CommandHandler::CommandHandler() {
+
+	Json::Reader reader;
+	std::ifstream responseReader(getApplicationDirectory() + "\\responses.json", std::ifstream::binary);
+	
+	if (!reader.parse(responseReader, m_responses)) {
+		std::cerr << "Failed to read responses file. Responses disabled.";
+		m_responding = false;
+	}
+	else {
+		m_responding = true;
+		// add response cooldowns to TimerManager
+		for (auto &val : m_responses["responses"]) {
+			m_timerManager.add(val["name"].asString(), val["cooldown"].asInt());
+		}
+	}
+}
 
 CommandHandler::~CommandHandler() {}
 
@@ -92,6 +108,30 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 	}
 
 	return output;
+
+}
+
+std::string CommandHandler::processResponse(const std::string &message) {
+
+	if (!m_responding) {
+		return "";
+	}
+
+	for (auto &val : m_responses["responses"]) {
+
+		std::string name = val["name"].asString();
+		std::string regex = val["regex"].asString();
+
+		std::regex responseRegex(regex, std::regex_constants::ECMAScript | std::regex_constants::icase);
+		std::smatch match;
+		if (std::regex_search(message.begin(), message.end(), match, responseRegex) && m_timerManager.ready(name)) {
+			m_timerManager.setUsed(name);
+			return val["response"].asString();
+		}
+
+	}
+
+	return "";
 
 }
 

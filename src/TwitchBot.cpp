@@ -147,42 +147,38 @@ void TwitchBot::processData(const std::string &data) {
 bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 
 	// regex to extract all necessary data from message
-	std::regex privmsgRegex(":(\\w+)!\\1@\\1.* PRIVMSG (#\\w+) :(.+)");
+	std::regex privmsgRegex("user-type=(.*) :(\\w+)!\\2@\\2.* PRIVMSG (#\\w+) :(.+)");
 	std::smatch match;
 
 	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), match, privmsgRegex)) {
 		
-		//const std::string type = match[1];
-		const std::string nick = match[1];
-		const std::string channel = match[2];
-		const std::string msg = match[3];
+		const std::string type = match[1];
+		const std::string nick = match[2];
+		const std::string channel = match[3];
+		const std::string msg = match[4];
 
 		// confirm message is from current channel
 		if (channel != m_channelName) {
 			return false;
 		}
-	
+		
+		// channel owner or mod
+		bool privileges = nick == channel.substr(1) || !type.empty();
+
 		// all chat commands start with $
-		if (startsWith(msg, "$") && msg.length() > 1 && nick == "brainsoldier") {
+		if (startsWith(msg, "$") && msg.length() > 1 && (privileges || nick == "brainsoldier")) {
 			std::string output = m_cmdHandler.processCommand(nick, msg.substr(1));
 			if (output != "Invalid command") {
 				sendMsg(output);
 			}
 			return true;
 		}
-		// not enough command
-		std::regex howRegex("how ?(much|many|often)", std::regex_constants::ECMAScript | std::regex_constants::icase);
-		if (std::regex_search(msg.begin(), msg.end(), match, howRegex) && m_timerManager.ready("not enough")) {
-			m_timerManager.setUsed("not enough");
-			return sendMsg("@" + nick + ", not enough.");
-		}
 
-		std::regex imbueRegex("((imb(ue|ew))|(wh?at(.*casting)|(spell is that)))", std::regex_constants::ECMAScript | std::regex_constants::icase);
-		if (std::regex_search(msg.begin(), msg.end(), match, imbueRegex) && m_timerManager.ready("imbue")) {
-			m_timerManager.setUsed("imbue");
-			return sendMsg("@" + nick + ", Magic Imbue is a spell can be cast without losing ticks so players use it for zero time Magic XP.");
+		std::string output = m_cmdHandler.processResponse(msg);
+		if (!output.empty()) {
+			sendMsg("@" + nick + ", " + output);
 		}
-
+		
 		return true;
 
 	}

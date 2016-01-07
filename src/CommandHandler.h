@@ -1,8 +1,10 @@
 #pragma once
 
 #include "GEReader.h"
+#include "TimerManager.h"
 
 class GEReader;
+class TimerManager;
 
 class CommandHandler {
 
@@ -10,8 +12,12 @@ class CommandHandler {
 		CommandHandler();
 		~CommandHandler();
 		std::string processCommand(const std::string &nick, const std::string &fullCmd);
+		std::string processResponse(const std::string &message);
 	private:
 		GEReader m_GEReader;
+		TimerManager m_timerManager;
+		Json::Value m_responses;
+		bool m_responding;
 		const std::string CML_HOST = "crystalmathlabs.com";
 		const std::string CML_EHP_AHI = "/tracker/api.php?type=virtualhiscoresatplayer&page=timeplayed&player=";
 		const std::string RS_HOST = "services.runescape.com";
