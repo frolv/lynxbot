@@ -4,7 +4,7 @@
 CommandHandler::CommandHandler() {
 
 	Json::Reader reader;
-	std::ifstream responseReader(getApplicationDirectory() + "\\responses.json", std::ifstream::binary);
+	std::ifstream responseReader(utils::getApplicationDirectory() + "\\responses.json", std::ifstream::binary);
 	
 	if (!reader.parse(responseReader, m_responses)) {
 		std::cerr << "Failed to read responses file. Responses disabled.";
@@ -17,17 +17,20 @@ CommandHandler::CommandHandler() {
 			m_timerManager.add(val["name"].asString(), val["cooldown"].asInt());
 		}
 	}
+
+	m_timerManager.add(m_wheel.name(), 15);
 }
 
 CommandHandler::~CommandHandler() {}
 
-std::string CommandHandler::processCommand(const std::string &nick, const std::string &fullCmd) {
+std::string CommandHandler::processCommand(const std::string &nick, const std::string &fullCmd, bool privileges) {
 
 	std::vector<std::string> tokens;
-	split(fullCmd, ' ', tokens);
+	utils::split(fullCmd, ' ', tokens);
 	std::string output, cmd = tokens[0];
 
-	if (cmd == "ehp") {
+	// commands are temporarily mod-only
+	if (cmd == "ehp" && privileges) {
 
 		if (tokens.size() == 2) {
 			// a username was provided
@@ -46,7 +49,7 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 			output = "Invalid syntax. Use \"$ehp [RSN]\".";
 		}
 	}
-	else if (cmd == "level" || cmd == "lvl") {
+	else if (privileges && (cmd == "level" || cmd == "lvl")) {
 	
 		if (tokens.size() == 3) {
 
@@ -74,7 +77,7 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 		}
 
 	}
-	else if (cmd == "ge") {
+	else if (privileges && cmd == "ge") {
 
 		std::string itemName = fullCmd.substr(3);
 		std::replace(itemName.begin(), itemName.end(), '_', ' ');
@@ -101,6 +104,30 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 	}
 	else if (cmd == "cml") {
 		output = "[CML] http://" + CML_HOST;
+	}
+	else if (m_wheel.isActive() && cmd == m_wheel.cmd() && (privileges || m_timerManager.ready(m_wheel.name()))) {
+
+		if (tokens.size() == 1) {
+			return m_wheel.name() + ": " + m_wheel.desc() + " " + m_wheel.usage();
+		}
+		if (tokens.size() > 2 || (!m_wheel.valid(tokens[1]) && tokens[1] != "check")) {
+			return "Invalid syntax. " + m_wheel.usage();
+		}
+		output = "@" + nick + ", ";
+
+		if (tokens[1] == "check") {
+			std::string selection = m_wheel.selection(nick);
+			output += selection.empty() ? "you have not been assigned anything." : "you are currently assigned " + selection + ".";
+		}
+		else if (!m_wheel.ready(nick)) {
+			output += "you have already been assigned something!";
+		}
+		else {
+			output += "your entertainment for tonight is " + m_wheel.choose(nick, tokens[1]) + ".";
+		}
+
+		m_timerManager.setUsed(m_wheel.name());
+
 	}
 	else {
 		output = "Invalid command";
@@ -170,7 +197,7 @@ std::string CommandHandler::extractCMLData(const std::string &httpResp, const st
 		std::string data = match[1];
 		std::vector<std::string> elems;
 		// split data into tokens
-		split(data, ',', elems);
+		utils::split(data, ',', elems);
 		std::string ehp = elems[2];
 
 		if (ehp.find(".") != std::string::npos) {
@@ -189,12 +216,12 @@ std::string CommandHandler::extractCMLData(const std::string &httpResp, const st
 std::string CommandHandler::extractHSData(const std::string &httpResp, uint8_t skillID) {
 
 	std::vector<std::string> skills;
-	split(httpResp, '\n', skills);
+	utils::split(httpResp, '\n', skills);
 	
 	std::vector<std::string> tokens;
-	split(skills[skillID], ',', tokens);
+	utils::split(skills[skillID], ',', tokens);
 
-	return "Level: " + tokens[1] + ", Exp: " + formatInteger(tokens[2]) + ", Rank: " + formatInteger(tokens[0]) + ".";
+	return "Level: " + tokens[1] + ", Exp: " + utils::formatInteger(tokens[2]) + ", Rank: " + utils::formatInteger(tokens[0]) + ".";
 
 }
 

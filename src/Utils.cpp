@@ -1,10 +1,10 @@
 #include "stdafx.h"
 
-bool startsWith(const std::string &str, const std::string &prefix) {
+bool utils::startsWith(const std::string &str, const std::string &prefix) {
 	return str.find(prefix) == 0;
 }
 
-std::vector<std::string> &split(const std::string &str, char delim, std::vector<std::string> &elems) {
+std::vector<std::string> &utils::split(const std::string &str, char delim, std::vector<std::string> &elems) {
 	std::stringstream ss(str);
 	std::string item;
 	while (std::getline(ss, item, delim)) {
@@ -15,7 +15,7 @@ std::vector<std::string> &split(const std::string &str, char delim, std::vector<
 	return elems;
 }
 
-std::string formatInteger(std::string &integer) {
+std::string utils::formatInteger(std::string &integer) {
 
 	int pos = integer.length() - 3;
 	if (pos < 1) {
@@ -29,7 +29,7 @@ std::string formatInteger(std::string &integer) {
 
 }
 
-std::string getApplicationDirectory() {
+std::string utils::getApplicationDirectory() {
 
 	// get application directory
 	char pBuf[1000];
@@ -46,7 +46,7 @@ std::string getApplicationDirectory() {
 
 }
 
-std::vector<std::string> readSettings(const std::string &appDir) {
+std::vector<std::string> utils::readSettings(const std::string &appDir) {
 
 	// open settings.cfg
 	std::ifstream cfgreader(appDir + "\\settings.txt");

@@ -1,6 +1,6 @@
 #pragma once
 
-typedef std::map<std::string, std::pair<std::time_t, std::time_t>> timermap;
+typedef std::map<std::string, std::pair<std::time_t, std::time_t>> TimerMap;
 
 class TimerManager {
 
@@ -12,7 +12,7 @@ class TimerManager {
 		void setUsed(const std::string &cmd);
 		
 	private:
-		timermap m_timers;
+		TimerMap m_timers;
 		std::time_t cooldown(const std::string &cmd);
 		std::time_t lastUsed(const std::string &cmd);
 

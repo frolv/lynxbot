@@ -7,7 +7,7 @@ TimerManager::~TimerManager() {}
 void TimerManager::add(const std::string &name, std::time_t cooldown) {
 
 	std::pair<std::time_t, std::time_t> cmdTimes = { cooldown, 0 };
-	timermap::value_type val = { name, cmdTimes };
+	TimerMap::value_type val = { name, cmdTimes };
 	m_timers.insert(val);
 
 }

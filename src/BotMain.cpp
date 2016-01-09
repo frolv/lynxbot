@@ -5,7 +5,7 @@ int main() {
 	std::vector<std::string> settings;
 
 	try {
-		settings = readSettings(getApplicationDirectory());
+		settings = utils::readSettings(utils::getApplicationDirectory());
 		if (settings.size() != 3) {
 			throw std::runtime_error("settings.txt is improperly configured.");
 		}

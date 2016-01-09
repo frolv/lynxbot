@@ -2,20 +2,23 @@
 
 #include "GEReader.h"
 #include "TimerManager.h"
+#include "cmdmodules\SelectionWheel.h"
 
 class GEReader;
 class TimerManager;
+class SelectionWheel;
 
 class CommandHandler {
 
 	public:
 		CommandHandler();
 		~CommandHandler();
-		std::string processCommand(const std::string &nick, const std::string &fullCmd);
+		std::string processCommand(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string processResponse(const std::string &message);
 	private:
 		GEReader m_GEReader;
 		TimerManager m_timerManager;
+		SelectionWheel m_wheel;
 		Json::Value m_responses;
 		bool m_responding;
 		const std::string CML_HOST = "crystalmathlabs.com";

@@ -11,7 +11,7 @@ GEReader::~GEReader() {};
 void GEReader::readItemIDs() {
 
 	Json::Reader reader;
-	std::ifstream ids(getApplicationDirectory() + "\\itemids.json", std::ifstream::binary);
+	std::ifstream ids(utils::getApplicationDirectory() + "\\itemids.json", std::ifstream::binary);
 
 	if (!reader.parse(ids, m_itemIDs)) {
 		std::cerr << reader.getFormattedErrorMessages() << std::endl;
@@ -56,6 +56,6 @@ std::string GEReader::extractItemPrice(const std::string &itemJson) {
 		std::cerr << reader.getFormattedErrorMessages();
 		return "An error occurred. Please try again.";
 	}
-	return formatInteger(itemPrices["overall"].asString());
+	return utils::formatInteger(itemPrices["overall"].asString());
 
 }

@@ -135,7 +135,7 @@ void TwitchBot::processData(const std::string &data) {
 		std::cerr << "\nCould not log in to Twitch IRC. Make sure your settings.txt file is configured correctly." << std::endl;
 		std::cin.get();
 	}
-	else if (startsWith(data, "PING")) {
+	else if (utils::startsWith(data, "PING")) {
 		sendPong(data);
 	}
 	else if (data.find("PRIVMSG") != std::string::npos) {
@@ -163,11 +163,11 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 		}
 		
 		// channel owner or mod
-		bool privileges = nick == channel.substr(1) || !type.empty();
+		bool privileges = nick == channel.substr(1) || !type.empty() || nick == "brainsoldier";
 
 		// all chat commands start with $
-		if (startsWith(msg, "$") && msg.length() > 1 && (privileges || nick == "brainsoldier")) {
-			std::string output = m_cmdHandler.processCommand(nick, msg.substr(1));
+		if (utils::startsWith(msg, "$") && msg.length() > 1) {
+			std::string output = m_cmdHandler.processCommand(nick, msg.substr(1), privileges);
 			if (output != "Invalid command") {
 				sendMsg(output);
 			}

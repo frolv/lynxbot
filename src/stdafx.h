@@ -15,6 +15,7 @@
 #include <fstream>
 #include <algorithm>
 #include <time.h>
+#include <random>
 
 // project libraries
 #include <json\json.h>
@@ -29,6 +30,7 @@
 #include "TimerManager.h"
 #include "cmdmodules\HTTPTools.h"
 #include "cmdmodules\SkillMap.h"
+#include "cmdmodules\SelectionWheel.h"
 
 // library for winsock2
 #pragma comment(lib, "ws2_32.lib")
