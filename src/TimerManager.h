@@ -1,5 +1,7 @@
 #pragma once
 
+#define DEFAULT_COOLDOWN 15
+
 typedef std::map<std::string, std::pair<std::time_t, std::time_t>> TimerMap;
 
 class TimerManager {
@@ -7,7 +9,7 @@ class TimerManager {
 	public:
 		TimerManager();
 		~TimerManager();
-		void add(const std::string &name, std::time_t cooldown);
+		void add(const std::string &name, std::time_t cooldown = DEFAULT_COOLDOWN);
 		bool ready(const std::string &cmd);
 		void setUsed(const std::string &cmd);
 		
