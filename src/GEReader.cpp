@@ -2,24 +2,21 @@
 
 GEReader::GEReader() {
 
-	readItemIDs();
+	if (!utils::readJSON("itemids.json", m_itemIDs)) {
+		std::cerr << "Failed to read RS Item IDs. $ge command will be disabled for this session." << std::endl;
+		m_active = false;
+	}
+	else {
+		std::clog << "Successfully read RS item IDs." << std::endl;
+		m_active = true;
+	}
 
 }
 
 GEReader::~GEReader() {};
 
-void GEReader::readItemIDs() {
-
-	Json::Reader reader;
-	std::ifstream ids(utils::getApplicationDirectory() + "\\itemids.json", std::ifstream::binary);
-
-	if (!reader.parse(ids, m_itemIDs)) {
-		std::cerr << reader.getFormattedErrorMessages() << std::endl;
-	}
-
-	std::clog << "Successfully read RS item IDs." << std::endl;
-
-
+bool GEReader::active() {
+	return m_active;
 }
 
 Json::Value GEReader::getItem(std::string &name) {

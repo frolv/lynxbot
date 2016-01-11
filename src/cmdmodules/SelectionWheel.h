@@ -7,7 +7,7 @@ class SelectionWheel {
 	public:
 		SelectionWheel();
 		~SelectionWheel();
-		inline bool isActive() { return m_active; };
+		bool isActive();
 		std::string name();
 		std::string cmd();
 		std::string desc();

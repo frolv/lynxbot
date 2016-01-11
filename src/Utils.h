@@ -12,5 +12,8 @@ namespace utils {
 	std::string getApplicationDirectory();
 	/* Reads settings file for bot */
 	std::vector<std::string> readSettings(const std::string &appDir);
-
+	/* Reads a .json file and stores data in val. */
+	bool readJSON(const std::string &filename, Json::Value &val);
+	/* Opens and connects to a socket. */
+	bool socketConnect(SOCKET &s, WSADATA &w, const char *port, const char *server);
 }

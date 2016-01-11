@@ -2,36 +2,12 @@
 
 std::string HTTPReq(const std::string &hostname, const std::string &address) {
 	
-	// initialize winsock and open a connection to the host server
+	SOCKET sock;
 	WSADATA wsa;
-	if (int32_t error = WSAStartup(MAKEWORD(2, 2), &wsa)) {
-		return "Error in WSAStartup. Code: " + error;
+
+	if (!utils::socketConnect(sock, wsa, "80", hostname.c_str())) {
+		return "";
 	}
-
-	struct addrinfo hints, *servinfo;
-	memset(&hints, 0, sizeof(hints));
-
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-
-	if (int32_t error = getaddrinfo(hostname.c_str(), "80", &hints, &servinfo)) {
-		return "Getaddrinfo failed. Error: " + error;
-	}
-
-	SOCKET sock = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
-	if (sock == INVALID_SOCKET) {
-		return "Socket creation failed with error " + WSAGetLastError();
-	}
-
-	if (connect(sock, servinfo->ai_addr, servinfo->ai_addrlen) == SOCKET_ERROR) {
-		closesocket(sock);
-		WSACleanup();
-		return "Socket connection failed with error " + WSAGetLastError();
-	}
-
-	freeaddrinfo(servinfo);
-
 
 	std::clog << "Connection to " << hostname << " successful." << std::endl;
 

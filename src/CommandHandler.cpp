@@ -1,13 +1,18 @@
 #include "stdafx.h"
 
-// will be changed when custom commands are added
 CommandHandler::CommandHandler() {
 
-	Json::Reader reader;
-	std::ifstream responseReader(utils::getApplicationDirectory() + "\\responses.json", std::ifstream::binary);
-	
-	if (!reader.parse(responseReader, m_responses)) {
-		std::cerr << "Failed to read responses file. Responses disabled.";
+	// initializing pointers to all default commands
+	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
+	m_defaultCmds["level"] = &CommandHandler::levelFunc;
+	m_defaultCmds["lvl"] = &CommandHandler::levelFunc;
+	m_defaultCmds["ge"] = &CommandHandler::geFunc;
+	m_defaultCmds["calc"] = &CommandHandler::calcFunc;
+	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
+
+	// read all responses from file
+	if (!utils::readJSON("responses.json", m_responses)) {
+		std::cerr << "Failed to read responses.json. Responses disabled.";
 		m_responding = false;
 	}
 	else {
@@ -18,7 +23,12 @@ CommandHandler::CommandHandler() {
 		}
 	}
 
-	m_timerManager.add(m_wheel.name(), 15);
+	// set all command cooldowns
+	for (auto &p : m_defaultCmds) {
+		m_timerManager.add(p.first);
+	}
+	m_timerManager.add(m_wheel.name());
+
 }
 
 CommandHandler::~CommandHandler() {}
@@ -27,111 +37,22 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
-	std::string output, cmd = tokens[0];
+	std::string output;
 
-	// commands are temporarily mod-only
-	if (cmd == "ehp" && privileges) {
+	// the command is the first part of the string up to the first space
+	std::string cmd = fullCmd.substr(0, fullCmd.find(' '));
 
-		if (tokens.size() == 2) {
-			// a username was provided
-			std::string rsn = tokens[1];
-			std::replace(rsn.begin(), rsn.end(), '-', '_');
-			const std::string httpResp = HTTPReq(CML_HOST, CML_EHP_AHI + rsn);
-			std::clog << httpResp << std::endl << std::endl;
-			output = "[EHP] " + extractCMLData(httpResp, rsn);
-
-		}
-		else if (tokens.size() == 1) {
-			output = "EHP stands for efficient hours played. You earn 1 EHP whenever you gain a certain amount of experience \
-				in a skill, depending on your level. You can find XP rates here: http://crystalmathlabs.com/tracker/suppliescalc.php";
-		}
-		else {
-			output = "Invalid syntax. Use \"$ehp [RSN]\".";
-		}
-	}
-	else if (privileges && (cmd == "level" || cmd == "lvl")) {
-	
-		if (tokens.size() == 3) {
-
-			if (skillMap.find(tokens[1]) == skillMap.end() && skillNickMap.find(tokens[1]) == skillNickMap.end()) {
-				return "Invalid skill name.";
-			}
-			uint8_t skillID = skillMap.find(tokens[1]) == skillMap.end() ? skillNickMap.find(tokens[1])->second : skillMap.find(tokens[1])->second;
-			
-			std::string rsn = tokens[2];
-			std::replace(rsn.begin(), rsn.end(), '-', '_');
-
-			const std::string httpResp = HTTPReq(RS_HOST, RS_HS_API + rsn);
-			std::clog << httpResp << std::endl;
-			if (httpResp.find("404 - Page not found") != std::string::npos) {
-				return "Player not found on hiscores.";
-			}
-
-			std::string nick = getSkillNick(skillID);
-			std::transform(nick.begin(), nick.end(), nick.begin(), ::toupper);
-
-			output = "[" + nick + "] Name: " + rsn + ", " + extractHSData(httpResp, skillID);
-		}
-		else {
-			output = "Invalid syntax. Use \"$lvl SKILL RSN\".";
-		}
-
-	}
-	else if (privileges && cmd == "ge") {
-
-		std::string itemName = fullCmd.substr(3);
-		std::replace(itemName.begin(), itemName.end(), '_', ' ');
-
-		Json::Value item = m_GEReader.getItem(itemName);
-
-		if (item.empty()) {
-			return "Item not found: " + itemName;
-		}
-
-		const std::string httpResp = HTTPReq(EXCHANGE_HOST, EXCHANGE_API + std::to_string(item["id"].asInt()));
-		std::clog << httpResp;
-
-		output = "[GE] " + item["name"].asString() + ": " + extractGEData(httpResp) + " gp.";
-
-	}
-	else if (cmd == "calc") {
-		try {
-			output = "[CALC] " + handleCalc(fullCmd);
-		}
-		catch (std::runtime_error &e) {
-			output = e.what();
-		}
-	}
-	else if (cmd == "cml") {
-		output = "[CML] http://" + CML_HOST;
+	if (m_defaultCmds[cmd] && (privileges || m_timerManager.ready(cmd))) {
+		output = (this->*m_defaultCmds[cmd])(fullCmd);
+		m_timerManager.setUsed(cmd);
 	}
 	else if (m_wheel.isActive() && cmd == m_wheel.cmd() && (privileges || m_timerManager.ready(m_wheel.name()))) {
-
-		if (tokens.size() == 1) {
-			return m_wheel.name() + ": " + m_wheel.desc() + " " + m_wheel.usage();
-		}
-		if (tokens.size() > 2 || (!m_wheel.valid(tokens[1]) && tokens[1] != "check")) {
-			return "Invalid syntax. " + m_wheel.usage();
-		}
-		output = "@" + nick + ", ";
-
-		if (tokens[1] == "check") {
-			std::string selection = m_wheel.selection(nick);
-			output += selection.empty() ? "you have not been assigned anything." : "you are currently assigned " + selection + ".";
-		}
-		else if (!m_wheel.ready(nick)) {
-			output += "you have already been assigned something!";
-		}
-		else {
-			output += "your entertainment for tonight is " + m_wheel.choose(nick, tokens[1]) + ".";
-		}
-
+		output = wheelFunc(fullCmd, nick);
 		m_timerManager.setUsed(m_wheel.name());
-
 	}
 	else {
-		output = "Invalid command";
-		std::cerr << output << ": " << cmd << std::endl << std::endl;
+		output = "";
+		std::cerr << "Invalid command or is on cooldown: " << cmd << std::endl << std::endl;
 	}
 
 	return output;
@@ -162,10 +83,92 @@ std::string CommandHandler::processResponse(const std::string &message) {
 
 }
 
-std::string CommandHandler::handleCalc(const std::string &fullCmd) {
+std::string CommandHandler::ehpFunc(const std::string &fullCmd) {
+	
+	std::vector<std::string> tokens;
+	utils::split(fullCmd, ' ', tokens);
+
+	if (tokens.size() == 2) {
+		// a username was provided
+		std::string rsn = tokens[1];
+		std::replace(rsn.begin(), rsn.end(), '-', '_');
+		const std::string httpResp = HTTPReq(CML_HOST, CML_EHP_AHI + rsn);
+		std::clog << httpResp << std::endl << std::endl;
+		return "[EHP] " + extractCMLData(httpResp, rsn);
+
+	}
+	else if (tokens.size() == 1) {
+		return "EHP stands for efficient hours played. You earn 1 EHP whenever you gain a certain amount of experience in a skill, \
+			depending on your level. You can find XP rates here: http://crystalmathlabs.com/tracker/suppliescalc.php";
+	}
+	else {
+		return "Invalid syntax. Use \"$ehp [RSN]\".";
+	}
+
+}
+
+std::string CommandHandler::levelFunc(const std::string &fullCmd) {
+
+	std::vector<std::string> tokens;
+	utils::split(fullCmd, ' ', tokens);
+
+	if (tokens.size() == 3) {
+
+		if (skillMap.find(tokens[1]) == skillMap.end() && skillNickMap.find(tokens[1]) == skillNickMap.end()) {
+			return "Invalid skill name.";
+		}
+		uint8_t skillID = skillMap.find(tokens[1]) == skillMap.end() ? skillNickMap.find(tokens[1])->second : skillMap.find(tokens[1])->second;
+
+		std::string rsn = tokens[2];
+		std::replace(rsn.begin(), rsn.end(), '-', '_');
+
+		const std::string httpResp = HTTPReq(RS_HOST, RS_HS_API + rsn);
+		std::clog << httpResp << std::endl;
+		if (httpResp.find("404 - Page not found") != std::string::npos) {
+			return "Player not found on hiscores.";
+		}
+
+		std::string nick = getSkillNick(skillID);
+		std::transform(nick.begin(), nick.end(), nick.begin(), ::toupper);
+
+		return "[" + nick + "] Name: " + rsn + ", " + extractHSData(httpResp, skillID);
+	}
+	else {
+		return "Invalid syntax. Use \"$lvl SKILL RSN\".";
+	}
+
+}
+
+std::string CommandHandler::geFunc(const std::string &fullCmd) {
+
+	if (!m_GEReader.active()) {
+		return "";
+	}
+
+	if (fullCmd.length() < 4) {
+		return "No item name provided.";
+	}
+
+	std::string itemName = fullCmd.substr(3);
+	std::replace(itemName.begin(), itemName.end(), '_', ' ');
+
+	Json::Value item = m_GEReader.getItem(itemName);
+
+	if (item.empty()) {
+		return "Item not found: " + itemName + ".";
+	}
+
+	const std::string httpResp = HTTPReq(EXCHANGE_HOST, EXCHANGE_API + std::to_string(item["id"].asInt()));
+	std::clog << httpResp;
+
+	return "[GE] " + item["name"].asString() + ": " + extractGEData(httpResp) + " gp.";
+
+}
+
+std::string CommandHandler::calcFunc(const std::string &fullCmd) {
 
 	if (fullCmd.length() < 6) {
-		throw std::runtime_error("Invalid mathematical expression.");
+		return "Invalid mathematical expression.";
 	}
 
 	std::string expr = fullCmd.substr(5);
@@ -174,16 +177,53 @@ std::string CommandHandler::handleCalc(const std::string &fullCmd) {
 	
 	std::string result;
 
-	ExpressionParser exprP(expr);
-	exprP.tokenizeExpr();
-	double res = exprP.eval();
-	result += std::to_string(res);
-
-	if (result == "inf" || result == "-nan(ind)") {
-		result= "Error: division by 0.";
+	try {
+		ExpressionParser exprP(expr);
+		exprP.tokenizeExpr();
+		double res = exprP.eval();
+		result += std::to_string(res);
+	}
+	catch (std::runtime_error &e) {
+		result = e.what();
 	}
 
-	return result;
+	if (result == "inf" || result == "-nan(ind)") {
+		result = "Error: division by 0.";
+	}
+
+	return "[CALC] " + result;
+
+}
+
+std::string CommandHandler::cmlFunc(const std::string &fullCmd) {
+	return "[CML] http://" + CML_HOST;
+}
+
+std::string CommandHandler::wheelFunc(const std::string &fullCmd, const std::string &nick) {
+
+	std::vector<std::string> tokens;
+	utils::split(fullCmd, ' ', tokens);
+
+	if (tokens.size() == 1) {
+		return m_wheel.name() + ": " + m_wheel.desc() + " " + m_wheel.usage();
+	}
+	if (tokens.size() > 2 || (!m_wheel.valid(tokens[1]) && tokens[1] != "check")) {
+		return "Invalid syntax. " + m_wheel.usage();
+	}
+	std::string output = "@" + nick + ", ";
+
+	if (tokens[1] == "check") {
+		std::string selection = m_wheel.selection(nick);
+		output += selection.empty() ? "you have not been assigned anything." : "you are currently assigned " + selection + ".";
+	}
+	else if (!m_wheel.ready(nick)) {
+		output += "you have already been assigned something!";
+	}
+	else {
+		output += "your entertainment for tonight is " + m_wheel.choose(nick, tokens[1]) + ".";
+	}
+
+	return output;
 
 }
 

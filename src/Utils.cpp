@@ -84,3 +84,52 @@ std::vector<std::string> utils::readSettings(const std::string &appDir) {
 	return info;
 
 }
+
+bool utils::readJSON(const std::string &filename, Json::Value &val) {
+
+	Json::Reader reader;
+	std::ifstream fileStream(getApplicationDirectory() + "\\" + filename, std::ifstream::binary);
+
+	if (!reader.parse(fileStream, val)) {
+		std::cerr << reader.getFormattedErrorMessages() << std::endl;
+		return false;
+	}
+
+	return true;
+
+}
+
+bool utils::socketConnect(SOCKET &s, WSADATA &wsa, const char *port, const char *server) {
+
+	if (int32_t error = WSAStartup(MAKEWORD(2, 2), &wsa)) {
+		std::cerr << "WSAStartup failed. Error " << error << ": " << WSAGetLastError() << std::endl;
+		return false;
+	}
+
+	struct addrinfo hints, *servinfo;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	if (int32_t error = getaddrinfo(server, port, &hints, &servinfo)) {
+		std::cerr << "getaddrinfo failed. Error " << error << ": " << WSAGetLastError() << std::endl;
+		return false;
+	}
+
+	s = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo-> ai_protocol);
+	if (s == INVALID_SOCKET) {
+		std::cerr << "Socket initializiation failed. Error: " << WSAGetLastError() << std::endl;
+		return false;
+	}
+
+	if (connect(s, servinfo->ai_addr, servinfo->ai_addrlen) == SOCKET_ERROR) {
+		std::cerr << "Socket connection failed. Error: " << WSAGetLastError() << std::endl;
+		closesocket(s);
+		return false;
+	}
+
+	freeaddrinfo(servinfo);
+	return true;
+
+}
