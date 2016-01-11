@@ -1,68 +1,25 @@
 #include "stdafx.h"
 
-#define MAXBUFFERSIZE 2048
+#define MAX_BUFFER_SIZE 2048
 
 TwitchBot::TwitchBot(const std::string nick, const std::string channel, const std::string password)
 	: m_connected(false), m_nick(nick), m_channelName(channel), m_socket(NULL) {
 
-	const char *serv = "irc.twitch.tv", *port = "6667";
+	const std::string serv = "irc.twitch.tv", port = "6667";
 
-	struct addrinfo hints, *servinfo;
+	m_connected = utils::socketConnect(m_socket, m_wsa, port.c_str(), serv.c_str());
+	if (m_connected) {
 
-	memset(&hints, 0, sizeof(hints));
+		// send required IRC data: PASS, NICK, USER
+		sendData("PASS " + password);
+		sendData("NICK " + nick);
+		sendData("USER " + nick);
 
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
+		// enables tags in PRIVMSGs
+		sendData("CAP REQ :twitch.tv/tags");
 
-	if (int32_t error = WSAStartup(MAKEWORD(2, 2), &m_wsa)) {
-		std::cerr << "WSAStartup failed. Error: " << error << std::endl;
-	}
-	else {
-		
-		std::clog << "WSAStartup successful." << std::endl;
-
-		// set up the server info
-		if (int32_t error = getaddrinfo(serv, port, &hints, &servinfo)) {
-			std::cerr << "Getaddrinfo failed. Error: " << gai_strerror(error);
-		}
-		else {
-
-			// create the socket
-			m_socket = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
-			if (m_socket == INVALID_SOCKET) {
-				std::cerr << "Socket creation failed with error " << WSAGetLastError() << std::endl;
-			}
-			else {
-
-				std::clog << "Socket creation succeeded." << std::endl;
-
-				// connect to socket
-				if (connect(m_socket, servinfo->ai_addr, servinfo->ai_addrlen) == SOCKET_ERROR) {
-					std::cerr << "Socket connection failed with error " << WSAGetLastError() << std::endl;
-					disconnect();
-				}
-				else {
-
-					std::clog << "Connected to " << serv << std::endl;
-					m_connected = true;
-					freeaddrinfo(servinfo);
-
-					// send required IRC data: PASS, NICK, USER
-					sendData("PASS " + password);
-					sendData("NICK " + nick);
-					sendData("USER " + nick);
-
-					// enables tags in PRIVMSGs
-					sendData("CAP REQ :twitch.tv/tags");
-
-					// join channel
-					sendData("JOIN " + channel);
-
-				}
-
-			}
-
-		}
+		// join channel
+		sendData("JOIN " + channel);
 
 	}
 
@@ -86,12 +43,12 @@ void TwitchBot::disconnect() {
 void TwitchBot::serverLoop() {
 
 	int32_t bytes;
-	char buf[MAXBUFFERSIZE];
+	char buf[MAX_BUFFER_SIZE];
 
 	while (true) {
 
 		// recieve data from server
-		bytes = recv(m_socket, buf, MAXBUFFERSIZE - 1, 0);
+		bytes = recv(m_socket, buf, MAX_BUFFER_SIZE - 1, 0);
 		buf[bytes] = '\0';
 
 		// quit program if no data is recieved
