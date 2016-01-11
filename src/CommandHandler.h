@@ -33,6 +33,8 @@ class CommandHandler {
 		std::string geFunc(const std::string &fullCmd);
 		std::string calcFunc(const std::string &fullCmd);
 		std::string cmlFunc(const std::string &fullCmd);
+		std::string addcomFunc(const std::string &fullCmd);
+		std::string delcomFunc(const std::string &fullCmd);
 		std::string wheelFunc(const std::string &fullCmd, const std::string &nick);
 		std::string extractCMLData(const std::string &httpResp, const std::string &rsn);
 		std::string extractHSData(const std::string &httpResp, uint8_t skillID);

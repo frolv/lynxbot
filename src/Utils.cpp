@@ -84,3 +84,17 @@ std::vector<std::string> utils::readSettings(const std::string &appDir) {
 	return info;
 
 }
+
+bool utils::readJSON(const std::string &filename, Json::Value &val) {
+
+	Json::Reader reader;
+	std::ifstream fileStream(getApplicationDirectory() + "\\" + filename, std::ifstream::binary);
+
+	if (!reader.parse(fileStream, val)) {
+		std::cerr << reader.getFormattedErrorMessages() << std::endl;
+		return false;
+	}
+
+	return true;
+
+}

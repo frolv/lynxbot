@@ -4,16 +4,21 @@
 
 SelectionWheel::SelectionWheel() {
 
-	Json::Reader reader;
-	std::ifstream categoryStream(utils::getApplicationDirectory() + "\\wheelcategories.json", std::ifstream::binary);
-
-	if (!reader.parse(categoryStream, m_data)) {
-		std::cerr << reader.getFormattedErrorMessages() << std::endl;
-		std::cerr << "Could not read wheelcategories.json. Wheel will be disabled for this session." << std::endl;
+	if (!utils::readJSON("wheel.json", m_data)) {
+		std::cerr << "Could not read wheel.json. Wheel will be disabled for this session." << std::endl;
 		m_active = false;
 		std::cin.get();
 	}
 	else {
+		std::string reqs[4] = { "name", "cmd", "desc", "usage" };
+		for (auto &s : reqs) {
+			if (!m_data.isMember("wheel" + s)) {
+				std::cerr << "wheel" << s << " variable is missing from wheel.json. Wheel will be disabled for this session." << std::endl;
+				m_active = false;
+				std::cin.get();
+				return;
+			}
+		}
 		m_active = true;
 	}
 
@@ -21,8 +26,12 @@ SelectionWheel::SelectionWheel() {
 
 SelectionWheel::~SelectionWheel() {}
 
+bool SelectionWheel::isActive() {
+	return m_active;
+}
+
 bool SelectionWheel::valid(const std::string &category) {
-	return !utils::startsWith(category, "wheel") && m_data.isMember(category);
+	return m_data["categories"].isMember(category);
 }
 
 std::string SelectionWheel::name() {
@@ -43,9 +52,9 @@ std::string SelectionWheel::usage() {
 
 std::string SelectionWheel::choose(const std::string &nick, const std::string &category) {
 
-	Json::Value &arr = m_data[category];
+	Json::Value &arr = m_data["categories"][category];
 	if (!arr.isArray()) {
-		std::cerr << "wheelcategories.json is improperly configured. Wheel will be disabled.";
+		std::cerr << "wheel.json is improperly configured. Wheel will be disabled.";
 		m_active = false;
 		return "";
 	}

@@ -73,6 +73,10 @@ TwitchBot::~TwitchBot() {
 	WSACleanup();
 }
 
+bool TwitchBot::isConnected() {
+	return m_connected;
+}
+
 void TwitchBot::disconnect() {
 	m_connected = false;
 	closesocket(m_socket);
@@ -168,7 +172,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 		// all chat commands start with $
 		if (utils::startsWith(msg, "$") && msg.length() > 1) {
 			std::string output = m_cmdHandler.processCommand(nick, msg.substr(1), privileges);
-			if (output != "Invalid command") {
+			if (!output.empty()) {
 				sendMsg(output);
 			}
 			return true;

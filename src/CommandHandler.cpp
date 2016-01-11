@@ -11,11 +11,8 @@ CommandHandler::CommandHandler() {
 	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
 
 	// read all responses from file
-	Json::Reader reader;
-	std::ifstream responseReader(utils::getApplicationDirectory() + "\\responses.json", std::ifstream::binary);
-	
-	if (!reader.parse(responseReader, m_responses)) {
-		std::cerr << "Failed to read responses file. Responses disabled.";
+	if (!utils::readJSON("responses.json", m_responses)) {
+		std::cerr << "Failed to read responses.json. Responses disabled.";
 		m_responding = false;
 	}
 	else {
@@ -31,6 +28,7 @@ CommandHandler::CommandHandler() {
 		m_timerManager.add(p.first);
 	}
 	m_timerManager.add(m_wheel.name());
+
 }
 
 CommandHandler::~CommandHandler() {}
@@ -53,8 +51,8 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 		m_timerManager.setUsed(m_wheel.name());
 	}
 	else {
-		output = "Invalid command or is on cooldown";
-		std::cerr << output << ": " << cmd << std::endl << std::endl;
+		output = "";
+		std::cerr << "Invalid command or is on cooldown: " << cmd << std::endl << std::endl;
 	}
 
 	return output;
@@ -143,8 +141,12 @@ std::string CommandHandler::levelFunc(const std::string &fullCmd) {
 
 std::string CommandHandler::geFunc(const std::string &fullCmd) {
 
+	if (!m_GEReader.active()) {
+		return "";
+	}
+
 	if (fullCmd.length() < 4) {
-		return "No item name provided";
+		return "No item name provided.";
 	}
 
 	std::string itemName = fullCmd.substr(3);
@@ -153,7 +155,7 @@ std::string CommandHandler::geFunc(const std::string &fullCmd) {
 	Json::Value item = m_GEReader.getItem(itemName);
 
 	if (item.empty()) {
-		return "Item not found: " + itemName;
+		return "Item not found: " + itemName + ".";
 	}
 
 	const std::string httpResp = HTTPReq(EXCHANGE_HOST, EXCHANGE_API + std::to_string(item["id"].asInt()));
