@@ -35,8 +35,6 @@ CommandHandler::~CommandHandler() {}
 
 std::string CommandHandler::processCommand(const std::string &nick, const std::string &fullCmd, bool privileges) {
 
-	std::vector<std::string> tokens;
-	utils::split(fullCmd, ' ', tokens);
 	std::string output;
 
 	// the command is the first part of the string up to the first space

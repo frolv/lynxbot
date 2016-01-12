@@ -9,7 +9,7 @@ class TwitchBot {
 	public:
 		TwitchBot(const std::string name, const std::string channel, const std::string password = "");
 		~TwitchBot();
-		bool isConnected();
+		virtual bool isConnected() final;
 		void disconnect();
 		void serverLoop();
 
