@@ -2,11 +2,11 @@
 
 ## Contents
 
-0. [Introduction](#Introduction)
-1. [Installation](#Installation)
-2. [Default Commands](#Default-Commands)
-3. [Custom Commands](#Custom-Commands)
-4. [Automated Responses](#Automated-Responses)
+0. [Introduction](#introduction)
+1. [Installation](#installation)
+2. [Default Commands](#default-commands)
+3. [Custom Commands](#custom-commands)
+4. [Automated Responses](#automated-responses)
 
 ## Introduction
 
