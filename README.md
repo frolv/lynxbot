@@ -1,7 +1,5 @@
 # BOTNAME: A bot for Old School Runescape Twitch chat
 
----
-
 ## Contents
 
 0. [Introduction](#Introduction)
@@ -10,19 +8,13 @@
 3. [Custom Commands](#Custom-Commands)
 4. [Automated Responses](#Automated-Responses)
 
----
-
 ## Introduction
 
 BOTNAME is a Twitch.tv IRC bot designed specifically for use on Old School Runescape streams. It offers a number of commands that assist
 
----
-
 ## Installation
 
 Some text here.
-
----
 
 ## Default Commands
 
@@ -76,13 +68,9 @@ Optional arguments are surrounded by square brackets.
 
   The `$calc` command evaluates the given expression and prints the result.
 
----
-
 ## Custom Commands
 
 BOTNAME also supports user-defined commands which print a string of text when called.
-
----
 
 ## Automated Responses
 
