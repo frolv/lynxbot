@@ -1,6 +1,6 @@
 #include "..\stdafx.h"
 
-#define WHEEL_COOLDOWN 7200
+#define WHEEL_COOLDOWN 1200
 
 SelectionWheel::SelectionWheel() {
 

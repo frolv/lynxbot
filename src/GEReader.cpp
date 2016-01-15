@@ -2,13 +2,9 @@
 
 GEReader::GEReader() {
 
-	if (!utils::readJSON("itemids.json", m_itemIDs)) {
+	m_active = utils::readJSON("itemids.json", m_itemIDs);
+	if (!m_active) {
 		std::cerr << "Failed to read RS Item IDs. $ge command will be disabled for this session." << std::endl;
-		m_active = false;
-	}
-	else {
-		std::clog << "Successfully read RS item IDs." << std::endl;
-		m_active = true;
 	}
 
 }

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-CommandHandler::CommandHandler() {
+CommandHandler::CommandHandler() :m_customCmds(&m_defaultCmds, &m_timerManager) {
 
 	// initializing pointers to all default commands
 	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
@@ -9,25 +9,32 @@ CommandHandler::CommandHandler() {
 	m_defaultCmds["ge"] = &CommandHandler::geFunc;
 	m_defaultCmds["calc"] = &CommandHandler::calcFunc;
 	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
+	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
+	m_defaultCmds["addcom"] = &CommandHandler::addcomFunc;
+
+	if (!m_customCmds.isActive()) {
+		std::cerr << " Custom commands will be disabled for this session." << std::endl;
+		std::cin.get();
+	}
 
 	// read all responses from file
-	if (!utils::readJSON("responses.json", m_responses)) {
-		std::cerr << "Failed to read responses.json. Responses disabled.";
-		m_responding = false;
-	}
-	else {
-		m_responding = true;
+	m_responding = utils::readJSON("responses.json", m_responses);
+	if (m_responding) {
 		// add response cooldowns to TimerManager
 		for (auto &val : m_responses["responses"]) {
 			m_timerManager.add(val["name"].asString(), val["cooldown"].asInt());
 		}
+	}
+	else {
+		std::cerr << "Failed to read responses.json. Responses disabled for this session.";
+		std::cin.get();
 	}
 
 	// set all command cooldowns
 	for (auto &p : m_defaultCmds) {
 		m_timerManager.add(p.first);
 	}
-	m_timerManager.add(m_wheel.name());
+	m_timerManager.add(m_wheel.name(), 10);
 
 }
 
@@ -35,21 +42,23 @@ CommandHandler::~CommandHandler() {}
 
 std::string CommandHandler::processCommand(const std::string &nick, const std::string &fullCmd, bool privileges) {
 
-	std::string output;
+	std::string output = "";
 
 	// the command is the first part of the string up to the first space
 	std::string cmd = fullCmd.substr(0, fullCmd.find(' '));
 
 	if (m_defaultCmds[cmd] && (privileges || m_timerManager.ready(cmd))) {
-		output = (this->*m_defaultCmds[cmd])(fullCmd);
+		output += (this->*m_defaultCmds[cmd])(nick, fullCmd);
 		m_timerManager.setUsed(cmd);
 	}
 	else if (m_wheel.isActive() && cmd == m_wheel.cmd() && (privileges || m_timerManager.ready(m_wheel.name()))) {
-		output = wheelFunc(fullCmd, nick);
+		output += wheelFunc(fullCmd, nick);
 		m_timerManager.setUsed(m_wheel.name());
 	}
-	else {
+	else if (m_customCmds.isActive()) {
 		output = "";
+	}
+	else {
 		std::cerr << "Invalid command or is on cooldown: " << cmd << std::endl << std::endl;
 	}
 
@@ -81,7 +90,7 @@ std::string CommandHandler::processResponse(const std::string &message) {
 
 }
 
-std::string CommandHandler::ehpFunc(const std::string &fullCmd) {
+std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &fullCmd) {
 	
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
@@ -105,7 +114,7 @@ std::string CommandHandler::ehpFunc(const std::string &fullCmd) {
 
 }
 
-std::string CommandHandler::levelFunc(const std::string &fullCmd) {
+std::string CommandHandler::levelFunc(const std::string &nick, const std::string &fullCmd) {
 
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
@@ -137,7 +146,7 @@ std::string CommandHandler::levelFunc(const std::string &fullCmd) {
 
 }
 
-std::string CommandHandler::geFunc(const std::string &fullCmd) {
+std::string CommandHandler::geFunc(const std::string &nick, const std::string &fullCmd) {
 
 	if (!m_GEReader.active()) {
 		return "";
@@ -163,7 +172,7 @@ std::string CommandHandler::geFunc(const std::string &fullCmd) {
 
 }
 
-std::string CommandHandler::calcFunc(const std::string &fullCmd) {
+std::string CommandHandler::calcFunc(const std::string &nick, const std::string &fullCmd) {
 
 	if (fullCmd.length() < 6) {
 		return "Invalid mathematical expression.";
@@ -193,11 +202,11 @@ std::string CommandHandler::calcFunc(const std::string &fullCmd) {
 
 }
 
-std::string CommandHandler::cmlFunc(const std::string &fullCmd) {
+std::string CommandHandler::cmlFunc(const std::string &nick, const std::string &fullCmd) {
 	return "[CML] http://" + CML_HOST;
 }
 
-std::string CommandHandler::wheelFunc(const std::string &fullCmd, const std::string &nick) {
+std::string CommandHandler::wheelFunc(const std::string &nick, const std::string &fullCmd) {
 
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
@@ -222,6 +231,61 @@ std::string CommandHandler::wheelFunc(const std::string &fullCmd, const std::str
 	}
 
 	return output;
+
+}
+
+std::string CommandHandler::eightballFunc(const std::string &nick, const std::string &fullCmd) {
+	if (fullCmd.size() < 6 || fullCmd.find("?") == std::string::npos) {
+		return "";
+	}
+	std::srand(static_cast<uint32_t>(std::time(nullptr)));
+	uint32_t ind = std::rand() % 21;
+	return "[8 BALL] @" + nick + ", " + m_eightballResponses[ind] + ".";
+}
+
+std::string CommandHandler::addcomFunc(const std::string &nick, const std::string &fullCmd) {
+	
+	std::vector<std::string> tokens;
+	utils::split(fullCmd, ' ', tokens);
+
+	if (tokens.size() < 3) {
+		return "Not enough arguments given.";
+	}
+
+	std::string cmd, response;
+	// the index in the string at which the response begins - initialize to 7 for addcom and space
+	std::string::size_type respStart = 7;
+	std::time_t cooldown = 15;
+	if (tokens[1] == "-c") {
+
+		if (tokens.size() < 5) {
+			return "Not enough arguments given.";
+		}
+		try {
+			// add the -c, a space then the cooldown and a space
+			respStart += 3 + tokens[2].length() + 1;
+			cooldown = std::stoi(tokens[2]);
+			cmd = tokens[3];
+		}
+		catch (std::invalid_argument &e) {
+			std::cerr << e.what() << std::endl;
+			return "Invalid number provided: " + tokens[2];
+		}
+	}
+	else {
+		cmd = tokens[1];
+	}
+
+	if (!m_customCmds.validName(cmd)) {
+		return "@" + nick + ", Invalid command name: " + cmd;
+	}
+
+	// add the command and a space
+	respStart += cmd.length() + 1;
+	response = fullCmd.substr(respStart);
+
+	m_customCmds.addCom(cmd, response, cooldown);
+	return "@" + nick + ", command " + cmd + " has been added with cooldown " + std::to_string(cooldown) + ".";
 
 }
 

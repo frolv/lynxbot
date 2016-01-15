@@ -25,6 +25,7 @@
 // project headers
 #include "TwitchBot.h"
 #include "CommandHandler.h"
+#include "CustomCommandHandler.h"
 #include "Utils.h"
 #include "GEReader.h"
 #include "TimerManager.h"
