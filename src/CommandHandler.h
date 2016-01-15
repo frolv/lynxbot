@@ -10,7 +10,7 @@ class GEReader;
 class TimerManager;
 class SelectionWheel;
 
-typedef std::map<std::string, std::string(CommandHandler::*)(const std::string &, const std::string &)> commandMap;
+typedef std::map<std::string, std::string(CommandHandler::*)(const std::string &, const std::string &, bool)> commandMap;
 
 class CommandHandler {
 
@@ -21,10 +21,10 @@ class CommandHandler {
 		std::string processResponse(const std::string &message);
 	private:
 		commandMap m_defaultCmds;
-		CustomCommandHandler m_customCmds;
 		GEReader m_GEReader;
 		TimerManager m_timerManager;
 		SelectionWheel m_wheel;
+		CustomCommandHandler m_customCmds;
 		Json::Value m_responses;
 		bool m_responding;
 		const std::string CML_HOST = "crystalmathlabs.com";
@@ -38,15 +38,15 @@ class CommandHandler {
 			"Reply hazy try again", "Ask again later", "Better not tell you now", "Cannot predict now", "Concentrate and ask again",
 			"Don't count on it", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtful",
 			"About the same chance as Yekouri getting 200m mining" };
-		std::string ehpFunc(const std::string &nick, const std::string &fullCmd);
-		std::string levelFunc(const std::string &nick, const std::string &fullCmd);
-		std::string geFunc(const std::string &nick, const std::string &fullCmd);
-		std::string calcFunc(const std::string &nick, const std::string &fullCmd);
-		std::string cmlFunc(const std::string &nick, const std::string &fullCmd);
-		std::string wheelFunc(const std::string &nick, const std::string &fullCmd);
-		std::string eightballFunc(const std::string &nick, const std::string &fullCmd);
-		std::string addcomFunc(const std::string &nick, const std::string &fullCmd);
-		std::string delcomFunc(const std::string &nick, const std::string &fullCmd);
+		std::string ehpFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string levelFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string geFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string calcFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string cmlFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string wheelFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string eightballFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string delcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string extractCMLData(const std::string &httpResp, const std::string &rsn);
 		std::string extractHSData(const std::string &httpResp, uint8_t skillID);
 		std::string extractGEData(const std::string &httpResp);

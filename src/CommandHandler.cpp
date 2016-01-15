@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-CommandHandler::CommandHandler() :m_customCmds(&m_defaultCmds, &m_timerManager) {
+CommandHandler::CommandHandler() :m_customCmds(&m_defaultCmds, &m_timerManager, m_wheel.cmd()) {
 
 	// initializing pointers to all default commands
 	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
@@ -11,6 +11,7 @@ CommandHandler::CommandHandler() :m_customCmds(&m_defaultCmds, &m_timerManager) 
 	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
 	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
 	m_defaultCmds["addcom"] = &CommandHandler::addcomFunc;
+	m_defaultCmds["delcom"] = &CommandHandler::delcomFunc;
 
 	if (!m_customCmds.isActive()) {
 		std::cerr << " Custom commands will be disabled for this session." << std::endl;
@@ -48,18 +49,22 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 	std::string cmd = fullCmd.substr(0, fullCmd.find(' '));
 
 	if (m_defaultCmds[cmd] && (privileges || m_timerManager.ready(cmd))) {
-		output += (this->*m_defaultCmds[cmd])(nick, fullCmd);
+		output += (this->*m_defaultCmds[cmd])(nick, fullCmd, privileges);
 		m_timerManager.setUsed(cmd);
 	}
 	else if (m_wheel.isActive() && cmd == m_wheel.cmd() && (privileges || m_timerManager.ready(m_wheel.name()))) {
-		output += wheelFunc(fullCmd, nick);
+		output += wheelFunc(fullCmd, nick, privileges);
 		m_timerManager.setUsed(m_wheel.name());
 	}
 	else if (m_customCmds.isActive()) {
-		output = "";
-	}
-	else {
-		std::cerr << "Invalid command or is on cooldown: " << cmd << std::endl << std::endl;
+		Json::Value customCmd = m_customCmds.getCom(cmd);
+		if (!customCmd.empty() && (privileges || m_timerManager.ready(customCmd["cmd"].asString()))) {
+			m_timerManager.setUsed(customCmd["cmd"].asString());
+			return customCmd["response"].asString();
+		}
+		else {
+			std::cerr << "Invalid command or is on cooldown: " << cmd << std::endl << std::endl;
+		}
 	}
 
 	return output;
@@ -90,7 +95,7 @@ std::string CommandHandler::processResponse(const std::string &message) {
 
 }
 
-std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &fullCmd) {
+std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 	
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
@@ -114,7 +119,7 @@ std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &
 
 }
 
-std::string CommandHandler::levelFunc(const std::string &nick, const std::string &fullCmd) {
+std::string CommandHandler::levelFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
@@ -146,7 +151,7 @@ std::string CommandHandler::levelFunc(const std::string &nick, const std::string
 
 }
 
-std::string CommandHandler::geFunc(const std::string &nick, const std::string &fullCmd) {
+std::string CommandHandler::geFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 
 	if (!m_GEReader.active()) {
 		return "";
@@ -172,7 +177,7 @@ std::string CommandHandler::geFunc(const std::string &nick, const std::string &f
 
 }
 
-std::string CommandHandler::calcFunc(const std::string &nick, const std::string &fullCmd) {
+std::string CommandHandler::calcFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 
 	if (fullCmd.length() < 6) {
 		return "Invalid mathematical expression.";
@@ -202,11 +207,11 @@ std::string CommandHandler::calcFunc(const std::string &nick, const std::string 
 
 }
 
-std::string CommandHandler::cmlFunc(const std::string &nick, const std::string &fullCmd) {
+std::string CommandHandler::cmlFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 	return "[CML] http://" + CML_HOST;
 }
 
-std::string CommandHandler::wheelFunc(const std::string &nick, const std::string &fullCmd) {
+std::string CommandHandler::wheelFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
@@ -234,7 +239,7 @@ std::string CommandHandler::wheelFunc(const std::string &nick, const std::string
 
 }
 
-std::string CommandHandler::eightballFunc(const std::string &nick, const std::string &fullCmd) {
+std::string CommandHandler::eightballFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 	if (fullCmd.size() < 6 || fullCmd.find("?") == std::string::npos) {
 		return "";
 	}
@@ -243,8 +248,13 @@ std::string CommandHandler::eightballFunc(const std::string &nick, const std::st
 	return "[8 BALL] @" + nick + ", " + m_eightballResponses[ind] + ".";
 }
 
-std::string CommandHandler::addcomFunc(const std::string &nick, const std::string &fullCmd) {
+std::string CommandHandler::addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 	
+	if (!privileges) return "";
+	if (!m_customCmds.isActive()) {
+		return "Custom commands are currently disabled.";
+	}
+
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
 
@@ -256,6 +266,7 @@ std::string CommandHandler::addcomFunc(const std::string &nick, const std::strin
 	// the index in the string at which the response begins - initialize to 7 for addcom and space
 	std::string::size_type respStart = 7;
 	std::time_t cooldown = 15;
+
 	if (tokens[1] == "-c") {
 
 		if (tokens.size() < 5) {
@@ -265,6 +276,9 @@ std::string CommandHandler::addcomFunc(const std::string &nick, const std::strin
 			// add the -c, a space then the cooldown and a space
 			respStart += 3 + tokens[2].length() + 1;
 			cooldown = std::stoi(tokens[2]);
+			if (cooldown < 0) {
+				return "Cooldown cannot be negative!";
+			}
 			cmd = tokens[3];
 		}
 		catch (std::invalid_argument &e) {
@@ -285,7 +299,26 @@ std::string CommandHandler::addcomFunc(const std::string &nick, const std::strin
 	response = fullCmd.substr(respStart);
 
 	m_customCmds.addCom(cmd, response, cooldown);
-	return "@" + nick + ", command " + cmd + " has been added with cooldown " + std::to_string(cooldown) + ".";
+	return "@" + nick + ", command $" + cmd + " has been added with a " + std::to_string(cooldown) + "s cooldown.";
+
+}
+
+std::string CommandHandler::delcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+
+	if (!privileges) return "";
+	if (!m_customCmds.isActive()) {
+		return "Custom commands are currently disabled.";
+	}
+
+	std::vector<std::string> tokens;
+	utils::split(fullCmd, ' ', tokens);
+
+	if (tokens.size() == 2) {
+		return "@" + nick + ", command " + tokens[1] + (m_customCmds.delCom(tokens[1]) ? " has been deleted." : " not found.");
+	}
+	else {
+		return "Invalid syntax.";
+	}
 
 }
 
