@@ -79,15 +79,16 @@ bool CustomCommandHandler::delCom(const std::string &cmd) {
 
 }
 
-Json::Value CustomCommandHandler::getCom(const std::string &cmd) {
+Json::Value *CustomCommandHandler::getCom(const std::string &cmd) {
 
 	for (auto &val : m_commands["commands"]) {
 		if (val["cmd"] == cmd) {
-			return val;
+			return &val;
 		}
 	}
 
-	return Json::Value();
+	// returns an empty value if the command is not found
+	return &m_emptyVal;
 
 }
 
@@ -103,5 +104,5 @@ void CustomCommandHandler::writeToFile() {
 
 bool CustomCommandHandler::validName(const std::string &cmd, bool loading) {
 	// if CCH is loading commands from file (in constructor), it doesn't need to check against its stored commands
-	return !(*m_cmp)[cmd] && cmd != m_wheelCmd && cmd.length() < 20 && (loading ? true : getCom(cmd).empty());
+	return m_cmp->find(cmd) == m_cmp->end() && cmd != m_wheelCmd && cmd.length() < 20 && (loading ? true : getCom(cmd)->empty());
 }

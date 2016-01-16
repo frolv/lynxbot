@@ -68,9 +68,54 @@ Optional arguments are surrounded by square brackets.
 
   The `$calc` command evaluates the given expression and prints the result.
 
+* **8BALL**
+
+  Syntax:
+  ```
+  $8ball QUESTION
+  ```
+
+  `QUESTION` is a sentence ending with a question mark (?).
+
+  The `8ball` command responds to the question with one of the typical Magic 8 Ball responses.
+
+* **ADDCOM, DELCOM and EDITCOM**
+
+  See [Custom Commands](#custom-commands).
+
 ## Custom Commands
 
 BOTNAME also supports user-defined commands which print a string of text when called.
+Custom commands can be added or modified using the following three commands:
+
+* **ADDCOM**
+
+  Syntax:
+  ```
+  $addcom [-c COOLDOWN] COMMAND RESPONSE
+  ```
+
+  `COMMAND` is the keyword which activates the command. It is given without the leading dollar sign. The name cannot be the same as any of the default commands or any previously added user commands and has a limit of 20 characters.
+
+  `RESPONSE` is the string to print when the command is called.
+
+  If the `-c` flag is provided, `COOLDOWN` is a number specifying the cooldown (in seconds) of the command. By default, all custom commands have a 15 second cooldown.
+
+  Examples:
+
+  0. Without cooldown flag
+    ```
+    $addcom hi Hello, World!
+    ```
+
+    This adds a command called `hi` with a 15 second cooldown and the response `Hello, World!`. To activate this command, a user would type `$hi` in the chat. Note that the dollar sign is implicitly added - do not specify it in the `addcom` call.
+
+  1. With cooldown flag
+    ```
+    $addcom -c 60 cd This command has a 60s cooldown
+    ```
+
+    This adds a command named `cd` with a 60 second cooldown. It is activated by typing `$cd` in the chat and the bot responds with `This command has a 60s cooldown`.
 
 ## Automated Responses
 

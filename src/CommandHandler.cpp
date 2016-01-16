@@ -12,6 +12,7 @@ CommandHandler::CommandHandler() :m_customCmds(&m_defaultCmds, &m_timerManager, 
 	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
 	m_defaultCmds["addcom"] = &CommandHandler::addcomFunc;
 	m_defaultCmds["delcom"] = &CommandHandler::delcomFunc;
+	m_defaultCmds["editcom"] = &CommandHandler::editcomFunc;
 
 	if (!m_customCmds.isActive()) {
 		std::cerr << " Custom commands will be disabled for this session." << std::endl;
@@ -48,19 +49,19 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 	// the command is the first part of the string up to the first space
 	std::string cmd = fullCmd.substr(0, fullCmd.find(' '));
 
-	if (m_defaultCmds[cmd] && (privileges || m_timerManager.ready(cmd))) {
+	if (m_defaultCmds.find(cmd) != m_defaultCmds.end() && (privileges || m_timerManager.ready(cmd))) {
 		output += (this->*m_defaultCmds[cmd])(nick, fullCmd, privileges);
 		m_timerManager.setUsed(cmd);
 	}
 	else if (m_wheel.isActive() && cmd == m_wheel.cmd() && (privileges || m_timerManager.ready(m_wheel.name()))) {
-		output += wheelFunc(fullCmd, nick, privileges);
+		output += wheelFunc(nick, fullCmd, privileges);
 		m_timerManager.setUsed(m_wheel.name());
 	}
 	else if (m_customCmds.isActive()) {
-		Json::Value customCmd = m_customCmds.getCom(cmd);
-		if (!customCmd.empty() && (privileges || m_timerManager.ready(customCmd["cmd"].asString()))) {
-			m_timerManager.setUsed(customCmd["cmd"].asString());
-			return customCmd["response"].asString();
+		Json::Value *customCmd = m_customCmds.getCom(cmd);
+		if (!customCmd->empty() && (privileges || m_timerManager.ready((*customCmd)["cmd"].asString()))) {
+			output += (*customCmd)["response"].asString();
+			m_timerManager.setUsed((*customCmd)["cmd"].asString());
 		}
 		else {
 			std::cerr << "Invalid command or is on cooldown: " << cmd << std::endl << std::endl;
@@ -240,7 +241,10 @@ std::string CommandHandler::wheelFunc(const std::string &nick, const std::string
 }
 
 std::string CommandHandler::eightballFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
-	if (fullCmd.size() < 6 || fullCmd.find("?") == std::string::npos) {
+	if (fullCmd.length() < 6) {
+		return "[8 BALL] Ask me a question.";
+	}
+	if (fullCmd.find("?") == std::string::npos) {
 		return "";
 	}
 	std::srand(static_cast<uint32_t>(std::time(nullptr)));
@@ -263,8 +267,7 @@ std::string CommandHandler::addcomFunc(const std::string &nick, const std::strin
 	}
 
 	std::string cmd, response;
-	// the index in the string at which the response begins - initialize to 7 for addcom and space
-	std::string::size_type respStart = 7;
+	std::string::size_type respStart = fullCmd.find(' ') + 1;
 	std::time_t cooldown = 15;
 
 	if (tokens[1] == "-c") {
@@ -314,11 +317,41 @@ std::string CommandHandler::delcomFunc(const std::string &nick, const std::strin
 	utils::split(fullCmd, ' ', tokens);
 
 	if (tokens.size() == 2) {
-		return "@" + nick + ", command " + tokens[1] + (m_customCmds.delCom(tokens[1]) ? " has been deleted." : " not found.");
+		return "@" + nick + ", command $" + tokens[1] + (m_customCmds.delCom(tokens[1]) ? " has been deleted." : " not found.");
 	}
 	else {
-		return "Invalid syntax.";
+		return "Invalid syntax. Use \"$delcom COMMAND\".";
 	}
+
+}
+
+std::string CommandHandler::editcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+
+	if (!privileges) return "";
+	if (!m_customCmds.isActive()) {
+		return "Custom commands are currently disabled.";
+	}
+
+	std::vector<std::string> tokens;
+	utils::split(fullCmd, ' ', tokens);
+
+	if (tokens.size() < 3) {
+		return "Not enough arguments given.";
+	}
+
+	std::string &cmd = tokens[1], response;
+
+	Json::Value *com = m_customCmds.getCom(cmd);
+	if (!com->empty()) {
+		response = fullCmd.substr(8 + cmd.length() + 1);
+		(*com)["response"] = response;
+		m_customCmds.writeToFile();
+	}
+	else {
+		return "@" + nick + ", command $" + cmd + " does not exist.";
+	}
+
+	return "@" + nick + ", command $" + cmd + " has been changed to \"" + response + "\".";
 
 }
 
