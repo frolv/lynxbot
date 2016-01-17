@@ -254,55 +254,36 @@ std::string CommandHandler::eightballFunc(const std::string &nick, const std::st
 
 std::string CommandHandler::addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 	
-	if (!privileges) return "";
+	if (!privileges || fullCmd.size() < 8) return "";
 	if (!m_customCmds.isActive()) {
 		return "Custom commands are currently disabled.";
 	}
 
-	std::vector<std::string> tokens;
-	utils::split(fullCmd, ' ', tokens);
-
-	if (tokens.size() < 3) {
-		return "Not enough arguments given.";
+	command c;
+	try {
+		// first 7 characters are "addcom "
+		c = buildCom(fullCmd.substr(7));
+	}
+	catch (std::invalid_argument &e) {
+		std::cerr << e.what();
+		return "@" + nick + ", invalid number provided.";
+	}
+	catch (std::runtime_error &e) {
+		return "@" + nick + ", " + e.what();
 	}
 
-	std::string cmd, response;
-	std::string::size_type respStart = fullCmd.find(' ') + 1;
-	std::time_t cooldown = 15;
-
-	if (tokens[1] == "-c") {
-
-		if (tokens.size() < 5) {
-			return "Not enough arguments given.";
-		}
-		try {
-			// add the -c, a space then the cooldown and a space
-			respStart += 3 + tokens[2].length() + 1;
-			cooldown = std::stoi(tokens[2]);
-			if (cooldown < 0) {
-				return "Cooldown cannot be negative!";
-			}
-			cmd = tokens[3];
-		}
-		catch (std::invalid_argument &e) {
-			std::cerr << e.what() << std::endl;
-			return "Invalid number provided: " + tokens[2];
-		}
+	if (!m_customCmds.validName(c.cmd)) {
+		return "@" + nick + ", invalid command name: " + c.cmd;
 	}
-	else {
-		cmd = tokens[1];
+	if (c.response.empty()) {
+		return "@" + nick + ", no response provided for command $" + c.cmd + ".";
+	}
+	if (c.cooldown == -1) {
+		c.cooldown = 15;
 	}
 
-	if (!m_customCmds.validName(cmd)) {
-		return "@" + nick + ", Invalid command name: " + cmd;
-	}
-
-	// add the command and a space
-	respStart += cmd.length() + 1;
-	response = fullCmd.substr(respStart);
-
-	m_customCmds.addCom(cmd, response, cooldown);
-	return "@" + nick + ", command $" + cmd + " has been added with a " + std::to_string(cooldown) + "s cooldown.";
+	m_customCmds.addCom(c.cmd, c.response, c.cooldown);
+	return "@" + nick + ", command $" + c.cmd + " has been added with a " + std::to_string(c.cooldown) + "s cooldown.";
 
 }
 
@@ -332,26 +313,43 @@ std::string CommandHandler::editcomFunc(const std::string &nick, const std::stri
 		return "Custom commands are currently disabled.";
 	}
 
-	std::vector<std::string> tokens;
-	utils::split(fullCmd, ' ', tokens);
-
-	if (tokens.size() < 3) {
-		return "Not enough arguments given.";
+	command c;
+	try {
+		// first 7 characters are "editcom "
+		c = buildCom(fullCmd.substr(8));
+	}
+	catch (std::invalid_argument &e) {
+		std::cerr << e.what();
+		return "@" + nick + ", invalid number provided.";
+	}
+	catch (std::runtime_error &e) {
+		return "@" + nick + ", " + e.what();
 	}
 
-	std::string &cmd = tokens[1], response;
+	bool changedResp = !c.response.empty(), changedCd = c.cooldown != -1;
 
-	Json::Value *com = m_customCmds.getCom(cmd);
+	Json::Value *com = m_customCmds.getCom(c.cmd);
 	if (!com->empty()) {
-		response = fullCmd.substr(8 + cmd.length() + 1);
-		(*com)["response"] = response;
+		if (changedResp) {
+			(*com)["response"] = c.response;
+		}
+		if (changedCd) {
+			(*com)["cooldown"] = c.cooldown;
+		}
 		m_customCmds.writeToFile();
 	}
 	else {
-		return "@" + nick + ", command $" + cmd + " does not exist.";
+		return "@" + nick + ", command $" + c.cmd + " does not exist.";
 	}
 
-	return "@" + nick + ", command $" + cmd + " has been changed to \"" + response + "\".";
+	std::string message = "@" + nick + ", command $" + c.cmd + " has been changed to ";
+	if (changedResp) {
+		message += "\"" + c.response + "\"" + (changedCd ? ", with " : ".");
+	}
+	if (c.cooldown != -1) {
+		message += "a " + std::to_string(c.cooldown) + "s cooldown.";
+	}
+	return message;
 
 }
 
@@ -405,5 +403,48 @@ std::string CommandHandler::extractGEData(const std::string &httpResp) {
 	else {
 		return "An error occured. Please try again.";
 	}
+
+}
+
+CommandHandler::command CommandHandler::buildCom(const std::string &s) {
+
+	std::vector<std::string> tokens;
+	utils::split(s, ' ', tokens);
+
+	if (tokens.size() < 1) {
+		throw std::runtime_error("Not enough arguments given.");
+	}
+
+	std::string cmd, response;
+	std::string::size_type respStart = 0;
+	std::time_t cooldown = -1;
+
+	if (tokens[0] == "-c") {
+
+		if (tokens.size() < 3) {
+			throw std::runtime_error("Not enough arguments given.");
+		}
+		// add the -c, a space then the cooldown and a space
+		respStart += 3 + tokens[1].length() + 1;
+		cooldown = std::stoi(tokens[1]);
+		if (cooldown < 0) {
+			throw std::runtime_error("Cooldown cannot be negative!");
+		}
+		cmd = tokens[2];
+	}
+	else {
+		cmd = tokens[0];
+	}
+
+	// add the command and a space
+	respStart += cmd.length() + 1;
+	response = respStart > s.length() ? "" : s.substr(respStart);
+
+	command c;
+	c.cmd = cmd;
+	c.response = response;
+	c.cooldown = cooldown;
+
+	return c;
 
 }
