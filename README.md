@@ -102,19 +102,19 @@ Optional arguments are surrounded by square brackets.
 
       This flag allows voters to select multiple poll options.
 
-  The `$strawpoll` command creates a poll on [strawpoll](#http://strawpoll.me) with the given question and options and posts a link to the poll in the chat.
+  The `$strawpoll` command creates a poll on [strawpoll](http://strawpoll.me) with the given question and options and posts a link to the poll in the chat.
   If no flags are specified, the poll defaults to a single choice per voter and no captcha.
 
   Examples:
 
   0. No flags
 
-   ```
-   $strawpoll What should I eat for dinner? | Saltine crackers | Bread | Lasagna
-   ```
+    ```
+    $strawpoll What should I eat for dinner? | Saltine crackers | Bread | Lasagna
+    ```
 
-   This creates a poll with the question "What should I eat for dinner?" and the options "Saltine crackers", "Bread" and "Lasagna".
-   [See here](#http://strawpoll.me/6572349).
+    This creates a poll with the question "What should I eat for dinner?" and the options "Saltine crackers", "Bread" and "Lasagna".
+    [See here](http://strawpoll.me/6572349).
 
   1. Binary flag
 
@@ -124,7 +124,7 @@ Optional arguments are surrounded by square brackets.
 
     This creates a poll with the question "Should I do a 100m stake?" and the options "yes" and "no".
     Notice how no answers are specified in the call.
-    [See here](#http://strawpoll.me/6572366).
+    [See here](http://strawpoll.me/6572366).
 
   2. Multiple flags
 
@@ -135,7 +135,7 @@ Optional arguments are surrounded by square brackets.
     ```
     $strawpoll -mc Pick as many as you like | a | b | c | d
     ```
-
+  
     If multiple flags are provided they can either be separate or grouped.
     Both above calls will create a poll with the question "Pick as many as you like", and options "a", "b", "c" and "d".
     In this poll, voters can select multiple options (`m` flag) and must solve a captcha to vote (`c` flag).
