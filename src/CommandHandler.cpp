@@ -10,6 +10,8 @@ CommandHandler::CommandHandler() :m_customCmds(&m_defaultCmds, &m_timerManager, 
 	m_defaultCmds["calc"] = &CommandHandler::calcFunc;
 	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
 	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
+	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
+	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
 	m_defaultCmds["addcom"] = &CommandHandler::addcomFunc;
 	m_defaultCmds["delcom"] = &CommandHandler::delcomFunc;
 	m_defaultCmds["editcom"] = &CommandHandler::editcomFunc;
@@ -105,7 +107,7 @@ std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &
 		// a username was provided
 		std::string rsn = tokens[1];
 		std::replace(rsn.begin(), rsn.end(), '-', '_');
-		const std::string httpResp = HTTPReq(CML_HOST, CML_EHP_AHI + rsn);
+		const std::string httpResp = HTTPGet(CML_HOST, CML_EHP_AHI + rsn);
 		std::clog << httpResp << std::endl << std::endl;
 		return "[EHP] " + extractCMLData(httpResp, rsn);
 
@@ -135,7 +137,7 @@ std::string CommandHandler::levelFunc(const std::string &nick, const std::string
 		std::string rsn = tokens[2];
 		std::replace(rsn.begin(), rsn.end(), '-', '_');
 
-		const std::string httpResp = HTTPReq(RS_HOST, RS_HS_API + rsn);
+		const std::string httpResp = HTTPGet(RS_HOST, RS_HS_API + rsn);
 		std::clog << httpResp << std::endl;
 		if (httpResp.find("404 - Page not found") != std::string::npos) {
 			return "Player not found on hiscores.";
@@ -171,7 +173,7 @@ std::string CommandHandler::geFunc(const std::string &nick, const std::string &f
 		return "Item not found: " + itemName + ".";
 	}
 
-	const std::string httpResp = HTTPReq(EXCHANGE_HOST, EXCHANGE_API + std::to_string(item["id"].asInt()));
+	const std::string httpResp = HTTPGet(EXCHANGE_HOST, EXCHANGE_API + std::to_string(item["id"].asInt()));
 	std::clog << httpResp;
 
 	return "[GE] " + item["name"].asString() + ": " + extractGEData(httpResp) + " gp.";
@@ -250,6 +252,90 @@ std::string CommandHandler::eightballFunc(const std::string &nick, const std::st
 	std::srand(static_cast<uint32_t>(std::time(nullptr)));
 	uint32_t ind = std::rand() % 21;
 	return "[8 BALL] @" + nick + ", " + m_eightballResponses[ind] + ".";
+}
+
+std::string CommandHandler::strawpollFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+
+	if (!privileges) return "";
+
+	Json::Value poll, options(Json::arrayValue), response;
+	std::string output = "[STRAWPOLL] ";
+
+	std::vector<std::string> tokens;
+	utils::split(fullCmd, ' ', tokens);
+	if (tokens.size() < 2) {
+		return "Not enough arguments given";
+	}
+	std::string::size_type reqStart = tokens[0].length() + 1;
+	bool binary = false, multi = false, captcha = false;
+
+	size_t i = 1;
+	while (i < tokens.size() && utils::startsWith(tokens[i], "-") && tokens[i].length() > 1) {
+		std::regex flagRegex("^-[bcm]+$");
+		std::smatch match;
+		const std::string flag = tokens[i];
+		if (!std::regex_match(flag.begin(), flag.end(), match, flagRegex)) {
+			return "Invalid flag provided: " + flag.substr(1);
+		}
+		if (flag.find("b") != std::string::npos) binary = true;
+		if (flag.find("c") != std::string::npos) captcha = true;
+		if (flag.find("m") != std::string::npos) multi = true;
+		reqStart += flag.length() + 1;
+		++i;
+	}
+
+	if (reqStart >= fullCmd.size()) {
+		return "Not enough arguments given.";
+	}
+	const std::string req = fullCmd.substr(reqStart);
+	tokens.clear();
+	utils::split(req, '|', tokens);
+
+	if (binary && tokens.size() != 1) {
+		return "Must provide question only for binary poll.";
+	}
+	if (!binary && tokens.size() < 3) {
+		return "Poll must have a question and at least two answers.";
+	}
+	
+	if (binary) {
+		options.append("yes");
+		options.append("no");
+	}
+	else {
+		for (size_t i = 1; i < tokens.size(); ++i) {
+			options.append(tokens[i]);
+		}
+	}
+
+	poll["title"] = tokens[0];
+	poll["options"] = options;
+	poll["captcha"] = captcha;
+	poll["multi"] = multi;
+
+	Json::FastWriter fw;
+	const std::string httpResp = HTTPPost(STRAWPOLL_HOST, STRAWPOLL_API, "application/json", fw.write(poll));
+
+	std::regex jsonRegex("(\\{.+\\})");
+	std::smatch match;
+
+	if (std::regex_search(httpResp.begin(), httpResp.end(), match, jsonRegex)) {
+		const std::string json = match[1];
+		Json::Reader reader;
+		reader.parse(json, response);
+		if (!response.isMember("id")) {
+			output += "An error occurred.";
+		}
+		else {
+			output += "Poll created : http://" + STRAWPOLL_HOST + "/" + response["id"].asString();
+		}
+	}
+	else {
+		output += "Error connecting to server.";
+	}
+
+	return output;
+
 }
 
 std::string CommandHandler::addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
