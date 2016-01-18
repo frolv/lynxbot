@@ -79,6 +79,23 @@ bool CustomCommandHandler::delCom(const std::string &cmd) {
 
 }
 
+bool CustomCommandHandler::editCom(const std::string &cmd, const std::string &newResp, std::time_t newcd) {
+
+	auto *com = getCom(cmd);
+	if (com->empty()) {
+		return false;
+	}
+	if (!newResp.empty()) {
+		(*com)["response"] = newResp;
+	}
+	if (newcd != -1) {
+		(*com)["cooldown"] = newcd;
+	}
+	writeToFile();
+	return true;
+
+}
+
 Json::Value *CustomCommandHandler::getCom(const std::string &cmd) {
 
 	for (auto &val : m_commands["commands"]) {
@@ -92,6 +109,11 @@ Json::Value *CustomCommandHandler::getCom(const std::string &cmd) {
 
 }
 
+bool CustomCommandHandler::validName(const std::string &cmd, bool loading) {
+	// if CCH is loading commands from file (in constructor), it doesn't need to check against its stored commands
+	return m_cmp->find(cmd) == m_cmp->end() && cmd != m_wheelCmd && cmd.length() < 20 && (loading ? true : getCom(cmd)->empty());
+}
+
 void CustomCommandHandler::writeToFile() {
 
 	std::ofstream ccfile;
@@ -100,9 +122,4 @@ void CustomCommandHandler::writeToFile() {
 	ccfile << sw.write(m_commands);
 	ccfile.close();
 
-}
-
-bool CustomCommandHandler::validName(const std::string &cmd, bool loading) {
-	// if CCH is loading commands from file (in constructor), it doesn't need to check against its stored commands
-	return m_cmp->find(cmd) == m_cmp->end() && cmd != m_wheelCmd && cmd.length() < 20 && (loading ? true : getCom(cmd)->empty());
 }

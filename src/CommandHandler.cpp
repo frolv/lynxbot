@@ -259,12 +259,12 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 	if (!privileges) return "";
 
 	Json::Value poll, options(Json::arrayValue), response;
-	std::string output = "[STRAWPOLL] ";
+	std::string output = "[SPOLL] ";
 
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
 	if (tokens.size() < 2) {
-		return "Not enough arguments given";
+		return output + "Not enough arguments given.";
 	}
 	std::string::size_type reqStart = tokens[0].length() + 1;
 	bool binary = false, multi = false, captcha = false;
@@ -275,7 +275,7 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 		std::smatch match;
 		const std::string flag = tokens[i];
 		if (!std::regex_match(flag.begin(), flag.end(), match, flagRegex)) {
-			return "Invalid flag provided: " + flag.substr(1);
+			return output + "Invalid flag provided: " + flag.substr(1);
 		}
 		if (flag.find("b") != std::string::npos) binary = true;
 		if (flag.find("c") != std::string::npos) captcha = true;
@@ -285,17 +285,17 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 	}
 
 	if (reqStart >= fullCmd.size()) {
-		return "Not enough arguments given.";
+		return output + "Not enough arguments given.";
 	}
 	const std::string req = fullCmd.substr(reqStart);
 	tokens.clear();
 	utils::split(req, '|', tokens);
 
 	if (binary && tokens.size() != 1) {
-		return "Must provide question only for binary poll.";
+		return output + "Must provide question only for binary poll.";
 	}
 	if (!binary && tokens.size() < 3) {
-		return "Poll must have a question and at least two answers.";
+		return output + "Poll must have a question and at least two answers.";
 	}
 	
 	if (binary) {
@@ -324,7 +324,7 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 		Json::Reader reader;
 		reader.parse(json, response);
 		if (!response.isMember("id")) {
-			output += "An error occurred.";
+			output += "Poll could not be created.";
 		}
 		else {
 			output += "Poll created : http://" + STRAWPOLL_HOST + "/" + response["id"].asString();
@@ -414,28 +414,19 @@ std::string CommandHandler::editcomFunc(const std::string &nick, const std::stri
 
 	bool changedResp = !c.response.empty(), changedCd = c.cooldown != -1;
 
-	Json::Value *com = m_customCmds.getCom(c.cmd);
-	if (!com->empty()) {
+	if (m_customCmds.editCom(c.cmd, c.response, c.cooldown)) {
+		std::string message = "@" + nick + ", command $" + c.cmd + " has been changed to ";
 		if (changedResp) {
-			(*com)["response"] = c.response;
+			message += "\"" + c.response + "\"" + (changedCd ? ", with " : ".");
 		}
-		if (changedCd) {
-			(*com)["cooldown"] = c.cooldown;
+		if (c.cooldown != -1) {
+			message += "a " + std::to_string(c.cooldown) + "s cooldown.";
 		}
-		m_customCmds.writeToFile();
+		return message;
 	}
 	else {
 		return "@" + nick + ", command $" + c.cmd + " does not exist.";
 	}
-
-	std::string message = "@" + nick + ", command $" + c.cmd + " has been changed to ";
-	if (changedResp) {
-		message += "\"" + c.response + "\"" + (changedCd ? ", with " : ".");
-	}
-	if (c.cooldown != -1) {
-		message += "a " + std::to_string(c.cooldown) + "s cooldown.";
-	}
-	return message;
 
 }
 

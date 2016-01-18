@@ -16,8 +16,8 @@ class CustomCommandHandler {
 		bool isActive();
 		void addCom(const std::string &cmd, const std::string &response, std::time_t cooldown);
 		bool delCom(const std::string &cmd);
+		bool editCom(const std::string &cmd, const std::string &newResp = "", std::time_t newcd = -1);
 		Json::Value *getCom(const std::string &cmd);
-		void writeToFile();
 		bool validName(const std::string &cmd, bool loading = false);
 
 	private:
@@ -27,5 +27,6 @@ class CustomCommandHandler {
 		const std::string m_wheelCmd;
 		Json::Value m_commands;
 		Json::Value m_emptyVal;
+		void writeToFile();
 
 };
