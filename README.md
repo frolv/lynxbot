@@ -79,6 +79,68 @@ Optional arguments are surrounded by square brackets.
 
   The `8ball` command responds to the question with one of the typical Magic 8 Ball responses.
 
+* **STRAWPOLL**
+
+  Syntax:
+  ```
+  $(strawpoll|sp) [-flags] QUESTION | OPTION 1 | OPTION 2 | ...
+  ```
+
+  `QUESTION` and all `OPTION`s are separated by pipes `|`. At least two options must be provided.
+
+  There are three different flags that can be used:
+    * `b` - binary
+
+      This creates a poll with yes and no as options.
+      If this flag is specified, no options can be given in the command call.
+
+    * `c` - captcha
+
+      This flag creates a poll which requires the user to solve a CAPTCHA in order to vote.
+
+    * `m` - multi
+
+      This flag allows voters to select multiple poll options.
+
+  The `$strawpoll` command creates a poll on [strawpoll](#http://strawpoll.me) with the given question and options and posts a link to the poll in the chat.
+  If no flags are specified, the poll defaults to a single choice per voter and no captcha.
+
+  Examples:
+
+  0. No flags
+
+   ```
+   $strawpoll What should I eat for dinner? | Saltine crackers | Bread | Lasagna
+   ```
+
+   This creates a poll with the question "What should I eat for dinner?" and the options "Saltine crackers", "Bread" and "Lasagna".
+   [See here](#http://strawpoll.me/6572349).
+
+  1. Binary flag
+
+    ```
+    $strawpoll -b Should I do a 100m stake?
+    ```
+
+    This creates a poll with the question "Should I do a 100m stake?" and the options "yes" and "no".
+    Notice how no answers are specified in the call.
+    [See here](#http://strawpoll.me/6572366).
+
+  2. Multiple flags
+
+    The following two calls are identical:
+    ```
+    $strawpoll -m -c Pick as many as you like | a | b | c | d
+    ```
+    ```
+    $strawpoll -mc Pick as many as you like | a | b | c | d
+    ```
+
+    If multiple flags are provided they can either be separate or grouped.
+    Both above calls will create a poll with the question "Pick as many as you like", and options "a", "b", "c" and "d".
+    In this poll, voters can select multiple options (`m` flag) and must solve a captcha to vote (`c` flag).
+    [See here](#http://strawpoll.me/6572393).
+
 * **ADDCOM, DELCOM and EDITCOM**
 
   See [Custom Commands](#custom-commands).
