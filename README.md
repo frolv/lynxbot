@@ -139,7 +139,7 @@ Optional arguments are surrounded by square brackets.
     If multiple flags are provided they can either be separate or grouped.
     Both above calls will create a poll with the question "Pick as many as you like", and options "a", "b", "c" and "d".
     In this poll, voters can select multiple options (`m` flag) and must solve a captcha to vote (`c` flag).
-    [See here](#http://strawpoll.me/6572393).
+    [See here](http://strawpoll.me/6572393).
 
 * **ADDCOM, DELCOM and EDITCOM**
 
