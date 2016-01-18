@@ -62,9 +62,10 @@ void CustomCommandHandler::addCom(const std::string &cmd, const std::string &res
 bool CustomCommandHandler::delCom(const std::string &cmd) {
 
 	Json::ArrayIndex ind = 0;
-	Json::Value def, tmp;
-	while (ind < m_commands["commands"].size() && tmp["cmd"].asString() != cmd) {
-		tmp = m_commands["commands"].get(ind, def);
+	Json::Value def, rem;
+	while (ind < m_commands["commands"].size()) {
+		auto &val = m_commands["commands"].get(ind, def);
+		if (val["cmd"] == cmd) break;
 		++ind;
 	}
 
@@ -72,7 +73,7 @@ bool CustomCommandHandler::delCom(const std::string &cmd) {
 		return false;
 	}
 
-	m_commands["commands"].removeIndex(ind, &tmp);
+	m_commands["commands"].removeIndex(ind, &rem);
 	writeToFile();
 	return true;
 

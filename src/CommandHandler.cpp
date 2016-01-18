@@ -40,6 +40,17 @@ CommandHandler::CommandHandler() :m_customCmds(&m_defaultCmds, &m_timerManager, 
 	}
 	m_timerManager.add(m_wheel.name(), 10);
 
+	// read extra 8ball responses
+	std::ifstream reader(utils::getApplicationDirectory() + "\\extra8ballresponses.txt");
+	if (!reader.is_open()) {
+		std::cerr << "Could not read extra8ballresponses.txt" << std::endl;
+	}
+	std::string line;
+	while (std::getline(reader, line)) {
+		m_eightballResponses.push_back(line);
+	}
+	reader.close();
+
 }
 
 CommandHandler::~CommandHandler() {}
@@ -250,7 +261,7 @@ std::string CommandHandler::eightballFunc(const std::string &nick, const std::st
 		return "";
 	}
 	std::srand(static_cast<uint32_t>(std::time(nullptr)));
-	uint32_t ind = std::rand() % 21;
+	size_t ind = std::rand() % m_eightballResponses.size();
 	return "[8 BALL] @" + nick + ", " + m_eightballResponses[ind] + ".";
 }
 

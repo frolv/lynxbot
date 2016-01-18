@@ -79,6 +79,8 @@ Optional arguments are surrounded by square brackets.
 
   The `8ball` command responds to the question with one of the typical Magic 8 Ball responses.
 
+  Additional responses can be provided in the file [extra8ballresponses.txt](/extra8ballresponses.txt), one per line.
+
 * **STRAWPOLL**
 
   Syntax:
@@ -135,7 +137,7 @@ Optional arguments are surrounded by square brackets.
     ```
     $strawpoll -mc Pick as many as you like | a | b | c | d
     ```
-  
+
     If multiple flags are provided they can either be separate or grouped.
     Both above calls will create a poll with the question "Pick as many as you like", and options "a", "b", "c" and "d".
     In this poll, voters can select multiple options (`m` flag) and must solve a captcha to vote (`c` flag).

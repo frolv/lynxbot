@@ -35,11 +35,10 @@ class CommandHandler {
 		const std::string EXCHANGE_API = "/grandExchange?a=guidePrice&i=";
 		const std::string STRAWPOLL_HOST = "strawpoll.me";
 		const std::string STRAWPOLL_API = "/api/v2/polls";
-		const std::string m_eightballResponses[21] = { "It is certain", "It is decidedly so", "Without a doubt", "Yes, definitely",
+		std::vector<std::string> m_eightballResponses = { "It is certain", "It is decidedly so", "Without a doubt", "Yes, definitely",
 			"You may rely on it", "As I see it, yes", "Most likely", "Outlook good", "Yes", "Signs point to yes",
 			"Reply hazy try again", "Ask again later", "Better not tell you now", "Cannot predict now", "Concentrate and ask again",
-			"Don't count on it", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtful",
-			"About the same chance as Yekouri getting 200m mining" };
+			"Don't count on it", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtful" };
 		struct command {
 			std::string cmd;
 			std::string response;
