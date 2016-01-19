@@ -114,7 +114,7 @@ bool CustomCommandHandler::validName(const std::string &cmd, bool loading) {
 	return m_cmp->find(cmd) == m_cmp->end() && cmd != m_wheelCmd && cmd.length() < 20 && (loading ? true : getCom(cmd)->empty());
 }
 
-void CustomCommandHandler::writeToFile() {
+void CustomCommandHandler::writeToFile() const {
 
 	std::ofstream ccfile;
 	ccfile.open(utils::getApplicationDirectory() + "\\customcmds.json");

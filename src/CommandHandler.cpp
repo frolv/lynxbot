@@ -254,6 +254,7 @@ std::string CommandHandler::wheelFunc(const std::string &nick, const std::string
 }
 
 std::string CommandHandler::eightballFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+
 	if (fullCmd.length() < 6) {
 		return "[8 BALL] Ask me a question.";
 	}
@@ -263,6 +264,7 @@ std::string CommandHandler::eightballFunc(const std::string &nick, const std::st
 	std::srand(static_cast<uint32_t>(std::time(nullptr)));
 	size_t ind = std::rand() % m_eightballResponses.size();
 	return "[8 BALL] @" + nick + ", " + m_eightballResponses[ind] + ".";
+
 }
 
 std::string CommandHandler::strawpollFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
@@ -441,7 +443,7 @@ std::string CommandHandler::editcomFunc(const std::string &nick, const std::stri
 
 }
 
-std::string CommandHandler::extractCMLData(const std::string &httpResp, const std::string &rsn) {
+std::string CommandHandler::extractCMLData(const std::string &httpResp, const std::string &rsn) const {
 
 	std::regex dataRegex("(\\d+," + rsn + ",[\\d\\.]+,[\\d\\.]+)", std::regex_constants::ECMAScript | std::regex_constants::icase);
 	std::smatch match;
@@ -467,7 +469,7 @@ std::string CommandHandler::extractCMLData(const std::string &httpResp, const st
 
 }
 
-std::string CommandHandler::extractHSData(const std::string &httpResp, uint8_t skillID) {
+std::string CommandHandler::extractHSData(const std::string &httpResp, uint8_t skillID) const {
 
 	std::vector<std::string> skills;
 	utils::split(httpResp, '\n', skills);
@@ -479,22 +481,29 @@ std::string CommandHandler::extractHSData(const std::string &httpResp, uint8_t s
 
 }
 
-std::string CommandHandler::extractGEData(const std::string &httpResp) {
+std::string CommandHandler::extractGEData(const std::string &httpResp) const {
 
 	std::regex jsonRegex("(\\{.+\\})");
 	std::smatch match;
 
 	if (std::regex_search(httpResp.begin(), httpResp.end(), match, jsonRegex)) {
 		const std::string json = match[1];
-		return m_GEReader.extractItemPrice(json);
+		Json::Reader reader;
+		Json::Value item;
+		if (reader.parse(json, item)) {
+			return utils::formatInteger(item["overall"].asString());
+		}
+		else {
+			return "An error occurred. Please try again.";
+		}
 	}
 	else {
-		return "An error occured. Please try again.";
+		return "An error occurred. Please try again.";
 	}
 
 }
 
-CommandHandler::command CommandHandler::buildCom(const std::string &s) {
+CommandHandler::command CommandHandler::buildCom(const std::string &s) const {
 
 	std::vector<std::string> tokens;
 	utils::split(s, ' ', tokens);

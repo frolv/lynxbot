@@ -30,23 +30,23 @@ bool SelectionWheel::isActive() {
 	return m_active;
 }
 
-bool SelectionWheel::valid(const std::string &category) {
+bool SelectionWheel::valid(const std::string &category) const {
 	return m_data["categories"].isMember(category);
 }
 
-std::string SelectionWheel::name() {
+std::string SelectionWheel::name() const {
 	return m_data["wheelname"].asString();
 }
 
-std::string SelectionWheel::cmd() {
+std::string SelectionWheel::cmd() const {
 	return m_data["wheelcmd"].asString();
 }
 
-std::string SelectionWheel::desc() {
+std::string SelectionWheel::desc() const {
 	return m_data["wheeldesc"].asString();
 }
 
-std::string SelectionWheel::usage() {
+std::string SelectionWheel::usage() const {
 	return m_data["wheelusage"].asString();
 }
 
@@ -69,7 +69,7 @@ std::string SelectionWheel::choose(const std::string &nick, const std::string &c
 
 }
 
-bool SelectionWheel::ready(const std::string &nick) {
+bool SelectionWheel::ready(const std::string &nick) const {
 	return m_stored.find(nick) == m_stored.end() || time(nullptr) - lastUsed(nick) >= WHEEL_COOLDOWN;
 }
 
@@ -89,13 +89,13 @@ void SelectionWheel::add(const std::string &nick, const std::string &selection) 
 
 }
 
-std::string SelectionWheel::selection(const std::string &nick) {
+std::string SelectionWheel::selection(const std::string &nick) const {
 	if (m_stored.find(nick) == m_stored.end()) {
 		return "";
 	}
 	return m_stored.find(nick)->second.first;
 }
 
-std::time_t SelectionWheel::lastUsed(const std::string &nick) {
+std::time_t SelectionWheel::lastUsed(const std::string &nick) const {
 	return m_stored.find(nick)->second.second;
 }

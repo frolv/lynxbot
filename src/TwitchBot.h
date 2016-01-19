@@ -9,7 +9,7 @@ class TwitchBot {
 	public:
 		TwitchBot(const std::string name, const std::string channel, const std::string password = "");
 		~TwitchBot();
-		virtual bool isConnected() final;
+		bool isConnected() const;
 		void disconnect();
 		void serverLoop();
 
@@ -21,9 +21,9 @@ class TwitchBot {
 		const std::string m_nick;
 		const std::string m_channelName;
 		const std::vector<std::string> m_keys;
-		bool sendData(const std::string &data);
-		bool sendMsg(const std::string &msg);
-		bool sendPong(const std::string &ping);
+		bool sendData(const std::string &data) const;
+		bool sendMsg(const std::string &msg) const;
+		bool sendPong(const std::string &ping) const;
 		void processData(const std::string &data);
 		bool processPRIVMSG(const std::string &PRIVMSG);
 

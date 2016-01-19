@@ -11,11 +11,11 @@ GEReader::GEReader() {
 
 GEReader::~GEReader() {};
 
-bool GEReader::active() {
+bool GEReader::active() const {
 	return m_active;
 }
 
-Json::Value GEReader::getItem(std::string &name) {
+Json::Value GEReader::getItem(std::string &name) const {
 
 	std::transform(name.begin(), name.end(), name.begin(), tolower);
 	name[0] = toupper(name[0]);
@@ -38,17 +38,5 @@ Json::Value GEReader::getItem(std::string &name) {
 
 	// return empty value if item not found
 	return Json::Value();
-
-}
-
-std::string GEReader::extractItemPrice(const std::string &itemJson) {
-
-	Json::Reader reader;
-	Json::Value itemPrices;
-	if (!reader.parse(itemJson, itemPrices)) {
-		std::cerr << reader.getFormattedErrorMessages();
-		return "An error occurred. Please try again.";
-	}
-	return utils::formatInteger(itemPrices["overall"].asString());
 
 }

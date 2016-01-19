@@ -12,7 +12,7 @@ void TimerManager::add(const std::string &name, std::time_t cooldown) {
 
 }
 
-bool TimerManager::ready(const std::string &cmd) {
+bool TimerManager::ready(const std::string &cmd) const {
 	return std::time(nullptr) - lastUsed(cmd) >= cooldown(cmd);
 }
 
@@ -20,10 +20,10 @@ void TimerManager::setUsed(const std::string &cmd) {
 	m_timers.find(cmd)->second.second = std::time(nullptr);
 }
 
-std::time_t TimerManager::cooldown(const std::string &cmd) {
+std::time_t TimerManager::cooldown(const std::string &cmd) const {
 	return m_timers.find(cmd)->second.first;
-}
+}	
 
-std::time_t TimerManager::lastUsed(const std::string &cmd) {
+std::time_t TimerManager::lastUsed(const std::string &cmd) const {
 	return m_timers.find(cmd)->second.second;
 }

@@ -10,12 +10,12 @@ class TimerManager {
 		TimerManager();
 		~TimerManager();
 		void add(const std::string &name, std::time_t cooldown = DEFAULT_COOLDOWN);
-		bool ready(const std::string &cmd);
+		bool ready(const std::string &cmd) const;
 		void setUsed(const std::string &cmd);
 		
 	private:
 		TimerMap m_timers;
-		std::time_t cooldown(const std::string &cmd);
-		std::time_t lastUsed(const std::string &cmd);
+		std::time_t cooldown(const std::string &cmd) const;
+		std::time_t lastUsed(const std::string &cmd) const;
 
 };

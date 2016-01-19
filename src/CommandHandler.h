@@ -55,9 +55,9 @@ class CommandHandler {
 		std::string addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string delcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string editcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
-		std::string extractCMLData(const std::string &httpResp, const std::string &rsn);
-		std::string extractHSData(const std::string &httpResp, uint8_t skillID);
-		std::string extractGEData(const std::string &httpResp);
-		command buildCom(const std::string &s);
+		std::string extractCMLData(const std::string &httpResp, const std::string &rsn) const;
+		std::string extractHSData(const std::string &httpResp, uint8_t skillID) const;
+		std::string extractGEData(const std::string &httpResp) const;
+		command buildCom(const std::string &s) const;
 
 };

@@ -27,6 +27,6 @@ class CustomCommandHandler {
 		const std::string m_wheelCmd;
 		Json::Value m_commands;
 		Json::Value m_emptyVal;
-		void writeToFile();
+		void writeToFile() const;
 
 };

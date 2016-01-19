@@ -30,7 +30,7 @@ TwitchBot::~TwitchBot() {
 	WSACleanup();
 }
 
-bool TwitchBot::isConnected() {
+bool TwitchBot::isConnected() const {
 	return m_connected;
 }
 
@@ -66,7 +66,7 @@ void TwitchBot::serverLoop() {
 
 }
 
-bool TwitchBot::sendData(const std::string &data) {
+bool TwitchBot::sendData(const std::string &data) const {
 
 	// format string by adding win newline
 	std::string formatted = data + "\r\n";
@@ -80,11 +80,11 @@ bool TwitchBot::sendData(const std::string &data) {
 
 }
 
-bool TwitchBot::sendMsg(const std::string &msg) {
+bool TwitchBot::sendMsg(const std::string &msg) const {
 	return sendData("PRIVMSG " + m_channelName + " :" + msg);
 }
 
-bool TwitchBot::sendPong(const std::string &ping) {
+bool TwitchBot::sendPong(const std::string &ping) const {
 	// first six chars are "PING :", server name starts after
 	return sendData("PONG " + ping.substr(6));
 }
