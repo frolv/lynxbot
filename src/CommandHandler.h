@@ -35,6 +35,7 @@ class CommandHandler {
 		const std::string EXCHANGE_API = "/grandExchange?a=guidePrice&i=";
 		const std::string STRAWPOLL_HOST = "strawpoll.me";
 		const std::string STRAWPOLL_API = "/api/v2/polls";
+		std::string m_activePoll;
 		std::vector<std::string> m_eightballResponses = { "It is certain", "It is decidedly so", "Without a doubt", "Yes, definitely",
 			"You may rely on it", "As I see it, yes", "Most likely", "Outlook good", "Yes", "Signs point to yes",
 			"Reply hazy try again", "Ask again later", "Better not tell you now", "Cannot predict now", "Concentrate and ask again",
@@ -52,6 +53,7 @@ class CommandHandler {
 		std::string wheelFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string eightballFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string strawpollFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string activeFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string delcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string editcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);

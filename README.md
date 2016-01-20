@@ -181,6 +181,53 @@ Custom commands can be added or modified using the following three commands:
 
     This adds a command named `cd` with a 60 second cooldown. It is activated by typing `$cd` in the chat and the bot responds with `This command has a 60s cooldown`.
 
+* **EDITCOM**
+
+  Syntax:
+  ```
+  $editcom [-c COOLDOWN] COMMAND [RESPONSE]
+  ```
+
+  All variables are the same as in `$addcom`, except that `COMMAND` must refer to an existing command added using `$addcom`.
+  At least one of `COOLDOWN` or `RESPONSE` must be provided.
+
+  The `$editcom` command edits the cooldown or the response of an existing custom command.
+
+  Examples:
+  For the examples below, assume a custom command `hi` exists with a 15s cooldown.
+
+  0. Editing cooldown only
+    ```
+    $editcom -c 60 hi
+    ```
+
+    This changes the cooldown of `hi` to 60 seconds.
+
+  1. Editing response only
+    ```
+    $editcom hi hey wassup Hello
+    ```
+
+    This changes the response of the `hi` command to `hey wassup hello`.
+
+  2. Editing both cooldown and response
+    ```
+    $editcom -c 60 hi hey wassup hello
+    ```
+
+    This performs both the actions of parts 1 and 2, but in a single statement.
+
+* **DELCOM**
+
+  Syntax:
+  ```
+  $delcom COMMAND
+  ```
+
+  `COMMAND` is a previously added custom command.
+
+  The `$delcom` command permanently deletes the given custom command.
+
 ## Automated Responses
 
 Unlike a command, which is specifically called by a user, an automated response is sent by the bot whenever it reads a certain string or pattern within a chat message.

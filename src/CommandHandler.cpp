@@ -12,6 +12,7 @@ CommandHandler::CommandHandler() :m_customCmds(&m_defaultCmds, &m_timerManager, 
 	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
 	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
 	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
+	m_defaultCmds["active"] = &CommandHandler::activeFunc;
 	m_defaultCmds["addcom"] = &CommandHandler::addcomFunc;
 	m_defaultCmds["delcom"] = &CommandHandler::delcomFunc;
 	m_defaultCmds["editcom"] = &CommandHandler::editcomFunc;
@@ -340,7 +341,8 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 			output += "Poll could not be created.";
 		}
 		else {
-			output += "Poll created : http://" + STRAWPOLL_HOST + "/" + response["id"].asString();
+			m_activePoll = "http://" + STRAWPOLL_HOST + "/" + response["id"].asString();
+			output += "Poll created : " + m_activePoll;
 		}
 	}
 	else {
@@ -349,6 +351,10 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 
 	return output;
 
+}
+
+std::string CommandHandler::activeFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+	return "Active poll: " + (m_activePoll.empty() ? "No poll has been created." : m_activePoll);
 }
 
 std::string CommandHandler::addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {

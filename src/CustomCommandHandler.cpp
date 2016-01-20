@@ -97,7 +97,7 @@ bool CustomCommandHandler::editCom(const std::string &cmd, const std::string &ne
 }
 
 Json::Value *CustomCommandHandler::getCom(const std::string &cmd) {
-
+	
 	for (auto &val : m_commands["commands"]) {
 		if (val["cmd"] == cmd) {
 			return &val;
