@@ -215,7 +215,7 @@ Custom commands can be added or modified using the following three commands:
     $editcom -c 60 hi hey wassup hello
     ```
 
-    This performs both the actions of parts 1 and 2, but in a single statement.
+    This combines the actions of parts i and ii in a single statement.
 
 * **DELCOM**
 
