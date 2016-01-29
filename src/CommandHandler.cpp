@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-CommandHandler::CommandHandler() :m_customCmds(&m_defaultCmds, &m_timerManager, m_wheel.cmd()) {
+CommandHandler::CommandHandler(Moderator *mod) :m_modp(mod), m_customCmds(&m_defaultCmds, &m_timerManager, m_wheel.cmd()), m_counting(false) {
 
 	// initializing pointers to all default commands
 	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
@@ -13,6 +13,10 @@ CommandHandler::CommandHandler() :m_customCmds(&m_defaultCmds, &m_timerManager, 
 	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
 	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
 	m_defaultCmds["active"] = &CommandHandler::activeFunc;
+	m_defaultCmds["count"] = &CommandHandler::countFunc;
+	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
+	m_defaultCmds["permit"] = &CommandHandler::permitFunc;
+	m_defaultCmds["commands"] = &CommandHandler::commandsFunc;
 	m_defaultCmds["addcom"] = &CommandHandler::addcomFunc;
 	m_defaultCmds["delcom"] = &CommandHandler::delcomFunc;
 	m_defaultCmds["editcom"] = &CommandHandler::editcomFunc;
@@ -83,7 +87,7 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 	}
 
 	return output;
-
+	
 }
 
 std::string CommandHandler::processResponse(const std::string &message) {
@@ -110,6 +114,27 @@ std::string CommandHandler::processResponse(const std::string &message) {
 
 }
 
+bool CommandHandler::isCounting() const {
+	return m_counting;
+}
+
+void CommandHandler::count(const std::string &nick, std::string &message) {
+
+	std::transform(message.begin(), message.end(), message.begin(), tolower);
+
+	// if nick is not found
+	if (std::find(m_usersCounted.begin(), m_usersCounted.end(), nick) == m_usersCounted.end()) {
+		m_usersCounted.push_back(nick);
+		if (m_messageCounts.find(message) == m_messageCounts.end()) {
+			m_messageCounts.insert({ message, 1 });
+		}
+		else {
+			m_messageCounts.find(message)->second++;
+		}
+	}
+
+}
+
 std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 	
 	std::vector<std::string> tokens;
@@ -120,7 +145,6 @@ std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &
 		std::string rsn = tokens[1];
 		std::replace(rsn.begin(), rsn.end(), '-', '_');
 		const std::string httpResp = HTTPGet(CML_HOST, CML_EHP_AHI + rsn);
-		std::clog << httpResp << std::endl << std::endl;
 		return "[EHP] " + extractCMLData(httpResp, rsn);
 
 	}
@@ -150,7 +174,6 @@ std::string CommandHandler::levelFunc(const std::string &nick, const std::string
 		std::replace(rsn.begin(), rsn.end(), '-', '_');
 
 		const std::string httpResp = HTTPGet(RS_HOST, RS_HS_API + rsn);
-		std::clog << httpResp << std::endl;
 		if (httpResp.find("404 - Page not found") != std::string::npos) {
 			return "Player not found on hiscores.";
 		}
@@ -186,7 +209,6 @@ std::string CommandHandler::geFunc(const std::string &nick, const std::string &f
 	}
 
 	const std::string httpResp = HTTPGet(EXCHANGE_HOST, EXCHANGE_API + std::to_string(item["id"].asInt()));
-	std::clog << httpResp;
 
 	return "[GE] " + item["name"].asString() + ": " + extractGEData(httpResp) + " gp.";
 
@@ -355,6 +377,109 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 
 std::string CommandHandler::activeFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
 	return "Active poll: " + (m_activePoll.empty() ? "No poll has been created." : m_activePoll);
+}
+
+std::string CommandHandler::commandsFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+	return "[COMMANDS] " + SOURCE + "README.md";
+}
+
+std::string CommandHandler::countFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+
+	if (!privileges) return "";
+
+	std::vector<std::string> tokens;
+	utils::split(fullCmd, ' ', tokens);
+
+	if (tokens.size() != 2 || !(tokens[1] == "start" || tokens[1] == "stop" || tokens[1] == "display")) {
+		return "Invalid syntax.";
+	}
+
+	if (tokens[1] == "start") {
+		if (m_counting) {
+			return "A count is already running. End it before starting a new one.";
+		}
+		m_usersCounted.clear();
+		m_messageCounts.clear();
+		m_counting = true;
+		return "Message counting has begun. Prepend your message with a + to have it counted.";
+	}
+	else if (tokens[1] == "stop") {
+		if (!m_counting) {
+			return "There is no active count.";
+		}
+		m_counting = false;
+		return "Count ended. Use \"$count display\" to view the results.";
+	}
+	else {
+		if (m_counting) {
+			return "End the count before viewing the results.";
+		}
+		if (m_messageCounts.empty()) {
+			return "Nothing to display.";
+		}
+		else {
+			typedef std::pair<std::string, uint16_t> mcount;
+			std::vector<mcount> pairs;
+			for (auto itr = m_messageCounts.begin(); itr != m_messageCounts.end(); ++itr) {
+				pairs.push_back(*itr);
+			}
+			std::sort(pairs.begin(), pairs.end(), [=](mcount &a, mcount &b) { return a.second > b.second; });
+			std::string results = "[RESULTS] ";
+			size_t max = pairs.size() > 10 ? 10 : pairs.size();
+			for (size_t i = 0; i < max; ++i) {
+				mcount pair = pairs[i];
+				results += std::to_string(i + 1) + ". " + pair.first + " (" + std::to_string(pair.second) + ")" + (i == max - 1 ? "." : ", ");
+			}
+			return results;
+
+		}
+	}
+
+}
+
+std::string CommandHandler::whitelistFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+
+	if (!privileges) return "";
+
+	std::vector<std::string> tokens;
+	utils::split(fullCmd, ' ', tokens);
+
+	if (tokens.size() > 2) {
+		return "Invalid syntax. Use \"$whitelist SITE\".";
+	}
+
+	if (tokens.size() == 1) {
+		return m_modp->getFormattedWhitelist();
+	}
+
+	const std::string url = tokens[1];
+
+	std::regex urlRegex("(?:https?://)?(?:[a-zA-Z0-9]{1,4}\\.)*([a-zA-Z0-9\\-]+)((?:\\.[a-zA-Z]{2,4}){1,4})(?:/.+?)?\\b");
+	std::smatch match;
+	if (std::regex_match(url.begin(), url.end(), match, urlRegex)) {
+		std::string website = match[1].str() + match[2].str();
+		m_modp->whitelist(website);
+		return "@" + nick + ", " + website + " has been whitelisted.";
+	}
+
+	return "@" + nick + ", invalid URL: " + url;
+
+}
+
+std::string CommandHandler::permitFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+	
+	if (!privileges) return "";
+
+	std::vector<std::string> tokens;
+	utils::split(fullCmd, ' ', tokens);
+
+	if (tokens.size() != 2) {
+		return "Invalid syntax. Use \"$permit USER\".";
+	}
+
+	m_modp->permit(tokens[1]);
+	return tokens[1] + " has been granted permission to post a link.";
+
 }
 
 std::string CommandHandler::addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {

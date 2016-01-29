@@ -3,7 +3,7 @@
 #define MAX_BUFFER_SIZE 2048
 
 TwitchBot::TwitchBot(const std::string nick, const std::string channel, const std::string password)
-	: m_connected(false), m_nick(nick), m_channelName(channel), m_socket(NULL) {
+	: m_connected(false), m_nick(nick), m_channelName(channel), m_socket(NULL), m_cmdHandler(&m_mod) {
 
 	const std::string serv = "irc.twitch.tv", port = "6667";
 
@@ -20,6 +20,8 @@ TwitchBot::TwitchBot(const std::string nick, const std::string channel, const st
 
 		// join channel
 		sendData("JOIN " + channel);
+
+		m_tick = std::thread(&TwitchBot::tick, this);
 
 	}
 
@@ -58,7 +60,7 @@ void TwitchBot::serverLoop() {
 			break;
 		}
 
-		std::clog << "[RECV] " << buf << std::endl;
+		std::cout << "[RECV] " << buf << std::endl;
 
 		processData(std::string(buf));
 
@@ -73,7 +75,7 @@ bool TwitchBot::sendData(const std::string &data) const {
 
 	// send formatted data
 	int32_t bytes = send(m_socket, formatted.c_str(), formatted.length(), NULL);
-	std::clog << (bytes > 0 ? "[SENT] " : "Failed to send: ") << formatted << std::endl;
+	std::cout << (bytes > 0 ? "[SENT] " : "Failed to send: ") << formatted << std::endl;
 
 	// return true iff data was sent succesfully
 	return bytes > 0;
@@ -126,12 +128,22 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 		// channel owner or mod
 		bool privileges = nick == channel.substr(1) || !type.empty() || nick == "brainsoldier";
 
+		if (!privileges && moderate(nick, msg)) {
+			return true;
+		}
+
 		// all chat commands start with $
 		if (utils::startsWith(msg, "$") && msg.length() > 1) {
 			std::string output = m_cmdHandler.processCommand(nick, msg.substr(1), privileges);
 			if (!output.empty()) {
 				sendMsg(output);
 			}
+			return true;
+		}
+
+		// count
+		if (m_cmdHandler.isCounting() && utils::startsWith(msg, "+") && msg.length() > 1) {
+			m_cmdHandler.count(nick, msg.substr(1));
 			return true;
 		}
 
@@ -146,6 +158,29 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 	else {
 		std::cerr << "Could not extract data." << std::endl;
 		return false;
+	}
+
+}
+
+bool TwitchBot::moderate(const std::string &nick, const std::string &msg) {
+
+	std::string reason;
+	if (!m_mod.isValidMsg(msg, nick, reason)) {
+		sendMsg("/timeout " + nick + " 60");
+		sendMsg(nick + " - " + reason);
+		return true;
+	}
+
+	return false;
+
+}
+
+void TwitchBot::tick() {
+
+	while (m_connected) {
+		// check a set of variables every five seconds and perform actions if certain conditions are met
+		sendMsg("This message is sent every five seconds");
+		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 	}
 
 }

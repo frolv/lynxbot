@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <time.h>
 #include <random>
+#include <thread>
 
 // project libraries
 #include <json\json.h>
@@ -26,6 +27,7 @@
 #include "TwitchBot.h"
 #include "CommandHandler.h"
 #include "CustomCommandHandler.h"
+#include "Moderator.h"
 #include "Utils.h"
 #include "GEReader.h"
 #include "TimerManager.h"

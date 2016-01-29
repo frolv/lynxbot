@@ -9,7 +9,7 @@ std::string HTTPGet(const std::string &hostname, const std::string &address) {
 		return "";
 	}
 
-	std::clog << "Connection to " << hostname << " successful." << std::endl;
+	std::cout << "Connection to " << hostname << " successful." << std::endl;
 
 	// send the HTTP request
 	std::string httpReq = "GET " + address + " HTTP/1.1\r\nHost: " + hostname + "\r\nConnection: close\r\n\r\n";
@@ -47,7 +47,7 @@ std::string HTTPPost(const std::string &hostname, const std::string &address, co
 		return "";
 	}
 
-	std::clog << "Connection to " << hostname << " successful." << std::endl;
+	std::cout << "Connection to " << hostname << " successful." << std::endl;
 
 	// send the HTTP request
 	std::string httpReq = "POST " + address + " HTTP/1.1\r\nHost: " + hostname + "\r\nContent-Type: "
