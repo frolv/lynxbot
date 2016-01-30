@@ -4,6 +4,8 @@ namespace utils {
 
 	/* Returns true if str starts with prefix. */
 	bool startsWith(const std::string &str, const std::string &prefix);
+	/* Returns true if str ends with suffix. */
+	bool endsWith(const std::string &str, const std::string &suffix);
 	/* Splits a string into separate tokens using specified delimiter. */
 	std::vector<std::string> &split(const std::string &str, char delim, std::vector<std::string> &elems);
 	/* Formats an integer string with commas. */

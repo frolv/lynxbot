@@ -4,6 +4,10 @@ bool utils::startsWith(const std::string &str, const std::string &prefix) {
 	return str.find(prefix) == 0;
 }
 
+bool utils::endsWith(const std::string &str, const std::string &suffix) {
+	return str.find(suffix) == str.length() - suffix.length();
+}
+
 std::vector<std::string> &utils::split(const std::string &str, char delim, std::vector<std::string> &elems) {
 	std::stringstream ss(str);
 	std::string item;

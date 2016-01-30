@@ -70,8 +70,8 @@ void TwitchBot::serverLoop() {
 
 bool TwitchBot::sendData(const std::string &data) const {
 
-	// format string by adding win newline
-	std::string formatted = data + "\r\n";
+	// format string by adding CRLF
+	std::string formatted = data + (utils::endsWith(data, "\r\n") ? "" : "\r\n");
 
 	// send formatted data
 	int32_t bytes = send(m_socket, formatted.c_str(), formatted.length(), NULL);
@@ -166,8 +166,19 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg) {
 
 	std::string reason;
 	if (!m_mod.isValidMsg(msg, nick, reason)) {
-		sendMsg("/timeout " + nick + " 60");
-		sendMsg(nick + " - " + reason);
+		uint8_t offenses = m_mod.getOffenses(nick);
+		static const std::string warnings[5] = { "first", "second", "third", "fourth", "FINAL" };
+		std::string warning;
+		if (offenses < 6) {
+			// timeout for 60 * 2^(offenses - 1) seconds
+			sendMsg("/timeout " + nick + " " + std::to_string(60 * (uint16_t)pow(2, offenses - 1)));
+			warning = warnings[offenses - 1] + " warning";
+		}
+		else {
+			sendMsg("/ban " + nick);
+			warning = "Permanently banned";
+		}
+		sendMsg(nick + " - " + reason + " (" + warning + ")");
 		return true;
 	}
 
@@ -178,8 +189,7 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg) {
 void TwitchBot::tick() {
 
 	while (m_connected) {
-		// check a set of variables every five seconds and perform actions if certain conditions are met
-		sendMsg("This message is sent every five seconds");
+		// check a set of variables every five seconds and perform actions if certain conditions are 
 		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 	}
 

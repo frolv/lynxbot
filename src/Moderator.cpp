@@ -20,30 +20,46 @@ Moderator::~Moderator() {}
 
 bool Moderator::isValidMsg(const std::string &msg, const std::string &nick, std::string &reason) {
 
+	bool valid = true;
+
 	if (msg.length() > 200) {
 		reason = "message too long!";
-		return false;
+		valid = false;
 	}
 	if (checkLink(msg)) {
 		if (std::find(m_permitted.begin(), m_permitted.end(), nick) != m_permitted.end()) {
 			// if user is permitted, allow the message and remove them from permitted list
 			m_permitted.erase(std::remove(m_permitted.begin(), m_permitted.end(), nick), m_permitted.end());
-			return true;
 		}
 		reason = "no posting links!";
-		return false;
+		valid = false;
 	}
 	if (checkSpam(msg)) {
 		reason = "no spamming characters/words!";
-		return false;
+		valid = false;
 	}
 	if (checkCaps(msg)) {
 		reason = "turn off your caps lock!";
-		return false;
+		valid = false;
+	}
+	if (!valid) {
+		// update user's offenses if message is invalid
+		auto it = m_offenses.find(nick);
+		if (it == m_offenses.end()) {
+			m_offenses.insert({ nick, 1 });
+		}
+		else {
+			it->second++;
+		}
 	}
 	// if none of the above are found, the message is valid
-	return true;
+	return valid;
 
+}
+
+uint8_t Moderator::getOffenses(const std::string &nick) const {
+	auto it = m_offenses.find(nick);
+	return it == m_offenses.end() ? 0 : it->second;
 }
 
 void Moderator::whitelist(const std::string &site) {
