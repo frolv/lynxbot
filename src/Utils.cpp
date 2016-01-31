@@ -39,7 +39,7 @@ std::string utils::getApplicationDirectory() {
 	char pBuf[1000];
 	int bytes = GetModuleFileName(NULL, pBuf, sizeof(pBuf));
 	if (bytes == 0) {
-		throw std::runtime_error("Could not get current directory.");
+		return "";
 	}
 
 	// strip filename from path
@@ -47,45 +47,6 @@ std::string utils::getApplicationDirectory() {
 	path = path.substr(0, path.find_last_of("\\"));
 
 	return path;
-
-}
-
-std::vector<std::string> utils::readSettings(const std::string &appDir) {
-
-	// open settings.cfg
-	std::ifstream cfgreader(appDir + "\\settings.txt");
-	if (!cfgreader.is_open()) {
-		throw std::runtime_error("Could not locate settings.txt");
-	}
-
-	std::string line;
-	std::vector<std::string> info;
-
-	while (std::getline(cfgreader, line)) {
-
-		// remove whitespace
-		line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
-		 
-		// lines starting with * are comments
-		if (startsWith(line, "*")) {
-			continue;
-		}
-		else {
-			// line format is key:value
-			if (line.find(":") == std::string::npos) {
-				throw std::runtime_error("Invalid settings file.");
-			}
-			info.push_back(line.substr(line.find(":") + 1));
-		}
-
-		if (info.size() == 3) {
-			break;
-		}
-
-	}
-
-	cfgreader.close();
-	return info;
 
 }
 

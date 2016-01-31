@@ -1,6 +1,6 @@
 * TwitchBot configuration file.
 * Enter your information below.
-* The order MUST BE name, channel, password.
+* There must be a field for name, channel and password, all on separate lines.
 name: bot_test_
 channel: #brainsoldier
 password: oauth:your_ouath_token_here

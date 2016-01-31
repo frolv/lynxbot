@@ -49,11 +49,11 @@ void TwitchBot::serverLoop() {
 
 	while (true) {
 
-		// recieve data from server
+		// receive data from server
 		bytes = recv(m_socket, buf, MAX_BUFFER_SIZE - 1, 0);
 		buf[bytes] = '\0';
 
-		// quit program if no data is recieved
+		// quit program if no data is received
 		if (bytes <= 0) {
 			std::cerr << "No data received. Exiting." << std::endl;
 			disconnect();
@@ -114,7 +114,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 	std::smatch match;
 
 	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), match, privmsgRegex)) {
-		
+
 		const std::string type = match[1];
 		const std::string nick = match[2];
 		const std::string channel = match[3];
@@ -189,8 +189,8 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg) {
 void TwitchBot::tick() {
 
 	while (m_connected) {
-		// check a set of variables every five seconds and perform actions if certain conditions are 
-		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+		// check a set of variables every second and perform actions if certain conditions are met
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 
 }

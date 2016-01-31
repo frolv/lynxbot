@@ -116,7 +116,7 @@ bool Moderator::checkCaps(const std::string &msg) const {
 
 	uint16_t caps = 0;
 	for (auto &c : msg) {
-		caps += isupper(c) ? 1 : 0;
+		caps += (c >= 'A' && c <= 'Z') ? 1 : 0;
 	}
 	// messages longer than 12 characters with over 70% caps are invalid
 	return msg.length() > 12 && (caps / (double)msg.length() > 0.7);
