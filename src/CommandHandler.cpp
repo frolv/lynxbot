@@ -294,6 +294,7 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 
 	if (!privileges) return "";
 
+	// json values to hold created poll, poll options and http response
 	Json::Value poll, options(Json::arrayValue), response;
 	std::string output = "[SPOLL] ";
 
@@ -302,22 +303,28 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 	if (tokens.size() < 2) {
 		return output + "Not enough arguments given.";
 	}
+	// count at which point in the string the question begins
 	std::string::size_type reqStart = tokens[0].length() + 1;
 	bool binary = false, multi = false, captcha = false;
 
-	size_t i = 1;
-	while (i < tokens.size() && utils::startsWith(tokens[i], "-") && tokens[i].length() > 1) {
-		std::regex flagRegex("^-[bcm]+$");
-		std::smatch match;
-		const std::string flag = tokens[i];
-		if (!std::regex_match(flag.begin(), flag.end(), match, flagRegex)) {
-			return output + "Invalid flag provided: " + flag.substr(1);
+	size_t i = 0;
+	while (++i < tokens.size() && utils::startsWith(tokens[i], "-") && tokens[i].length() > 1) {
+		for (auto &c : tokens[i].substr(1)) {
+			switch (c) {
+			case 'b':
+				binary = true;
+				break;
+			case 'c':
+				captcha = true;
+				break;
+			case 'm':
+				multi = true;
+				break;
+			default:
+				return output + "Illegal option provided: " + c;
+			}
 		}
-		if (flag.find("b") != std::string::npos) binary = true;
-		if (flag.find("c") != std::string::npos) captcha = true;
-		if (flag.find("m") != std::string::npos) multi = true;
-		reqStart += flag.length() + 1;
-		++i;
+		reqStart += tokens[i].length() + 1;
 	}
 
 	if (reqStart >= fullCmd.size()) {
@@ -328,7 +335,7 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 	utils::split(req, '|', tokens);
 
 	if (binary && tokens.size() != 1) {
-		return output + "Must provide question only for binary poll.";
+		return output + "Cannot provide options for binary poll.";
 	}
 	if (!binary && tokens.size() < 3) {
 		return output + "Poll must have a question and at least two answers.";
@@ -344,6 +351,7 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 		}
 	}
 
+	// populate the poll json
 	poll["title"] = tokens[0];
 	poll["options"] = options;
 	poll["captcha"] = captcha;
