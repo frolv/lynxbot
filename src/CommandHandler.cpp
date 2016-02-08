@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-CommandHandler::CommandHandler(Moderator *mod) :m_modp(mod), m_customCmds(&m_defaultCmds, &m_timerManager, m_wheel.cmd()), m_counting(false) {
+CommandHandler::CommandHandler(Moderator *mod) :m_modp(mod), m_customCmds(&m_defaultCmds, &m_cooldowns, m_wheel.cmd()), m_counting(false) {
 
 	// initializing pointers to all default commands
 	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
@@ -31,7 +31,7 @@ CommandHandler::CommandHandler(Moderator *mod) :m_modp(mod), m_customCmds(&m_def
 	if (m_responding) {
 		// add response cooldowns to TimerManager
 		for (auto &val : m_responses["responses"]) {
-			m_timerManager.add(val["name"].asString(), val["cooldown"].asInt());
+			m_cooldowns.add(val["name"].asString(), val["cooldown"].asInt());
 		}
 	}
 	else {
@@ -41,9 +41,9 @@ CommandHandler::CommandHandler(Moderator *mod) :m_modp(mod), m_customCmds(&m_def
 
 	// set all command cooldowns
 	for (auto &p : m_defaultCmds) {
-		m_timerManager.add(p.first);
+		m_cooldowns.add(p.first);
 	}
-	m_timerManager.add(m_wheel.name(), 10);
+	m_cooldowns.add(m_wheel.name(), 10);
 
 	// read extra 8ball responses
 	std::ifstream reader(utils::getApplicationDirectory() + "\\extra8ballresponses.txt");
@@ -67,19 +67,19 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 	// the command is the first part of the string up to the first space
 	std::string cmd = fullCmd.substr(0, fullCmd.find(' '));
 
-	if (m_defaultCmds.find(cmd) != m_defaultCmds.end() && (privileges || m_timerManager.ready(cmd))) {
+	if (m_defaultCmds.find(cmd) != m_defaultCmds.end() && (privileges || m_cooldowns.ready(cmd))) {
 		output += (this->*m_defaultCmds[cmd])(nick, fullCmd, privileges);
-		m_timerManager.setUsed(cmd);
+		m_cooldowns.setUsed(cmd);
 	}
-	else if (m_wheel.isActive() && cmd == m_wheel.cmd() && (privileges || m_timerManager.ready(m_wheel.name()))) {
+	else if (m_wheel.isActive() && cmd == m_wheel.cmd() && (privileges || m_cooldowns.ready(m_wheel.name()))) {
 		output += wheelFunc(nick, fullCmd, privileges);
-		m_timerManager.setUsed(m_wheel.name());
+		m_cooldowns.setUsed(m_wheel.name());
 	}
 	else if (m_customCmds.isActive()) {
 		Json::Value *customCmd = m_customCmds.getCom(cmd);
-		if (!customCmd->empty() && (privileges || m_timerManager.ready((*customCmd)["cmd"].asString()))) {
+		if (!customCmd->empty() && (privileges || m_cooldowns.ready((*customCmd)["cmd"].asString()))) {
 			output += (*customCmd)["response"].asString();
-			m_timerManager.setUsed((*customCmd)["cmd"].asString());
+			m_cooldowns.setUsed((*customCmd)["cmd"].asString());
 		}
 		else {
 			std::cerr << "Invalid command or is on cooldown: " << cmd << std::endl << std::endl;
@@ -103,8 +103,8 @@ std::string CommandHandler::processResponse(const std::string &message) {
 
 		std::regex responseRegex(regex, std::regex_constants::ECMAScript | std::regex_constants::icase);
 		std::smatch match;
-		if (std::regex_search(message.begin(), message.end(), match, responseRegex) && m_timerManager.ready(name)) {
-			m_timerManager.setUsed(name);
+		if (std::regex_search(message.begin(), message.end(), match, responseRegex) && m_cooldowns.ready(name)) {
+			m_cooldowns.setUsed(name);
 			return val["response"].asString();
 		}
 

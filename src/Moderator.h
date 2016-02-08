@@ -11,7 +11,7 @@ class Moderator {
 		void permit(const std::string &nick);
 		std::string getFormattedWhitelist() const;
 	private:
-		std::map<std::string, uint8_t> m_offenses;
+		std::unordered_map<std::string, uint8_t> m_offenses;
 		std::vector<std::string> m_whitelist;
 		std::vector<std::string> m_permitted;
 		bool checkLink(const std::string &msg) const;

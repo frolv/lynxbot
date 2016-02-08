@@ -2,7 +2,7 @@
 
 std::string getSkillNick(uint8_t skillID) {
 
-	for (std::map<std::string, uint8_t>::const_iterator it = skillNickMap.begin(); it != skillNickMap.end(); ++it) {
+	for (std::unordered_map<std::string, uint8_t>::const_iterator it = skillNickMap.begin(); it != skillNickMap.end(); ++it) {
 		// this will be the full name
 		if (it->second == skillID) {
 			// increment the iterator again to get the nickname

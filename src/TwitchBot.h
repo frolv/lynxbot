@@ -2,9 +2,11 @@
 
 #include "Moderator.h"
 #include "CommandHandler.h"
+#include "TimerManager.h"
 
 class Moderator;
 class CommandHandler;
+class TimerManager;
 
 class TwitchBot {
 
@@ -20,6 +22,7 @@ class TwitchBot {
 		WSADATA m_wsa;
 		Moderator m_mod;
 		CommandHandler m_cmdHandler;
+		TimerManager m_eventManager;
 		bool m_connected;
 		const std::string m_nick;
 		const std::string m_channelName;

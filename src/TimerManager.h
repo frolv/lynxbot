@@ -2,7 +2,7 @@
 
 #define DEFAULT_COOLDOWN 15
 
-typedef std::map<std::string, std::pair<std::time_t, std::time_t>> TimerMap;
+typedef std::unordered_map<std::string, std::pair<std::time_t, std::time_t>> TimerMap;
 
 class TimerManager {
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 
 #define LEFT_ASSOC 0
 #define RIGHT_ASSOC 1
 
-typedef std::map<char, std::pair<uint8_t, uint8_t>> opmap;
+typedef std::unordered_map<char, std::pair<uint8_t, uint8_t>> opmap;
 
 const opmap::value_type assocs[] = {
 	opmap::value_type('+', std::make_pair<uint8_t, uint8_t>(1, LEFT_ASSOC)),

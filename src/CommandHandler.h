@@ -27,14 +27,14 @@ class CommandHandler {
 		Moderator *m_modp;
 		commandMap m_defaultCmds;
 		GEReader m_GEReader;
-		TimerManager m_timerManager;
+		TimerManager m_cooldowns;
 		SelectionWheel m_wheel;
 		CustomCommandHandler m_customCmds;
 		Json::Value m_responses;
 		bool m_responding;
 		bool m_counting;
 		std::vector<std::string> m_usersCounted;
-		std::map<std::string, uint16_t> m_messageCounts;
+		std::unordered_map<std::string, uint16_t> m_messageCounts;
 		const std::string CML_HOST = "crystalmathlabs.com";
 		const std::string CML_EHP_AHI = "/tracker/api.php?type=virtualhiscoresatplayer&page=timeplayed&player=";
 		const std::string RS_HOST = "services.runescape.com";
