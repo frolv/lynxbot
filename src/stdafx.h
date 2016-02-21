@@ -24,16 +24,9 @@
 #include <ExpressionParser.h>
 
 // project headers
-#include "TwitchBot.h"
-#include "CommandHandler.h"
-#include "CustomCommandHandler.h"
-#include "Moderator.h"
+#include "version.h"
 #include "Utils.h"
-#include "GEReader.h"
-#include "TimerManager.h"
-#include "cmdmodules\HTTPTools.h"
-#include "cmdmodules\SkillMap.h"
-#include "cmdmodules\SelectionWheel.h"
+#include "CommandHandler.h"
 
 // library for winsock2
 #pragma comment(lib, "ws2_32.lib")

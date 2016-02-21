@@ -1,6 +1,8 @@
 #include "stdafx.h"
+#include "Moderator.h"
+#include "URLParser.h"
 
-Moderator::Moderator() {
+Moderator::Moderator(URLParser *urlp) :m_parsep(urlp) {
 
 	std::ifstream whitelist(utils::getApplicationDirectory() + "\\whitelist.txt");
 	if (whitelist.is_open()) {
@@ -22,11 +24,11 @@ bool Moderator::isValidMsg(const std::string &msg, const std::string &nick, std:
 
 	bool valid = true;
 
-	if (msg.length() > 200) {
+	if (msg.length() > 300) {
 		reason = "message too long!";
 		valid = false;
 	}
-	if (checkLink(msg)) {
+	if (valid && m_parsep->wasModified() && checkWhitelist()) {
 		if (std::find(m_permitted.begin(), m_permitted.end(), nick) != m_permitted.end()) {
 			// if user is permitted, allow the message and remove them from permitted list
 			m_permitted.erase(std::remove(m_permitted.begin(), m_permitted.end(), nick), m_permitted.end());
@@ -34,11 +36,11 @@ bool Moderator::isValidMsg(const std::string &msg, const std::string &nick, std:
 		reason = "no posting links!";
 		valid = false;
 	}
-	if (checkSpam(msg)) {
+	if (valid && checkSpam(msg)) {
 		reason = "no spamming characters/words!";
 		valid = false;
 	}
-	if (checkCaps(msg)) {
+	if (valid && checkCaps(msg)) {
 		reason = "turn off your caps lock!";
 		valid = false;
 	}
@@ -91,17 +93,8 @@ std::string Moderator::getFormattedWhitelist() const {
 
 }
 
-bool Moderator::checkLink(const std::string &msg) const {
-
-	std::regex urlRegex("(?:https?://)?(?:[a-zA-Z0-9]{1,4}\\.)*([a-zA-Z0-9\\-]+)((?:\\.[a-zA-Z]{2,4}){1,4})(?:/.+?)?\\b");
-	std::smatch match;
-	if (std::regex_search(msg.begin(), msg.end(), match, urlRegex)) {
-		// get the domain name
-		std::string website = match[1].str() + match[2].str();
-		return std::find(m_whitelist.begin(), m_whitelist.end(), website) == m_whitelist.end();
-	}
-	return false;
-
+bool Moderator::checkWhitelist() const {
+	return std::find(m_whitelist.begin(), m_whitelist.end(), m_parsep->getLast()->domain) == m_whitelist.end();
 }
 
 bool Moderator::checkSpam(const std::string &msg) const {

@@ -3,10 +3,12 @@
 #include "Moderator.h"
 #include "CommandHandler.h"
 #include "TimerManager.h"
+#include "URLParser.h"
 
 class Moderator;
 class CommandHandler;
 class TimerManager;
+class URLParser;
 
 class TwitchBot {
 
@@ -23,6 +25,7 @@ class TwitchBot {
 		Moderator m_mod;
 		CommandHandler m_cmdHandler;
 		TimerManager m_eventManager;
+		URLParser m_parser;
 		bool m_connected;
 		const std::string m_nick;
 		const std::string m_channelName;

@@ -1,6 +1,9 @@
 #include "stdafx.h"
+#include "cmdmodules/HTTPTools.h"
+#include "cmdmodules/SkillMap.h"
 
-CommandHandler::CommandHandler(Moderator *mod) :m_modp(mod), m_customCmds(&m_defaultCmds, &m_cooldowns, m_wheel.cmd()), m_counting(false) {
+CommandHandler::CommandHandler(const std::string &name, Moderator *mod, URLParser *urlp)
+	:m_name(name), m_modp(mod), m_parsep(urlp), m_customCmds(&m_defaultCmds, &m_cooldowns, m_wheel.cmd()), m_counting(false) {
 
 	// initializing pointers to all default commands
 	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
@@ -17,6 +20,7 @@ CommandHandler::CommandHandler(Moderator *mod) :m_modp(mod), m_customCmds(&m_def
 	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
 	m_defaultCmds["permit"] = &CommandHandler::permitFunc;
 	m_defaultCmds["commands"] = &CommandHandler::commandsFunc;
+	m_defaultCmds["about"] = &CommandHandler::aboutFunc;
 	m_defaultCmds["addcom"] = &CommandHandler::addcomFunc;
 	m_defaultCmds["delcom"] = &CommandHandler::delcomFunc;
 	m_defaultCmds["editcom"] = &CommandHandler::editcomFunc;
@@ -388,7 +392,11 @@ std::string CommandHandler::activeFunc(const std::string &nick, const std::strin
 }
 
 std::string CommandHandler::commandsFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
-	return "[COMMANDS] " + SOURCE + "README.md";
+	return "[COMMANDS] " + SOURCE + "/blob/master/README.md#default-commands";
+}
+
+std::string CommandHandler::aboutFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+	return "[ABOUT] " + m_name + " is running " + BOT_NAME + " " + BOT_VERSION + ". Find out more at " + SOURCE;
 }
 
 std::string CommandHandler::countFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
@@ -460,17 +468,13 @@ std::string CommandHandler::whitelistFunc(const std::string &nick, const std::st
 		return m_modp->getFormattedWhitelist();
 	}
 
-	const std::string url = tokens[1];
-
-	std::regex urlRegex("(?:https?://)?(?:[a-zA-Z0-9]{1,4}\\.)*([a-zA-Z0-9\\-]+)((?:\\.[a-zA-Z]{2,4}){1,4})(?:/.+?)?\\b");
-	std::smatch match;
-	if (std::regex_match(url.begin(), url.end(), match, urlRegex)) {
-		std::string website = match[1].str() + match[2].str();
+	if (m_parsep->parse(tokens[1])) {
+		std::string website = m_parsep->getLast()->domain;
 		m_modp->whitelist(website);
 		return "@" + nick + ", " + website + " has been whitelisted.";
 	}
 
-	return "@" + nick + ", invalid URL: " + url;
+	return "@" + nick + ", invalid URL: " + tokens[1];
 
 }
 

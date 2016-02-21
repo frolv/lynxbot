@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "GEReader.h"
 
 GEReader::GEReader() {
 

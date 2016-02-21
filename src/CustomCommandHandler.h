@@ -6,11 +6,10 @@
 class TimerManager;
 class CommandHandler;
 
-typedef std::map<std::string, std::string(CommandHandler::*)(const std::string &, const std::string &, bool)> commandMap;
-
 class CustomCommandHandler {
 
 	public:
+		typedef std::map<std::string, std::string(CommandHandler::*)(const std::string &, const std::string &, bool)> commandMap;
 		CustomCommandHandler(commandMap *defaultCmds, TimerManager *tm, const std::string &wheelCmd);
 		~CustomCommandHandler();
 		bool isActive();

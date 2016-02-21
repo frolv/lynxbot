@@ -1,9 +1,10 @@
 #include "stdafx.h"
+#include "TwitchBot.h"
 
 #define MAX_BUFFER_SIZE 2048
 
 TwitchBot::TwitchBot(const std::string nick, const std::string channel, const std::string password)
-	: m_connected(false), m_nick(nick), m_channelName(channel), m_socket(NULL), m_cmdHandler(&m_mod) {
+	: m_connected(false), m_nick(nick), m_channelName(channel), m_socket(NULL), m_mod(&m_parser), m_cmdHandler(nick, &m_mod, &m_parser) {
 
 	const std::string serv = "irc.twitch.tv", port = "6667";
 
@@ -110,15 +111,16 @@ void TwitchBot::processData(const std::string &data) {
 bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 
 	// regex to extract all necessary data from message
-	std::regex privmsgRegex("user-type=(.*) :(\\w+)!\\2@\\2.* PRIVMSG (#\\w+) :(.+)");
+	std::regex privmsgRegex("subscriber=(\\d).*user-type=(.*) :(\\w+)!\\3@\\3.* PRIVMSG (#\\w+) :(.+)");
 	std::smatch match;
 
 	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), match, privmsgRegex)) {
 
-		const std::string type = match[1];
-		const std::string nick = match[2];
-		const std::string channel = match[3];
-		const std::string msg = match[4];
+		const bool subscriber = match[1].str() == "1";
+		const std::string type = match[2].str();
+		const std::string nick = match[3].str();
+		const std::string channel = match[4].str();
+		const std::string msg = match[5].str();
 
 		// confirm message is from current channel
 		if (channel != m_channelName) {
@@ -126,9 +128,13 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 		}
 		
 		// channel owner or mod
-		bool privileges = nick == channel.substr(1) || !type.empty() || nick == "brainsoldier";
+		const bool privileges = nick == channel.substr(1) || !type.empty() || nick == "brainsoldier";
 
-		if (!privileges && moderate(nick, msg)) {
+		// check if the message contains a URL
+		m_parser.parse(msg);
+
+		// check if message is valid
+		if (!privileges && !subscriber && moderate(nick, msg)) {
 			return true;
 		}
 
@@ -144,6 +150,15 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG) {
 		// count
 		if (m_cmdHandler.isCounting() && utils::startsWith(msg, "+") && msg.length() > 1) {
 			m_cmdHandler.count(nick, msg.substr(1));
+			return true;
+		}
+
+		// link information
+		if (m_parser.wasModified()) {
+			URLParser::URL *url = m_parser.getLast();
+			if (url->twitter && !url->tweetID.empty()) {
+				// stuff
+			}
 			return true;
 		}
 
@@ -188,8 +203,13 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg) {
 
 void TwitchBot::tick() {
 
+	std::time_t curr, last = time(nullptr);
 	while (m_connected) {
 		// check a set of variables every second and perform actions if certain conditions are met
+		if ((curr = time(nullptr)) - last >= 300) {
+			sendMsg("Remember to follow https://twitter.com/RandaliciousRS and https://twitter.com/brainsoldier . God bless.");
+			last = curr;
+		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 

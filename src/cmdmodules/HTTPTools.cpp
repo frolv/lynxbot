@@ -1,4 +1,5 @@
-#include "..\stdafx.h"
+#include "../stdafx.h"
+#include "HTTPTools.h"
 
 std::string HTTPGet(const std::string &hostname, const std::string &address) {
 	

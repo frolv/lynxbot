@@ -1,9 +1,13 @@
 #pragma once
 
+#include "URLParser.h"
+
+class URLParser;
+
 class Moderator {
 
 	public:
-		Moderator();
+		Moderator(URLParser *urlp);
 		~Moderator();
 		bool isValidMsg(const std::string &msg, const std::string &nick, std::string &reason);
 		uint8_t getOffenses(const std::string &nick) const;
@@ -11,10 +15,11 @@ class Moderator {
 		void permit(const std::string &nick);
 		std::string getFormattedWhitelist() const;
 	private:
+		URLParser *m_parsep;
 		std::unordered_map<std::string, uint8_t> m_offenses;
 		std::vector<std::string> m_whitelist;
 		std::vector<std::string> m_permitted;
-		bool checkLink(const std::string &msg) const;
+		bool checkWhitelist() const;
 		bool checkSpam(const std::string &msg) const;
 		bool checkCaps(const std::string &msg) const;
 

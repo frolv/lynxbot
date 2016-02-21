@@ -1,4 +1,5 @@
-#include "..\stdafx.h"
+#include "../stdafx.h"
+#include "SelectionWheel.h"
 
 #define WHEEL_COOLDOWN 1200
 

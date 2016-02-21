@@ -1,4 +1,5 @@
-#include "..\stdafx.h"
+#include "../stdafx.h"
+#include "SkillMap.h"
 
 std::string getSkillNick(uint8_t skillID) {
 

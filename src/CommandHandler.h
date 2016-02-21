@@ -4,32 +4,35 @@
 #include "CustomCommandHandler.h"
 #include "GEReader.h"
 #include "TimerManager.h"
-#include "cmdmodules\SelectionWheel.h"
+#include "URLParser.h"
+#include "cmdmodules/SelectionWheel.h"
 
 class Moderator;
 class CustomCommandHandler;
 class GEReader;
 class TimerManager;
 class SelectionWheel;
-
-typedef std::map<std::string, std::string(CommandHandler::*)(const std::string &, const std::string &, bool)> commandMap;
+class URLParser;
 
 class CommandHandler {
 
 	public:
-		CommandHandler(Moderator *mod);
+		typedef std::map<std::string, std::string(CommandHandler::*)(const std::string &, const std::string &, bool)> commandMap;
+		CommandHandler(const std::string &name, Moderator *mod, URLParser *urlp);
 		~CommandHandler();
 		std::string processCommand(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string processResponse(const std::string &message);
 		bool isCounting() const;
 		void count(const std::string &nick, std::string &message);
 	private:
+		std::string m_name;
 		Moderator *m_modp;
 		commandMap m_defaultCmds;
 		GEReader m_GEReader;
 		TimerManager m_cooldowns;
 		SelectionWheel m_wheel;
 		CustomCommandHandler m_customCmds;
+		URLParser *m_parsep;
 		Json::Value m_responses;
 		bool m_responding;
 		bool m_counting;
@@ -43,7 +46,7 @@ class CommandHandler {
 		const std::string EXCHANGE_API = "/grandExchange?a=guidePrice&i=";
 		const std::string STRAWPOLL_HOST = "strawpoll.me";
 		const std::string STRAWPOLL_API = "/api/v2/polls";
-		const std::string SOURCE = "https://github.com/frolv/osrs-twitch-bot/blob/master/";
+		const std::string SOURCE = "https://github.com/frolv/lynxbot";
 		std::string m_activePoll;
 		std::vector<std::string> m_eightballResponses = { "It is certain", "It is decidedly so", "Without a doubt", "Yes, definitely",
 			"You may rely on it", "As I see it, yes", "Most likely", "Outlook good", "Yes", "Signs point to yes",
@@ -64,6 +67,7 @@ class CommandHandler {
 		std::string strawpollFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string activeFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string commandsFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string aboutFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string countFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string whitelistFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string permitFunc(const std::string &nick, const std::string &fullCmd, bool privileges);

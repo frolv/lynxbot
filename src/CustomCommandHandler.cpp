@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "CustomCommandHandler.h"
 
 CustomCommandHandler::CustomCommandHandler(commandMap *defaultCmds, TimerManager *tm, const std::string &wheelCmd)
 	:m_cmp(defaultCmds), m_tmp(tm), m_wheelCmd(wheelCmd) {

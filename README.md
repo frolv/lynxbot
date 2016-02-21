@@ -1,4 +1,4 @@
-# BOTNAME: A bot for Old School Runescape Twitch chat
+# LynxBot: A bot for Old School Runescape Twitch chat
 
 ## Contents
 
@@ -10,7 +10,7 @@
 
 ## Introduction
 
-BOTNAME is a Twitch.tv IRC bot designed specifically for use on Old School Runescape streams. It offers a number of commands that assist
+LynxBot is a Twitch.tv IRC bot designed specifically for use on Old School Runescape streams. It offers a number of commands that assist
 
 ## Installation
 
@@ -18,7 +18,7 @@ Some text here.
 
 ## Default Commands
 
-All BOTNAME commands begin with a dollar sign `$` and take zero or more arguments.
+All LynxBot commands begin with a dollar sign `$` and take zero or more arguments.
 In the examples below, all arguments passed to commands are written in `CAPS`.
 Optional arguments are surrounded by square brackets.
 
@@ -149,7 +149,7 @@ Optional arguments are surrounded by square brackets.
 
 ## Custom Commands
 
-BOTNAME also supports user-defined commands which print a string of text when called.
+LynxBot also supports user-defined commands which print a string of text when called.
 Custom commands can be added or modified using the following three commands:
 
 * **ADDCOM**
