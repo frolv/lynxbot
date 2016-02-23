@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "TwitchBot.h"
+#include <pencode.h>
 
-static struct botData {
+struct botData {
 	std::string name;
 	std::string channel;
 	std::string pass;
