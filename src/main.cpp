@@ -1,33 +1,22 @@
 #include "stdafx.h"
 #include "TwitchBot.h"
-#include <pencode.h>
 
+/* botData stores settings for a TwitchBot instance */
 struct botData {
 	std::string name;
 	std::string channel;
 	std::string pass;
 };
 
-botData readSettings(const std::string &appDir);
+bool readSettings(const std::string &appDir, botData *bd, std::string &error);
 
 int main() {
 
 	botData bd;
+	std::string error;
 
-	try {
-		bd = readSettings(utils::getApplicationDirectory());
-		if (bd.name.empty()) {
-			throw std::runtime_error("Could not extract name from settings.txt");
-		}
-		if (bd.channel.empty()) {
-			throw std::runtime_error("Could not extract channel from settings.txt");
-		}
-		if (bd.pass.empty()) {
-			throw std::runtime_error("Could not extract password from settings.txt");
-		}
-	}
-	catch (std::runtime_error &e) {
-		std::cerr << e.what();
+	if (!readSettings(utils::getApplicationDirectory(), &bd, error)) {
+		std::cerr << error << std::endl;
 		std::cin.get();
 		return 1;
 	}
@@ -42,17 +31,17 @@ int main() {
 
 }
 
-botData readSettings(const std::string &appDir) {
+bool readSettings(const std::string &appDir, botData *bd, std::string &error) {
 
 	// open settings.cfg
 	std::ifstream reader(appDir + "\\settings.txt");
 	if (!reader.is_open()) {
-		throw std::runtime_error("Could not locate settings.txt");
+		error = "Could not locate settings.txt";
+		return false;
 	}
 
 	std::string line;
 	uint8_t lineNum = 0;
-	botData bd;
 
 	while (std::getline(reader, line)) {
 
@@ -70,29 +59,31 @@ botData readSettings(const std::string &appDir) {
 			const std::string s = line;
 			if (std::regex_match(s.begin(), s.end(), match, lineRegex)) {
 				if (match[1].str() == "name") {
-					bd.name = match[2];
+					bd->name = match[2];
 				}
 				else if (match[1].str() == "channel") {
 					if (!utils::startsWith(match[2].str(), "#")) {
-						throw std::runtime_error("Channel name must start with #.");
+						error = "Channel name must start with #.";
 					}
-					bd.channel = match[2];
+					bd->channel = match[2];
 				}
 				else {
 					if (!utils::startsWith(match[2].str(), "oauth:")) {
-						throw std::runtime_error("Password must be a valid oauth token, starting with \"oauth:\".");
+						error = "Password must be a valid oauth token, starting with \"oauth:\".";
 					}
-					bd.pass = match[2];
+					bd->pass = match[2];
 				}
 			}
 			else {
-				throw std::runtime_error("Syntax error on line " + std::to_string(lineNum) + " of settings.txt.");
+				error = "Syntax error on line " + std::to_string(lineNum) + " of settings.txt.";
 			}
 		}
-
+		if (!error.empty()) {
+			return false;
+		}
 	}
 
 	reader.close();
-	return bd;
+	return true;
 
 }
