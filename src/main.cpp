@@ -10,7 +10,8 @@ struct botData {
 
 bool readSettings(const std::string &appDir, botData *bd, std::string &error);
 
-int main() {
+int main()
+{
 
 	botData bd;
 	std::string error;
@@ -31,7 +32,8 @@ int main() {
 
 }
 
-bool readSettings(const std::string &appDir, botData *bd, std::string &error) {
+bool readSettings(const std::string &appDir, botData *bd, std::string &error)
+{
 
 	// open settings.cfg
 	std::ifstream reader(appDir + "\\settings.txt");

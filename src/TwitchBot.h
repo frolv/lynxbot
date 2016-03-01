@@ -4,11 +4,13 @@
 #include "CommandHandler.h"
 #include "TimerManager.h"
 #include "URLParser.h"
+#include "Giveaway.h"
 
 class Moderator;
 class CommandHandler;
 class TimerManager;
 class URLParser;
+class Giveaway;
 
 class TwitchBot {
 
@@ -26,6 +28,7 @@ class TwitchBot {
 		CommandHandler m_cmdHandler;
 		TimerManager m_eventManager;
 		URLParser m_parser;
+		Giveaway m_giveaway;
 		bool m_connected;
 		const std::string m_nick;
 		const std::string m_channelName;

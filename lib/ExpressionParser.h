@@ -1,5 +1,9 @@
 #pragma once
 
+#include <stack>
+#include <queue>
+#include <vector>
+
 class ExpressionParser {
 
 	public:

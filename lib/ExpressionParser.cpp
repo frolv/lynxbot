@@ -1,7 +1,5 @@
 #include <regex>
 #include <sstream>
-#include <stack>
-#include <queue>
 
 #include "ExpressionParser.h"
 #include "OpMap.h"
