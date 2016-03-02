@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Utils.h"
 
 bool utils::startsWith(const std::string &str, const std::string &prefix) {
 	return str.find(prefix) == 0;
@@ -53,7 +54,7 @@ std::string utils::getApplicationDirectory() {
 bool utils::readJSON(const std::string &filename, Json::Value &val) {
 
 	Json::Reader reader;
-	std::ifstream fileStream(getApplicationDirectory() + "\\" + filename, std::ifstream::binary);
+	std::ifstream fileStream(getApplicationDirectory() + "/json/" + filename, std::ifstream::binary);
 
 	if (!reader.parse(fileStream, val)) {
 		std::cerr << reader.getFormattedErrorMessages() << std::endl;

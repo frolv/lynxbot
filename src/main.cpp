@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TwitchBot.h"
 
-/* botData stores settings for a TwitchBot instance */
+/* botData stores settings for initializing a TwitchBot instance */
 struct botData {
 	std::string name;
 	std::string channel;

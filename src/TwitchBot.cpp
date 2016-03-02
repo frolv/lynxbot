@@ -1,4 +1,3 @@
-#include <http/http.h>
 #include "stdafx.h"
 #include "TwitchBot.h"
 

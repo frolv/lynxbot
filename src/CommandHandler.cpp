@@ -1,9 +1,12 @@
+#include <json/json.h>
+#include <cpr/cpr.h>
+#include <ExpressionParser.h>
 #include "stdafx.h"
-#include "cmdmodules/HTTPTools.h"
 #include "cmdmodules/SkillMap.h"
 
 CommandHandler::CommandHandler(const std::string &name, Moderator *mod, URLParser *urlp)
-	:m_name(name), m_modp(mod), m_parsep(urlp), m_customCmds(&m_defaultCmds, &m_cooldowns, m_wheel.cmd()), m_counting(false) {
+	:m_name(name), m_modp(mod), m_parsep(urlp), m_customCmds(&m_defaultCmds, &m_cooldowns, m_wheel.cmd()), m_counting(false)
+{
 
 	// initializing pointers to all default commands
 	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
@@ -50,7 +53,7 @@ CommandHandler::CommandHandler(const std::string &name, Moderator *mod, URLParse
 	m_cooldowns.add(m_wheel.name(), 10);
 
 	// read extra 8ball responses
-	std::ifstream reader(utils::getApplicationDirectory() + "\\extra8ballresponses.txt");
+	std::ifstream reader(utils::getApplicationDirectory() + "/extra8ballresponses.txt");
 	if (!reader.is_open()) {
 		std::cerr << "Could not read extra8ballresponses.txt" << std::endl;
 	}
@@ -64,7 +67,8 @@ CommandHandler::CommandHandler(const std::string &name, Moderator *mod, URLParse
 
 CommandHandler::~CommandHandler() {}
 
-std::string CommandHandler::processCommand(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::processCommand(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	std::string output = "";
 
@@ -94,7 +98,8 @@ std::string CommandHandler::processCommand(const std::string &nick, const std::s
 	
 }
 
-std::string CommandHandler::processResponse(const std::string &message) {
+std::string CommandHandler::processResponse(const std::string &message)
+{
 
 	if (!m_responding) {
 		return "";
@@ -118,11 +123,13 @@ std::string CommandHandler::processResponse(const std::string &message) {
 
 }
 
-bool CommandHandler::isCounting() const {
+bool CommandHandler::isCounting() const
+{
 	return m_counting;
 }
 
-void CommandHandler::count(const std::string &nick, std::string &message) {
+void CommandHandler::count(const std::string &nick, std::string &message)
+{
 
 	std::transform(message.begin(), message.end(), message.begin(), tolower);
 
@@ -139,7 +146,8 @@ void CommandHandler::count(const std::string &nick, std::string &message) {
 
 }
 
-std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 	
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
@@ -148,21 +156,22 @@ std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &
 		// a username was provided
 		std::string rsn = tokens[1];
 		std::replace(rsn.begin(), rsn.end(), '-', '_');
-		const std::string httpResp = HTTPGet(CML_HOST, CML_EHP_AHI + rsn);
-		return "[EHP] " + extractCMLData(httpResp, rsn);
+		cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST + CML_EHP_API + rsn), cpr::Header{{ "Connection", "close" }});
+		return "[EHP] " + extractCMLData(resp.text, rsn);
 
 	}
 	else if (tokens.size() == 1) {
-		return "EHP stands for efficient hours played. You earn 1 EHP whenever you gain a certain amount of experience in a skill, \
+		return "[EHP] EHP stands for efficient hours played. You earn 1 EHP whenever you gain a certain amount of experience in a skill, \
 			depending on your level. You can find XP rates here: http://crystalmathlabs.com/tracker/suppliescalc.php";
 	}
 	else {
-		return "Invalid syntax. Use \"$ehp [RSN]\".";
+		return "[EHP] Invalid syntax. Use \"$ehp [RSN]\".";
 	}
 
 }
 
-std::string CommandHandler::levelFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::levelFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
@@ -170,55 +179,55 @@ std::string CommandHandler::levelFunc(const std::string &nick, const std::string
 	if (tokens.size() == 3) {
 
 		if (skillMap.find(tokens[1]) == skillMap.end() && skillNickMap.find(tokens[1]) == skillNickMap.end()) {
-			return "Invalid skill name.";
+			return "[LVL] Invalid skill name.";
 		}
 		uint8_t skillID = skillMap.find(tokens[1]) == skillMap.end() ? skillNickMap.find(tokens[1])->second : skillMap.find(tokens[1])->second;
 
 		std::string rsn = tokens[2];
 		std::replace(rsn.begin(), rsn.end(), '-', '_');
 
-		const std::string httpResp = HTTPGet(RS_HOST, RS_HS_API + rsn);
-		if (httpResp.find("404 - Page not found") != std::string::npos) {
-			return "Player not found on hiscores.";
+		cpr::Response resp = cpr::Get(cpr::Url("http://" + RS_HOST + RS_HS_API + rsn), cpr::Header{{ "Connection", "close" }});
+		if (resp.text.find("404 - Page not found") != std::string::npos) {
+			return "[LVL] Player not found on hiscores.";
 		}
 
+		// skill nickname is displayed to save space
 		std::string nick = getSkillNick(skillID);
 		std::transform(nick.begin(), nick.end(), nick.begin(), ::toupper);
 
-		return "[" + nick + "] Name: " + rsn + ", " + extractHSData(httpResp, skillID);
+		return "[" + nick + "] Name: " + rsn + ", " + extractHSData(resp.text, skillID);
 	}
 	else {
-		return "Invalid syntax. Use \"$lvl SKILL RSN\".";
+		return "[LVL] Invalid syntax. Use \"$lvl SKILL RSN\".";
 	}
 
 }
 
-std::string CommandHandler::geFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::geFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	if (!m_GEReader.active()) {
 		return "";
 	}
-
 	if (fullCmd.length() < 4) {
-		return "No item name provided.";
+		return "[GE] No item name provided.";
 	}
 
 	std::string itemName = fullCmd.substr(3);
 	std::replace(itemName.begin(), itemName.end(), '_', ' ');
 
 	Json::Value item = m_GEReader.getItem(itemName);
-
 	if (item.empty()) {
-		return "Item not found: " + itemName + ".";
+		return "[GE] Item not found: " + itemName + ".";
 	}
 
-	const std::string httpResp = HTTPGet(EXCHANGE_HOST, EXCHANGE_API + std::to_string(item["id"].asInt()));
-
-	return "[GE] " + item["name"].asString() + ": " + extractGEData(httpResp) + " gp.";
+	cpr::Response resp = cpr::Get(cpr::Url("http://" + EXCHANGE_HOST + EXCHANGE_API + item["id"].asString()), cpr::Header{{ "Connection", "close" }});
+	return "[GE] " + item["name"].asString() + ": " + extractGEData(resp.text) + " gp.";
 
 }
 
-std::string CommandHandler::calcFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::calcFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	if (fullCmd.length() < 6) {
 		return "Invalid mathematical expression.";
@@ -248,11 +257,13 @@ std::string CommandHandler::calcFunc(const std::string &nick, const std::string 
 
 }
 
-std::string CommandHandler::cmlFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::cmlFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 	return "[CML] http://" + CML_HOST;
 }
 
-std::string CommandHandler::wheelFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::wheelFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	std::vector<std::string> tokens;
 	utils::split(fullCmd, ' ', tokens);
@@ -280,7 +291,8 @@ std::string CommandHandler::wheelFunc(const std::string &nick, const std::string
 
 }
 
-std::string CommandHandler::eightballFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::eightballFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	if (fullCmd.length() < 6) {
 		return "[8 BALL] Ask me a question.";
@@ -294,7 +306,8 @@ std::string CommandHandler::eightballFunc(const std::string &nick, const std::st
 
 }
 
-std::string CommandHandler::strawpollFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::strawpollFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	if (!privileges) return "";
 
@@ -344,7 +357,7 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 	if (!binary && tokens.size() < 3) {
 		return output + "Poll must have a question and at least two answers.";
 	}
-	
+
 	if (binary) {
 		options.append("yes");
 		options.append("no");
@@ -361,16 +374,14 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 	poll["captcha"] = captcha;
 	poll["multi"] = multi;
 
+	// format and post the poll
 	Json::FastWriter fw;
-	const std::string httpResp = HTTPPost(STRAWPOLL_HOST, STRAWPOLL_API, "application/json", fw.write(poll));
+	const std::string content = fw.write(poll);
+	cpr::Response resp = cpr::Post(cpr::Url("http://" + STRAWPOLL_HOST + STRAWPOLL_API), cpr::Body(content),
+		cpr::Header{ { "Connection", "close" }, { "Content-Type", "application/json" }, { "Content-Length", std::to_string(content.length()) } });
 
-	std::regex jsonRegex("(\\{.+\\})");
-	std::smatch match;
-
-	if (std::regex_search(httpResp.begin(), httpResp.end(), match, jsonRegex)) {
-		const std::string json = match[1];
-		Json::Reader reader;
-		reader.parse(json, response);
+	Json::Reader reader;
+	if (reader.parse(resp.text, response)) {
 		if (!response.isMember("id")) {
 			output += "Poll could not be created.";
 		}
@@ -387,19 +398,23 @@ std::string CommandHandler::strawpollFunc(const std::string &nick, const std::st
 
 }
 
-std::string CommandHandler::activeFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::activeFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 	return "Active poll: " + (m_activePoll.empty() ? "No poll has been created." : m_activePoll);
 }
 
-std::string CommandHandler::commandsFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::commandsFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 	return "[COMMANDS] " + SOURCE + "/blob/master/README.md#default-commands";
 }
 
-std::string CommandHandler::aboutFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::aboutFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 	return "[ABOUT] " + m_name + " is running " + BOT_NAME + " " + BOT_VERSION + ". Find out more at " + SOURCE;
 }
 
-std::string CommandHandler::countFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::countFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	if (!privileges) return "";
 
@@ -453,7 +468,8 @@ std::string CommandHandler::countFunc(const std::string &nick, const std::string
 
 }
 
-std::string CommandHandler::whitelistFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::whitelistFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	if (!privileges) return "";
 
@@ -478,7 +494,8 @@ std::string CommandHandler::whitelistFunc(const std::string &nick, const std::st
 
 }
 
-std::string CommandHandler::permitFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::permitFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 	
 	if (!privileges) return "";
 
@@ -494,7 +511,8 @@ std::string CommandHandler::permitFunc(const std::string &nick, const std::strin
 
 }
 
-std::string CommandHandler::addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 	
 	if (!privileges || fullCmd.size() < 8) return "";
 	if (!m_customCmds.isActive()) {
@@ -529,7 +547,8 @@ std::string CommandHandler::addcomFunc(const std::string &nick, const std::strin
 
 }
 
-std::string CommandHandler::delcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::delcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	if (!privileges) return "";
 	if (!m_customCmds.isActive()) {
@@ -548,7 +567,8 @@ std::string CommandHandler::delcomFunc(const std::string &nick, const std::strin
 
 }
 
-std::string CommandHandler::editcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges) {
+std::string CommandHandler::editcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
 
 	if (!privileges) return "";
 	if (!m_customCmds.isActive()) {
@@ -586,17 +606,12 @@ std::string CommandHandler::editcomFunc(const std::string &nick, const std::stri
 
 }
 
-std::string CommandHandler::extractCMLData(const std::string &httpResp, const std::string &rsn) const {
+std::string CommandHandler::extractCMLData(const std::string &httpResp, const std::string &rsn) const
+{
 
-	std::regex dataRegex("(\\d+," + rsn + ",[\\d\\.]+,[\\d\\.]+)", std::regex_constants::ECMAScript | std::regex_constants::icase);
-	std::smatch match;
-	// find the required data
-	if (std::regex_search(httpResp.begin(), httpResp.end(), match, dataRegex)) {
-
-		std::string data = match[1];
-		std::vector<std::string> elems;
-		// split data into tokens
-		utils::split(data, ',', elems);
+	std::vector<std::string> elems;
+	utils::split(httpResp, ',', elems);
+	if (elems.size() == 4) {
 		std::string ehp = elems[2];
 
 		if (ehp.find(".") != std::string::npos) {
@@ -604,15 +619,14 @@ std::string CommandHandler::extractCMLData(const std::string &httpResp, const st
 			ehp = ehp.substr(0, ehp.find(".") + 2);
 		}
 		return "Name: " + elems[1] + ", Rank: " + elems[0] + ", EHP: " + ehp + " (+" + elems[3] + " this week).";
-
 	}
 	else {
 		return "Player either does not exist or has not been tracked on CML.";
 	}
-
 }
 
-std::string CommandHandler::extractHSData(const std::string &httpResp, uint8_t skillID) const {
+std::string CommandHandler::extractHSData(const std::string &httpResp, uint8_t skillID) const
+{
 
 	std::vector<std::string> skills;
 	utils::split(httpResp, '\n', skills);
@@ -621,32 +635,23 @@ std::string CommandHandler::extractHSData(const std::string &httpResp, uint8_t s
 	utils::split(skills[skillID], ',', tokens);
 
 	return "Level: " + tokens[1] + ", Exp: " + utils::formatInteger(tokens[2]) + ", Rank: " + utils::formatInteger(tokens[0]) + ".";
-
 }
 
-std::string CommandHandler::extractGEData(const std::string &httpResp) const {
+std::string CommandHandler::extractGEData(const std::string &httpResp) const
+{
 
-	std::regex jsonRegex("(\\{.+\\})");
-	std::smatch match;
-
-	if (std::regex_search(httpResp.begin(), httpResp.end(), match, jsonRegex)) {
-		const std::string json = match[1];
-		Json::Reader reader;
-		Json::Value item;
-		if (reader.parse(json, item)) {
-			return utils::formatInteger(item["overall"].asString());
-		}
-		else {
-			return "An error occurred. Please try again.";
-		}
+	Json::Reader reader;
+	Json::Value item;
+	if (reader.parse(httpResp, item)) {
+		return utils::formatInteger(item["overall"].asString());
 	}
 	else {
 		return "An error occurred. Please try again.";
 	}
-
 }
 
-CommandHandler::command CommandHandler::buildCom(const std::string &s) const {
+CommandHandler::command CommandHandler::buildCom(const std::string &s) const
+{
 
 	std::vector<std::string> tokens;
 	utils::split(s, ' ', tokens);

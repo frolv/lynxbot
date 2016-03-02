@@ -39,7 +39,7 @@ class CommandHandler {
 		std::vector<std::string> m_usersCounted;
 		std::unordered_map<std::string, uint16_t> m_messageCounts;
 		const std::string CML_HOST = "crystalmathlabs.com";
-		const std::string CML_EHP_AHI = "/tracker/api.php?type=virtualhiscoresatplayer&page=timeplayed&player=";
+		const std::string CML_EHP_API = "/tracker/api.php?type=virtualhiscoresatplayer&page=timeplayed&player=";
 		const std::string RS_HOST = "services.runescape.com";
 		const std::string RS_HS_API = "/m=hiscore_oldschool/index_lite.ws?player=";
 		const std::string EXCHANGE_HOST = "api.rsbuddy.com";

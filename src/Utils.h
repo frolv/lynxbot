@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+#include <json/json.h>
+#include <WinSock2.h>
+
 namespace utils {
 
 	/* Returns true if str starts with prefix. */

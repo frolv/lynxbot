@@ -12,6 +12,7 @@ class Giveaway {
 		bool m_active;
 		bool m_type[3] = { false, false, false };
 		const std::string m_channel;
+		time_t m_lastRequest;
 		time_t m_interval;
 		time_t m_earliest;
 		time_t m_latest;

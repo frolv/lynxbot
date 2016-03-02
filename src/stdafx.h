@@ -14,14 +14,9 @@
 #include <unordered_map>
 #include <fstream>
 #include <algorithm>
-#include <time.h>
+#include <ctime>
 #include <random>
 #include <thread>
-
-// project libraries
-#include <json\json.h>
-#include <json\json-forwards.h>
-#include <ExpressionParser.h>
 
 // project headers
 #include "version.h"

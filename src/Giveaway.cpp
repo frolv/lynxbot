@@ -5,7 +5,7 @@
 #include "Utils.h"
 
 Giveaway::Giveaway(const std::string &channel, time_t initTime)
-	:m_active(false), m_channel(channel), m_currFollowers(0), m_interval(0)
+	:m_active(false), m_channel(channel), m_lastRequest(initTime), m_currFollowers(0), m_interval(0)
 {
 	if (!readSettings()) {
 		std::cout << "Giveaways will be disabled for this session." << std::endl;
@@ -74,13 +74,14 @@ bool Giveaway::checkConditions(time_t curr)
 		return false;
 	}
 	/* check all conditions and update stored data */
-	if (m_type[1]) {
+	if (m_type[1] && curr >= m_lastRequest + 60) {
 		/* followers */
+		m_lastRequest = curr;
 		uint32_t fol;
 		fol = getFollowers();
 		std::cout << "Current: " << fol << "\nRequired: " << m_currFollowers + m_followerLimit << std::endl << std::endl;
 		if ((fol/* = getFollowers()*/) >= m_currFollowers + m_followerLimit) {
-			m_currFollowers = fol;
+			m_currFollowers += m_followerLimit;
 			return true;
 		}
 	}
@@ -114,7 +115,7 @@ std::string Giveaway::getItem()
 uint32_t Giveaway::getFollowers() const
 {
 	cpr::Response resp = cpr::Get(cpr::Url("https://api.twitch.tv/kraken/channels/" + m_channel + "/follows?limit=1"),
-		cpr::Parameters{ { "Accept", "application/vnd.twitchtv.v3+json" } });
+		cpr::Header{{ "Client-ID", "kkjhmekkzbepq0pgn34g671y5nexap8" }});
 	Json::Reader reader;
 	Json::Value val;
 	if (!reader.parse(resp.text, val)) {
