@@ -1,15 +1,18 @@
 #include "stdafx.h"
 #include "Utils.h"
 
-bool utils::startsWith(const std::string &str, const std::string &prefix) {
+bool utils::startsWith(const std::string &str, const std::string &prefix)
+{
 	return str.find(prefix) == 0;
 }
 
-bool utils::endsWith(const std::string &str, const std::string &suffix) {
+bool utils::endsWith(const std::string &str, const std::string &suffix)
+{
 	return str.find(suffix) == str.length() - suffix.length();
 }
 
-std::vector<std::string> &utils::split(const std::string &str, char delim, std::vector<std::string> &elems) {
+std::vector<std::string> &utils::split(const std::string &str, char delim, std::vector<std::string> &elems)
+{
 	std::stringstream ss(str);
 	std::string item;
 	while (std::getline(ss, item, delim)) {
@@ -20,8 +23,8 @@ std::vector<std::string> &utils::split(const std::string &str, char delim, std::
 	return elems;
 }
 
-std::string utils::formatInteger(std::string &integer) {
-
+std::string utils::formatInteger(std::string &integer)
+{
 	int pos = integer.length() - 3;
 	if (pos < 1) {
 		return integer;
@@ -31,11 +34,10 @@ std::string utils::formatInteger(std::string &integer) {
 		pos -= 3;
 	}
 	return integer;
-
 }
 
-std::string utils::getApplicationDirectory() {
-
+std::string utils::getApplicationDirectory()
+{
 	// get application directory
 	char pBuf[1000];
 	int bytes = GetModuleFileName(NULL, pBuf, sizeof(pBuf));
@@ -48,11 +50,10 @@ std::string utils::getApplicationDirectory() {
 	path = path.substr(0, path.find_last_of("\\"));
 
 	return path;
-
 }
 
-bool utils::readJSON(const std::string &filename, Json::Value &val) {
-
+bool utils::readJSON(const std::string &filename, Json::Value &val)
+{
 	Json::Reader reader;
 	std::ifstream fileStream(getApplicationDirectory() + "/json/" + filename, std::ifstream::binary);
 
@@ -62,11 +63,10 @@ bool utils::readJSON(const std::string &filename, Json::Value &val) {
 	}
 
 	return true;
-
 }
 
-bool utils::socketConnect(SOCKET &s, WSADATA &wsa, const char *port, const char *server) {
-
+bool utils::socketConnect(SOCKET &s, WSADATA &wsa, const char *port, const char *server)
+{
 	if (int32_t error = WSAStartup(MAKEWORD(2, 2), &wsa)) {
 		std::cerr << "WSAStartup failed. Error " << error << ": " << WSAGetLastError() << std::endl;
 		return false;
@@ -97,5 +97,4 @@ bool utils::socketConnect(SOCKET &s, WSADATA &wsa, const char *port, const char 
 
 	freeaddrinfo(servinfo);
 	return true;
-
 }

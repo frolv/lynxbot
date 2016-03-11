@@ -4,6 +4,7 @@
 #include "CustomCommandHandler.h"
 #include "GEReader.h"
 #include "TimerManager.h"
+#include "EventManager.h"
 #include "URLParser.h"
 #include "cmdmodules/SelectionWheel.h"
 
@@ -11,6 +12,7 @@ class Moderator;
 class CustomCommandHandler;
 class GEReader;
 class TimerManager;
+class EventManager;
 class SelectionWheel;
 class URLParser;
 
@@ -18,7 +20,7 @@ class CommandHandler {
 
 	public:
 		typedef std::map<std::string, std::string(CommandHandler::*)(const std::string &, const std::string &, bool)> commandMap;
-		CommandHandler(const std::string &name, Moderator *mod, URLParser *urlp);
+		CommandHandler(const std::string &name, Moderator *mod, URLParser *urlp, EventManager *evtp);
 		~CommandHandler();
 		std::string processCommand(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string processResponse(const std::string &message);
@@ -33,11 +35,14 @@ class CommandHandler {
 		SelectionWheel m_wheel;
 		CustomCommandHandler m_customCmds;
 		URLParser *m_parsep;
+		EventManager *m_evtp;
 		Json::Value m_responses;
 		bool m_responding;
 		bool m_counting;
 		std::vector<std::string> m_usersCounted;
 		std::unordered_map<std::string, uint16_t> m_messageCounts;
+		std::random_device m_rd;
+		std::mt19937 m_gen;
 		const std::string CML_HOST = "crystalmathlabs.com";
 		const std::string CML_EHP_API = "/tracker/api.php?type=virtualhiscoresatplayer&page=timeplayed&player=";
 		const std::string RS_HOST = "services.runescape.com";
@@ -52,11 +57,8 @@ class CommandHandler {
 			"You may rely on it", "As I see it, yes", "Most likely", "Outlook good", "Yes", "Signs point to yes",
 			"Reply hazy try again", "Ask again later", "Better not tell you now", "Cannot predict now", "Concentrate and ask again",
 			"Don't count on it", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtful" };
-		struct command {
-			std::string cmd;
-			std::string response;
-			std::time_t cooldown;
-		};
+
+		/* default bot commands */
 		std::string ehpFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string levelFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string geFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
@@ -71,12 +73,14 @@ class CommandHandler {
 		std::string countFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string whitelistFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string permitFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
-		std::string addcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string makecomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string delcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
-		std::string editcomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string addrecFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string delrecFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string listrecFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+
+		/* helpers */
 		std::string extractCMLData(const std::string &httpResp, const std::string &rsn) const;
 		std::string extractHSData(const std::string &httpResp, uint8_t skillID) const;
 		std::string extractGEData(const std::string &httpResp) const;
-		command buildCom(const std::string &s) const;
-
 };

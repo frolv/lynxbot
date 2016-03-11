@@ -2,13 +2,13 @@
 
 #include "Moderator.h"
 #include "CommandHandler.h"
-#include "TimerManager.h"
+#include "EventManager.h"
 #include "URLParser.h"
 #include "Giveaway.h"
 
 class Moderator;
 class CommandHandler;
-class TimerManager;
+class EventManager;
 class URLParser;
 class Giveaway;
 
@@ -26,7 +26,7 @@ class TwitchBot {
 		WSADATA m_wsa;
 		Moderator m_mod;
 		CommandHandler m_cmdHandler;
-		TimerManager m_eventManager;
+		EventManager m_eventManager;
 		URLParser m_parser;
 		Giveaway m_giveaway;
 		bool m_connected;

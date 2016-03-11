@@ -36,7 +36,7 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime)
 						return;
 					}
 					else {
-						std::cout << "Invalid option.\nTry again? (y/n) " << std::endl;
+						std::cout << "Invalid option.\nTry again? (y/n) ";
 					}
 				}
 			}
@@ -67,7 +67,7 @@ bool Giveaway::checkSubs()
 	return m_type[0];
 }
 
-bool Giveaway::checkConditions(time_t curr)
+bool Giveaway::checkConditions(time_t curr, uint8_t &reason)
 {
 	if (m_items.empty()) {
 		m_active = false;
@@ -77,11 +77,11 @@ bool Giveaway::checkConditions(time_t curr)
 	if (m_type[1] && curr >= m_lastRequest + 60) {
 		/* followers */
 		m_lastRequest = curr;
-		uint32_t fol;
-		fol = getFollowers();
-		std::cout << "Current: " << fol << "\nRequired: " << m_currFollowers + m_followerLimit << std::endl << std::endl;
-		if ((fol/* = getFollowers()*/) >= m_currFollowers + m_followerLimit) {
+		uint32_t fol = getFollowers();
+		std::cout << "Followers: " << fol << "(" << m_currFollowers + m_followerLimit << ")\n" << std::endl;
+		if (fol >= m_currFollowers + m_followerLimit) {
 			m_currFollowers += m_followerLimit;
+			reason = 1;
 			return true;
 		}
 	}
@@ -94,6 +94,7 @@ bool Giveaway::checkConditions(time_t curr)
 			std::mt19937 gen(rd());
 			if (std::generate_canonical<double, 10>(gen) <= prob) {
 				updateTimes(curr);
+				reason = 2;
 				return true;
 			}
 		}
@@ -110,6 +111,11 @@ std::string Giveaway::getItem()
 		writeGiveaway();
 	}
 	return item;
+}
+
+uint16_t Giveaway::followers()
+{
+	return m_followerLimit;
 }
 
 uint32_t Giveaway::getFollowers() const
@@ -236,6 +242,7 @@ bool Giveaway::parseBool(const std::string &s) const
 
 void Giveaway::updateTimes(time_t curr)
 {
+	/* timed giveaways are done within an interval to allow for variation */
 	m_earliest = curr + static_cast<time_t>(m_interval * 0.8);
 	m_latest = curr + static_cast<time_t>(m_interval * 1.2);
 }

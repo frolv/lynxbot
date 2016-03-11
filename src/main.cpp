@@ -12,7 +12,6 @@ bool readSettings(const std::string &appDir, botData *bd, std::string &error);
 
 int main()
 {
-
 	botData bd;
 	std::string error;
 
@@ -29,12 +28,10 @@ int main()
 	}
 
 	return 0;
-
 }
 
 bool readSettings(const std::string &appDir, botData *bd, std::string &error)
 {
-
 	// open settings.cfg
 	std::ifstream reader(appDir + "\\settings.txt");
 	if (!reader.is_open()) {
@@ -87,5 +84,4 @@ bool readSettings(const std::string &appDir, botData *bd, std::string &error)
 
 	reader.close();
 	return true;
-
 }

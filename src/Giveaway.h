@@ -6,8 +6,9 @@ class Giveaway {
 		~Giveaway();
 		bool active() const;
 		bool checkSubs();
-		bool checkConditions(time_t curr);
+		bool checkConditions(time_t curr, uint8_t &reason);
 		std::string getItem();
+		uint16_t followers();
 	private:
 		bool m_active;
 		bool m_type[3] = { false, false, false };
