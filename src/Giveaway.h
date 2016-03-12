@@ -5,7 +5,7 @@ class Giveaway {
 		Giveaway(const std::string &channel, time_t initTime);
 		~Giveaway();
 		bool active() const;
-		bool checkSubs();
+		//bool checkSubs();
 		bool checkConditions(time_t curr, uint8_t &reason);
 		std::string getItem();
 		uint16_t followers();

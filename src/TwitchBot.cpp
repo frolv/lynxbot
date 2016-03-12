@@ -216,10 +216,6 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 
 void TwitchBot::tick()
 {
-	// temporary
-	m_eventManager.addMessage("Remember to follow https://twitter.com/RandaliciousRS and https://twitter.com/brainsoldier . God bless.", 300);
-	m_eventManager.addMessage("Watch the latest Hexis podcast: https://www.youtube.com/watch?v=2CbR6YfWZgI Submit topics for the next podcast here: https://goo.gl/forms/JtEjWGDXvB", 1200);
-
 	uint8_t reason;
 	while (m_connected) {
 		// check a set of variables every second and perform actions if certain conditions are met
@@ -236,7 +232,7 @@ void TwitchBot::tick()
 				output += reason == 1 ? "followers" : "timed";
 				output += "] ";
 				output += m_giveaway.getItem();
-				output += reason == 1 ? "(next code in " + std::to_string(m_giveaway.followers()) + " followers)" : "";
+				output += reason == 1 ? " (next code in " + std::to_string(m_giveaway.followers()) + " followers)" : "";
 				sendMsg(output);
 			}
 			m_eventManager.setUsed("checkgiveaway");

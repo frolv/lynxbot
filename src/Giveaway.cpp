@@ -55,6 +55,7 @@ bool Giveaway::active() const
 	return m_active;
 }
 
+/*
 bool Giveaway::checkSubs()
 {
 	if (!m_active) {
@@ -66,6 +67,7 @@ bool Giveaway::checkSubs()
 	}
 	return m_type[0];
 }
+*/
 
 bool Giveaway::checkConditions(time_t curr, uint8_t &reason)
 {
@@ -158,9 +160,9 @@ bool Giveaway::readSettings()
 			if (category == "active") {
 				m_active = parseBool(setting);
 			}
-			else if (category == "subs") {
-				m_type[0] = parseBool(setting);
-			}
+			//else if (category == "subs") {
+				//m_type[0] = parseBool(setting);
+			//}
 			else if (category == "followers") {
 				m_type[1] = parseBool(setting);
 			}

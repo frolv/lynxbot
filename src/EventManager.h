@@ -11,7 +11,7 @@ class EventManager : public TimerManager {
 	public:
 		EventManager();
 		~EventManager();
-		bool addMessage(const std::string &message, time_t cooldown);
+		bool addMessage(const std::string &message, time_t cooldown, bool write = true);
 		bool delMessage(uint32_t id);
 		std::string messageList() const;
 		std::vector<std::pair<std::string, time_t>> *messages();
@@ -19,5 +19,6 @@ class EventManager : public TimerManager {
 		std::vector<std::pair<std::string, time_t>> m_messages;
 		void readFile();
 		void writeFile();
+		void reloadMessages();
 
 };
