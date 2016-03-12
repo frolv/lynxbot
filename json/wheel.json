@@ -1,0 +1,18 @@
+{
+  "wheelname": "Selection Wheel",
+  "wheelcmd": "swheel",
+  "wheeldesc": "Selects items at random from various categories.",
+  "wheelusage": "Use \"$swheel\" followed by the name of a category, or \"$swheel check\".",
+  "categories": {
+    "letter": [
+      "a",
+      "b",
+      "c"
+    ],
+  "number": [
+      "1",
+      "2",
+      "3"
+    ]
+  }
+}
