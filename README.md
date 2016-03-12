@@ -35,4 +35,4 @@ For more detailed setup instructions, see the
 ## Additional Information
 
 See the [wiki](https://github.com/frolv/lynxbot/wiki) for full documentation
-on LynxBot's funcationality.
+on LynxBot's functionality.
