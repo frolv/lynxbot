@@ -20,7 +20,7 @@ class CommandHandler {
 
 	public:
 		typedef std::map<std::string, std::string(CommandHandler::*)(const std::string &, const std::string &, bool)> commandMap;
-		CommandHandler(const std::string &name, Moderator *mod, URLParser *urlp, EventManager *evtp);
+		CommandHandler(const std::string &name, const std::string &channel, Moderator *mod, URLParser *urlp, EventManager *evtp);
 		~CommandHandler();
 		std::string processCommand(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string processResponse(const std::string &message);
@@ -52,6 +52,7 @@ class CommandHandler {
 		const std::string STRAWPOLL_HOST = "strawpoll.me";
 		const std::string STRAWPOLL_API = "/api/v2/polls";
 		const std::string SOURCE = "https://github.com/frolv/lynxbot";
+		const std::string m_channel;
 		std::string m_activePoll;
 		std::vector<std::string> m_eightballResponses = { "It is certain", "It is decidedly so", "Without a doubt", "Yes, definitely",
 			"You may rely on it", "As I see it, yes", "Most likely", "Outlook good", "Yes", "Signs point to yes",
@@ -71,6 +72,7 @@ class CommandHandler {
 		std::string commandsFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string aboutFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string countFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
+		std::string uptimeFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string whitelistFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string permitFunc(const std::string &nick, const std::string &fullCmd, bool privileges);
 		std::string makecomFunc(const std::string &nick, const std::string &fullCmd, bool privileges);

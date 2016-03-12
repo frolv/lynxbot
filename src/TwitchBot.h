@@ -32,6 +32,7 @@ class TwitchBot {
 		bool m_connected;
 		const std::string m_nick;
 		const std::string m_channelName;
+		std::string m_subMsg;
 		std::thread m_tick;
 		bool sendData(const std::string &data) const;
 		bool sendMsg(const std::string &msg) const;

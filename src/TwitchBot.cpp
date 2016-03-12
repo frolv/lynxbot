@@ -5,7 +5,8 @@
 
 TwitchBot::TwitchBot(const std::string nick, const std::string channel, const std::string password)
 	: m_connected(false), m_nick(nick), m_channelName(channel), m_socket(NULL), m_mod(&m_parser),
-	  m_cmdHandler(nick, &m_mod, &m_parser, &m_eventManager), m_giveaway(channel.substr(1), time(nullptr))
+	  m_cmdHandler(nick, channel.substr(1), &m_mod, &m_parser, &m_eventManager),
+	m_giveaway(channel.substr(1), time(nullptr))
 {
 	const std::string serv = "irc.twitch.tv", port = "6667";
 
@@ -27,6 +28,10 @@ TwitchBot::TwitchBot(const std::string nick, const std::string channel, const st
 
 		if (m_giveaway.active()) {
 			m_eventManager.add("checkgiveaway", 10, time(nullptr));
+		}
+		std::ifstream reader(utils::getApplicationDirectory() + "/submessage.txt");
+		if (reader.is_open()) {
+			std::getline(reader, m_subMsg);
 		}
 
 	}
@@ -76,7 +81,6 @@ bool TwitchBot::sendData(const std::string &data) const
 {
 	// format string by adding CRLF
 	std::string formatted = data + (utils::endsWith(data, "\r\n") ? "" : "\r\n");
-
 	// send formatted data
 	int32_t bytes = send(m_socket, formatted.c_str(), formatted.length(), NULL);
 	std::cout << (bytes > 0 ? "[SENT] " : "Failed to send: ") << formatted << std::endl;
@@ -114,8 +118,8 @@ void TwitchBot::processData(const std::string &data)
 bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 {
 	// regex to extract all necessary data from message
-	std::regex privmsgRegex("subscriber=(\\d).*user-type=(.*) :(\\w+)!\\3@\\3.* PRIVMSG (#\\w+) :(.+)");
-	std::regex subRegex(":twitchnotify.* PRIVMSG (#\\w+) :(.+) just subscribed!");
+	static const std::regex privmsgRegex("subscriber=(\\d).*user-type=(.*) :(\\w+)!\\3@\\3.* PRIVMSG (#\\w+) :(.+)");
+	static const std::regex subRegex(":twitchnotify.* PRIVMSG (#\\w+) :(.+) just subscribed!");
 	std::smatch match;
 
 	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), match, privmsgRegex)) {
@@ -141,8 +145,6 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		if (!privileges && !subscriber && moderate(nick, msg)) {
 			return true;
 		}
-
-		// dollar sign message
 
 		// all chat commands start with $
 		if (utils::startsWith(msg, "$") && msg.length() > 1) {
@@ -176,15 +178,11 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		return true;
 
 	}
-	/*
-	else if (m_giveaway.checkSubs() && std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), match, subRegex)) {
-		/* subscriber giveaway * /
-		const std::string channel = match[1].str();
+	else if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), match, subRegex)) {
 		const std::string nick = match[2].str();
-		sendMsg("/w " + nick + " Thanks for subscribing to " + channel + "! Enjoy your prize: " + m_giveaway.getItem());
+		sendMsg("@" + nick + ", " + m_subMsg);
 		return true;
 	}
-	*/
 	else {
 		std::cerr << "Could not extract data." << std::endl;
 		return false;

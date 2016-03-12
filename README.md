@@ -4,9 +4,7 @@
 
 0. [Introduction](#introduction)
 1. [Setup](#Setup)
-2. [Default Commands](#default-commands)
-3. [Custom Commands](#custom-commands)
-4. [Automated Responses](#automated-responses)
+2. [Additional Information](#additional-information)
 
 ## Introduction
 
@@ -29,16 +27,12 @@ account, the channel you want to join (typically your Twitch username prepended
 with a `#`) and the oauth token you generated (including the `oauth:`) in their
 respective fields.
 
-## Default Commands
+You can now launch the bot and it will join your channel, ready for use.
 
-See [Default Commands](https://github.com/frolv/lynxbot/wiki/Default-Commands) in the wiki.
+For more detailed setup instructions, see the
+[wiki](https://github.com/frolv/lynxbot/wiki/Setup).
 
-## Custom Commands
+## Additional Information
 
-See [Custom Commands](https://github.com/frolv/lynxbot/wiki/Custom-Commands) in the wiki.
-
-## Automated Responses
-
-Unlike a command, which is specifically called by a user, an automated response
-is sent by the bot whenever it reads a certain string or pattern within a chat
-message.
+See the [wiki](https://github.com/frolv/lynxbot/wiki) for full documentation
+on LynxBot's funcationality.

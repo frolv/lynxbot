@@ -5,8 +5,8 @@
 #include "OptionParser.h"
 #include "SkillMap.h"
 
-CommandHandler::CommandHandler(const std::string &name, Moderator *mod, URLParser *urlp, EventManager *evtp)
-	:m_name(name), m_modp(mod), m_parsep(urlp), m_customCmds(&m_defaultCmds, &m_cooldowns, m_wheel.cmd()),
+CommandHandler::CommandHandler(const std::string &name, const std::string &channel, Moderator *mod, URLParser *urlp, EventManager *evtp)
+	:m_name(name), m_channel(channel), m_modp(mod), m_parsep(urlp), m_customCmds(&m_defaultCmds, &m_cooldowns, m_wheel.cmd()),
 	m_counting(false), m_evtp(evtp), m_gen(m_rd())
 {
 	// initializing pointers to all default commands
@@ -20,6 +20,7 @@ CommandHandler::CommandHandler(const std::string &name, Moderator *mod, URLParse
 	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
 	m_defaultCmds["active"] = &CommandHandler::activeFunc;
 	m_defaultCmds["count"] = &CommandHandler::countFunc;
+	m_defaultCmds["uptime"] = &CommandHandler::uptimeFunc;
 	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
 	m_defaultCmds["permit"] = &CommandHandler::permitFunc;
 	m_defaultCmds["commands"] = &CommandHandler::commandsFunc;
@@ -59,6 +60,7 @@ CommandHandler::CommandHandler(const std::string &name, Moderator *mod, URLParse
 	std::ifstream reader(utils::getApplicationDirectory() + "/extra8ballresponses.txt");
 	if (!reader.is_open()) {
 		std::cerr << "Could not read extra8ballresponses.txt" << std::endl;
+		return;
 	}
 	std::string line;
 	while (std::getline(reader, line)) {
@@ -442,6 +444,21 @@ std::string CommandHandler::countFunc(const std::string &nick, const std::string
 			}
 			return results;
 		}
+	}
+}
+
+std::string CommandHandler::uptimeFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
+{
+	/* don't believe me just watch */
+	cpr::Response resp = cpr::Get(cpr::Url("http://nightdev.com/hosted/uptime.php?channel=" + m_channel),
+		cpr::Header{{ "Connection", "close" }});
+	const std::string response = resp.text.substr(0, resp.text.find('-') - 1);
+	static const std::string channel = (char)toupper(m_channel[0]) + m_channel.substr(1);
+	if (response.substr(0, 3) == "The") {
+		return channel + " is not currently live.";
+	}
+	else {
+		return channel + " has been live for " + response + ".";
 	}
 }
 
