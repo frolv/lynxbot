@@ -35,75 +35,7 @@ See [Default Commands](https://github.com/frolv/lynxbot/wiki/Default-Commands) i
 
 ## Custom Commands
 
-LynxBot also supports user-defined commands which print a string of text when
-called.  Custom commands can be added or modified using the following three
-commands:
-
-* **ADDCOM**
-
-  Syntax: ``` $addcom [-c COOLDOWN] COMMAND RESPONSE ```
-
-  `COMMAND` is the keyword which activates the command. It is given without the
-  leading dollar sign. The name cannot be the same as any of the default
-  commands or any previously added user commands and has a limit of 20
-  characters.
-
-  `RESPONSE` is the string to print when the command is called.
-
-  If the `-c` flag is provided, `COOLDOWN` is a number specifying the cooldown
-  (in seconds) of the command. By default, all custom commands have a 15 second
-  cooldown.
-
-  Examples:
-
-  0. Without cooldown flag ``` $addcom hi Hello, World!  ```
-
-    This adds a command called `hi` with a 15 second cooldown and the response
-    `Hello, World!`. To activate this command, a user would type `$hi` in the
-    chat. Note that the dollar sign is implicitly added - do not specify it in
-    the `addcom` call.
-
-  1. With cooldown flag ``` $addcom -c 60 cd This command has a 60s cooldown
-  ```
-
-    This adds a command named `cd` with a 60 second cooldown. It is activated
-    by typing `$cd` in the chat and the bot responds with `This command has a
-    60s cooldown`.
-
-* **EDITCOM**
-
-  Syntax: ``` $editcom [-c COOLDOWN] COMMAND [RESPONSE] ```
-
-  All variables are the same as in `$addcom`, except that `COMMAND` must refer
-  to an existing command added using `$addcom`.  At least one of `COOLDOWN` or
-  `RESPONSE` must be provided.
-
-  The `$editcom` command edits the cooldown or the response of an existing
-  custom command.
-
-  Examples: For the examples below, assume a custom command `hi` exists with a
-  15s cooldown.
-
-  0. Editing cooldown only ``` $editcom -c 60 hi ```
-
-    This changes the cooldown of `hi` to 60 seconds.
-
-  1. Editing response only ``` $editcom hi hey wassup Hello ```
-
-    This changes the response of the `hi` command to `hey wassup hello`.
-
-  2. Editing both cooldown and response ``` $editcom -c 60 hi hey wassup hello
-  ```
-
-    This combines the actions of parts i and ii in a single statement.
-
-* **DELCOM**
-
-  Syntax: ``` $delcom COMMAND ```
-
-  `COMMAND` is a previously added custom command.
-
-  The `$delcom` command permanently deletes the given custom command.
+See [Custom Commands](https://github.com/frolv/lynxbot/wiki/Custom-Commands) in the wiki.
 
 ## Automated Responses
 

@@ -1,6 +1,10 @@
 #pragma once
 
-typedef std::map<std::string, std::pair<std::string, std::time_t>> WheelMap;
+#include <string>
+#include <map>
+#include <json/json.h>
+
+typedef std::map<std::string, std::pair<std::string, time_t>> WheelMap;
 
 class SelectionWheel {
 
@@ -20,8 +24,9 @@ class SelectionWheel {
 	private:
 		Json::Value m_data;
 		WheelMap m_stored;
+		time_t m_cooldown;
 		bool m_active;
 		void add(const std::string &nick, const std::string &selection);
-		std::time_t lastUsed(const std::string &nick) const;
+		time_t lastUsed(const std::string &nick) const;
 
 };

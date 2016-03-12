@@ -5,8 +5,8 @@
 #include "GEReader.h"
 #include "TimerManager.h"
 #include "EventManager.h"
+#include "SelectionWheel.h"
 #include "URLParser.h"
-#include "cmdmodules/SelectionWheel.h"
 
 class Moderator;
 class CustomCommandHandler;

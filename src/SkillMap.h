@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 const std::unordered_map<std::string, uint8_t> skillMap = {
 	{ "overall", 0 }, { "attack", 1 }, { "defence", 2 }, { "strength", 3 }, { "hitpoints", 4 }, { "range", 5 },
 	{ "prayer", 6 }, { "magic", 7 }, { "cooking", 8 }, { "woodcutting", 9 }, { "fletching", 10 }, { "fishing", 11 }, 

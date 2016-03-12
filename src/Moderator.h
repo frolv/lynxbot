@@ -21,6 +21,6 @@ class Moderator {
 		std::vector<std::string> m_permitted;
 		bool checkWhitelist() const;
 		bool checkSpam(const std::string &msg) const;
-		bool checkCaps(const std::string &msg) const;
+		bool checkString(const std::string &msg, std::string &reason) const;
 
 };

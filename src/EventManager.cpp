@@ -4,7 +4,8 @@
 #include "EventManager.h"
 #include "Utils.h"
 
-EventManager::EventManager() {
+EventManager::EventManager()
+{
 	readFile();
 }
 

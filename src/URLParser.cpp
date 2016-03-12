@@ -3,8 +3,8 @@
 
 URLParser::URLParser() :m_modified(false) {}
 
-bool URLParser::parse(const std::string &url) {
-
+bool URLParser::parse(const std::string &url)
+{
 	std::regex urlRegex("(?:https?://)?(?:[a-zA-Z0-9]{1,4}\\.)*([a-zA-Z0-9\\-]+)((?:\\.[a-zA-Z]{2,4}){1,4})(/.+)?\\b");
 	std::smatch match;
 	if (std::regex_search(url.begin(), url.end(), match, urlRegex)) {
@@ -28,10 +28,12 @@ bool URLParser::parse(const std::string &url) {
 	return m_modified;
 }
 
-URLParser::URL *URLParser::getLast() {
+URLParser::URL *URLParser::getLast()
+{
 	return &last;
 }
 
-bool URLParser::wasModified() {
+bool URLParser::wasModified()
+{
 	return m_modified;
 }

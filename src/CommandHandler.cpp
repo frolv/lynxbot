@@ -3,7 +3,7 @@
 #include <ExpressionParser.h>
 #include "stdafx.h"
 #include "OptionParser.h"
-#include "cmdmodules/SkillMap.h"
+#include "SkillMap.h"
 
 CommandHandler::CommandHandler(const std::string &name, Moderator *mod, URLParser *urlp, EventManager *evtp)
 	:m_name(name), m_modp(mod), m_parsep(urlp), m_customCmds(&m_defaultCmds, &m_cooldowns, m_wheel.cmd()),
@@ -158,7 +158,8 @@ std::string CommandHandler::ehpFunc(const std::string &nick, const std::string &
 	}
 	else if (tokens.size() == 1) {
 		return "[EHP] EHP stands for efficient hours played. You earn 1 EHP whenever you gain a certain amount of experience in a skill, \
-			depending on your level. You can find XP rates here: http://crystalmathlabs.com/tracker/suppliescalc.php";
+			depending on your level. You can find XP rates here: http://crystalmathlabs.com/tracker/suppliescalc.php . \
+			Watch a video explaining EHP: https://www.youtube.com/watch?v=rhxHlO8mvpc";
 	}
 	else {
 		return "[EHP] Invalid syntax. Use \"$ehp [RSN]\".";

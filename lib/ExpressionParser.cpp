@@ -1,25 +1,23 @@
 #include <regex>
 #include <sstream>
-
 #include "ExpressionParser.h"
 #include "OpMap.h"
 
-ExpressionParser::ExpressionParser(const std::string &expr) : m_expr(expr) {
-
+ExpressionParser::ExpressionParser(const std::string &expr) : m_expr(expr)
+{
 	// expression can only contain numbers and basic mathematical operators
 	std::regex exprRegex("^[\\d\\.()+\\-*/^]+$");
 	std::smatch match;
 	if (!std::regex_search(m_expr.begin(), m_expr.end(), match, exprRegex)) {
 		throw std::runtime_error("Expression can only contain numbers, parentheses and operators.");
 	}
-
 }
 
 ExpressionParser::~ExpressionParser() {}
 
 /* Split the expression into its various tokens. */
-void ExpressionParser::tokenizeExpr() {
-
+void ExpressionParser::tokenizeExpr()
+{
 	std::stringstream parser(m_expr);
 	// last read token
 	token last;
@@ -49,17 +47,17 @@ void ExpressionParser::tokenizeExpr() {
 	}
 
 	tokens.pop_back();
-
 }
 
-double ExpressionParser::eval() {
+double ExpressionParser::eval()
+{
 	shuntingYard();
 	evalRevPol();
 	return m_output.top();
 }
 
-void ExpressionParser::shuntingYard() {
-
+void ExpressionParser::shuntingYard()
+{
 	for (auto &t : tokens) {
 
 		if (t.isOp) {
@@ -134,11 +132,10 @@ void ExpressionParser::shuntingYard() {
 		m_opstack.pop();
 		m_revpol.push(top);
 	}
-
 }
 
-void ExpressionParser::evalRevPol() {
-
+void ExpressionParser::evalRevPol()
+{
 	while (!m_revpol.empty()) {
 
 		token next = m_revpol.front();
@@ -188,5 +185,4 @@ void ExpressionParser::evalRevPol() {
 	if (m_output.size() != 1) {
 		throw std::runtime_error("Invalid mathematical expression.");
 	}
-
 }
