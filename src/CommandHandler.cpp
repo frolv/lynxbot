@@ -42,7 +42,7 @@ CommandHandler::CommandHandler(const std::string &name, const std::string &chann
 	if (m_responding) {
 		// add response cooldowns to TimerManager
 		for (auto &val : m_responses["responses"]) {
-			m_cooldowns.add(val["name"].asString(), val["cooldown"].asInt());
+			m_cooldowns.add('_' + val["name"].asString(), val["cooldown"].asInt());
 		}
 	}
 	else {
@@ -109,7 +109,7 @@ std::string CommandHandler::processResponse(const std::string &message)
 
 	/* test the message against all response regexes */
 	for (auto &val : m_responses["responses"]) {
-		std::string name = val["name"].asString();
+		std::string name = '_' + val["name"].asString();
 		std::string regex = val["regex"].asString();
 
 		std::regex responseRegex(regex, std::regex_constants::ECMAScript | std::regex_constants::icase);
