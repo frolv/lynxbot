@@ -599,7 +599,7 @@ std::string CommandHandler::makecomFunc(const std::string &nick, const std::stri
 			}
 			else {
 				output += "command $" + cmd + " has been added with a " +
-					std::to_string(cooldown) + "s cooldown";
+					std::to_string(cooldown) + "s cooldown.";
 			}
 		}
 	}

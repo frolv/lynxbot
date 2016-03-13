@@ -12160,6 +12160,181 @@
       "id": 13265,
       "name": "Abyssal dagger",
       "nick": ["Abby dagger"]
+    },
+    {
+      "id": 13267,
+      "name": "Abyssal dagger (p)"
+    },
+    {
+      "id": 13269,
+      "name": "Abyssal dagger (p+)"
+    },
+    {
+      "id": 13271,
+      "name": "Abyssal dagger (p++)"
+    },
+    {
+      "id": 13277,
+      "name": "Jar of miasma"
+    },
+    {
+      "id": 13383,
+      "name": "Xerician fabric"
+    },
+    {
+      "id": 13385,
+      "name": "Xerician hat"
+    },
+    {
+      "id": 13387,
+      "name": "Xerician top"
+    },
+    {
+      "id": 13389,
+      "name": "Xerician robe"
+    },
+    {
+      "id": 13391,
+      "name": "Lizardman fang"
+    },
+    {
+      "id": 13421,
+      "name": "Saltpetre"
+    },
+    {
+      "id": 13431,
+      "name": "Sandworms"
+    },
+    {
+      "id": 13439,
+      "name": "Raw anglerfish"
+    },
+    {
+      "id": 13441,
+      "name": "Anglerfish"
+    },
+    {
+      "id": 13448,
+      "name": "Ensouled goblin head",
+      "nick": ["Ensouled goblin"]
+    },
+    {
+      "id": 13451,
+      "name": "Ensouled monkey head",
+      "nick": ["Ensouled monkey"]
+    },
+    {
+      "id": 13454,
+      "name": "Ensouled imp head",
+      "nick": ["Ensouled imp"]
+    },
+    {
+      "id": 13457,
+      "name": "Ensouled minotaur head",
+      "nick": ["Ensouled minotaur"]
+    },
+    {
+      "id": 13460,
+      "name": "Ensouled scorpion head",
+      "nick": ["Ensouled scorpion"]
+    },
+    {
+      "id": 13463,
+      "name": "Ensouled bear head",
+      "nick": ["Ensouled bear"]
+    },
+    {
+      "id": 13466,
+      "name": "Ensouled unicorn head",
+      "nick": ["Ensouled unicorn"]
+    },
+    {
+      "id": 13469,
+      "name": "Ensouled dog head",
+      "nick": ["Ensouled dog"]
+    },
+    {
+      "id": 13472,
+      "name": "Ensouled chaos druid head",
+      "nick": ["Ensouled chaos druid"]
+    },
+    {
+      "id": 13475,
+      "name": "Ensouled giant head",
+      "nick": ["Ensouled giant"]
+    },
+    {
+      "id": 13478,
+      "name": "Ensouled ogre head",
+      "nick": ["Ensouled ogre"]
+    },
+    {
+      "id": 13481,
+      "name": "Ensouled elf head",
+      "nick": ["Ensouled elf"]
+    },
+    {
+      "id": 13484,
+      "name": "Ensouled troll head",
+      "nick": ["Ensouled troll"]
+    },
+    {
+      "id": 13487,
+      "name": "Ensouled horror head",
+      "nick": ["Ensouled horror"]
+    },
+    {
+      "id": 13490,
+      "name": "Ensouled kalphite head",
+      "nick": ["Ensouled kalphite"]
+    },
+    {
+      "id": 13493,
+      "name": "Ensouled dagannoth head",
+      "nick": ["Ensouled dagannoth"]
+    },
+    {
+      "id": 13496,
+      "name": "Ensouled bloodveld head",
+      "nick": ["Ensouled bloodveld"]
+    },
+    {
+      "id": 13499,
+      "name": "Ensouled tzhaar head",
+      "nick": ["Ensouled tzhaar"]
+    },
+    {
+      "id": 13502,
+      "name": "Ensouled demon head",
+      "nick": ["Ensouled demon"]
+    },
+    {
+      "id": 13505,
+      "name": "Ensouled aviansie head",
+      "nick": ["Ensouled aviansie"]
+    },
+    {
+      "id": 13508,
+      "name": "Ensouled abyssal head",
+      "nick": ["Ensouled abyssal"]
+    },
+    {
+      "id": 13511,
+      "name": "Ensouled dragon head",
+      "nick": ["Ensouled dragon"]
+    },
+    {
+      "id": 13573,
+      "name": "Dynamite"
+    },
+    {
+      "id": 13576,
+      "name": "Dragon warhammer",
+      "nick": ["Dwh", "D warhammer"]
+    },
+    {
+      "id": 13657,
+      "name": "Grape seed"
     }
   ]
 }

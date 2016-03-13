@@ -120,7 +120,7 @@ bool Moderator::checkString(const std::string &msg, std::string &reason) const
 		caps += (c >= 'A' && c <= 'Z') ? 1 : 0;
 	}
 	// messages longer than 12 characters with over 70% caps are invalid
-	if (msg.length() > 12 && (caps / (double)msg.length() > 0.7)) {
+	if (msg.length() > 24 && (caps / (double)msg.length() > 0.8)) {
 		reason = "turn off your caps lock!";
 		return true;
 	}
