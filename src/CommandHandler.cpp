@@ -385,7 +385,7 @@ std::string CommandHandler::commandsFunc(const std::string &nick, const std::str
 
 std::string CommandHandler::aboutFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
 {
-	return "[ABOUT] " + m_name + " is running " + BOT_NAME + " " + BOT_VERSION + ". Find out more at " + SOURCE;
+	return "[ABOUT] " + m_name + " is running " + BOT_NAME + " v" + BOT_VERSION + ". Find out more at " + SOURCE;
 }
 
 std::string CommandHandler::countFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
@@ -450,15 +450,15 @@ std::string CommandHandler::countFunc(const std::string &nick, const std::string
 std::string CommandHandler::uptimeFunc(const std::string &nick, const std::string &fullCmd, bool privileges)
 {
 	/* don't believe me just watch */
-	cpr::Response resp = cpr::Get(cpr::Url("http://nightdev.com/hosted/uptime.php?channel=" + m_channel),
+	cpr::Response resp = cpr::Get(cpr::Url("https://decapi.me/twitch/uptime.php?channel=" + m_channel),
 		cpr::Header{{ "Connection", "close" }});
-	const std::string response = resp.text.substr(0, resp.text.find('-') - 1);
 	static const std::string channel = (char)toupper(m_channel[0]) + m_channel.substr(1);
-	if (response.substr(0, 3) == "The") {
+	std::cout << resp.text << std::endl;
+	if (resp.text.substr(0, 7) == "Channel") {
 		return channel + " is not currently live.";
 	}
 	else {
-		return channel + " has been live for " + response + ".";
+		return channel + " has been live for " + resp.text + ".";
 	}
 }
 
