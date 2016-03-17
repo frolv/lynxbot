@@ -113,14 +113,14 @@ bool Moderator::checkString(const std::string &msg, std::string &reason) const
 			repeated = 0;
 			last = c;
 		}
-		if (repeated > 9) {
+		if (repeated > 15) {
 			reason = "no spamming characters!";
 			return true;
 		}
 		caps += (c >= 'A' && c <= 'Z') ? 1 : 0;
 	}
 	// messages longer than 12 characters with over 70% caps are invalid
-	if (msg.length() > 24 && (caps / (double)msg.length() > 0.8)) {
+	if (msg.length() > 30 && (caps / (double)msg.length() > 0.8)) {
 		reason = "turn off your caps lock!";
 		return true;
 	}
