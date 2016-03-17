@@ -8,7 +8,7 @@ TwitchBot::TwitchBot(const std::string nick, const std::string channel, const st
 	  m_cmdHandler(nick, channel.substr(1), &m_mod, &m_parser, &m_eventManager),
 	m_giveaway(channel.substr(1), time(nullptr))
 {
-	const std::string serv = "irc.twitch.tv", port = "6667";
+	const std::string serv = "irc.chat.twitch.tv", port = "80";
 
 	m_connected = utils::socketConnect(m_socket, m_wsa, port.c_str(), serv.c_str());
 	if (m_connected) {
