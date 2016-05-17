@@ -4,7 +4,7 @@
 
 Moderator::Moderator(URLParser *urlp) :m_parsep(urlp)
 {
-	std::ifstream whitelist(utils::getApplicationDirectory() + "\\whitelist.txt");
+	std::ifstream whitelist(utils::appdir() + "\\whitelist.txt");
 	if (whitelist.is_open()) {
 		std::string line;
 		while (std::getline(whitelist, line)) {
@@ -67,7 +67,7 @@ void Moderator::whitelist(const std::string &site)
 	if (std::find(m_whitelist.begin(), m_whitelist.end(), site) == m_whitelist.end()) {
 		m_whitelist.push_back(site);
 	}
-	std::ofstream writer(utils::getApplicationDirectory() + "\\whitelist.txt");
+	std::ofstream writer(utils::appdir() + "\\whitelist.txt");
 	for (auto &s : m_whitelist) {
 		writer << s << std::endl;
 	}

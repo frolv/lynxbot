@@ -55,7 +55,7 @@ std::vector<std::pair<std::string, time_t>> *EventManager::messages()
 
 void EventManager::readFile()
 {
-	std::ifstream reader(utils::getApplicationDirectory() + "/recurring.txt");
+	std::ifstream reader(utils::appdir() + "/recurring.txt");
 	if (reader.is_open()) {
 		std::string line;
 		uint16_t lineNum = 0;
@@ -89,7 +89,7 @@ void EventManager::readFile()
 
 void EventManager::writeFile()
 {
-	std::ofstream writer(utils::getApplicationDirectory() + "/recurring.txt");
+	std::ofstream writer(utils::appdir() + "/recurring.txt");
 	if (writer.is_open()) {
 		for (auto &p : m_messages) {
 			writer << p.second / 60 << ' ' << p.first << std::endl;

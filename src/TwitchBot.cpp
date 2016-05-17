@@ -29,7 +29,7 @@ TwitchBot::TwitchBot(const std::string nick, const std::string channel, const st
 		if (m_giveaway.active()) {
 			m_eventManager.add("checkgiveaway", 10, time(nullptr));
 		}
-		std::ifstream reader(utils::getApplicationDirectory() + "/submessage.txt");
+		std::ifstream reader(utils::appdir() + "/submessage.txt");
 		if (reader.is_open()) {
 			std::getline(reader, m_subMsg);
 		}

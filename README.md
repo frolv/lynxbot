@@ -3,7 +3,7 @@
 ## Contents
 
 0. [Introduction](#introduction)
-1. [Setup](#Setup)
+1. [Setup](#setup)
 2. [Additional Information](#additional-information)
 
 ## Introduction

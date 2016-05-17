@@ -15,7 +15,7 @@ namespace utils {
 	/* Formats an integer string with commas. */
 	std::string formatInteger(std::string &integer);
 	/* Gets the directory in which the application is located. */
-	std::string getApplicationDirectory();
+	std::string appdir();
 	/* Reads a .json file and stores data in val. */
 	bool readJSON(const std::string &filename, Json::Value &val);
 	/* Opens and connects to a socket. */

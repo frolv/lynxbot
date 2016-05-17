@@ -135,7 +135,7 @@ uint32_t Giveaway::getFollowers() const
 
 bool Giveaway::readSettings()
 {
-	std::ifstream reader(utils::getApplicationDirectory() + "/giveaway/giveaway-settings.txt");
+	std::ifstream reader(utils::appdir() + "/giveaway/giveaway-settings.txt");
 	if (!reader.is_open()) {
 		std::cerr << "Could not locate giveaway-settings.txt" << std::endl;
 		return false;
@@ -204,7 +204,7 @@ bool Giveaway::readSettings()
 
 bool Giveaway::readGiveaway()
 {
-	std::ifstream reader(utils::getApplicationDirectory() + "/giveaway/giveaway.txt");
+	std::ifstream reader(utils::appdir() + "/giveaway/giveaway.txt");
 	if (!reader.is_open()) {
 		m_active = false;
 		return false;
@@ -219,7 +219,7 @@ bool Giveaway::readGiveaway()
 
 void Giveaway::writeGiveaway() const
 {
-	std::ofstream writer(utils::getApplicationDirectory() + "/giveaway/giveaway.txt");
+	std::ofstream writer(utils::appdir() + "/giveaway/giveaway.txt");
 	if (writer.is_open()) {
 		for (auto &s : m_items) {
 			writer << s << std::endl;

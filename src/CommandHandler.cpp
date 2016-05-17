@@ -57,7 +57,7 @@ CommandHandler::CommandHandler(const std::string &name, const std::string &chann
 	m_cooldowns.add(m_wheel.name(), 10);
 
 	// read extra 8ball responses
-	std::ifstream reader(utils::getApplicationDirectory() + "/extra8ballresponses.txt");
+	std::ifstream reader(utils::appdir() + "/extra8ballresponses.txt");
 	if (!reader.is_open()) {
 		std::cerr << "Could not read extra8ballresponses.txt" << std::endl;
 		return;

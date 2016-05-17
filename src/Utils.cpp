@@ -16,9 +16,8 @@ std::vector<std::string> &utils::split(const std::string &str, char delim, std::
 	std::stringstream ss(str);
 	std::string item;
 	while (std::getline(ss, item, delim)) {
-		if (!item.empty()) {
+		if (!item.empty())
 			elems.push_back(item);
-		}
 	}
 	return elems;
 }
@@ -26,9 +25,8 @@ std::vector<std::string> &utils::split(const std::string &str, char delim, std::
 std::string utils::formatInteger(std::string &integer)
 {
 	int pos = integer.length() - 3;
-	if (pos < 1) {
+	if (pos < 1)
 		return integer;
-	}
 	while (pos > 0) {
 		integer.insert(pos, ",");
 		pos -= 3;
@@ -36,14 +34,22 @@ std::string utils::formatInteger(std::string &integer)
 	return integer;
 }
 
-std::string utils::getApplicationDirectory()
+std::string utils::appdir()
 {
-	// get application directory
+#ifdef _WIN32
+	return appdir_win();
+#endif
+#ifdef __linux__
+	return appdir_unix();
+#endif
+}
+
+static std::string appdir_win()
+{
 	char pBuf[1000];
-	int bytes = GetModuleFileName(NULL, pBuf, sizeof(pBuf));
-	if (bytes == 0) {
+	int bytes;
+	if ((bytes = GetModuleFileName(NULL, pBuf, sizeof(pBuf))) == 0)
 		return "";
-	}
 
 	// strip filename from path
 	std::string path(pBuf);
@@ -52,10 +58,16 @@ std::string utils::getApplicationDirectory()
 	return path;
 }
 
+static std::string appdir_unix()
+{
+	DIR *d;
+	d = opendir(".");
+}
+
 bool utils::readJSON(const std::string &filename, Json::Value &val)
 {
 	Json::Reader reader;
-	std::ifstream fileStream(getApplicationDirectory() + "/json/" + filename, std::ifstream::binary);
+	std::ifstream fileStream(appdir() + "/json/" + filename, std::ifstream::binary);
 
 	if (!reader.parse(fileStream, val)) {
 		std::cerr << reader.getFormattedErrorMessages() << std::endl;
