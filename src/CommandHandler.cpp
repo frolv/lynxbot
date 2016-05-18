@@ -171,7 +171,7 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 	utils::split(c->fullCmd, ' ', tokens);
 
 	if (tokens.size() == 2) {
-		// a username was provided
+		/* a username was provided */
 		std::string rsn = tokens[1];
 		std::replace(rsn.begin(), rsn.end(), '-', '_');
 		cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST +
@@ -249,7 +249,7 @@ std::string CommandHandler::calcFunc(struct cmdinfo *c)
 		return "Invalid mathematical expression.";
 
 	std::string expr = c->fullCmd.substr(5);
-	// remove all whitespace
+	/* remove all whitespace */
 	expr.erase(std::remove_if(expr.begin(), expr.end(), isspace), expr.end());
 	
 	std::string result;

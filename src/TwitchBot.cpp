@@ -75,13 +75,15 @@ void TwitchBot::serverLoop()
 
 bool TwitchBot::sendData(const std::string &data)
 {
-	// format string by adding CRLF
-	std::string formatted = data + (utils::endsWith(data, "\r\n") ? "" : "\r\n");
-	// send formatted data
+	/* format string by adding CRLF */
+	std::string formatted = data
+		+ (utils::endsWith(data, "\r\n") ? "" : "\r\n");
+	/* send formatted data */
 	int32_t bytes = m_client.cwrite(formatted);
-	std::cout << (bytes > 0 ? "[SENT] " : "Failed to send: ") << formatted << std::endl;
+	std::cout << (bytes > 0 ? "[SENT] " : "Failed to send: ")
+		<< formatted << std::endl;
 
-	// return true iff data was sent succesfully
+	/* return true iff data was sent succesfully */
 	return bytes > 0;
 }
 
@@ -92,7 +94,7 @@ bool TwitchBot::sendMsg(const std::string &msg)
 
 bool TwitchBot::sendPong(const std::string &ping)
 {
-	// first six chars are "PING :", server name starts after
+	/* first six chars are "PING :", server name starts after */
 	return sendData("PONG " + ping.substr(6));
 }
 
@@ -104,23 +106,24 @@ void TwitchBot::processData(const std::string &data)
 			<< utils::configdir() << utils::config("settings")
 			<< " is configured correctly." << std::endl;
 		std::cin.get();
-	}
-	else if (utils::startsWith(data, "PING")) {
+	} else if (utils::startsWith(data, "PING")) {
 		sendPong(data);
-	}
-	else if (data.find("PRIVMSG") != std::string::npos) {
+	} else if (data.find("PRIVMSG") != std::string::npos) {
 		processPRIVMSG(data);
 	}
 }
 
 bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 {
-	// regex to extract all necessary data from message
-	static const std::regex privmsgRegex("subscriber=(\\d).*user-type=(.*) :(\\w+)!\\3@\\3.* PRIVMSG (#\\w+) :(.+)");
-	static const std::regex subRegex(":twitchnotify.* PRIVMSG (#\\w+) :(.+) just subscribed!");
+	/* regex to extract all necessary data from message */
+	static const std::regex privmsgRegex("subscriber=(\\d).*user-type=(.*) "
+			":(\\w+)!\\3@\\3.* PRIVMSG (#\\w+) :(.+)");
+	static const std::regex subRegex(":twitchnotify.* PRIVMSG (#\\w+) "
+			":(.+) just subscribed!");
 	std::smatch match;
 
-	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), match, privmsgRegex)) {
+	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
+			match, privmsgRegex)) {
 
 		const bool subscriber = match[1].str() == "1";
 		const std::string type = match[2].str();
@@ -128,60 +131,59 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		const std::string channel = match[4].str();
 		const std::string msg = match[5].str();
 
-		// confirm message is from current channel
-		if (channel != m_channelName) {
+		/* confirm message is from current channel */
+		if (channel != m_channelName)
 			return false;
-		}
 		
-		// channel owner or mod
-		const bool privileges = nick == channel.substr(1) || !type.empty() || nick == "brainsoldier";
+		/* channel owner or mod */
+		const bool privileges = nick == channel.substr(1)
+			|| !type.empty() || nick == "brainsoldier";
 
-		// check if the message contains a URL
+		/* check if the message contains a URL */
 		m_parser.parse(msg);
 
-		// check if message is valid
-		if (!privileges && !subscriber && moderate(nick, msg)) {
+		/* check if message is valid */
+		if (!privileges && !subscriber && moderate(nick, msg))
 			return true;
-		}
 
-		// all chat commands start with $
+		/* all chat commands start with $ */
 		if (utils::startsWith(msg, "$") && msg.length() > 1) {
-			std::string output = m_cmdHandler.processCommand(nick, msg.substr(1), privileges);
-			if (!output.empty()) {
+			std::string output = m_cmdHandler.processCommand(
+					nick, msg.substr(1), privileges);
+			if (!output.empty())
 				sendMsg(output);
-			}
 			return true;
 		}
 
-		// count
-		if (m_cmdHandler.isCounting() && utils::startsWith(msg, "+") && msg.length() > 1) {
+		/* count */
+		if (m_cmdHandler.isCounting() && utils::startsWith(msg, "+")
+				&& msg.length() > 1) {
 			m_cmdHandler.count(nick, msg.substr(1));
 			return true;
 		}
 
-		// link information
+		/* link information */
 		if (m_parser.wasModified()) {
 			URLParser::URL *url = m_parser.getLast();
 			if (url->twitter && !url->tweetID.empty()) {
-				// stuff
+				/* stuff */
 			}
 			return true;
 		}
 
+		/* check for responses */
 		std::string output = m_cmdHandler.processResponse(msg);
-		if (!output.empty()) {
+		if (!output.empty())
 			sendMsg("@" + nick + ", " + output);
-		}
 		
 		return true;
 
-	}
-	else if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), match, subRegex)) {
+	} else if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
+			match, subRegex)) {
 		const std::string nick = match[2].str();
 		sendMsg("@" + nick + ", " + m_subMsg);
 		return true;
-	}
-	else {
+	} else {
 		std::cerr << "Could not extract data." << std::endl;
 		return false;
 	}
@@ -193,14 +195,15 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 	std::string reason;
 	if (!m_mod.isValidMsg(msg, nick, reason)) {
 		uint8_t offenses = m_mod.getOffenses(nick);
-		static const std::string warnings[5] = { "first", "second", "third", "fourth", "FINAL" };
+		static const std::string warnings[5] = { "first", "second",
+			"third", "fourth", "FINAL" };
 		std::string warning;
 		if (offenses < 6) {
-			// timeout for 2^(offenses - 1) minutes
-			sendMsg("/timeout " + nick + " " + std::to_string(60 * (uint16_t)pow(2, offenses - 1)));
+			/* timeout for 2^(offenses - 1) minutes */
+			uint16_t t = 60 * (uint16_t)pow(2, offenses - 1);
+			sendMsg("/timeout " + nick + " " + std::to_string(t));
 			warning = warnings[offenses - 1] + " warning";
-		}
-		else {
+		} else {
 			sendMsg("/ban " + nick);
 			warning = "Permanently banned";
 		}
@@ -215,8 +218,10 @@ void TwitchBot::tick()
 {
 	uint8_t reason;
 	while (m_connected) {
-		// check a set of variables every second and perform actions if certain conditions are met
-		for (std::vector<std::string>::size_type i = 0; i < m_eventManager.messages()->size(); ++i) {
+		/* check a set of variables every second and perform
+		 * actions if certain conditions are met */
+		for (std::vector<std::string>::size_type i = 0;
+				i < m_eventManager.messages()->size(); ++i) {
 			if (m_eventManager.ready("msg" + std::to_string(i))) {
 				sendMsg(((*m_eventManager.messages())[i]).first);
 				m_eventManager.setUsed("msg" + std::to_string(i));
@@ -229,7 +234,9 @@ void TwitchBot::tick()
 				output += reason == 1 ? "followers" : "timed";
 				output += "] ";
 				output += m_giveaway.getItem();
-				output += reason == 1 ? " (next code in " + std::to_string(m_giveaway.followers()) + " followers)" : "";
+				output += reason == 1 ? " (next code in "
+					+ std::to_string(m_giveaway.followers())
+					+ " followers)" : "";
 				sendMsg(output);
 			}
 			m_eventManager.setUsed("checkgiveaway");

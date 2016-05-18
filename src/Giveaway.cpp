@@ -174,7 +174,7 @@ bool Giveaway::readSettings()
 			if (category == "active") {
 				m_active = parseBool(setting);
 			} /*else if (category == "subs") {
-				//m_type[0] = parseBool(setting);
+				m_type[0] = parseBool(setting);
 			}*/ else if (category == "followers") {
 				m_type[1] = parseBool(setting);
 			} else if (category == "numfollowers") {
