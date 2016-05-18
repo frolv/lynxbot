@@ -4,6 +4,9 @@
 #ifdef __linux__
  #include <unistd.h>
 #endif
+#ifdef _WIN32
+ #include <Windows.h>
+#endif
 #include "utils.h"
 
 #define MAX_PATH_LEN 8192

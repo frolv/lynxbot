@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ctime>
 #include <unordered_map>
 
 #define DEFAULT_COOLDOWN 10

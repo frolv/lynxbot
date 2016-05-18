@@ -8,6 +8,11 @@
  #include <sys/socket.h>
  #include <netinet/in.h>
 #endif
+#ifdef _WIN32
+ #include <WS2tcpip.h>
+ #include <sdkddkver.h>
+ #pragma comment(lib, "ws2_32.lib")
+#endif
 #include "client.h"
 
 #define MAX_SIZE 2048
@@ -114,7 +119,7 @@ bool Client::connect_win()
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 
-	if ((int32_t error = getaddrinfo(server, port, &hints, &servinfo))) {
+	if (int32_t error = getaddrinfo(m_serv, m_port, &hints, &servinfo)) {
 		std::cerr << "getaddrinfo failed. Error " << error << ": "
 			<< WSAGetLastError() << std::endl;
 		return false;
