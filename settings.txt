@@ -1,4 +1,4 @@
-* TwitchBot configuration file.
+* lynxbot configuration file.
 * Enter your information below.
 * There must be a field for name, channel and password, all on separate lines.
 name: bot_name

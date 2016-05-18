@@ -19,8 +19,9 @@ const opmap::value_type assocs[] = {
 
 const opmap opMap(assocs, assocs + sizeof(assocs) / sizeof(assocs[0]));
 
-/* Check whether the token has the specified associativity type. */
+/* check whether the token has the specified associativity type */
 bool isAssociative(const char &token, const uint8_t &type);
-/* Compares the precedence of two operators.
-   Returns +ve, 0 or -ve number if t1 has higher, equal or lower precedence than t2, respectively. */
+/* compares the precedence of two operators.
+ * Returns +ve, 0 or -ve number if t1 has higher,
+ * equal or lower precedence than t2, respectively. */
 int8_t comparePrecedence(const char &t1, const char &t2);

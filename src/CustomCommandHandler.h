@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+#include <json/json.h>
 #include "TimerManager.h"
 #include "CommandHandler.h"
 
@@ -9,7 +11,8 @@ class CommandHandler;
 class CustomCommandHandler {
 
 	public:
-		typedef std::map<std::string, std::string(CommandHandler::*)(const std::string &, const std::string &, bool)> commandMap;
+		typedef std::unordered_map<std::string,
+			std::string(CommandHandler::*)(CommandHandler::cmdinfo *)> commandMap;
 		CustomCommandHandler(commandMap *defaultCmds, TimerManager *tm, const std::string &wheelCmd);
 		~CustomCommandHandler();
 		bool isActive();

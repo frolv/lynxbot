@@ -1,23 +1,27 @@
 #include <cpr/cpr.h>
 #include <json/json.h>
-#include "stdafx.h"
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <random>
 #include "Giveaway.h"
-#include "Utils.h"
+#include "utils.h"
 
 Giveaway::Giveaway(const std::string &channel, time_t initTime)
-	:m_active(false), m_channel(channel), m_lastRequest(initTime), m_currFollowers(0), m_interval(0)
+	: m_active(false), m_channel(channel), m_currFollowers(0),
+	m_lastRequest(initTime), m_interval(0)
 {
 	if (!readSettings()) {
-		std::cout << "Giveaways will be disabled for this session." << std::endl;
+		std::cout << "Giveaways will be disabled for this session."
+			<< std::endl;
 		std::cin.get();
-	}
-	else if (!m_active) {
+	} else if (!m_active) {
 		std::cout << "Giveaways are currently inactive.\n" << std::endl;
-	}
-	else {
+	} else {
 		if (!readGiveaway()) {
 			m_active = false;
-			std::cerr << "Could not locate giveaway.txt. Giveaways will be disabled." << std::endl;
+			std::cerr << "Could not locate giveaway.txt. Giveaways \
+				will be disabled." << std::endl;
 			std::cin.get();
 			return;
 		}
@@ -29,14 +33,16 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime)
 				while (std::cin >> c) {
 					if (c == 'y' || c == 'Y') {
 						break;
-					}
-					else if (c == 'n' || c == 'N') {
+					} else if (c == 'n' || c == 'N') {
 						m_type[1] = false;
-						std::cout << "Follower giveaways will be disabled for this session.\n" << std::endl;
+						std::cout << "Follower \
+							giveaways will be \
+							disabled for this \
+							session.\n" << std::endl;
 						return;
-					}
-					else {
-						std::cout << "Invalid option.\nTry again? (y/n) ";
+					} else {
+						std::cout << "Invalid option.\n\
+							Try again? (y/n) ";
 					}
 				}
 			}
@@ -80,7 +86,8 @@ bool Giveaway::checkConditions(time_t curr, uint8_t &reason)
 		/* followers */
 		m_lastRequest = curr;
 		uint32_t fol = getFollowers();
-		std::cout << "Followers: " << fol << "(" << m_currFollowers + m_followerLimit << ")\n" << std::endl;
+		std::cout << "Followers: " << fol << "(" << m_currFollowers
+			+ m_followerLimit << ")\n" << std::endl;
 		if (fol >= m_currFollowers + m_followerLimit) {
 			m_currFollowers += m_followerLimit;
 			reason = 1;
@@ -91,7 +98,8 @@ bool Giveaway::checkConditions(time_t curr, uint8_t &reason)
 		/* time based */
 		if (curr > m_earliest) {
 			time_t gap = m_latest - m_earliest;
-			double prob = static_cast<double>(curr - m_earliest) / gap;
+			double prob =
+				static_cast<double>(curr - m_earliest) / gap;
 			std::random_device rd;
 			std::mt19937 gen(rd());
 			if (std::generate_canonical<double, 10>(gen) <= prob) {
@@ -122,12 +130,15 @@ uint16_t Giveaway::followers()
 
 uint32_t Giveaway::getFollowers() const
 {
-	cpr::Response resp = cpr::Get(cpr::Url("https://api.twitch.tv/kraken/channels/" + m_channel + "/follows?limit=1"),
+	cpr::Response resp =
+		cpr::Get(cpr::Url("https://api.twitch.tv/kraken/channels/"
+				+ m_channel + "/follows?limit=1"),
 		cpr::Header{{ "Client-ID", "kkjhmekkzbepq0pgn34g671y5nexap8" }});
 	Json::Reader reader;
 	Json::Value val;
 	if (!reader.parse(resp.text, val)) {
-		std::cerr << "Failed to get followers for #" + m_channel + "." << std::endl;
+		std::cerr << "Failed to get followers for #" + m_channel
+			+ "." << std::endl;
 		return 0;
 	}
 	return val["_total"].asInt();
@@ -137,7 +148,8 @@ bool Giveaway::readSettings()
 {
 	std::ifstream reader(utils::appdir() + "/giveaway/giveaway-settings.txt");
 	if (!reader.is_open()) {
-		std::cerr << "Could not locate giveaway-settings.txt" << std::endl;
+		std::cerr << "Could not locate giveaway-settings.txt"
+			<< std::endl;
 		return false;
 	}
 
@@ -146,55 +158,53 @@ bool Giveaway::readSettings()
 	uint8_t lineNum = 0;
 	while (std::getline(reader, line)) {
 		lineNum++;
-		// remove all whitespace
-		line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
-		// split the line into two parts
+		/* remove all whitespace */
+		line.erase(std::remove_if(line.begin(), line.end(), isspace),
+			line.end());
+		/* split the line into two parts */
 		std::string::size_type eq = line.find('=');
 		if (eq == std::string::npos) {
 			success = false;
-			std::cerr << "Syntax error on line " << lineNum << " of giveaway-settings.txt." << std::endl;
+			std::cerr << "Syntax error on line " << lineNum
+				<< " of giveaway-settings.txt." << std::endl;
 		}
 		std::string category = line.substr(0, eq);
 		std::string setting = line.substr(eq + 1);
 		try {
 			if (category == "active") {
 				m_active = parseBool(setting);
-			}
-			//else if (category == "subs") {
+			} /*else if (category == "subs") {
 				//m_type[0] = parseBool(setting);
-			//}
-			else if (category == "followers") {
+			}*/ else if (category == "followers") {
 				m_type[1] = parseBool(setting);
-			}
-			else if (category == "numfollowers") {
+			} else if (category == "numfollowers") {
 				int num = std::stoi(setting);
-				if (num <= 0) {
-					throw std::invalid_argument("negative number");
-				}
+				if (num <= 0)
+					throw std::invalid_argument(
+							"negative number");
 				m_followerLimit = num;
-			}
-			else if (category == "timer") {
+			} else if (category == "timer") {
 				m_type[2] = parseBool(setting);
-			}
-			else if (category == "mins") {
+			} else if (category == "mins") {
 				int num = std::stoi(setting);
-				if (num <= 0) {
-					throw std::invalid_argument("negative number");
-				}
-				// convert to seconds
+				if (num <= 0)
+					throw std::invalid_argument(
+							"negative number");
+				/* convert to seconds */
 				m_interval = num * 60;
-			}
-			else {
-				std::cerr << "Invalid category in giveaway-settings.txt: " << category << std::endl;
+			} else {
+				std::cerr << "Invalid category in \
+					giveaway-settings.txt: " << category
+					<< std::endl;
 				success = false;
 			}
-		}
-		catch (std::runtime_error &e) {
+		} catch (std::runtime_error &e) {
 			std::cerr << category << ": " << e.what() << std::endl;
 			success = false;
-		}
-		catch (std::invalid_argument) {
-			std::cerr << category << ": invalid number - " << setting << " (must be positive integer)" << std::endl;
+		} catch (std::invalid_argument) {
+			std::cerr << category << ": invalid number - "
+				<< setting << " (must be positive integer)"
+				<< std::endl;
 			success = false;
 		}
 	}
@@ -210,9 +220,8 @@ bool Giveaway::readGiveaway()
 		return false;
 	}
 	std::string line;
-	while (std::getline(reader, line)) {
+	while (std::getline(reader, line))
 		m_items.push_back(line);
-	}
 	reader.close();
 	return true;
 }
@@ -221,24 +230,22 @@ void Giveaway::writeGiveaway() const
 {
 	std::ofstream writer(utils::appdir() + "/giveaway/giveaway.txt");
 	if (writer.is_open()) {
-		for (auto &s : m_items) {
+		for (auto &s : m_items)
 			writer << s << std::endl;
-		}
 	}
 	writer.close();
 }
 
 bool Giveaway::parseBool(const std::string &s) const
 {
-	// oh boy
+	/* oh boy */
 	if (s == "true") {
 		return true;
-	}
-	else if (s == "false") {
+	} else if (s == "false") {
 		return false;
-	}
-	else {
-		throw std::runtime_error("invalid setting - " + s + " (must be true/false)");
+	} else {
+		throw std::runtime_error("invalid setting - " + s
+			+ " (must be true/false)");
 	}
 }
 

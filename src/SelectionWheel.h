@@ -17,7 +17,8 @@ class SelectionWheel {
 		std::string desc() const;
 		std::string usage() const;
 		bool valid(const std::string &category) const;
-		std::string choose(const std::string &nick, const std::string &category);
+		std::string choose(const std::string &nick,
+			const std::string &category);
 		bool ready(const std::string &nick) const;
 		std::string selection(const std::string &nick) const;
 

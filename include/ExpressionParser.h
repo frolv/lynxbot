@@ -18,7 +18,7 @@ class ExpressionParser {
 			double d;
 			bool isNum;
 			bool isOp;
-			token() : isNum(false), isOp(true), c(0) {};
+			token() : c(0), isNum(false), isOp(true) {};
 		};
 		const std::string m_expr;
 		std::vector<token> tokens;

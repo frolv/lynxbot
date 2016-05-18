@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "TimerManager.h"
 
 TimerManager::TimerManager() {}
@@ -19,12 +18,12 @@ void TimerManager::remove(const std::string &name)
 
 bool TimerManager::ready(const std::string &cmd) const
 {
-	return std::time(nullptr) - lastUsed(cmd) >= cooldown(cmd);
+	return time(nullptr) - lastUsed(cmd) >= cooldown(cmd);
 }
 
 void TimerManager::setUsed(const std::string &cmd)
 {
-	m_timers.find(cmd)->second.second = std::time(nullptr);
+	m_timers.find(cmd)->second.second = time(nullptr);
 }
 void TimerManager::clear()
 {

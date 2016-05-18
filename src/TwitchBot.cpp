@@ -1,46 +1,49 @@
-#include "stdafx.h"
+#include <fstream>
+#include <regex>
 #include "TwitchBot.h"
+#include "utils.h"
+#include "version.h"
 
 #define MAX_BUFFER_SIZE 2048
 
-TwitchBot::TwitchBot(const std::string nick, const std::string channel, const std::string password)
-	: m_connected(false), m_nick(nick), m_channelName(channel), m_socket(NULL), m_mod(&m_parser),
-	  m_cmdHandler(nick, channel.substr(1), &m_mod, &m_parser, &m_eventManager),
+static const char *TWITCH_SERV = "irc.twitch.tv";
+static const char *TWITCH_PORT = "80";
+
+TwitchBot::TwitchBot(const std::string nick, const std::string channel,
+	const std::string password)
+	: m_connected(false), m_nick(nick), m_channelName(channel),
+	m_client(TWITCH_SERV, TWITCH_PORT), m_mod(&m_parser),
+	m_cmdHandler(nick, channel.substr(1), &m_mod, &m_parser, &m_eventManager),
 	m_giveaway(channel.substr(1), time(nullptr))
 {
-	const std::string serv = "irc.chat.twitch.tv", port = "80";
-
-	m_connected = utils::socketConnect(m_socket, m_wsa, port.c_str(), serv.c_str());
-	if (m_connected) {
-
-		// send required IRC data: PASS, NICK, USER
+	if ((m_connected = m_client.cconnect())) {
+		/* send required IRC data: PASS, NICK, USER */
 		sendData("PASS " + password);
 		sendData("NICK " + nick);
 		sendData("USER " + nick);
 
-		// enables tags in PRIVMSGs
+		/* enable tags in PRIVMSGs */
 		sendData("CAP REQ :twitch.tv/tags");
 
-		// join channel
+		/* join channel */
 		sendData("JOIN " + channel);
 
 		m_tick = std::thread(&TwitchBot::tick, this);
 
-		if (m_giveaway.active()) {
+		/* create giveaway checking event if active */
+		if (m_giveaway.active())
 			m_eventManager.add("checkgiveaway", 10, time(nullptr));
-		}
-		std::ifstream reader(utils::appdir() + "/submessage.txt");
-		if (reader.is_open()) {
-			std::getline(reader, m_subMsg);
-		}
 
+		/* read the subscriber message */
+		std::ifstream reader(utils::appdir() + "/submessage.txt");
+		if (reader.is_open())
+			std::getline(reader, m_subMsg);
 	}
 }
 
 TwitchBot::~TwitchBot()
 {
-	closesocket(m_socket);
-	WSACleanup();
+	m_client.cdisconnect();
 }
 
 bool TwitchBot::isConnected() const
@@ -50,51 +53,43 @@ bool TwitchBot::isConnected() const
 
 void TwitchBot::disconnect()
 {
+	m_client.cdisconnect();
 	m_connected = false;
-	closesocket(m_socket);
-	WSACleanup();
 }
 
 void TwitchBot::serverLoop()
 {
-	int32_t bytes;
-	char buf[MAX_BUFFER_SIZE];
-
+	std::string msg;
+	/* continously receive data from server */
 	while (true) {
-
-		// receive data from server
-		bytes = recv(m_socket, buf, MAX_BUFFER_SIZE - 1, 0);
-		buf[bytes] = '\0';
-
-		// quit program if no data is received
-		if (bytes <= 0) {
+		if (m_client.cread(msg) <= 0) {
 			std::cerr << "No data received. Exiting." << std::endl;
 			disconnect();
 			break;
 		}
-		std::cout << "[RECV] " << buf << std::endl;
-		processData(std::string(buf));
+		std::cout << "[RECV] " << msg << std::endl;
+		processData(msg);
 	}
 }
 
-bool TwitchBot::sendData(const std::string &data) const
+bool TwitchBot::sendData(const std::string &data)
 {
 	// format string by adding CRLF
 	std::string formatted = data + (utils::endsWith(data, "\r\n") ? "" : "\r\n");
 	// send formatted data
-	int32_t bytes = send(m_socket, formatted.c_str(), formatted.length(), NULL);
+	int32_t bytes = m_client.cwrite(formatted);
 	std::cout << (bytes > 0 ? "[SENT] " : "Failed to send: ") << formatted << std::endl;
 
 	// return true iff data was sent succesfully
 	return bytes > 0;
 }
 
-bool TwitchBot::sendMsg(const std::string &msg) const
+bool TwitchBot::sendMsg(const std::string &msg)
 {
 	return sendData("PRIVMSG " + m_channelName + " :" + msg);
 }
 
-bool TwitchBot::sendPong(const std::string &ping) const
+bool TwitchBot::sendPong(const std::string &ping)
 {
 	// first six chars are "PING :", server name starts after
 	return sendData("PONG " + ping.substr(6));
@@ -187,6 +182,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		std::cerr << "Could not extract data." << std::endl;
 		return false;
 	}
+	return false;
 }
 
 bool TwitchBot::moderate(const std::string &nick, const std::string &msg)

@@ -19,8 +19,8 @@ class OptionParser {
 		const std::string m_options;
 		std::string::size_type m_optind;
 		std::string m_optarg;
-		int16_t m_optopt;
 		uint8_t m_state;
+		int16_t m_optopt;
 		bool valid(int16_t c);
 		bool arg(int16_t c);
 

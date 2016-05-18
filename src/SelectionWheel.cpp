@@ -1,18 +1,22 @@
-#include "stdafx.h"
+#include <iostream>
 #include "SelectionWheel.h"
+#include "utils.h"
 
 SelectionWheel::SelectionWheel()
 {
 	if (!utils::readJSON("wheel.json", m_data)) {
-		std::cerr << "Could not read wheel.json. Wheel will be disabled for this session." << std::endl;
+		std::cerr << "Could not read wheel.json. Wheel will be \
+			disabled for this session." << std::endl;
 		m_active = false;
 		std::cin.get();
-	}
-	else {
-		static const std::string reqs[6] = { "active", "name", "cmd", "desc", "usage", "cooldown"};
+	} else {
+		static const std::string reqs[6] = { "active", "name", "cmd",
+			"desc", "usage", "cooldown"};
 		for (auto &s : reqs) {
 			if (!m_data.isMember("wheel" + s)) {
-				std::cerr << "wheel" << s << " variable is missing from wheel.json. Wheel will be disabled for this session." << std::endl;
+				std::cerr << "wheel" << s << " variable is \
+					missing from wheel.json. Wheel will  \
+					be disabled for this session." << std::endl;
 				m_active = false;
 				std::cin.get();
 				return;
@@ -55,16 +59,18 @@ std::string SelectionWheel::usage() const
 	return m_data["wheelusage"].asString();
 }
 
-std::string SelectionWheel::choose(const std::string &nick, const std::string &category)
+std::string SelectionWheel::choose(const std::string &nick,
+	const std::string &category)
 {
 	Json::Value &arr = m_data["categories"][category];
 	if (!arr.isArray()) {
-		std::cerr << "wheel.json is improperly configured. Wheel will be disabled.";
+		std::cerr << "wheel.json is improperly configured. \
+			Wheel will be disabled.";
 		m_active = false;
 		return "";
 	}
 
-	// choose value at random from given category
+	/* choose value at random from given category */
 	srand(static_cast<uint32_t>(time(nullptr)));
 	uint16_t index = rand() % arr.size();
 	std::string selection = arr[index].asString();
@@ -75,33 +81,33 @@ std::string SelectionWheel::choose(const std::string &nick, const std::string &c
 
 bool SelectionWheel::ready(const std::string &nick) const
 {
-	return m_stored.find(nick) == m_stored.end() || time(nullptr) - lastUsed(nick) >= m_cooldown;
+	return m_stored.find(nick) == m_stored.end()
+		|| time(nullptr) - lastUsed(nick) >= m_cooldown;
 }
 
 void SelectionWheel::add(const std::string &nick, const std::string &selection)
 {
 	if (m_stored.find(nick) != m_stored.end()) {
-		// update if aleady exists
+		/* update if aleady exists */
 		auto &r = m_stored.find(nick)->second;
 		r.first = selection;
 		r.second = time(nullptr);
-	}
-	else {
-		// create otherwise
-		WheelMap::value_type val = { nick, std::make_pair(selection, time(nullptr)) };
+	} else {
+		/* create otherwise */
+		WheelMap::value_type val =
+			{ nick, std::make_pair(selection, time(nullptr)) };
 		m_stored.insert(val);
 	}
 }
 
 std::string SelectionWheel::selection(const std::string &nick) const
 {
-	if (m_stored.find(nick) == m_stored.end()) {
+	if (m_stored.find(nick) == m_stored.end())
 		return "";
-	}
 	return m_stored.find(nick)->second.first;
 }
 
-std::time_t SelectionWheel::lastUsed(const std::string &nick) const
+time_t SelectionWheel::lastUsed(const std::string &nick) const
 {
 	return m_stored.find(nick)->second.second;
 }

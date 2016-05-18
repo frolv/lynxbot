@@ -1,5 +1,8 @@
-#include "stdafx.h"
+#include <string>
+#include <regex>
+#include <fstream>
 #include "TwitchBot.h"
+#include "utils.h"
 
 /* botData stores settings for initializing a TwitchBot instance */
 struct botData {
@@ -31,8 +34,8 @@ int main()
 
 bool readSettings(const std::string &appDir, botData *bd, std::string &error)
 {
-	// open settings
-	std::ifstream reader(appDir + "\\settings.txt");
+	/* open settings */
+	std::ifstream reader(appDir + "/settings.txt");
 	if (!reader.is_open()) {
 		error = "Could not locate settings.txt";
 		return false;
@@ -42,12 +45,12 @@ bool readSettings(const std::string &appDir, botData *bd, std::string &error)
 	uint8_t lineNum = 0;
 
 	while (std::getline(reader, line)) {
-
 		++lineNum;
-		// remove whitespace
-		line.erase(std::remove_if(line.begin(), line.end(), isspace), line.end());
+		/* remove whitespace */
+		line.erase(std::remove_if(line.begin(), line.end(), isspace),
+			line.end());
 
-		// lines starting with * are comments
+		/* lines starting with * are comments */
 		if (utils::startsWith(line, "*"))
 			continue;
 
@@ -59,15 +62,18 @@ bool readSettings(const std::string &appDir, botData *bd, std::string &error)
 				bd->name = match[2];
 			} else if (match[1].str() == "channel") {
 				if (!utils::startsWith(match[2].str(), "#"))
-					error = "Channel name must start with #.";
+					error = "Channel must start with #";
 				bd->channel = match[2];
 			} else {
 				if (!utils::startsWith(match[2].str(), "oauth:"))
-					error = "Password must be a valid oauth token, starting with \"oauth:\".";
+					error = "Password must be a valid \
+						 oauth token, starting with \
+						 \"oauth:\".";
 				bd->pass = match[2];
 			}
 		} else {
-			error = "Syntax error on line " + std::to_string(lineNum) + " of settings.txt.";
+			error = "Syntax error on line "
+				+ std::to_string(lineNum) + " of settings.txt.";
 		}
 		if (!error.empty())
 			return false;

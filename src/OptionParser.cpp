@@ -1,7 +1,8 @@
 #include "OptionParser.h"
 
 OptionParser::OptionParser(const std::string &optstr, const std::string &options)
-	: m_optstr(optstr), m_options(options), m_optind(optstr.find(' ')), m_state(0), m_optopt('\0')
+	: m_optstr(optstr), m_options(options), m_optind(optstr.find(' ')),
+	m_state(0), m_optopt('\0')
 {}
 
 OptionParser::~OptionParser() {}
@@ -42,14 +43,12 @@ int16_t OptionParser::getopt()
 					if (m_optind == m_optstr.length())
 						return '?';
 					m_state = 3;
-				}
-				else {
+				} else {
 					/* c doesn't require an argument */
 					m_state = 2;
 					return c;
 				}
-			}
-			else {
+			} else {
 				/* invalid option */
 				m_optopt = c;
 				m_state = 2;
@@ -62,19 +61,16 @@ int16_t OptionParser::getopt()
 			if (c == ' ') {
 				/* end of current option - look for next '-' */
 				m_state = 0;
-			}
-			else if (valid(c)) {
+			} else if (valid(c)) {
 				m_optopt = c;
 				if (arg(c)) {
 					/* c requires an argument */
 					m_state = 3;
-				}
-				else {
+				} else {
 					/* c doesn't require an argument */
 					return c;
 				}
-			}
-			else {
+			} else {
 				/* invalid option */
 				m_optopt = c;
 				return '?';
@@ -93,7 +89,8 @@ int16_t OptionParser::getopt()
 				return '?';
 			}
 			/* grab the argument up to the next space */
-			while (m_optind < m_optstr.length() && m_optstr[m_optind] != ' ')
+			while (m_optind < m_optstr.length()
+					&& m_optstr[m_optind] != ' ')
 				optarg += m_optstr[m_optind++];
 			m_optarg = optarg;
 			m_state = 0;
@@ -129,5 +126,6 @@ bool OptionParser::valid(int16_t c)
 bool OptionParser::arg(int16_t c)
 {
 	std::string::size_type pos = m_options.find(static_cast<char>(c));
-	return pos != std::string::npos && pos < m_options.length() - 1 && m_options[pos + 1] == ':';
+	return pos != std::string::npos && pos < m_options.length() - 1
+		&& m_options[pos + 1] == ':';
 }
