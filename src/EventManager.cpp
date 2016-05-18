@@ -5,11 +5,27 @@
 #include "utils.h"
 
 EventManager::EventManager()
+	: m_msg(false)
 {
 	readFile();
 }
 
 EventManager::~EventManager() {}
+
+bool EventManager::messagesActive()
+{
+	return m_msg;
+}
+
+void EventManager::activateMessages()
+{
+	m_msg = true;
+}
+
+void EventManager::deactivateMessages()
+{
+	m_msg = false;
+}
 
 bool EventManager::addMessage(const std::string &message,
 	time_t cooldown, bool write)
@@ -36,12 +52,15 @@ bool EventManager::delMessage(uint32_t id)
 
 std::string EventManager::messageList() const
 {
-	std::string output;
+	std::string output = "(";
+	output += m_msg ? "active" : "inactive";
+	output += ") ";
 	for (size_t i = 0; i < m_messages.size(); ++i) {
 		/* only display first 35 characters of each message */
 		const std::string &msg = m_messages[i].first;
 		output += std::to_string(i + 1) + ": "
 			+ (msg.length() < 35 ? msg : (msg.substr(0, 32) + "..."))
+			+ " [" + std::to_string(m_messages[i].second / 60) + "m]"
 			+ (i == m_messages.size() - 1 ? "" : ", ");
 	}
 	if (output.empty())
@@ -59,6 +78,7 @@ void EventManager::readFile()
 	std::string path = utils::configdir() + utils::config("recurring");
 	std::ifstream reader(path);
 	if (reader.is_open()) {
+		m_msg = true;
 		std::string line;
 		uint16_t lineNum = 0;
 		while (std::getline(reader, line)) {

@@ -56,6 +56,9 @@ class CommandHandler {
 		const std::string CML_HOST = "crystalmathlabs.com";
 		const std::string CML_EHP_API =
 			"/tracker/api.php?type=virtualhiscoresatplayer&page=timeplayed&player=";
+		const std::string CML_UPDATE_API =
+			"/tracker/api.php?type=update&player=";
+		const std::string CML_USER = "/tracker/track.php?player=";
 		const std::string RS_HOST = "services.runescape.com";
 		const std::string RS_HS_API = "/m=hiscore_oldschool/index_lite.ws?player=";
 		const std::string EXCHANGE_HOST = "api.rsbuddy.com";
@@ -107,6 +110,7 @@ class CommandHandler {
 		std::string addrecFunc(struct cmdinfo *c);
 		std::string delrecFunc(struct cmdinfo *c);
 		std::string listrecFunc(struct cmdinfo *c);
+		std::string setrecFunc(struct cmdinfo *c);
 
 		/* helpers */
 		std::string extractCMLData(const std::string &httpResp) const;

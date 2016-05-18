@@ -223,7 +223,8 @@ void TwitchBot::tick()
 		for (std::vector<std::string>::size_type i = 0;
 				i < m_eventManager.messages()->size(); ++i) {
 			if (m_eventManager.ready("msg" + std::to_string(i))) {
-				sendMsg(((*m_eventManager.messages())[i]).first);
+				if (m_eventManager.messagesActive())
+					sendMsg(((*m_eventManager.messages())[i]).first);
 				m_eventManager.setUsed("msg" + std::to_string(i));
 				break;
 			}

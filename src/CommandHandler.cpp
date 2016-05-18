@@ -26,6 +26,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
 	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
 	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
+	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
 	m_defaultCmds["active"] = &CommandHandler::activeFunc;
 	m_defaultCmds["count"] = &CommandHandler::countFunc;
 	m_defaultCmds["uptime"] = &CommandHandler::uptimeFunc;
@@ -39,6 +40,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["addrec"] = &CommandHandler::addrecFunc;
 	m_defaultCmds["delrec"] = &CommandHandler::delrecFunc;
 	m_defaultCmds["listrec"] = &CommandHandler::listrecFunc;
+	m_defaultCmds["setrec"] = &CommandHandler::setrecFunc;
 
 	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd());
@@ -270,7 +272,65 @@ std::string CommandHandler::calcFunc(struct cmdinfo *c)
 
 std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 {
-	return "[CML] http://" + CML_HOST + " @" + c->nick;
+	std::string output = "@" + c->nick + ", ";
+	OptionParser op(c->fullCmd, "u");
+	int16_t opt;
+	bool update = false;
+
+	while ((opt = op.getopt()) != EOF) {
+		switch (opt) {
+		case 'u':
+			update = true;
+			break;
+		case '?':
+			output = "cml: illegal option -- ";
+			output += (char)op.optopt();
+			return output;
+		default:
+			return "";
+		}
+	}
+
+	if (op.optind() >= c->fullCmd.length()) {
+		if (update)
+			return output + "must provide RSN for -u flag.";
+		else
+			return "[CML] http://" + CML_HOST;
+	}
+
+	const std::string rsn = c->fullCmd.substr(op.optind());
+	if (rsn.find(' ') != std::string::npos)
+		return output += "invalid syntax. Use \"$cml [-u] [RSN]\".";
+	
+	if (update) {
+		cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST
+					+ CML_UPDATE_API + rsn),
+				cpr::Header{{ "Connection", "close" }});
+		uint8_t i = std::stoi(resp.text);
+		switch (i) {
+		case 1:
+			output += rsn + "'s CML was updated.";
+			break;
+		case 2:
+			output += rsn + " could not be found on the hiscores.";
+			break;
+		case 3:
+			output += rsn + " has had a negative XP gain.";
+			break;
+		case 4:
+			output += "unknown error, try again.";
+			break;
+		case 5:
+			output += rsn + " has been updated within the last 30s.";
+			break;
+		case 6:
+			output += rsn + " is an invalid RSN.";
+			break;
+		}
+		return output;
+	} else {
+		return "[CML] http://" + CML_HOST + CML_USER + rsn;
+	}
 }
 
 std::string CommandHandler::wheelFunc(struct cmdinfo *c)
@@ -332,7 +392,9 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 			multi = true;
 			break;
 		case '?':
-			return output + "illegal option: " + (char)op.optopt();
+			output = "strawpoll: illegal option -- "; 
+			output += (char)op.optopt();
+			return output;
 		default:
 			return "";
 		}
@@ -553,11 +615,13 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 			break;
 		case '?':
 			/* invalid option */
-			if (op.optopt() == 'c')
+			if (op.optopt() == 'c') {
 				output += "no cooldown provided.";
-			else
-				return output + "illegal option: "
+			} else {
+				output = editing ? "edit" : "add" ;
+				return output + "com: illegal option -- "
 					+ (char)op.optopt();
+			}
 			success = false;
 			break;
 		default:
@@ -658,7 +722,9 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 		case '?':
 			if (op.optopt() == 'c')
 				return output + "no interval provided.";
-			return output + "illegal option: " + (char)op.optopt();
+			output = "addrec: illegal option -- ";
+			output += (char)op.optopt();
+			return output;
 		default:
 			return "";
 		}
@@ -711,6 +777,28 @@ std::string CommandHandler::listrecFunc(struct cmdinfo *c)
 	if (!c->privileges)
 		return "";
 	return m_evtp->messageList();
+}
+
+std::string CommandHandler::setrecFunc(struct cmdinfo *c)
+{
+	if (!c->privileges)
+		return "";
+
+	std::string output = "@" + c->nick + ", ";
+	std::vector<std::string> tokens;
+	utils::split(c->fullCmd, ' ', tokens);
+
+	if (tokens.size() != 2 || (tokens[1] != "on" && tokens[1] != "off"))
+		return output + "invalid syntax. Use \"setrec on|off\".";
+
+	if (tokens[1] == "on") {
+		m_evtp->activateMessages();
+		output += "recurring messages enabled.";
+	} else {
+		m_evtp->deactivateMessages();
+		output += "recurring messages disabled.";
+	}
+	return output;
 }
 
 std::string CommandHandler::extractCMLData(const std::string &httpResp) const
