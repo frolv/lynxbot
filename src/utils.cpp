@@ -1,7 +1,9 @@
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
+#include <unordered_map>
 #ifdef __linux__
+ #include <cstdlib>
  #include <unistd.h>
 #endif
 #ifdef _WIN32
@@ -10,6 +12,16 @@
 #include "utils.h"
 
 #define MAX_PATH_LEN 8192
+
+static std::unordered_map<std::string, std::string> configs = {
+	{ "8ball", "/extra8ballresponses" },
+	{ "giveaway-settings", "/giveaway/giveaway-settings" },
+	{ "giveaway", "/giveaway/giveaway" },
+	{ "recurring", "/recurring" },
+	{ "settings", "/settings" },
+	{ "submessage", "/submessage" },
+	{ "whitelist", "/whitelist" }
+};
 
 bool utils::startsWith(const std::string &str, const std::string &prefix)
 {
@@ -45,7 +57,7 @@ std::string utils::formatInteger(std::string integer)
 }
 
 #ifdef _WIN32
-static std::string appdir_win()
+static std::string configdir_win()
 {
 	char buf[MAX_PATH_LEN];
 	int bytes;
@@ -63,31 +75,43 @@ static std::string appdir_win()
 #endif
 
 #ifdef __linux__
-static std::string appdir_unix()
+static std::string configdir_unix()
 {
-	char buf[MAX_PATH_LEN];
-	if (!getcwd(buf, MAX_PATH_LEN)) {
-		perror("getcwd");
+	char *h;
+	if (!(h= getenv("HOME"))) {
+		std::cerr << "could not read $HOME" << std::endl;
 		return "";
 	}
-	return std::string(buf);
+	return std::string(h) + "/.lynxbot";
 }
 #endif
 
-std::string utils::appdir()
+std::string utils::configdir()
 {
 #ifdef __linux__
-	return appdir_unix();
+	return configdir_unix();
 #endif
 #ifdef _WIN32
-	return appdir_win();
+	return configdir_win();
 #endif
+}
+
+std::string utils::config(const std::string &cfg)
+{
+	std::string path = "";
+	if (configs.find(cfg) != configs.end()) {
+		path += configs[cfg];
+#ifdef _WIN32
+		path += ".txt";
+#endif
+	}
+	return path;
 }
 
 bool utils::readJSON(const std::string &filename, Json::Value &val)
 {
 	Json::Reader reader;
-	std::ifstream fileStream(appdir() + "/json/" + filename, std::ifstream::binary);
+	std::ifstream fileStream(configdir() + "/json/" + filename, std::ifstream::binary);
 
 	if (!reader.parse(fileStream, val)) {
 		std::cerr << reader.getFormattedErrorMessages() << std::endl;

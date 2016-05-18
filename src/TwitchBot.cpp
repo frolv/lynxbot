@@ -35,7 +35,8 @@ TwitchBot::TwitchBot(const std::string nick, const std::string channel,
 			m_eventManager.add("checkgiveaway", 10, time(nullptr));
 
 		/* read the subscriber message */
-		std::ifstream reader(utils::appdir() + "/submessage.txt");
+		std::string path = utils::configdir() + utils::config("submessage");
+		std::ifstream reader(path);
 		if (reader.is_open())
 			std::getline(reader, m_subMsg);
 	}
@@ -99,7 +100,9 @@ void TwitchBot::processData(const std::string &data)
 {
 	if (data.find("Error logging in") != std::string::npos) {
 		disconnect();
-		std::cerr << "\nCould not log in to Twitch IRC. Make sure your settings.txt file is configured correctly." << std::endl;
+		std::cerr << "\nCould not log in to Twitch IRC.\nMake sure "
+			<< utils::configdir() << utils::config("settings")
+			<< " is configured correctly." << std::endl;
 		std::cin.get();
 	}
 	else if (utils::startsWith(data, "PING")) {

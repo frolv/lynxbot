@@ -121,7 +121,7 @@ bool CustomCommandHandler::validName(const std::string &cmd, bool loading)
 void CustomCommandHandler::writeToFile() const
 {
 	std::ofstream ccfile;
-	ccfile.open(utils::appdir() + "/json/customcmds.json");
+	ccfile.open(utils::configdir() + "/json/customcmds.json");
 	Json::StyledWriter sw;
 	ccfile << sw.write(m_commands);
 	ccfile.close();

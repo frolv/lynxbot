@@ -12,16 +12,15 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime)
 	m_lastRequest(initTime), m_interval(0)
 {
 	if (!readSettings()) {
-		std::cout << "Giveaways will be disabled for this session."
+		std::cout << "giveaways will be disabled for this session"
 			<< std::endl;
 		std::cin.get();
 	} else if (!m_active) {
-		std::cout << "Giveaways are currently inactive.\n" << std::endl;
+		std::cout << "giveaways are currently inactive\n" << std::endl;
 	} else {
 		if (!readGiveaway()) {
 			m_active = false;
-			std::cerr << "Could not locate giveaway.txt. Giveaways \
-				will be disabled." << std::endl;
+			std::cerr << "giveaways will be disabled" << std::endl;
 			std::cin.get();
 			return;
 		}
@@ -35,10 +34,11 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime)
 						break;
 					} else if (c == 'n' || c == 'N') {
 						m_type[1] = false;
-						std::cout << "Follower \
-							giveaways will be \
-							disabled for this \
-							session.\n" << std::endl;
+						std::cout << "Follower "
+							"giveaways will be "
+							"disabled for this "
+							"session.\n"
+							<< std::endl;
 						return;
 					} else {
 						std::cout << "Invalid option.\n\
@@ -146,10 +146,10 @@ uint32_t Giveaway::getFollowers() const
 
 bool Giveaway::readSettings()
 {
-	std::ifstream reader(utils::appdir() + "/giveaway/giveaway-settings.txt");
+	std::string path = utils::configdir() + utils::config("giveaway-settings");
+	std::ifstream reader(path);
 	if (!reader.is_open()) {
-		std::cerr << "Could not locate giveaway-settings.txt"
-			<< std::endl;
+		std::cerr << "could not locate " << path << std::endl;
 		return false;
 	}
 
@@ -166,7 +166,7 @@ bool Giveaway::readSettings()
 		if (eq == std::string::npos) {
 			success = false;
 			std::cerr << "Syntax error on line " << lineNum
-				<< " of giveaway-settings.txt." << std::endl;
+				<< " of " << path << std::endl;
 		}
 		std::string category = line.substr(0, eq);
 		std::string setting = line.substr(eq + 1);
@@ -193,9 +193,8 @@ bool Giveaway::readSettings()
 				/* convert to seconds */
 				m_interval = num * 60;
 			} else {
-				std::cerr << "Invalid category in \
-					giveaway-settings.txt: " << category
-					<< std::endl;
+				std::cerr << "Invalid category in " << path
+					<< ": " << category << std::endl;
 				success = false;
 			}
 		} catch (std::runtime_error &e) {
@@ -214,9 +213,10 @@ bool Giveaway::readSettings()
 
 bool Giveaway::readGiveaway()
 {
-	std::ifstream reader(utils::appdir() + "/giveaway/giveaway.txt");
+	std::string path = utils::configdir() + utils::config("giveaway");
+	std::ifstream reader(path);
 	if (!reader.is_open()) {
-		m_active = false;
+		std::cerr << "could not read " << path << std::endl;
 		return false;
 	}
 	std::string line;
@@ -228,7 +228,8 @@ bool Giveaway::readGiveaway()
 
 void Giveaway::writeGiveaway() const
 {
-	std::ofstream writer(utils::appdir() + "/giveaway/giveaway.txt");
+	std::string path = utils::configdir() + utils::config("giveaway");
+	std::ofstream writer(path);
 	if (writer.is_open()) {
 		for (auto &s : m_items)
 			writer << s << std::endl;

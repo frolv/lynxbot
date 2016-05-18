@@ -40,7 +40,10 @@ bool Client::cconnect()
 
 void Client::cdisconnect()
 {
+	m_connected = false;
 #ifdef __linux__
+	if (close(m_fd) == -1)
+		perror("close");
 #endif
 #ifdef _WIN32
 	closesocket(m_socket);
@@ -50,6 +53,8 @@ void Client::cdisconnect()
 
 int32_t Client::cwrite(const std::string &msg)
 {
+	if (!m_connected)
+		return -1;
 #ifdef __linux__
 	return write(m_fd, msg.c_str(), msg.length());
 #endif
@@ -62,6 +67,10 @@ int32_t Client::cread(std::string &msg)
 {
 	int32_t bytes;
 	char buf[MAX_SIZE];
+
+	if (!m_connected)
+		return -1;
+
 #ifdef __linux__
 	bytes = read(m_fd, buf, MAX_SIZE - 1);
 #endif

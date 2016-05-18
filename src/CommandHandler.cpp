@@ -43,8 +43,8 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd());
 	if (!m_customCmds->isActive()) {
-		std::cerr << " Custom commands will be disabled \
-			for this session." << std::endl;
+		std::cerr << " Custom commands will be disabled "
+			"for this session." << std::endl;
 		std::cin.get();
 	}
 
@@ -56,8 +56,8 @@ CommandHandler::CommandHandler(const std::string &name,
 			m_cooldowns.add('_' + val["name"].asString(),
 				val["cooldown"].asInt());
 	} else {
-		std::cerr << "Failed to read responses.json. \
-			Responses disabled for this session.";
+		std::cerr << "Failed to read responses.json. "
+			"Responses disabled for this session.";
 		std::cin.get();
 	}
 
@@ -67,10 +67,10 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_cooldowns.add(m_wheel.name(), 10);
 
 	/* read extra 8ball responses */
-	std::ifstream reader(utils::appdir() + "/extra8ballresponses.txt");
+	std::string path = utils::configdir() + utils::config("8ball");
+	std::ifstream reader(path);
 	if (!reader.is_open()) {
-		std::cerr << "Could not read extra8ballresponses.txt"
-			<< std::endl;
+		std::cerr << "could not read " + path << std::endl;
 		return;
 	}
 	std::string line;
@@ -179,11 +179,11 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 		return "[EHP] " + extractCMLData(resp.text);
 
 	} else if (tokens.size() == 1) {
-		return "[EHP] EHP stands for efficient hours played. You earn \
-			1 EHP whenever you gain a certain amount of experience \
-			in a skill, depending on your level. You can find XP \
-			rates here: http://crystalmathlabs.com/tracker/suppliescalc.php . \
-			Watch a video explaining EHP: https://www.youtube.com/watch?v=rhxHlO8mvpc";
+		return "[EHP] EHP stands for efficient hours played. You earn "
+			"1 EHP whenever you gain a certain amount of experience "
+			"in a skill, depending on your level. You can find XP "
+			"rates here: http://crystalmathlabs.com/tracker/suppliescalc.php . "
+			"Watch a video explaining EHP: https://www.youtube.com/watch?v=rhxHlO8mvpc";
 	} else {
 		return "[EHP] Invalid syntax. Use \"$ehp [RSN]\".";
 	}
@@ -419,13 +419,13 @@ std::string CommandHandler::countFunc(struct cmdinfo *c)
 	if (tokens[1] == "start") {
 		/* begin a new count */
 		if (m_counting)
-			return "A count is already running. \
-				End it before starting a new one.";
+			return "A count is already running. "
+				"End it before starting a new one.";
 		m_usersCounted.clear();
 		m_messageCounts.clear();
 		m_counting = true;
-		return "Message counting has begun. Prepend your message with \
-			a + to have it counted.";
+		return "Message counting has begun. Prepend your message with "
+			"a + to have it counted.";
 	} else if (tokens[1] == "stop") {
 		/* end the current count */
 		if (!m_counting)
@@ -699,8 +699,8 @@ std::string CommandHandler::delrecFunc(struct cmdinfo *c)
 	}
 
 	if (!m_evtp->delMessage(id))
-		output += "invalid ID provided. \
-			   Use \"$listrec\" to show all recurring message IDs.";
+		output += "invalid ID provided. Use \"$listrec\" to show "
+			"all recurring message IDs.";
 	else
 		output += "recurring message " + std::to_string(id) + " deleted.";
 	return output;

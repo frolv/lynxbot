@@ -7,14 +7,15 @@
 
 Moderator::Moderator(URLParser *urlp) :m_parsep(urlp)
 {
-	std::ifstream whitelist(utils::appdir() + "/whitelist.txt");
+	std::string path = utils::configdir() + utils::config("whitelist");
+	std::ifstream whitelist(path);
 	if (whitelist.is_open()) {
 		std::string line;
 		while (std::getline(whitelist, line))
 			m_whitelist.push_back(line);
 	} else {
-		std::cerr << "File whitelist.txt not found. All chat URLs \
-			will be banned." << std::endl;
+		std::cerr << path << " not found. All chat URLs"
+			" will be banned." << std::endl;
 		std::cin.get();
 	}
 }
@@ -72,7 +73,7 @@ bool Moderator::whitelist(const std::string &site)
 			!= m_whitelist.end())
 		return false;
 	m_whitelist.push_back(site);
-	std::ofstream writer(utils::appdir() + "/whitelist.txt");
+	std::ofstream writer(utils::configdir() + utils::config("whitelist"));
 	for (auto &s : m_whitelist)
 		writer << s << std::endl;
 	return true;

@@ -56,21 +56,22 @@ std::vector<std::pair<std::string, time_t>> *EventManager::messages()
 
 void EventManager::readFile()
 {
-	std::ifstream reader(utils::appdir() + "/recurring.txt");
+	std::string path = utils::configdir() + utils::config("recurring");
+	std::ifstream reader(path);
 	if (reader.is_open()) {
 		std::string line;
 		uint16_t lineNum = 0;
 		while (std::getline(reader, line)) {
 			if (++lineNum > 5) {
-				std::cout << "recurring.txt: only reading \
-					first five messages." << std::endl;
+				std::cout << path << ": only reading "
+					"first five messages." << std::endl;
 				break;
 			}
 			/* format is "cd message" */
 			std::string::size_type pos = line.find(' ');
 			if (pos == std::string::npos || pos == line.length() - 1) {
-				std::cerr << "recurring.txt: syntax error \
-					on line " << lineNum << std::endl;
+				std::cerr << path << ": syntax error "
+					"on line " << lineNum << std::endl;
 				std::cin.get();
 				continue;
 			}
@@ -79,14 +80,14 @@ void EventManager::readFile()
 				cooldown = 60 * std::stoi(line.substr(0, pos));
 				if (!addMessage(line.substr(pos + 1),
 						cooldown, false)) {
-					std::cerr << "recurring.txt: line "
-						<< lineNum << ": cooldown must \
-						be multiple of 5 mins" << std::endl;
+					std::cerr << path << ": line " << lineNum
+						<< ": cooldown must be multiple"
+						" of 5 mins" << std::endl;
 					std::cin.get();
 				}
 			} catch (std::invalid_argument) {
-				std::cerr << "recurring.txt: invalid number \
-					on line " << lineNum << ": "
+				std::cerr << path << ": invalid number on line "
+					<< lineNum << ": "
 					<< line.substr(0, pos) << std::endl;
 				std::cin.get();
 			}
@@ -96,7 +97,8 @@ void EventManager::readFile()
 
 void EventManager::writeFile()
 {
-	std::ofstream writer(utils::appdir() + "/recurring.txt");
+	std::string path = utils::configdir() + utils::config("recurring");
+	std::ofstream writer(path);
 	if (writer.is_open()) {
 		for (auto &p : m_messages)
 			writer << p.second / 60 << ' ' << p.first << std::endl;

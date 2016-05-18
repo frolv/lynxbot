@@ -11,20 +11,32 @@ struct botData {
 	std::string pass;
 };
 
-bool readSettings(const std::string &appDir, botData *bd, std::string &error);
+bool readSettings(botData *bd, std::string &error);
 
-int main()
+int main(int argc, char **argv)
 {
 	botData bd;
 	std::string error;
 
-	if (!readSettings(utils::appdir(), &bd, error)) {
+	if (argc > 2) {
+		std::cerr << "usage: " << argv[0] << " [CHANNEL]" << std::endl;
+		return 1;
+	}
+
+	if (!readSettings(&bd, error)) {
 		std::cerr << error << std::endl;
 		std::cin.get();
 		return 1;
 	}
 
-	TwitchBot bot(bd.name, bd.channel, bd.pass);
+	std::string channel = bd.channel;
+	if (argc == 2) {
+		channel = argv[1];
+		if (channel[0] != '#')
+			channel = '#' + channel;
+	}
+
+	TwitchBot bot(bd.name, channel, bd.pass);
 
 	if (bot.isConnected())
 		bot.serverLoop();
@@ -32,12 +44,13 @@ int main()
 	return 0;
 }
 
-bool readSettings(const std::string &appDir, botData *bd, std::string &error)
+bool readSettings(botData *bd, std::string &error)
 {
 	/* open settings */
-	std::ifstream reader(appDir + "/settings.txt");
+	std::string path = utils::configdir() + utils::config("settings");
+	std::ifstream reader(path);
 	if (!reader.is_open()) {
-		error = "Could not locate settings.txt";
+		error = "could not locate " + path;
 		return false;
 	}
 
@@ -66,14 +79,14 @@ bool readSettings(const std::string &appDir, botData *bd, std::string &error)
 				bd->channel = match[2];
 			} else {
 				if (!utils::startsWith(match[2].str(), "oauth:"))
-					error = "Password must be a valid \
-						 oauth token, starting with \
-						 \"oauth:\".";
+					error = "Password must be a valid "
+						 "oauth token, starting with "
+						 "\"oauth:\".";
 				bd->pass = match[2];
 			}
 		} else {
 			error = "Syntax error on line "
-				+ std::to_string(lineNum) + " of settings.txt.";
+				+ std::to_string(lineNum) + " of " + path;
 		}
 		if (!error.empty())
 			return false;
