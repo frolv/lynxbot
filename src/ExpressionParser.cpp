@@ -1,22 +1,25 @@
 #include <cmath>
-#include <regex>
+#include <ctype.h>
 #include <sstream>
 #include "ExpressionParser.h"
 #include "OpMap.h"
 
+static bool isop(char c);
+static bool isparen(char c);
+
 ExpressionParser::ExpressionParser(const std::string &expr) : m_expr(expr)
 {
 	/* expression only contains numbers and basic mathematical operators */
-	std::regex exprRegex("^[\\d\\.()+\\-*/^]+$");
-	std::smatch match;
-	if (!std::regex_search(m_expr.begin(), m_expr.end(), match, exprRegex))
-		throw std::runtime_error("Expression can only contain numbers, \
-			parentheses and operators.");
+	for (char c : expr) {
+		if (!isdigit(c) && !isop(c) && !isparen(c) && c != '.')
+			throw std::runtime_error("Expression can only contain "
+					"numbers, parentheses and operators.");
+	}
 }
 
 ExpressionParser::~ExpressionParser() {}
 
-/* split the expression into its various tokens. */
+/* split the expression into its various tokens */
 void ExpressionParser::tokenizeExpr()
 {
 	std::stringstream parser(m_expr);
@@ -122,7 +125,8 @@ void ExpressionParser::evalRevPol()
 			/* token is operator */
 			if (next.c == 'm' || next.c == 'p') {
 				if (m_output.empty())
-					throw std::runtime_error("Invalid mathematical expression.");
+					throw std::runtime_error("Invalid "
+						"mathematical expression.");
 
 				double d = m_output.top();
 				m_output.pop();
@@ -130,13 +134,14 @@ void ExpressionParser::evalRevPol()
 			} else {
 				/* all other operators are binary */
 				if (m_output.size() < 2)
-					throw std::runtime_error("Invalid mathematical expression.");
+					throw std::runtime_error("Invalid "
+						"mathematical expression.");
 
-				double d2 = m_output.top();
+				double d1, d2, result;
+				d2 = m_output.top();
 				m_output.pop();
-				double d1 = m_output.top();
+				d1 = m_output.top();
 				m_output.pop();
-				double result;
 
 				result = next.c == '+' ? d1 + d2 :
 					next.c == '-' ? d1 - d2 :
@@ -152,4 +157,14 @@ void ExpressionParser::evalRevPol()
 
 	if (m_output.size() != 1)
 		throw std::runtime_error("Invalid mathematical expression.");
+}
+
+static bool isop(char c)
+{
+	return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
+}
+
+static bool isparen(char c)
+{
+	return c == '(' || c == ')';
 }

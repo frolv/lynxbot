@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
+#include <sstream>
 #include <json/json.h>
 #include <cpr/cpr.h>
 #include "CommandHandler.h"
@@ -305,20 +306,19 @@ std::string CommandHandler::calcFunc(struct cmdinfo *c)
 	/* remove all whitespace */
 	expr.erase(std::remove_if(expr.begin(), expr.end(), isspace), expr.end());
 	
-	std::string result;
+	std::ostringstream result;
 	try {
 		ExpressionParser exprP(expr);
 		exprP.tokenizeExpr();
 		double res = exprP.eval();
-		result += std::to_string(res);
+		result << res;
 	} catch (std::runtime_error &e) {
-		result = e.what();
+		return e.what();
 	}
-	if (result == "inf" || result == "-nan(ind)") {
-		result = "Error: division by 0.";
-	}
+	if (result.str() == "inf" || result.str() == "-nan(ind)")
+		return "Error: division by 0.";
 
-	return "[CALC] " + result;
+	return "[CALC] " + result.str();
 }
 
 std::string CommandHandler::cmlFunc(struct cmdinfo *c)
