@@ -9,6 +9,8 @@
 #include "EventManager.h"
 #include "SelectionWheel.h"
 #include "URLParser.h"
+#include "Giveaway.h"
+#include "RSNList.h"
 
 class Moderator;
 class CustomCommandHandler;
@@ -17,6 +19,8 @@ class TimerManager;
 class EventManager;
 class SelectionWheel;
 class URLParser;
+class Giveaway;
+class RSNList;
 
 class CommandHandler {
 	public:
@@ -28,7 +32,8 @@ class CommandHandler {
 		typedef std::unordered_map<std::string,
 			std::string(CommandHandler::*)(CommandHandler::cmdinfo *)> commandMap;
 		CommandHandler(const std::string &name, const std::string &channel,
-			Moderator *mod, URLParser *urlp, EventManager *evtp);
+			Moderator *mod, URLParser *urlp, EventManager *evtp,
+			Giveaway *givp);
 		~CommandHandler();
 		std::string processCommand(const std::string &nick,
 			const std::string &fullCmd, bool privileges);
@@ -46,6 +51,8 @@ class CommandHandler {
 		SelectionWheel m_wheel;
 		CustomCommandHandler *m_customCmds;
 		EventManager *m_evtp;
+		Giveaway *m_givp;
+		RSNList m_rsns;
 		Json::Value m_responses;
 		bool m_responding;
 		bool m_counting;
@@ -103,6 +110,7 @@ class CommandHandler {
 		std::string aboutFunc(struct cmdinfo *c);
 		std::string countFunc(struct cmdinfo *c);
 		std::string uptimeFunc(struct cmdinfo *c);
+		std::string rsnFunc(struct cmdinfo *c);
 		std::string whitelistFunc(struct cmdinfo *c);
 		std::string permitFunc(struct cmdinfo *c);
 		std::string makecomFunc(struct cmdinfo *c);
@@ -117,6 +125,9 @@ class CommandHandler {
 		std::string extractHSData(const std::string &httpResp,
 			uint8_t skillID) const;
 		std::string extractGEData(const std::string &httpResp) const;
+		std::string getRSN(const std::string &text,
+			const std::string &nick, std::string &err,
+			bool username = false);
 };
 
 class CustomCommandHandler {

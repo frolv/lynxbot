@@ -25,12 +25,12 @@ debug: exec
 exec: $(CPR) main.o jsoncpp.o utils.o client.o TwitchBot.o Moderator.o\
 	URLParser.o CommandHandler.o CustomCommandHandler.o TimerManager.o\
 	GEReader.o ExpressionParser.o OpMap.o OptionParser.o SelectionWheel.o\
-	EventManager.o Giveaway.o SkillMap.o
+	EventManager.o Giveaway.o SkillMap.o RSNList.o
 	$(CXX) -o $(PROGNAME) $(LIB) $(CPR) main.o jsoncpp.o utils.o client.o\
 		TwitchBot.o Moderator.o URLParser.o CommandHandler.o\
 		CustomCommandHandler.o TimerManager.o GEReader.o\
 		ExpressionParser.o OpMap.o OptionParser.o SelectionWheel.o\
-		EventManager.o Giveaway.o SkillMap.o
+		EventManager.o Giveaway.o SkillMap.o RSNList.o
 
 main.o: src/main.cpp src/utils.h src/TwitchBot.h
 	$(CXX) $(CXXFLAGS) src/main.cpp
@@ -82,6 +82,9 @@ Giveaway.o: src/Giveaway.cpp src/Giveaway.h
 
 SkillMap.o: src/SkillMap.cpp src/SkillMap.h
 	${CXX} ${CXXFLAGS} src/SkillMap.cpp
+
+RSNList.o: src/RSNList.cpp src/RSNList.h
+	${CXX} ${CXXFLAGS} src/RSNList.cpp
 
 jsoncpp.o: lib/jsoncpp.cpp include/json/json.h include/json/json-forwards.h
 	${CXX} ${CXXFLAGS} lib/jsoncpp.cpp

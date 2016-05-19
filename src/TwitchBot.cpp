@@ -13,7 +13,8 @@ TwitchBot::TwitchBot(const std::string nick, const std::string channel,
 	const std::string password)
 	: m_connected(false), m_nick(nick), m_channelName(channel),
 	m_client(TWITCH_SERV, TWITCH_PORT), m_mod(&m_parser),
-	m_cmdHandler(nick, channel.substr(1), &m_mod, &m_parser, &m_eventManager),
+	m_cmdHandler(nick, channel.substr(1), &m_mod, &m_parser,
+			&m_eventManager, &m_giveaway),
 	m_giveaway(channel.substr(1), time(nullptr))
 {
 	if ((m_connected = m_client.cconnect())) {

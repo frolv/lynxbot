@@ -111,7 +111,8 @@ std::string utils::config(const std::string &cfg)
 bool utils::readJSON(const std::string &filename, Json::Value &val)
 {
 	Json::Reader reader;
-	std::ifstream fileStream(configdir() + "/json/" + filename, std::ifstream::binary);
+	std::ifstream fileStream(configdir() + "/json/" + filename,
+		std::ifstream::binary);
 
 	if (!reader.parse(fileStream, val)) {
 		std::cerr << reader.getFormattedErrorMessages() << std::endl;

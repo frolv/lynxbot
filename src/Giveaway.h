@@ -20,6 +20,7 @@ class Giveaway {
 		time_t m_earliest;
 		time_t m_latest;
 		std::vector<std::string> m_items;
+		bool initialize();
 		uint32_t getFollowers() const;
 		bool readSettings();
 		bool readGiveaway();

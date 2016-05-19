@@ -13,9 +13,10 @@
 
 CommandHandler::CommandHandler(const std::string &name,
 		const std::string &channel, Moderator *mod,
-		URLParser *urlp, EventManager *evtp)
+		URLParser *urlp, EventManager *evtp, Giveaway *givp)
 	: m_name(name), m_channel(channel), m_modp(mod), m_parsep(urlp),
-	m_customCmds(NULL), m_evtp(evtp), m_counting(false), m_gen(m_rd())
+	m_customCmds(NULL), m_evtp(evtp), m_givp(givp), m_counting(false),
+	m_gen(m_rd())
 {
 	/* initializing pointers to all default commands */
 	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
@@ -30,6 +31,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["active"] = &CommandHandler::activeFunc;
 	m_defaultCmds["count"] = &CommandHandler::countFunc;
 	m_defaultCmds["uptime"] = &CommandHandler::uptimeFunc;
+	m_defaultCmds["rsn"] = &CommandHandler::rsnFunc;
 	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
 	m_defaultCmds["permit"] = &CommandHandler::permitFunc;
 	m_defaultCmds["commands"] = &CommandHandler::commandsFunc;
@@ -169,59 +171,108 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 
 std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 {
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd, ' ', tokens);
+	std::string output = "@" + c->nick + ", ";
+	OptionParser op(c->fullCmd, "n");
+	int16_t opt;
+	bool usenick = false;
 
-	if (tokens.size() == 2) {
-		/* a username was provided */
-		std::string rsn = tokens[1];
-		std::replace(rsn.begin(), rsn.end(), '-', '_');
-		cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST +
-			CML_EHP_API + rsn), cpr::Header{{ "Connection", "close" }});
-		return "[EHP] " + extractCMLData(resp.text);
-
-	} else if (tokens.size() == 1) {
-		return "[EHP] EHP stands for efficient hours played. You earn "
-			"1 EHP whenever you gain a certain amount of experience "
-			"in a skill, depending on your level. You can find XP "
-			"rates here: http://crystalmathlabs.com/tracker/suppliescalc.php . "
-			"Watch a video explaining EHP: https://www.youtube.com/watch?v=rhxHlO8mvpc";
-	} else {
-		return "[EHP] Invalid syntax. Use \"$ehp [RSN]\".";
+	while ((opt = op.getopt()) != EOF) {
+		switch (opt) {
+			case 'n':
+				usenick = true;
+				break;
+			case '?':
+				output = "ehp: illegal option -- ";
+				output += (char)op.optopt();
+				return output;
+			default:
+				return "";
+		}
 	}
+
+	if (op.optind() == c->fullCmd.length()) {
+		if (usenick)
+			return output += "must provide Twitch name for -n flag.";
+		else
+			return "[EHP] EHP stands for efficient hours played. "
+				"You earn 1 EHP whenever you gain a certain "
+				"amount of experience in a skill, depending "
+				"on your level. You can find XP rates here: "
+				"http://crystalmathlabs.com/tracker/suppliescalc.php . "
+				"Watch a video explaining EHP: "
+				"https://www.youtube.com/watch?v=rhxHlO8mvpc";
+	}
+
+	std::string rsn, err;
+	if ((rsn = getRSN(c->fullCmd.substr(op.optind()),
+			c->nick, err, usenick)).empty())
+		return err;
+	if (rsn.find(' ') != std::string::npos)
+		return output += "invalid syntax. Use \"$ehp [-n] [RSN]\".";
+	std::replace(rsn.begin(), rsn.end(), '-', '_');
+
+	cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST +
+				CML_EHP_API + rsn), cpr::Header{{ "Connection", "close" }});
+	if (resp.text == "-4")
+		return "@" + c->nick + ", could not reach CML API, try again.";
+	return "[EHP] " + extractCMLData(resp.text);
 }
 
 std::string CommandHandler::levelFunc(struct cmdinfo *c)
 {
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd, ' ', tokens);
+	std::string output = "@" + c->nick + ", ";
+	OptionParser op(c->fullCmd, "n");
+	int16_t opt;
+	bool usenick = false;
 
-	if (tokens.size() == 3) {
-		if (skillMap.find(tokens[1]) == skillMap.end()
-			&& skillNickMap.find(tokens[1]) == skillNickMap.end())
-			return "[LVL] Invalid skill name.";
-
-		uint8_t skillID = skillMap.find(tokens[1]) == skillMap.end()
-			? skillNickMap.find(tokens[1])->second
-			: skillMap.find(tokens[1])->second;
-
-		std::string rsn = tokens[2];
-		std::replace(rsn.begin(), rsn.end(), '-', '_');
-
-		cpr::Response resp = cpr::Get(cpr::Url("http://" + RS_HOST
-			+ RS_HS_API + rsn), cpr::Header{{ "Connection", "close" }});
-		if (resp.text.find("404 - Page not found") != std::string::npos)
-			return "[LVL] Player not found on hiscores.";
-
-		/* skill nickname is displayed to save space */
-		std::string nick = getSkillNick(skillID);
-		std::transform(nick.begin(), nick.end(), nick.begin(), toupper);
-
-		return "[" + nick + "] Name: " + rsn + ", "
-			+ extractHSData(resp.text, skillID);
-	} else {
-		return "[LVL] Invalid syntax. Use \"$lvl SKILL RSN\".";
+	while ((opt = op.getopt()) != EOF) {
+		switch (opt) {
+			case 'n':
+				usenick = true;
+				break;
+			case '?':
+				output = "ehp: illegal option -- ";
+				output += (char)op.optopt();
+				return output;
+			default:
+				return "";
+		}
 	}
+
+	if (op.optind() == c->fullCmd.length())
+		return output + "invalid syntax. Use \"$level [-n] SKILL RSN\".";
+
+	std::vector<std::string> tokens;
+	utils::split(c->fullCmd.substr(op.optind()), ' ', tokens);
+
+	if (tokens.size() != 2)
+		return output + "invalid syntax. Use \"$level [-n] SKILL RSN\".";
+
+	std::string skill = tokens[0];
+	std::string rsn, err;
+	if ((rsn = getRSN(tokens[1], c->nick, err, usenick)).empty())
+		return err;
+	std::replace(rsn.begin(), rsn.end(), '-', '_');
+
+	if (skillMap.find(skill) == skillMap.end()
+			&& skillNickMap.find(skill) == skillNickMap.end())
+		return "[LVL] Invalid skill name.";
+
+	uint8_t skillID = skillMap.find(skill) == skillMap.end()
+		? skillNickMap.find(skill)->second
+		: skillMap.find(skill)->second;
+
+	cpr::Response resp = cpr::Get(cpr::Url("http://" + RS_HOST
+				+ RS_HS_API + rsn), cpr::Header{{ "Connection", "close" }});
+	if (resp.text.find("404 - Page not found") != std::string::npos)
+		return "[LVL] Player not found on hiscores.";
+
+	/* skill nickname is displayed to save space */
+	std::string nick = getSkillNick(skillID);
+	std::transform(nick.begin(), nick.end(), nick.begin(), toupper);
+
+	return "[" + nick + "] Name: " + rsn + ", "
+		+ extractHSData(resp.text, skillID);
 }
 
 std::string CommandHandler::geFunc(struct cmdinfo *c)
@@ -273,12 +324,15 @@ std::string CommandHandler::calcFunc(struct cmdinfo *c)
 std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
-	OptionParser op(c->fullCmd, "u");
+	OptionParser op(c->fullCmd, "nu");
 	int16_t opt;
-	bool update = false;
+	bool usenick = false, update = false;
 
 	while ((opt = op.getopt()) != EOF) {
 		switch (opt) {
+		case 'n':
+			usenick = true;
+			break;
 		case 'u':
 			update = true;
 			break;
@@ -291,20 +345,23 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 		}
 	}
 
-	if (op.optind() >= c->fullCmd.length()) {
+	if (op.optind() == c->fullCmd.length()) {
 		if (update)
 			return output + "must provide RSN for -u flag.";
 		else
 			return "[CML] http://" + CML_HOST;
 	}
 
-	const std::string rsn = c->fullCmd.substr(op.optind());
+	std::string rsn, err;
+	if ((rsn = getRSN(c->fullCmd.substr(op.optind()),
+			c->nick, err, usenick)).empty())
+		return err;
 	if (rsn.find(' ') != std::string::npos)
-		return output += "invalid syntax. Use \"$cml [-u] [RSN]\".";
+		return output += "invalid syntax. Use \"$cml [-nu] [RSN]\".";
 	
 	if (update) {
-		cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST
-					+ CML_UPDATE_API + rsn),
+		cpr::Response resp = cpr::Get(
+				cpr::Url("http://" + CML_HOST + CML_UPDATE_API + rsn),
 				cpr::Header{{ "Connection", "close" }});
 		uint8_t i = std::stoi(resp.text);
 		switch (i) {
@@ -325,6 +382,9 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 			break;
 		case 6:
 			output += rsn + " is an invalid RSN.";
+			break;
+		default:
+			output += "could not reach CML API, try again.";
 			break;
 		}
 		return output;
@@ -539,6 +599,54 @@ std::string CommandHandler::uptimeFunc(struct cmdinfo *c)
 		return out + channel + " is not currently live.";
 	else
 		return out + channel + " has been live for " + resp.text + ".";
+}
+
+std::string CommandHandler::rsnFunc(struct cmdinfo *c)
+{
+	std::vector<std::string> tokens;
+	utils::split(c->fullCmd, ' ', tokens);
+
+	if (tokens.size() < 2 || (tokens[1] != "set" && tokens[1] != "check"
+				&& tokens[1] != "del" && tokens[1] != "change")
+			|| (tokens[1] == "set" && tokens.size() != 3)
+			|| (tokens[1] == "check" && tokens.size() > 3)
+			|| (tokens[1] == "del" && tokens.size() != 2)
+			|| (tokens[1] == "change" && tokens.size() != 3))
+		return "Invalid syntax. Use \"$rsn set RSN\", \"$rsn del RSN\" "
+			", \"$rsn change RSN\" or \"$rsn check [NICK]\".";
+
+	std::string err, rsn;
+	if (tokens.size() > 2) {
+		rsn = tokens[2];
+		std::transform(rsn.begin(), rsn.end(), rsn.begin(), tolower);
+	}
+	if (tokens[1] == "set") {
+		if (!m_rsns.add(c->nick, rsn, err))
+			return "@" + c->nick + ", " + err;
+		else
+			return "RSN " + rsn + " has been set for "
+				+ c->nick + ".";
+	} else if (tokens[1] == "del") {
+		if (!m_rsns.del(c->nick))
+			return "@" + c->nick + ", you do not have a RSN set.";
+		else
+			return "RSN for " + c->nick + " has been deleted.";
+	} else if (tokens[1] == "change") {
+		if (!m_rsns.edit(c->nick, rsn, err))
+			return "@" + c->nick + ", " + err;
+		else
+			return "RSN for " + c->nick + " changed to "
+				+ rsn + ".";
+	} else {
+		/* check own nick or the one that was given */
+		std::string crsn, nick;
+		nick = tokens.size() == 2 ? c->nick : tokens[2];
+		if ((crsn = m_rsns.getRSN(nick)).empty())
+			return "No RSN set for " + nick + ".";
+		else
+			return "RSN \"" + crsn + "\" is currently set for "
+				+ nick + ".";
+	}
 }
 
 std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
@@ -819,7 +927,8 @@ std::string CommandHandler::extractCMLData(const std::string &httpResp) const
 	}
 }
 
-std::string CommandHandler::extractHSData(const std::string &httpResp, uint8_t skillID) const
+std::string CommandHandler::extractHSData(const std::string &httpResp,
+	uint8_t skillID) const
 {
 	std::vector<std::string> skills;
 	utils::split(httpResp, '\n', skills);
@@ -840,4 +949,24 @@ std::string CommandHandler::extractGEData(const std::string &httpResp) const
 		return utils::formatInteger(item["overall"].asString());
 	else
 		return "An error occurred. Please try again.";
+}
+
+std::string CommandHandler::getRSN(const std::string &text,
+	const std::string &nick, std::string &err, bool username)
+{
+	std::string rsn;
+	if (username) {
+		rsn = m_rsns.getRSN(text);
+		if (rsn.empty())
+			err = "No RSN set for user " + text + ".";
+	} else {
+		if (text == ".") {
+			if ((rsn = m_rsns.getRSN(nick)).empty())
+				err = "No RSN set for user " + nick + ". "
+					"Use \"$rsn set RSN\" to set one.";
+		} else {
+			rsn = text;
+		}
+	}
+	return rsn;
 }
