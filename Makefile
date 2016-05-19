@@ -17,10 +17,11 @@ CXXFLAGS=$(INC) -Wall -Wextra -c -std=c++14
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
 	CXXFLAGS+=-DDEBUG -g
-	OBJ=obj/debug
+	OBJ:=$(OBJ)/debug
+	PROGNAME:=$(PROGNAME)-d
 else
 	CXXFLAGS+=-O2
-	OBJ=obj/release
+	OBJ:=$(OBJ)/release
 endif
 
 _CPR=auth.o cookies.o cprtypes.o digest.o error.o multipart.o parameters.o\
@@ -72,4 +73,4 @@ exec: $(CPR) $(JSONCPP) $(LYNXBOT)
 .PHONY: clean
 
 clean:
-	rm -f $(PROGNAME) *.o $(OBJ)/*.o
+	rm -f $(PROGNAME) $(OBJ)/*.o

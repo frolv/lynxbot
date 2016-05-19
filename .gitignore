@@ -10,5 +10,5 @@ bot.VC.opendb
 Release/
 obj/
 doc
-lynxbot
+lynxbot*
 *.o
