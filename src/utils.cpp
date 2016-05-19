@@ -102,6 +102,7 @@ std::string utils::config(const std::string &cfg)
 	if (configs.find(cfg) != configs.end()) {
 		path += configs[cfg];
 #ifdef _WIN32
+		std::replace(path.begin(), path.end(), '/', '\\');
 		path += ".txt";
 #endif
 	}
