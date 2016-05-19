@@ -6,7 +6,7 @@
 RSNList::RSNList()
 {
 	if (!readFile()) {
-		std::cerr << "Could not read rsn.json" << std::endl;
+		std::cerr << "Could not read rsns.json" << std::endl;
 		std::cin.get();
 	}
 }
