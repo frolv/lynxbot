@@ -1,6 +1,5 @@
 .vs/
 Debug/
-debug/
 bot.opensdf
 bot.sdf
 bot.sln
@@ -9,7 +8,7 @@ src/bot.vcxproj
 src/bot.vcxproj.filters
 bot.VC.opendb
 Release/
-release/
+obj/
 doc
 lynxbot
 *.o

@@ -4,8 +4,8 @@
 #include <regex>
 #include <json/json.h>
 #include <cpr/cpr.h>
-#include <ExpressionParser.h>
 #include "CommandHandler.h"
+#include "ExpressionParser.h"
 #include "OptionParser.h"
 #include "SkillMap.h"
 #include "utils.h"
@@ -612,7 +612,7 @@ std::string CommandHandler::rsnFunc(struct cmdinfo *c)
 			|| (tokens[1] == "check" && tokens.size() > 3)
 			|| (tokens[1] == "del" && tokens.size() != 2)
 			|| (tokens[1] == "change" && tokens.size() != 3))
-		return "Invalid syntax. Use \"$rsn set RSN\", \"$rsn del RSN\" "
+		return "Invalid syntax. Use \"$rsn set RSN\", \"$rsn del\" "
 			", \"$rsn change RSN\" or \"$rsn check [NICK]\".";
 
 	std::string err, rsn;
