@@ -17,6 +17,7 @@ class RSNList {
 	private:
 		Json::Value m_rsns;
 		Json::Value m_empty;
+		bool validRSN(const std::string &rsn, std::string &err);
 		Json::Value &findByNick(const std::string &nick);
 		Json::Value &findByRSN(const std::string &rsn);
 		bool readFile();

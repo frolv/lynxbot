@@ -101,11 +101,11 @@ std::string CommandHandler::processCommand(const std::string &nick,
 	std::string cmd = fullCmd.substr(0, fullCmd.find(' '));
 
 	if (m_defaultCmds.find(cmd) != m_defaultCmds.end()
-		&& (privileges || m_cooldowns.ready(cmd))) {
+			&& (privileges || m_cooldowns.ready(cmd))) {
 		output += (this->*m_defaultCmds[cmd])(&c);
 		m_cooldowns.setUsed(cmd);
 	} else if (m_wheel.isActive() && cmd == m_wheel.cmd()
-		&& (privileges || m_cooldowns.ready(m_wheel.name()))) {
+			&& (privileges || m_cooldowns.ready(m_wheel.name()))) {
 		output += wheelFunc(&c);
 		m_cooldowns.setUsed(m_wheel.name());
 	} else if (m_customCmds->isActive()) {
@@ -594,7 +594,6 @@ std::string CommandHandler::uptimeFunc(struct cmdinfo *c)
 		cpr::Header{{ "Connection", "close" }});
 	static const std::string channel =
 		(char)toupper(m_channel[0]) + m_channel.substr(1);
-	std::cout << resp.text << std::endl;
 	if (resp.text.substr(0, 7) == "Channel")
 		return out + channel + " is not currently live.";
 	else
@@ -612,8 +611,8 @@ std::string CommandHandler::rsnFunc(struct cmdinfo *c)
 			|| (tokens[1] == "check" && tokens.size() > 3)
 			|| (tokens[1] == "del" && tokens.size() != 2)
 			|| (tokens[1] == "change" && tokens.size() != 3))
-		return "Invalid syntax. Use \"$rsn set RSN\", \"$rsn del\" "
-			", \"$rsn change RSN\" or \"$rsn check [NICK]\".";
+		return "Invalid syntax. Use \"$rsn set RSN\", \"$rsn del\", "
+			"\"$rsn change RSN\" or \"$rsn check [NICK]\".";
 
 	std::string err, rsn;
 	if (tokens.size() > 2) {
