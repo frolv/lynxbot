@@ -95,13 +95,15 @@ std::string CommandHandler::processCommand(const std::string &nick,
 	const std::string &fullCmd, bool privileges)
 {
 	std::string output = "";
-	struct cmdinfo c;
-	c.nick = nick;
-	c.fullCmd = fullCmd;
-	c.privileges = privileges;
 
 	/* the command is the first part of the string up to the first space */
 	std::string cmd = fullCmd.substr(0, fullCmd.find(' '));
+
+	struct cmdinfo c;
+	c.nick = nick;
+	c.cmd = cmd;
+	c.fullCmd = fullCmd;
+	c.privileges = privileges;
 
 	if (m_defaultCmds.find(cmd) != m_defaultCmds.end()
 			&& (privileges || m_cooldowns.ready(cmd))) {
@@ -185,7 +187,7 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 				usenick = true;
 				break;
 			case '?':
-				output = "ehp: illegal option -- ";
+				output = c->cmd + ": illegal option -- ";
 				output += (char)op.optopt();
 				return output;
 			default:
@@ -195,7 +197,7 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 
 	if (op.optind() == c->fullCmd.length()) {
 		if (usenick)
-			return output += "must provide Twitch name for -n flag.";
+			return c->cmd + ": must provide Twitch name for -n flag";
 		else
 			return "[EHP] EHP stands for efficient hours played. "
 				"You earn 1 EHP whenever you gain a certain "
@@ -211,13 +213,13 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 			c->nick, err, usenick)).empty())
 		return err;
 	if (rsn.find(' ') != std::string::npos)
-		return output += "invalid syntax. Use \"$ehp [-n] [RSN]\".";
+		return c->cmd + ": invalid syntax. Use \"$ehp [-n] [RSN]\".";
 	std::replace(rsn.begin(), rsn.end(), '-', '_');
 
 	cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST +
 				CML_EHP_API + rsn), cpr::Header{{ "Connection", "close" }});
 	if (resp.text == "-4")
-		return "@" + c->nick + ", could not reach CML API, try again.";
+		return output + "could not reach CML API, try again.";
 	return "[EHP] " + extractCMLData(resp.text);
 }
 
@@ -234,7 +236,7 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 				usenick = true;
 				break;
 			case '?':
-				output = "ehp: illegal option -- ";
+				output = c->cmd + ": illegal option -- ";
 				output += (char)op.optopt();
 				return output;
 			default:
@@ -243,13 +245,13 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 	}
 
 	if (op.optind() == c->fullCmd.length())
-		return output + "invalid syntax. Use \"$level [-n] SKILL RSN\".";
+		return c->cmd + ": invalid syntax. Use \"$level [-n] SKILL RSN\".";
 
 	std::vector<std::string> tokens;
 	utils::split(c->fullCmd.substr(op.optind()), ' ', tokens);
 
 	if (tokens.size() != 2)
-		return output + "invalid syntax. Use \"$level [-n] SKILL RSN\".";
+		return c->cmd + ": invalid syntax. Use \"$level [-n] SKILL RSN\".";
 
 	std::string skill = tokens[0];
 	std::string rsn, err;
@@ -339,7 +341,7 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 			update = true;
 			break;
 		case '?':
-			output = "cml: illegal option -- ";
+			output = c->cmd + ": illegal option -- ";
 			output += (char)op.optopt();
 			return output;
 		default:
@@ -349,7 +351,9 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 
 	if (op.optind() == c->fullCmd.length()) {
 		if (update)
-			return output + "must provide RSN for -u flag.";
+			return c->cmd + ": must provide RSN for -u flag";
+		if (usenick)
+			return c->cmd + ": must provide Twitch name for -n flag";
 		else
 			return "[CML] http://" + CML_HOST;
 	}
@@ -454,7 +458,7 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 			multi = true;
 			break;
 		case '?':
-			output = "strawpoll: illegal option -- "; 
+			output = c->cmd + ": illegal option -- "; 
 			output += (char)op.optopt();
 			return output;
 		default:
@@ -463,15 +467,16 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 	}
 
 	if (op.optind() >= c->fullCmd.length())
-		return output + "Not enough arguments given.";
+		return c->cmd + ": not enough arguments given";
 	const std::string req = c->fullCmd.substr(op.optind());
 	std::vector<std::string> tokens;
 	utils::split(req, '|', tokens);
 
 	if (binary && tokens.size() != 1)
-		return output + "Cannot provide options for binary poll.";
+		return c->cmd + ": cannot provide options for binary poll";
 	if (!binary && tokens.size() < 3)
-		return output + "Poll must have a question and at least two answers.";
+		return c->cmd + ": poll must have a question and at least "
+			"two answers";
 
 	if (binary) {
 		options.append("yes");
@@ -701,8 +706,7 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 	if (!m_customCmds->isActive())
 		return "Custom commands are currently disabled.";
 
-	bool editing = c->fullCmd.substr(0, 4) == "edit";
-	bool success = true;
+	bool editing = c->cmd == "editcom";
 	std::string output = "@" + c->nick + ", ";
 	time_t cooldown = editing ? -1 : 15;
 
@@ -718,32 +722,28 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 					return output
 						+ "cooldown cannot be negative.";
 			} catch (std::invalid_argument) {
-				output += "invalid number: " + op.optarg();
-				success = false;
+				output = c->cmd  + ": invalid number -- ";
+				return output + op.optarg();
 			}
 			break;
 		case '?':
 			/* invalid option */
 			if (op.optopt() == 'c') {
-				output += "no cooldown provided.";
+				output = c->cmd + ": -c option given without "
+					"cooldown";
+				return output;
 			} else {
-				output = editing ? "edit" : "add" ;
-				return output + "com: illegal option -- "
-					+ (char)op.optopt();
+				output = c->cmd + ": illegal option -- ";
+				output += (char)op.optopt();
+				return output;
 			}
-			success = false;
-			break;
 		default:
 			return "";
 		}
 	}
 
-	if (success && op.optind() >= c->fullCmd.length()) {
-		output += "not enough arguments given.";
-		success = false;
-	}
-	if (!success)
-		return output;
+	if (op.optind() >= c->fullCmd.length())
+		return c->cmd + ": not enough arguments given";
 
 	std::string args = c->fullCmd.substr(op.optind());
 	std::string::size_type sp = args.find(' ');
@@ -825,13 +825,14 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 			try {
 				cooldown = 60 * std::stoi(op.optarg());
 			} catch (std::invalid_argument) {
-				return output + "invalid number: " + op.optarg();
+				return c->cmd + ": invalid number -- "
+					+ op.optarg();
 			}
 			break;
 		case '?':
 			if (op.optopt() == 'c')
-				return output + "no interval provided.";
-			output = "addrec: illegal option -- ";
+				return c->cmd + "-c flag given without interval";
+			output = c->cmd + ": illegal option -- ";
 			output += (char)op.optopt();
 			return output;
 		default:
@@ -840,14 +841,14 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 	}
 
 	if (cooldown % 300 != 0)
-		return output + "cooldown must be a multiple of 5 minutes.";
+		return c->cmd + ": interval must be a multiple of 5 minutes";
 	else if (cooldown > 3600)
-		return output + "cooldown cannot be longer than an hour.";
+		return c->cmd + ": interval cannot be longer than an hour";
 
 	if (op.optind() >= c->fullCmd.length())
-		output += "no message specified.";
+		return c->cmd + ": no message specified";
 	else if (!m_evtp->addMessage(c->fullCmd.substr(op.optind()), cooldown))
-		output += "limit of 5 recurring messages reached.";
+		return c->cmd + ": limit of 5 recurring messages reached";
 	else
 		output += "recurring message \"" + c->fullCmd.substr(op.optind())
 			+ "\" has been added at a "
@@ -931,7 +932,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			try {
 				amt = std::stoi(op.optarg());
 			} catch (std::invalid_argument) {
-				return "setgiv: invalid number -- "
+				return c->cmd + ": invalid number -- "
 					+ op.optarg();
 			}
 			break;
@@ -940,8 +941,9 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			break;
 		case '?':
 			if (op.optopt() == 'n')
-				return "setgiv: -n option given without amount";
-			output = "setgiv: illegal option -- ";
+				return c->cmd + ": -n option given "
+					"without amount";
+			output = c->cmd + ": illegal option -- ";
 			output += (char)op.optopt();
 			return output;
 		default:

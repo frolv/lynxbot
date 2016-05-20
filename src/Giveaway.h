@@ -4,7 +4,7 @@ class Giveaway {
 	public:
 		Giveaway(const std::string &channel, time_t initTime);
 		~Giveaway();
-		bool init(time_t initTime, bool ignoreActive, bool interactive);
+		bool init(time_t initTime, bool ignoreActive, bool first);
 		bool active() const;
 		bool activate(time_t initTime, std::string &reason);
 		void deactivate();

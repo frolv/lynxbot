@@ -26,6 +26,7 @@ class CommandHandler {
 	public:
 		struct cmdinfo {
 			std::string nick;
+			std::string cmd;
 			std::string fullCmd;
 			bool privileges;
 		};

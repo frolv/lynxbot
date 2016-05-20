@@ -18,7 +18,7 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime)
 
 Giveaway::~Giveaway() {}
 
-bool Giveaway::init(time_t initTime, bool ignoreActive, bool interactive)
+bool Giveaway::init(time_t initTime, bool ignoreActive, bool first)
 {
 	if (!readSettings()) {
 		std::cout << "giveaways will be disabled" << std::endl;
@@ -33,14 +33,14 @@ bool Giveaway::init(time_t initTime, bool ignoreActive, bool interactive)
 			return false;
 		}
 	}
-	if (!readGiveaway()) {
+	if (first && !readGiveaway()) {
 		m_active = false;
 		std::cerr << "giveaways will be disabled" << std::endl;
 		return false;
 	}
 	/* followers */
 	if (m_type[1]) {
-		if (interactive)
+		if (first)
 			interactiveFollowers();
 		else
 			m_currFollowers = getFollowers();
