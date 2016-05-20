@@ -119,6 +119,7 @@ class CommandHandler {
 		std::string delrecFunc(struct cmdinfo *c);
 		std::string listrecFunc(struct cmdinfo *c);
 		std::string setrecFunc(struct cmdinfo *c);
+		std::string setgivFunc(struct cmdinfo *c);
 
 		/* helpers */
 		std::string extractCMLData(const std::string &httpResp) const;

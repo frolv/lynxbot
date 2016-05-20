@@ -12,54 +12,70 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime)
 	: m_active(false), m_channel(channel), m_currFollowers(0),
 	m_lastRequest(initTime), m_interval(0)
 {
-	if (!readSettings()) {
-		std::cout << "giveaways will be disabled for this session"
-			<< std::endl;
+	if (!init(initTime, false, true))
 		std::cin.get();
-	} else if (!m_active) {
-		std::cout << "giveaways are currently inactive\n" << std::endl;
-	} else {
-		if (!readGiveaway()) {
-			m_active = false;
-			std::cerr << "giveaways will be disabled" << std::endl;
-			std::cin.get();
-			return;
-		}
-		if (m_type[1]) {
-			/* followers */
-			while (!(m_currFollowers = getFollowers())) {
-				char c;
-				std::cout << "Try again? (y/n) ";
-				while (std::cin >> c) {
-					if (c == 'y' || c == 'Y') {
-						break;
-					} else if (c == 'n' || c == 'N') {
-						m_type[1] = false;
-						std::cout << "Follower "
-							"giveaways will be "
-							"disabled for this "
-							"session.\n"
-							<< std::endl;
-						return;
-					} else {
-						std::cout << "Invalid option.\n\
-							Try again? (y/n) ";
-					}
-				}
-			}
-		}
-		if (m_type[2]) {
-			/* timer */
-			updateTimes(initTime);
-		}
-	}
 }
 
 Giveaway::~Giveaway() {}
 
+bool Giveaway::init(time_t initTime, bool ignoreActive, bool interactive)
+{
+	if (!readSettings()) {
+		std::cout << "giveaways will be disabled" << std::endl;
+		return false;
+	}
+	if (!m_active) {
+		if (ignoreActive) {
+			m_active = true;
+		} else {
+			std::cout << "giveaways are currently inactive\n"
+				<< std::endl;
+			return false;
+		}
+	}
+	if (!readGiveaway()) {
+		m_active = false;
+		std::cerr << "giveaways will be disabled" << std::endl;
+		return false;
+	}
+	/* followers */
+	if (m_type[1]) {
+		if (interactive)
+			interactiveFollowers();
+		else
+			m_currFollowers = getFollowers();
+	}
+	/* timer */
+	if (m_type[2])
+		updateTimes(initTime);
+	return true;
+}
+
 bool Giveaway::active() const
 {
 	return m_active;
+}
+
+bool Giveaway::activate(time_t initTime, std::string &reason)
+{
+	if (m_active) {
+		reason = "giveaways are already active.";
+		return false;
+	}
+	if (!init(initTime, true, false)) {
+		reason = "failed to start giveaway. See console for details.";
+		return false;
+	}
+	if (m_items.empty()) {
+		reason = "nothing left to give away!";
+		return false;
+	}
+	return true;
+}
+
+void Giveaway::deactivate()
+{
+	m_active = false;
 }
 
 /*
@@ -143,6 +159,29 @@ uint32_t Giveaway::getFollowers() const
 		return 0;
 	}
 	return val["_total"].asInt();
+}
+
+void Giveaway::interactiveFollowers()
+{
+	/* followers */
+	while (!(m_currFollowers = getFollowers())) {
+		char c;
+		std::cout << "Try again? (y/n) ";
+		while (std::cin >> c) {
+			if (c == 'y' || c == 'Y') {
+				break;
+			} else if (c == 'n' || c == 'N') {
+				m_type[1] = false;
+				std::cout << "Follower giveaways will be "
+					"disabled for this session.\n"
+					<< std::endl;
+				return;
+			} else {
+				std::cout << "Invalid option.\n"
+					"Try again? (y/n) ";
+			}
+		}
+	}
 }
 
 bool Giveaway::readSettings()

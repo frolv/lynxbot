@@ -4,7 +4,10 @@ class Giveaway {
 	public:
 		Giveaway(const std::string &channel, time_t initTime);
 		~Giveaway();
+		bool init(time_t initTime, bool ignoreActive, bool interactive);
 		bool active() const;
+		bool activate(time_t initTime, std::string &reason);
+		void deactivate();
 		/* bool checkSubs(); */
 		bool checkConditions(time_t curr, uint8_t &reason);
 		std::string getItem();
@@ -22,6 +25,7 @@ class Giveaway {
 		std::vector<std::string> m_items;
 		bool initialize();
 		uint32_t getFollowers() const;
+		void interactiveFollowers();
 		bool readSettings();
 		bool readGiveaway();
 		void writeGiveaway() const;

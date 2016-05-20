@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <regex>
@@ -44,6 +45,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["delrec"] = &CommandHandler::delrecFunc;
 	m_defaultCmds["listrec"] = &CommandHandler::listrecFunc;
 	m_defaultCmds["setrec"] = &CommandHandler::setrecFunc;
+	m_defaultCmds["setgiv"] = &CommandHandler::setgivFunc;
 
 	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd());
@@ -906,6 +908,78 @@ std::string CommandHandler::setrecFunc(struct cmdinfo *c)
 		output += "recurring messages disabled.";
 	}
 	return output;
+}
+
+/* change giveaway settings while the bot is active */
+std::string CommandHandler::setgivFunc(struct cmdinfo *c)
+{
+	if (!c->privileges)
+		return "";
+
+	std::string output = "@" + c->nick + ", ";
+	OptionParser op(c->fullCmd, "fn:t");
+	int16_t opt;
+	int32_t amt;
+	bool setfollowers = false, settimer = false;
+	
+	while ((opt = op.getopt()) != EOF) {
+		switch (opt) {
+		case 'f':
+			setfollowers = true;
+			break;
+		case 'n':
+			try {
+				amt = std::stoi(op.optarg());
+			} catch (std::invalid_argument) {
+				return "setgiv: invalid number -- "
+					+ op.optarg();
+			}
+			break;
+		case 't':
+			settimer = true;
+			break;
+		case '?':
+			if (op.optopt() == 'n')
+				return "setgiv: -n option given without amount";
+			output = "setgiv: illegal option -- ";
+			output += (char)op.optopt();
+			return output;
+		default:
+			return "";
+		}
+	}
+
+	if (setfollowers && settimer)
+		return "setgiv: cannot combine -f and -t flags";
+
+	if (op.optind() == c->fullCmd.length())
+		return output + "invalid syntax. Use \"$setgiv [-ft] "
+			"[-n AMOUNT] on|off\".";
+
+	std::string setting = c->fullCmd.substr(op.optind());
+	std::string err, res;
+	if (setting == "on") {
+		if (setfollowers) {
+		} else if (settimer) {
+		} else {
+			m_givp->activate(time(nullptr), err);
+			res = "giveaways have been activated.";
+		}
+	} else if (setting == "off") {
+		if (setfollowers) {
+		} else if (settimer) {
+		} else {
+			m_givp->deactivate();
+			res = "giveaways have been deactivated.";
+		}
+	} else {
+		return output + "invalid syntax. Use \"$setgiv [-ft] "
+			"[-n AMOUNT] on|off\".";
+	}
+	if (!err.empty())
+		return output + err;
+
+	return output + res;
 }
 
 std::string CommandHandler::extractCMLData(const std::string &httpResp) const
