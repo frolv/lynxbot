@@ -70,12 +70,30 @@ bool Giveaway::activate(time_t initTime, std::string &reason)
 		reason = "nothing left to give away!";
 		return false;
 	}
+	writeSettings();
 	return true;
 }
 
 void Giveaway::deactivate()
 {
 	m_active = false;
+	writeSettings();
+}
+
+void Giveaway::setFollowers(bool setting, uint32_t amt)
+{
+	m_type[1] = setting;
+	if (amt)
+		m_followerLimit = amt;
+	writeSettings();
+}
+
+void Giveaway::setTimer(bool setting, time_t interval)
+{
+	m_type[2] = setting;
+	if (interval)
+		m_interval = interval;
+	writeSettings();
 }
 
 /*
@@ -143,6 +161,28 @@ std::string Giveaway::getItem()
 uint16_t Giveaway::followers()
 {
 	return m_followerLimit;
+}
+
+time_t Giveaway::interval()
+{
+	return m_interval;
+}
+
+std::string Giveaway::currentSettings()
+{
+	std::string output = "giveaways are currently ";
+	if (!m_active)
+		return output + "inactive.";
+	output += " active and set to occur ";
+	if (m_type[1])
+		output += "every " + std::to_string(m_followerLimit)
+			+ " followers" + (m_type[2] ? " and " : ".");
+	if (m_type[2])
+		output += "every " + std::to_string(m_interval / 60)
+			+ " minutes.";
+	if (!m_type[1] && !m_type[2])
+		output += "never.";
+	return output;
 }
 
 uint32_t Giveaway::getFollowers() const
@@ -273,6 +313,23 @@ void Giveaway::writeGiveaway() const
 	if (writer.is_open()) {
 		for (auto &s : m_items)
 			writer << s << std::endl;
+	}
+	writer.close();
+}
+
+void Giveaway::writeSettings() const
+{
+	std::string path = utils::configdir() + utils::config("giveaway-settings");
+	std::ofstream writer(path);
+	if (writer.is_open()) {
+		writer << "active = " << (m_active ? "true" : "false")
+			<< std::endl;
+		writer << "followers = " << (m_type[1] ? "true" : "false")
+			<< std::endl;
+		writer << "numfollowers = " << m_followerLimit << std::endl;
+		writer << "timer = " << (m_type[2] ? "true" : "false")
+			<< std::endl;
+		writer << "mins = " << m_interval / 60 << std::endl;
 	}
 	writer.close();
 }

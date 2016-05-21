@@ -914,13 +914,10 @@ std::string CommandHandler::setrecFunc(struct cmdinfo *c)
 /* change giveaway settings while the bot is active */
 std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
-		return "";
-
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "fn:t");
 	int16_t opt;
-	int32_t amt;
+	int32_t amt = 0;
 	bool setfollowers = false, settimer = false;
 	
 	while ((opt = op.getopt()) != EOF) {
@@ -930,7 +927,9 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			break;
 		case 'n':
 			try {
-				amt = std::stoi(op.optarg());
+				if ((amt = std::stoi(op.optarg())) <= 0)
+					return c->cmd + ": amount must be a "
+						"positive integer";
 			} catch (std::invalid_argument) {
 				return c->cmd + ": invalid number -- "
 					+ op.optarg();
@@ -956,27 +955,47 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 
 	if (op.optind() == c->fullCmd.length())
 		return output + "invalid syntax. Use \"$setgiv [-ft] "
-			"[-n AMOUNT] on|off\".";
+			"[-n AMOUNT] on|off|check\".";
 
 	std::string setting = c->fullCmd.substr(op.optind());
 	std::string err, res;
+
+	/* allow all users to check but only moderators to set */
+	if (setting == "check")
+		return output + m_givp->currentSettings();
+	if (!c->privileges)
+		return output + "you do not have permission to perform "
+			"this action.";
+
 	if (setting == "on") {
 		if (setfollowers) {
+			m_givp->setFollowers(true, amt);
+			res = "giveaways set to occur every ";
+			res += std::to_string(m_givp->followers());
+			res += " followers.";
 		} else if (settimer) {
+			m_givp->setTimer(true, (time_t)amt * 60);
+			res = "giveaways set to occur every ";
+			res += std::to_string(m_givp->interval() / 60);
+			res += " minutes.";
 		} else {
 			m_givp->activate(time(nullptr), err);
 			res = "giveaways have been activated.";
 		}
 	} else if (setting == "off") {
 		if (setfollowers) {
+			m_givp->setFollowers(false);
+			res = "follower giveaways have been disabled.";
 		} else if (settimer) {
+			m_givp->setTimer(false);
+			res = "timed giveaways have been disabled.";
 		} else {
 			m_givp->deactivate();
 			res = "giveaways have been deactivated.";
 		}
 	} else {
 		return output + "invalid syntax. Use \"$setgiv [-ft] "
-			"[-n AMOUNT] on|off\".";
+			"[-n AMOUNT] on|off|check\".";
 	}
 	if (!err.empty())
 		return output + err;

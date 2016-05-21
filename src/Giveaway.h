@@ -7,11 +7,15 @@ class Giveaway {
 		bool init(time_t initTime, bool ignoreActive, bool first);
 		bool active() const;
 		bool activate(time_t initTime, std::string &reason);
+		void setFollowers(bool setting, uint32_t amt = 0);
+		void setTimer(bool setting, time_t interval = 0);
 		void deactivate();
 		/* bool checkSubs(); */
 		bool checkConditions(time_t curr, uint8_t &reason);
 		std::string getItem();
 		uint16_t followers();
+		time_t interval();
+		std::string currentSettings();
 	private:
 		bool m_active;
 		bool m_type[3] = { false, false, false };
@@ -29,6 +33,7 @@ class Giveaway {
 		bool readSettings();
 		bool readGiveaway();
 		void writeGiveaway() const;
+		void writeSettings() const;
 		bool parseBool(const std::string &s) const;
 		void updateTimes(time_t curr);
 };
