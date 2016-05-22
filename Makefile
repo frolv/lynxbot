@@ -49,6 +49,12 @@ _LBH=client.h CommandHandler.h CustomCommandHandler.h EventManager.h\
      TwitchBot.h URLParser.h utils.h version.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
+_TW=pencode.o
+TW=$(patsubst %,$(OBJ)/%,$(_TW))
+_TWH=pencode.h
+TWH=$(patsubst %,include/tw/%,$(_TWH))
+TWD=$(LIBD)/tw
+
 # lynxbot source
 $(OBJ)/%.o: $(SRC)/%.cpp $(LBH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
@@ -61,13 +67,17 @@ $(OBJ)/%.o: $(JSOND)/%.cpp $(JSONH)
 $(OBJ)/%.o: $(CPRD)/%.cpp $(CPRH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
+# tw source
+$(OBJ)/%.o: $(TWD)/%.cpp $(TWH)
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
 lynxbot: odir exec
 
 # create directory for .o files
 odir:
 	@mkdir -p $(OBJ)
 
-exec: $(CPR) $(JSONCPP) $(LYNXBOT)
+exec: $(CPR) $(JSONCPP) $(LYNXBOT) ${TW}
 	$(CXX) -o $(PROGNAME) $(LIB) $^
 
 .PHONY: clean
