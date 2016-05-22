@@ -59,6 +59,7 @@ class CommandHandler {
 		bool m_counting;
 		std::vector<std::string> m_usersCounted;
 		std::unordered_map<std::string, uint16_t> m_messageCounts;
+		std::unordered_map<std::string, std::string> m_help;
 		std::random_device m_rd;
 		std::mt19937 m_gen;
 		const std::string CML_HOST = "crystalmathlabs.com";
@@ -131,6 +132,7 @@ class CommandHandler {
 		std::string getRSN(const std::string &text,
 			const std::string &nick, std::string &err,
 			bool username = false);
+		void populateHelp();
 };
 
 class CustomCommandHandler {
