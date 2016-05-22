@@ -108,6 +108,7 @@ class CommandHandler {
 		std::string strawpollFunc(struct cmdinfo *c);
 		std::string activeFunc(struct cmdinfo *c);
 		std::string commandsFunc(struct cmdinfo *c);
+		std::string helpFunc(struct cmdinfo *c);
 		std::string aboutFunc(struct cmdinfo *c);
 		std::string countFunc(struct cmdinfo *c);
 		std::string uptimeFunc(struct cmdinfo *c);

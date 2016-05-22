@@ -37,6 +37,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
 	m_defaultCmds["permit"] = &CommandHandler::permitFunc;
 	m_defaultCmds["commands"] = &CommandHandler::commandsFunc;
+	m_defaultCmds["help"] = &CommandHandler::helpFunc;
 	m_defaultCmds["about"] = &CommandHandler::aboutFunc;
 	m_defaultCmds["addcom"] = &CommandHandler::makecomFunc;
 	m_defaultCmds["editcom"] = &CommandHandler::makecomFunc;
@@ -247,15 +248,15 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 	if (op.optind() == c->fullCmd.length())
 		return c->cmd + ": invalid syntax. Use \"$level [-n] SKILL RSN\".";
 
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd.substr(op.optind()), ' ', tokens);
+	std::vector<std::string> argv;
+	utils::split(c->fullCmd.substr(op.optind()), ' ', argv);
 
-	if (tokens.size() != 2)
+	if (argv.size() != 2)
 		return c->cmd + ": invalid syntax. Use \"$level [-n] SKILL RSN\".";
 
-	std::string skill = tokens[0];
+	std::string skill = argv[0];
 	std::string rsn, err;
-	if ((rsn = getRSN(tokens[1], c->nick, err, usenick)).empty())
+	if ((rsn = getRSN(argv[1], c->nick, err, usenick)).empty())
 		return err;
 	std::replace(rsn.begin(), rsn.end(), '-', '_');
 
@@ -401,16 +402,16 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 
 std::string CommandHandler::wheelFunc(struct cmdinfo *c)
 {
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd, ' ', tokens);
+	std::vector<std::string> argv;
+	utils::split(c->fullCmd, ' ', argv);
 
-	if (tokens.size() == 1)
+	if (argv.size() == 1)
 		return m_wheel.name() + ": " + m_wheel.desc() + " " + m_wheel.usage();
-	if (tokens.size() > 2 || (!m_wheel.valid(tokens[1]) && tokens[1] != "check"))
+	if (argv.size() > 2 || (!m_wheel.valid(argv[1]) && argv[1] != "check"))
 		return "Invalid syntax. " + m_wheel.usage();
 
 	std::string output = "@" + c->nick + ", ";
-	if (tokens[1] == "check") {
+	if (argv[1] == "check") {
 		/* return the current selection */
 		output += m_wheel.ready(c->nick)
 			? "you are not currently assigned anything."
@@ -420,7 +421,7 @@ std::string CommandHandler::wheelFunc(struct cmdinfo *c)
 	} else {
 		/* make a new selection */
 		output += "your entertainment for tonight is "
-			+ m_wheel.choose(c->nick, tokens[1]) + ".";
+			+ m_wheel.choose(c->nick, argv[1]) + ".";
 	}
 
 	return output;
@@ -469,12 +470,12 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 	if (op.optind() >= c->fullCmd.length())
 		return c->cmd + ": not enough arguments given";
 	const std::string req = c->fullCmd.substr(op.optind());
-	std::vector<std::string> tokens;
-	utils::split(req, '|', tokens);
+	std::vector<std::string> argv;
+	utils::split(req, '|', argv);
 
-	if (binary && tokens.size() != 1)
+	if (binary && argv.size() != 1)
 		return c->cmd + ": cannot provide options for binary poll";
-	if (!binary && tokens.size() < 3)
+	if (!binary && argv.size() < 3)
 		return c->cmd + ": poll must have a question and at least "
 			"two answers";
 
@@ -482,12 +483,12 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 		options.append("yes");
 		options.append("no");
 	} else {
-		for (size_t i = 1; i < tokens.size(); ++i)
-			options.append(tokens[i]);
+		for (size_t i = 1; i < argv.size(); ++i)
+			options.append(argv[i]);
 	}
 
 	/* populate the poll json */
-	poll["title"] = tokens[0];
+	poll["title"] = argv[0];
 	poll["options"] = options;
 	poll["captcha"] = captcha;
 	poll["multi"] = multi;
@@ -527,6 +528,27 @@ std::string CommandHandler::commandsFunc(struct cmdinfo *c)
 	return "[COMMANDS] @" + c->nick + ", " + SOURCE + "/wiki/Default-Commands";
 }
 
+std::string CommandHandler::helpFunc(struct cmdinfo *c)
+{
+	std::vector<std::string> argv;
+	utils::split(c->fullCmd, ' ', argv);
+
+	if (argv.size() != 2)
+		return c->cmd + ": invalid syntax. Use \"$help CMD\".";
+
+	std::string path = "/wiki";
+	path += "/Default-Commands/#" + argv[1];
+
+	if (m_defaultCmds.find(argv[1]) != m_defaultCmds.end())
+		return "[HELP] " + SOURCE + path;
+
+	Json::Value *ccmd;
+	if (!(ccmd = m_customCmds->getCom(argv[1]))->empty())
+		return "[HELP] " + argv[1] + " is a custom command";
+
+	return "[HELP] Not a bot command: " + argv[1];
+}
+
 std::string CommandHandler::aboutFunc(struct cmdinfo *c)
 {
 	return "[ABOUT] @" + c->nick + ", " + m_name + " is running "
@@ -538,14 +560,14 @@ std::string CommandHandler::countFunc(struct cmdinfo *c)
 	if (!c->privileges)
 		return "";
 
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd, ' ', tokens);
+	std::vector<std::string> argv;
+	utils::split(c->fullCmd, ' ', argv);
 
-	if (tokens.size() != 2 || !(tokens[1] == "start" || tokens[1] == "stop"
-		|| tokens[1] == "display"))
+	if (argv.size() != 2 || !(argv[1] == "start" || argv[1] == "stop"
+		|| argv[1] == "display"))
 		return "Invalid syntax.";
 
-	if (tokens[1] == "start") {
+	if (argv[1] == "start") {
 		/* begin a new count */
 		if (m_counting)
 			return "A count is already running. "
@@ -555,7 +577,7 @@ std::string CommandHandler::countFunc(struct cmdinfo *c)
 		m_counting = true;
 		return "Message counting has begun. Prepend your message with "
 			"a + to have it counted.";
-	} else if (tokens[1] == "stop") {
+	} else if (argv[1] == "stop") {
 		/* end the current count */
 		if (!m_counting)
 			return "There is no active count.";
@@ -609,35 +631,35 @@ std::string CommandHandler::uptimeFunc(struct cmdinfo *c)
 
 std::string CommandHandler::rsnFunc(struct cmdinfo *c)
 {
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd, ' ', tokens);
+	std::vector<std::string> argv;
+	utils::split(c->fullCmd, ' ', argv);
 
-	if (tokens.size() < 2 || (tokens[1] != "set" && tokens[1] != "check"
-				&& tokens[1] != "del" && tokens[1] != "change")
-			|| (tokens[1] == "set" && tokens.size() != 3)
-			|| (tokens[1] == "check" && tokens.size() > 3)
-			|| (tokens[1] == "del" && tokens.size() != 2)
-			|| (tokens[1] == "change" && tokens.size() != 3))
+	if (argv.size() < 2 || (argv[1] != "set" && argv[1] != "check"
+				&& argv[1] != "del" && argv[1] != "change")
+			|| (argv[1] == "set" && argv.size() != 3)
+			|| (argv[1] == "check" && argv.size() > 3)
+			|| (argv[1] == "del" && argv.size() != 2)
+			|| (argv[1] == "change" && argv.size() != 3))
 		return "Invalid syntax. Use \"$rsn set RSN\", \"$rsn del\", "
 			"\"$rsn change RSN\" or \"$rsn check [NICK]\".";
 
 	std::string err, rsn;
-	if (tokens.size() > 2) {
-		rsn = tokens[2];
+	if (argv.size() > 2) {
+		rsn = argv[2];
 		std::transform(rsn.begin(), rsn.end(), rsn.begin(), tolower);
 	}
-	if (tokens[1] == "set") {
+	if (argv[1] == "set") {
 		if (!m_rsns.add(c->nick, rsn, err))
 			return "@" + c->nick + ", " + err;
 		else
 			return "RSN " + rsn + " has been set for "
 				+ c->nick + ".";
-	} else if (tokens[1] == "del") {
+	} else if (argv[1] == "del") {
 		if (!m_rsns.del(c->nick))
 			return "@" + c->nick + ", you do not have a RSN set.";
 		else
 			return "RSN for " + c->nick + " has been deleted.";
-	} else if (tokens[1] == "change") {
+	} else if (argv[1] == "change") {
 		if (!m_rsns.edit(c->nick, rsn, err))
 			return "@" + c->nick + ", " + err;
 		else
@@ -646,7 +668,7 @@ std::string CommandHandler::rsnFunc(struct cmdinfo *c)
 	} else {
 		/* check own nick or the one that was given */
 		std::string crsn, nick;
-		nick = tokens.size() == 2 ? c->nick : tokens[2];
+		nick = argv.size() == 2 ? c->nick : argv[2];
 		if ((crsn = m_rsns.getRSN(nick)).empty())
 			return "No RSN set for " + nick + ".";
 		else
@@ -660,16 +682,16 @@ std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
 	if (!c->privileges)
 		return "";
 
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd, ' ', tokens);
+	std::vector<std::string> argv;
+	utils::split(c->fullCmd, ' ', argv);
 
-	if (tokens.size() > 2)
+	if (argv.size() > 2)
 		return "Invalid syntax. Use \"$whitelist [SITE]\".";
 	/* no args: show current whitelist */
-	if (tokens.size() == 1)
+	if (argv.size() == 1)
 		return m_modp->getFormattedWhitelist();
 
-	if (m_parsep->parse(tokens[1])) {
+	if (m_parsep->parse(argv[1])) {
 		/* extract website and add to whitelist */
 		std::string website = m_parsep->getLast()->domain;
 		if (m_modp->whitelist(website))
@@ -680,7 +702,7 @@ std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
 				+ " is already on the whitelist.";
 	}
 
-	return "@" + c->nick + ", invalid URL: " + tokens[1];
+	return "@" + c->nick + ", invalid URL: " + argv[1];
 }
 
 std::string CommandHandler::permitFunc(struct cmdinfo *c)
@@ -688,14 +710,14 @@ std::string CommandHandler::permitFunc(struct cmdinfo *c)
 	if (!c->privileges)
 		return "";
 
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd, ' ', tokens);
+	std::vector<std::string> argv;
+	utils::split(c->fullCmd, ' ', argv);
 
-	if (tokens.size() != 2)
+	if (argv.size() != 2)
 		return "Invalid syntax. Use \"$permit USER\".";
 
-	m_modp->permit(tokens[1]);
-	return tokens[1] + " has been granted permission to post a link.";
+	m_modp->permit(argv[1]);
+	return argv[1] + " has been granted permission to post a link.";
 }
 
 std::string CommandHandler::makecomFunc(struct cmdinfo *c)
@@ -799,12 +821,12 @@ std::string CommandHandler::delcomFunc(struct cmdinfo *c)
 	if (!m_customCmds->isActive())
 		return "Custom commands are currently disabled.";
 
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd, ' ', tokens);
+	std::vector<std::string> argv;
+	utils::split(c->fullCmd, ' ', argv);
 
-	if (tokens.size() == 2)
-		return "@" + c->nick + ", command $" + tokens[1]
-			+ (m_customCmds->delCom(tokens[1])
+	if (argv.size() == 2)
+		return "@" + c->nick + ", command $" + argv[1]
+			+ (m_customCmds->delCom(argv[1])
 			? " has been deleted." : " not found.");
 	else
 		return "Invalid syntax. Use \"$delcom COMMAND\".";
@@ -862,16 +884,16 @@ std::string CommandHandler::delrecFunc(struct cmdinfo *c)
 		return "";
 
 	std::string output = "@" + c->nick + ", ";
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd, ' ', tokens);
-	if (tokens.size() != 2)
+	std::vector<std::string> argv;
+	utils::split(c->fullCmd, ' ', argv);
+	if (argv.size() != 2)
 		return output += "invalid syntax. Use \"$delrec ID\".";
 
 	uint32_t id;
 	try {
-		id = std::stoi(tokens[1]);
+		id = std::stoi(argv[1]);
 	} catch (std::invalid_argument) {
-		return output += "invalid number: " + tokens[1];
+		return output += "invalid number: " + argv[1];
 	}
 
 	if (!m_evtp->delMessage(id))
@@ -895,13 +917,13 @@ std::string CommandHandler::setrecFunc(struct cmdinfo *c)
 		return "";
 
 	std::string output = "@" + c->nick + ", ";
-	std::vector<std::string> tokens;
-	utils::split(c->fullCmd, ' ', tokens);
+	std::vector<std::string> argv;
+	utils::split(c->fullCmd, ' ', argv);
 
-	if (tokens.size() != 2 || (tokens[1] != "on" && tokens[1] != "off"))
+	if (argv.size() != 2 || (argv[1] != "on" && argv[1] != "off"))
 		return output + "invalid syntax. Use \"setrec on|off\".";
 
-	if (tokens[1] == "on") {
+	if (argv[1] == "on") {
 		m_evtp->activateMessages();
 		output += "recurring messages enabled.";
 	} else {
@@ -1027,12 +1049,12 @@ std::string CommandHandler::extractHSData(const std::string &httpResp,
 	std::vector<std::string> skills;
 	utils::split(httpResp, '\n', skills);
 	
-	std::vector<std::string> tokens;
-	utils::split(skills[skillID], ',', tokens);
+	std::vector<std::string> argv;
+	utils::split(skills[skillID], ',', argv);
 
-	return "Level: " + tokens[1] + ", Exp: "
-		+ utils::formatInteger(tokens[2]) + ", Rank: "
-		+ utils::formatInteger(tokens[0]) + ".";
+	return "Level: " + argv[1] + ", Exp: "
+		+ utils::formatInteger(argv[2]) + ", Rank: "
+		+ utils::formatInteger(argv[0]) + ".";
 }
 
 std::string CommandHandler::extractGEData(const std::string &httpResp) const
