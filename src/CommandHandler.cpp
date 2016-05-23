@@ -13,6 +13,9 @@
 #include "utils.h"
 #include "version.h"
 
+#define DEFAULT 1
+#define CUSTOM 2
+
 CommandHandler::CommandHandler(const std::string &name,
 		const std::string &channel, Moderator *mod,
 		URLParser *urlp, EventManager *evtp, Giveaway *givp)
@@ -47,6 +50,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["listrec"] = &CommandHandler::listrecFunc;
 	m_defaultCmds["setrec"] = &CommandHandler::setrecFunc;
 	m_defaultCmds["setgiv"] = &CommandHandler::setgivFunc;
+	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheelFunc;
 
 	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd());
@@ -108,25 +112,33 @@ std::string CommandHandler::processCommand(const std::string &nick,
 	c.fullCmd = fullCmd;
 	c.privileges = privileges;
 
-	if (m_defaultCmds.find(cmd) != m_defaultCmds.end()
-			&& (privileges || m_cooldowns.ready(cmd))) {
-		output += (this->*m_defaultCmds[cmd])(&c);
-		m_cooldowns.setUsed(cmd);
-	} else if (m_wheel.isActive() && cmd == m_wheel.cmd()
-			&& (privileges || m_cooldowns.ready(m_wheel.name()))) {
-		output += wheelFunc(&c);
-		m_cooldowns.setUsed(m_wheel.name());
-	} else if (m_customCmds->isActive()) {
-		/* check for custom command */
-		Json::Value *customCmd = m_customCmds->getCom(cmd);
-		if (!customCmd->empty() && (privileges || m_cooldowns.ready(
-					(*customCmd)["cmd"].asString()))) {
-			output += (*customCmd)["response"].asString();
-			m_cooldowns.setUsed((*customCmd)["cmd"].asString());
+	/* custom command */
+	Json::Value *ccmd;
+
+	switch (source(cmd)) {
+	case DEFAULT:
+		if (privileges || m_cooldowns.ready(cmd)) {
+			output += (this->*m_defaultCmds[cmd])(&c);
+			m_cooldowns.setUsed(cmd);
 		} else {
-			std::cerr << "Invalid command or is on cooldown: "
-				<< cmd << std::endl << std::endl;
+			std::cout << "command is on cooldown: " << cmd
+				<< std::endl << std::endl;
 		}
+		break;
+	case CUSTOM:
+		ccmd = m_customCmds->getCom(cmd);
+		if (privileges || m_cooldowns.ready((*ccmd)["cmd"].asString())) {
+			output += (*ccmd)["response"].asString();
+			m_cooldowns.setUsed((*ccmd)["cmd"].asString());
+		} else {
+			std::cout << "command is on cooldown: " << cmd
+				<< std::endl << std::endl;
+		}
+		break;
+	default:
+		std::cerr << "invalid command: " << cmd << std::endl
+			<< std::endl;
+		break;
 	}
 
 	return output;
@@ -1033,6 +1045,18 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 		return output + err;
 
 	return output + res;
+}
+
+uint8_t CommandHandler::source(const std::string &cmd)
+{
+	if (m_defaultCmds.find(cmd) != m_defaultCmds.end())
+		return DEFAULT;
+	if (m_customCmds->isActive()) {
+		Json::Value *c;
+		if (!(c = m_customCmds->getCom(cmd))->empty())
+			return CUSTOM;
+	}
+	return 0;
 }
 
 std::string CommandHandler::extractCMLData(const std::string &httpResp) const

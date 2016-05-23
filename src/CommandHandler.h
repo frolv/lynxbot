@@ -125,6 +125,7 @@ class CommandHandler {
 		std::string setgivFunc(struct cmdinfo *c);
 
 		/* helpers */
+		uint8_t source(const std::string &cmd);
 		std::string extractCMLData(const std::string &httpResp) const;
 		std::string extractHSData(const std::string &httpResp,
 			uint8_t skillID) const;
