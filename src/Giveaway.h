@@ -4,15 +4,15 @@ class Giveaway {
 	public:
 		Giveaway(const std::string &channel, time_t initTime);
 		~Giveaway();
-		bool init(time_t initTime, bool ignoreActive, bool first);
+		bool init(time_t initTime, bool first);
 		bool active() const;
 		bool activate(time_t initTime, std::string &reason);
 		void setFollowers(bool setting, uint32_t amt = 0);
 		void setTimer(bool setting, time_t interval = 0);
 		void deactivate();
 		/* bool checkSubs(); */
-		bool checkConditions(time_t curr, uint8_t &reason);
-		std::string getItem();
+		bool checkConditions(time_t curr);
+		std::string giveaway();
 		uint16_t followers();
 		time_t interval();
 		std::string currentSettings();
@@ -20,6 +20,7 @@ class Giveaway {
 		bool m_active;
 		bool m_type[3] = { false, false, false };
 		const std::string m_channel;
+		uint8_t m_reason;
 		uint16_t m_followerLimit;
 		uint32_t m_currFollowers;
 		time_t m_lastRequest;
@@ -36,4 +37,5 @@ class Giveaway {
 		void writeSettings() const;
 		bool parseBool(const std::string &s) const;
 		void updateTimes(time_t curr);
+		std::string getItem();
 };

@@ -31,9 +31,8 @@ TwitchBot::TwitchBot(const std::string nick, const std::string channel,
 
 		m_tick = std::thread(&TwitchBot::tick, this);
 
-		/* create giveaway checking event if active */
-		if (m_giveaway.active())
-			m_eventManager.add("checkgiveaway", 10, time(nullptr));
+		/* create giveaway checking event */
+		m_eventManager.add("checkgiveaway", 10, time(nullptr));
 
 		/* read the subscriber message */
 		std::string path = utils::configdir() + utils::config("submessage");
@@ -217,7 +216,6 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 
 void TwitchBot::tick()
 {
-	uint8_t reason;
 	while (m_connected) {
 		/* check a set of variables every second and perform
 		 * actions if certain conditions are met */
@@ -231,16 +229,8 @@ void TwitchBot::tick()
 			}
 		}
 		if (m_giveaway.active() && m_eventManager.ready("checkgiveaway")) {
-			if (m_giveaway.checkConditions(time(nullptr), reason)) {
-				std::string output = "[GIVEAWAY: ";
-				output += reason == 1 ? "followers" : "timed";
-				output += "] ";
-				output += m_giveaway.getItem();
-				output += reason == 1 ? " (next code in "
-					+ std::to_string(m_giveaway.followers())
-					+ " followers)" : "";
-				sendMsg(output);
-			}
+			if (m_giveaway.checkConditions(time(nullptr)))
+				sendMsg(m_giveaway.giveaway());
 			m_eventManager.setUsed("checkgiveaway");
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));

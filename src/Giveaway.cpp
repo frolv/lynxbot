@@ -12,31 +12,32 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime)
 	: m_active(false), m_channel(channel), m_currFollowers(0),
 	m_lastRequest(initTime), m_interval(0)
 {
-	if (!init(initTime, false, true))
+	if (!init(initTime, true))
 		std::cin.get();
+	if (!readGiveaway()) {
+		if (m_active) {
+			std::cout << "nothing to give away!" << std::endl;
+			std::cin.get();
+		}
+	}
 }
 
 Giveaway::~Giveaway() {}
 
-bool Giveaway::init(time_t initTime, bool ignoreActive, bool first)
+bool Giveaway::init(time_t initTime, bool first)
 {
 	if (!readSettings()) {
 		std::cout << "giveaways will be disabled" << std::endl;
 		return false;
 	}
 	if (!m_active) {
-		if (ignoreActive) {
+		if (!first) {
 			m_active = true;
 		} else {
 			std::cout << "giveaways are currently inactive\n"
 				<< std::endl;
 			return false;
 		}
-	}
-	if (first && !readGiveaway()) {
-		m_active = false;
-		std::cerr << "giveaways will be disabled" << std::endl;
-		return false;
 	}
 	/* followers */
 	if (m_type[1]) {
@@ -62,7 +63,7 @@ bool Giveaway::activate(time_t initTime, std::string &reason)
 		reason = "giveaways are already active.";
 		return false;
 	}
-	if (!init(initTime, true, false)) {
+	if (!init(initTime, false)) {
 		reason = "failed to start giveaway. See console for details.";
 		return false;
 	}
@@ -110,7 +111,7 @@ bool Giveaway::checkSubs()
 }
 */
 
-bool Giveaway::checkConditions(time_t curr, uint8_t &reason)
+bool Giveaway::checkConditions(time_t curr)
 {
 	if (m_items.empty()) {
 		m_active = false;
@@ -125,7 +126,7 @@ bool Giveaway::checkConditions(time_t curr, uint8_t &reason)
 			+ m_followerLimit << ")\n" << std::endl;
 		if (fol >= m_currFollowers + m_followerLimit) {
 			m_currFollowers += m_followerLimit;
-			reason = 1;
+			m_reason = 1;
 			return true;
 		}
 	}
@@ -139,7 +140,7 @@ bool Giveaway::checkConditions(time_t curr, uint8_t &reason)
 			std::mt19937 gen(rd());
 			if (std::generate_canonical<double, 10>(gen) <= prob) {
 				updateTimes(curr);
-				reason = 2;
+				m_reason = 2;
 				return true;
 			}
 		}
@@ -147,15 +148,26 @@ bool Giveaway::checkConditions(time_t curr, uint8_t &reason)
 	return false;
 }
 
-std::string Giveaway::getItem()
+std::string Giveaway::giveaway()
 {
-	std::string item;
-	if (!m_items.empty()) {
-		item = m_items[m_items.size() - 1];
-		m_items.pop_back();
-		writeGiveaway();
+	std::string output = "[GIVEAWAY: ";
+	output += m_reason == 1 ? "followers" : "timed";
+	output += "] " + getItem() + " (next code in ";
+	switch (m_reason) {
+	case 0:
+		/* subs */
+		break;
+	case 1:
+		/* followers */
+		output += std::to_string(m_followerLimit) + " followers";
+		break;
+	default:
+		/* timed */
+		output += "~" + std::to_string(m_interval / 60) + " minutes";
+		break;
 	}
-	return item;
+	output += ")";
+	return output;
 }
 
 uint16_t Giveaway::followers()
@@ -352,4 +364,15 @@ void Giveaway::updateTimes(time_t curr)
 	/* timed giveaways are done within an interval to allow for variation */
 	m_earliest = curr + static_cast<time_t>(m_interval * 0.8);
 	m_latest = curr + static_cast<time_t>(m_interval * 1.2);
+}
+
+std::string Giveaway::getItem()
+{
+	std::string item;
+	if (!m_items.empty()) {
+		item = m_items[m_items.size() - 1];
+		m_items.pop_back();
+		writeGiveaway();
+	}
+	return item;
 }

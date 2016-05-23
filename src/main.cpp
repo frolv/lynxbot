@@ -61,7 +61,7 @@ bool readSettings(botData *bd, std::string &error)
 		++lineNum;
 		/* remove whitespace */
 		line.erase(std::remove_if(line.begin(), line.end(), isspace),
-			line.end());
+				line.end());
 
 		/* lines starting with * are comments */
 		if (utils::startsWith(line, "*"))
