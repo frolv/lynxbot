@@ -4,6 +4,8 @@
 #include "TwitchBot.h"
 #include "utils.h"
 
+#include <tw/authenticator.h>
+
 /* botData stores settings for initializing a TwitchBot instance */
 struct botData {
 	std::string name;
@@ -22,6 +24,12 @@ int main(int argc, char **argv)
 		std::cerr << "usage: " << argv[0] << " [CHANNEL]" << std::endl;
 		return 1;
 	}
+
+	tw::Authenticator auth;
+	auth.siggen("POST", "https://api.twitter.com/1/statuses/update.json",
+			{{ "include_entities", "true" }},
+			{{ "status", "Hello Ladies + Gentlemen, a signed OAuth request!" }});
+	std::cin.get();
 
 	if (!readSettings(&bd, error)) {
 		std::cerr << error << std::endl;

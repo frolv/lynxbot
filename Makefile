@@ -49,9 +49,9 @@ _LBH=client.h CommandHandler.h CustomCommandHandler.h EventManager.h\
      TwitchBot.h URLParser.h utils.h version.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
-_TW=pencode.o
+_TW=oauth.o authenticator.o base64.o
 TW=$(patsubst %,$(OBJ)/%,$(_TW))
-_TWH=pencode.h
+_TWH=oauth.h authenticator.h base64.h
 TWH=$(patsubst %,include/tw/%,$(_TWH))
 TWD=$(LIBD)/tw
 
