@@ -143,10 +143,11 @@ std::string CommandHandler::processResponse(const std::string &message)
 		std::string regex = val["regex"].asString();
 
 		std::regex responseRegex(regex,
-			std::regex_constants::ECMAScript | std::regex_constants::icase);
+				std::regex_constants::ECMAScript
+				| std::regex_constants::icase);
 		std::smatch match;
 		if (std::regex_search(message.begin(), message.end(), match,
-			responseRegex) && m_cooldowns.ready(name)) {
+				responseRegex) && m_cooldowns.ready(name)) {
 			m_cooldowns.setUsed(name);
 			return val["response"].asString();
 		}
@@ -167,8 +168,8 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 	std::transform(msg.begin(), msg.end(), msg.begin(), tolower);
 
 	/* if nick is not found */
-	if (std::find(m_usersCounted.begin(), m_usersCounted.end(), nick) ==
-		m_usersCounted.end()) {
+	if (std::find(m_usersCounted.begin(), m_usersCounted.end(), nick)
+			== m_usersCounted.end()) {
 		m_usersCounted.push_back(nick);
 		if (m_messageCounts.find(msg) == m_messageCounts.end())
 			m_messageCounts.insert({ msg, 1 });
@@ -216,13 +217,13 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 			c->nick, err, usenick)).empty())
 		return err;
 	if (rsn.find(' ') != std::string::npos)
-		return c->cmd + ": invalid syntax. Use \"$ehp [-n] [RSN]\".";
+		return c->cmd + ": invalid syntax. Use \"$ehp [-n] [RSN]\"";
 	std::replace(rsn.begin(), rsn.end(), '-', '_');
 
 	cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST +
 				CML_EHP_API + rsn), cpr::Header{{ "Connection", "close" }});
 	if (resp.text == "-4")
-		return output + "could not reach CML API, try again.";
+		return c->cm + ": could not reach CML API, try again";
 	return "[EHP] " + extractCMLData(resp.text);
 }
 
@@ -248,13 +249,13 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 	}
 
 	if (op.optind() == c->fullCmd.length())
-		return c->cmd + ": invalid syntax. Use \"$level [-n] SKILL RSN\".";
+		return c->cmd + ": invalid syntax. Use \"$level [-n] SKILL RSN\"";
 
 	std::vector<std::string> argv;
 	utils::split(c->fullCmd.substr(op.optind()), ' ', argv);
 
 	if (argv.size() != 2)
-		return c->cmd + ": invalid syntax. Use \"$level [-n] SKILL RSN\".";
+		return c->cmd + ": invalid syntax. Use \"$level [-n] SKILL RSN\"";
 
 	std::string skill = argv[0];
 	std::string rsn, err;
@@ -264,7 +265,7 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 
 	if (skillMap.find(skill) == skillMap.end()
 			&& skillNickMap.find(skill) == skillNickMap.end())
-		return "[LVL] Invalid skill name.";
+		return c->cmd + ": invalid skill name";
 
 	uint8_t skillID = skillMap.find(skill) == skillMap.end()
 		? skillNickMap.find(skill)->second
@@ -273,7 +274,7 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 	cpr::Response resp = cpr::Get(cpr::Url("http://" + RS_HOST
 				+ RS_HS_API + rsn), cpr::Header{{ "Connection", "close" }});
 	if (resp.text.find("404 - Page not found") != std::string::npos)
-		return "[LVL] Player not found on hiscores.";
+		return c->cmd + ": player not found on hiscores";
 
 	/* skill nickname is displayed to save space */
 	std::string nick = getSkillNick(skillID);
@@ -288,14 +289,14 @@ std::string CommandHandler::geFunc(struct cmdinfo *c)
 	if (!m_GEReader.active())
 		return "";
 	if (c->fullCmd.length() < 4)
-		return "[GE] No item name provided.";
+		return c->cmd ": no item name provided";
 
 	std::string itemName = c->fullCmd.substr(3);
 	std::replace(itemName.begin(), itemName.end(), '_', ' ');
 
 	Json::Value item = m_GEReader.getItem(itemName);
 	if (item.empty())
-		return "[GE] Item not found: " + itemName + ".";
+		return c->cmd + ": item not found: " + itemName;
 
 	cpr::Response resp = cpr::Get(cpr::Url("http://" + EXCHANGE_HOST
 		+ EXCHANGE_API + item["id"].asString()),
@@ -307,7 +308,7 @@ std::string CommandHandler::geFunc(struct cmdinfo *c)
 std::string CommandHandler::calcFunc(struct cmdinfo *c)
 {
 	if (c->fullCmd.length() < 6)
-		return "Invalid mathematical expression.";
+		return c->cmd + ": invalid mathematical expression";
 
 	std::string expr = c->fullCmd.substr(5);
 	/* remove all whitespace */
@@ -323,7 +324,7 @@ std::string CommandHandler::calcFunc(struct cmdinfo *c)
 		return e.what();
 	}
 	if (result.str() == "inf" || result.str() == "-nan(ind)")
-		return "Error: division by 0.";
+		return c->cmd + ": division by 0";
 
 	return "[CALC] " + result.str();
 }
@@ -366,7 +367,7 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 			c->nick, err, usenick)).empty())
 		return err;
 	if (rsn.find(' ') != std::string::npos)
-		return output += "invalid syntax. Use \"$cml [-nu] [RSN]\".";
+		return output += "invalid syntax. Use \"$cml [-nu] [RSN]\"";
 	
 	if (update) {
 		cpr::Response resp = cpr::Get(
@@ -375,25 +376,25 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 		uint8_t i = std::stoi(resp.text);
 		switch (i) {
 		case 1:
-			output += rsn + "'s CML was updated.";
+			output += rsn + "'s CML was updated";
 			break;
 		case 2:
-			output += rsn + " could not be found on the hiscores.";
+			output += rsn + " could not be found on the hiscores";
 			break;
 		case 3:
-			output += rsn + " has had a negative XP gain.";
+			output += rsn + " has had a negative XP gain";
 			break;
 		case 4:
-			output += "unknown error, try again.";
+			output += "unknown error, try again";
 			break;
 		case 5:
-			output += rsn + " has been updated within the last 30s.";
+			output += rsn + " has been updated within the last 30s";
 			break;
 		case 6:
-			output += rsn + " is an invalid RSN.";
+			output += rsn + " is an invalid RSN";
 			break;
 		default:
-			output += "could not reach CML API, try again.";
+			output += "could not reach CML API, try again";
 			break;
 		}
 		return output;
@@ -410,14 +411,15 @@ std::string CommandHandler::wheelFunc(struct cmdinfo *c)
 	if (argv.size() == 1)
 		return m_wheel.name() + ": " + m_wheel.desc() + " " + m_wheel.usage();
 	if (argv.size() > 2 || (!m_wheel.valid(argv[1]) && argv[1] != "check"))
-		return "Invalid syntax. " + m_wheel.usage();
+		return c->cmd + ": invalid syntax. " + m_wheel.usage();
 
 	std::string output = "@" + c->nick + ", ";
 	if (argv[1] == "check") {
 		/* return the current selection */
 		output += m_wheel.ready(c->nick)
 			? "you are not currently assigned anything."
-			: "you are currently assigned " + m_wheel.selection(c->nick) + ".";
+			: "you are currently assigned "
+			+ m_wheel.selection(c->nick) + ".";
 	} else if (!m_wheel.ready(c->nick)) {
 		output += "you have already been assigned something!";
 	} else {
@@ -506,14 +508,14 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 	Json::Reader reader;
 	if (reader.parse(resp.text, response)) {
 		if (!response.isMember("id")) {
-			output += "Poll could not be created.";
+			return c->cmd + ": poll could not be created";
 		} else {
 			m_activePoll = "http://" + STRAWPOLL_HOST + "/"
 				+ response["id"].asString();
 			output += "Poll created : " + m_activePoll;
 		}
 	} else {
-		output += "Error connecting to server.";
+		return c->cmd + ": error connecting to server";
 	}
 
 	return output;
@@ -536,7 +538,7 @@ std::string CommandHandler::helpFunc(struct cmdinfo *c)
 	utils::split(c->fullCmd, ' ', argv);
 
 	if (argv.size() != 2)
-		return c->cmd + ": invalid syntax. Use \"$help CMD\".";
+		return c->cmd + ": invalid syntax. Use \"$help CMD\"";
 
 	std::string path = "/wiki";
 	if (m_help.find(argv[1]) != m_help.end()) {
@@ -648,7 +650,7 @@ std::string CommandHandler::rsnFunc(struct cmdinfo *c)
 			|| (argv[1] == "del" && argv.size() != 2)
 			|| (argv[1] == "change" && argv.size() != 3))
 		return "Invalid syntax. Use \"$rsn set RSN\", \"$rsn del\", "
-			"\"$rsn change RSN\" or \"$rsn check [NICK]\".";
+			"\"$rsn change RSN\" or \"$rsn check [NICK]\"";
 
 	std::string err, rsn;
 	if (argv.size() > 2) {
@@ -721,7 +723,7 @@ std::string CommandHandler::permitFunc(struct cmdinfo *c)
 	utils::split(c->fullCmd, ' ', argv);
 
 	if (argv.size() != 2)
-		return "Invalid syntax. Use \"$permit USER\".";
+		return c->cmd + ": invalid syntax. Use \"$permit USER\"";
 
 	m_modp->permit(argv[1]);
 	return argv[1] + " has been granted permission to post a link.";
@@ -784,9 +786,9 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 		const std::string response = changedResp
 			? args.substr(sp + 1) : "";
 		if (!m_customCmds->editCom(cmd, response, cooldown)) {
-			output += "invalid command: $" + cmd;
+			return c->cmd + ": invalid command: $" + cmd;
 		} else if (!changedCd && !changedResp) {
-			output += "command $" + cmd + " was unchanged.";
+			output += "command $" + cmd + " was unchanged";
 		} else {
 			/* build an output string detailing changes */
 			output += "command $" + cmd + " has been changed to ";
@@ -804,14 +806,15 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 	} else {
 		/* adding a new command */
 		if (sp == std::string::npos) {
-			output += "no response provided for command $"
-				+ args + ".";
+			return c->cmd + ": no response provided for command $"
+				+ args;
 		} else {
 			/* first word is command, rest is response */
 			std::string cmd = args.substr(0, sp);
 			std::string response = args.substr(sp + 1);
 			if (!m_customCmds->addCom(cmd, response, cooldown))
-				output += "invalid command name: $" + cmd;
+				return c->cmd + ": invalid command name: $"
+					+ cmd;
 			else
 				output += "command $" + cmd
 					+ " has been added with a " +
@@ -836,7 +839,7 @@ std::string CommandHandler::delcomFunc(struct cmdinfo *c)
 			+ (m_customCmds->delCom(argv[1])
 			? " has been deleted." : " not found.");
 	else
-		return "Invalid syntax. Use \"$delcom COMMAND\".";
+		return c->cmd + ": invalid syntax. Use \"$delcom COMMAND\"";
 }
 
 std::string CommandHandler::addrecFunc(struct cmdinfo *c)
@@ -894,17 +897,17 @@ std::string CommandHandler::delrecFunc(struct cmdinfo *c)
 	std::vector<std::string> argv;
 	utils::split(c->fullCmd, ' ', argv);
 	if (argv.size() != 2)
-		return output += "invalid syntax. Use \"$delrec ID\".";
+		return c->cmd + ": invalid syntax. Use \"$delrec ID\"";
 
 	uint32_t id;
 	try {
 		id = std::stoi(argv[1]);
 	} catch (std::invalid_argument) {
-		return output += "invalid number: " + argv[1];
+		return c->cmd + ": invalid number -- " + argv[1];
 	}
 
 	if (!m_evtp->delMessage(id))
-		output += "invalid ID provided. Use \"$listrec\" to show "
+		return c->cmd + "invalid ID provided. Use \"$listrec\" to show "
 			"all recurring message IDs.";
 	else
 		output += "recurring message " + std::to_string(id) + " deleted.";
@@ -928,7 +931,7 @@ std::string CommandHandler::setrecFunc(struct cmdinfo *c)
 	utils::split(c->fullCmd, ' ', argv);
 
 	if (argv.size() != 2 || (argv[1] != "on" && argv[1] != "off"))
-		return output + "invalid syntax. Use \"setrec on|off\".";
+		return c->cmd + ": invalid syntax. Use \"setrec on|off\"";
 
 	if (argv[1] == "on") {
 		m_evtp->activateMessages();
@@ -980,10 +983,10 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 	}
 
 	if (setfollowers && settimer)
-		return "setgiv: cannot combine -f and -t flags";
+		return c->cmd + ": cannot combine -f and -t flags";
 
 	if (op.optind() == c->fullCmd.length())
-		return output + "invalid syntax. Use \"$setgiv [-ft] "
+		return c->cmd + ": invalid syntax. Use \"$setgiv [-ft] "
 			"[-n AMOUNT] on|off|check\".";
 
 	std::string setting = c->fullCmd.substr(op.optind());
@@ -1023,8 +1026,8 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			res = "giveaways have been deactivated.";
 		}
 	} else {
-		return output + "invalid syntax. Use \"$setgiv [-ft] "
-			"[-n AMOUNT] on|off|check\".";
+		return c->cmd + ": invalid syntax. Use \"$setgiv [-ft] "
+			"[-n AMOUNT] on|off|check\"";
 	}
 	if (!err.empty())
 		return output + err;
