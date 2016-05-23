@@ -223,7 +223,7 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 	cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST +
 				CML_EHP_API + rsn), cpr::Header{{ "Connection", "close" }});
 	if (resp.text == "-4")
-		return c->cm + ": could not reach CML API, try again";
+		return c->cmd + ": could not reach CML API, try again";
 	return "[EHP] " + extractCMLData(resp.text);
 }
 
@@ -289,7 +289,7 @@ std::string CommandHandler::geFunc(struct cmdinfo *c)
 	if (!m_GEReader.active())
 		return "";
 	if (c->fullCmd.length() < 4)
-		return c->cmd ": no item name provided";
+		return c->cmd + ": no item name provided";
 
 	std::string itemName = c->fullCmd.substr(3);
 	std::replace(itemName.begin(), itemName.end(), '_', ' ');
