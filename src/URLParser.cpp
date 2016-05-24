@@ -18,7 +18,9 @@ bool URLParser::parse(const std::string &url)
 		if ((last.twitter = website == "twitter.com")) {
 			/* check if the URL is a twitter status */
 			std::string::size_type ind;
-			if (match.size() > 3 && (ind = match[3].str().find("status/")) != std::string::npos)
+			if (match.size() > 3 &&
+					(ind = match[3].str().find("status/"))
+					!= std::string::npos)
 				last.tweetID = match[3].str().substr(ind + 7);
 		}
 		m_modified = true;

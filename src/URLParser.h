@@ -3,7 +3,6 @@
 #include <string>
 
 class URLParser {
-
 	public:
 		struct URL {
 			std::string domain;

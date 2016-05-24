@@ -4,7 +4,8 @@ TimerManager::TimerManager() {}
 
 TimerManager::~TimerManager() {}
 
-void TimerManager::add(const std::string &name, time_t cooldown, time_t lastUsed)
+void TimerManager::add(const std::string &name,
+		time_t cooldown, time_t lastUsed)
 {
 	std::pair<time_t, time_t> cmdTimes = { cooldown, lastUsed };
 	TimerMap::value_type val = { name, cmdTimes };

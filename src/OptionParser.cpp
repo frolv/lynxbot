@@ -1,6 +1,7 @@
 #include "OptionParser.h"
 
-OptionParser::OptionParser(const std::string &optstr, const std::string &options)
+OptionParser::OptionParser(const std::string &optstr,
+		const std::string &options)
 	: m_optstr(optstr), m_options(options), m_optind(optstr.find(' ')),
 	m_state(0), m_optopt('\0')
 {}

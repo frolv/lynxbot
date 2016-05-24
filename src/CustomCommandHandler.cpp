@@ -13,9 +13,10 @@ CustomCommandHandler::CustomCommandHandler(commandMap *defaultCmds,
 		return;
 	}
 
-	if (!m_commands.isMember("commands") || !m_commands["commands"].isArray()) {
+	if (!m_commands.isMember("commands")
+			|| !m_commands["commands"].isArray()) {
 		m_active = false;
-		std::cerr << "customcmds.json is improperly configured.";
+		std::cerr << "customcmds.json is improperly configured";
 		return;
 	}
 
@@ -23,19 +24,21 @@ CustomCommandHandler::CustomCommandHandler(commandMap *defaultCmds,
 		if (!(val.isMember("cmd") && val.isMember("response")
 					&& val.isMember("cooldown"))) {
 			m_active = false;
-			std::cerr << "customcmds.json is improperly configured.";
+			std::cerr << "customcmds.json is improperly configured";
 			return;
 		}
 		if (!validName(val["cmd"].asString(), true)) {
 			m_active = false;
 			std::cerr << val["cmd"].asString()
-				<< " is an invalid command name - change or remove it.";
+				<< " is an invalid command name - change "
+				"or remove it";
 			return;
 		}
 		if (val["cooldown"].asInt() < 0) {
 			m_active = false;
-			std::cerr << "Command \"" << val["cmd"].asString()
-				<< "\" has a negative cooldown - change or remove it.";
+			std::cerr << "command \"" << val["cmd"].asString()
+				<< "\" has a negative cooldown - change "
+				"or remove it";
 			return;
 		}
 
