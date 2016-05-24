@@ -4,7 +4,7 @@ PROGNAME=lynxbot
 
 INC=-I./include
 
-LIB=-lcurl -lpthread
+LIB=-lcurl -lpthread -lssl -lcrypto
 
 OBJ=obj
 SRC=src
@@ -49,9 +49,9 @@ _LBH=client.h CommandHandler.h CustomCommandHandler.h EventManager.h\
      TwitchBot.h URLParser.h utils.h version.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
-_TW=oauth.o authenticator.o base64.o
+_TW=oauth.o base64.o authenticator.o reader.o
 TW=$(patsubst %,$(OBJ)/%,$(_TW))
-_TWH=oauth.h authenticator.h base64.h
+_TWH=oauth.h base64.h authenticator.h reader.h
 TWH=$(patsubst %,include/tw/%,$(_TWH))
 TWD=$(LIBD)/tw
 

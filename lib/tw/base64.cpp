@@ -3,7 +3,7 @@
 static const char bchars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijk"
 				"lmnopqrstuvwxyz0123456789+/=";
 
-std::string tw::base64_enc(char *s, size_t len)
+std::string tw::base64_enc(const char *s, size_t len)
 {
 	std::string enc;
 	uint32_t c;
