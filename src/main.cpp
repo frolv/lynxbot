@@ -1,8 +1,8 @@
 #include <string>
 #include <regex>
 #include <fstream>
+#include <utils.h>
 #include "TwitchBot.h"
-#include "utils.h"
 
 #include <tw/authenticator.h>
 #include <tw/reader.h>
@@ -25,17 +25,6 @@ int main(int argc, char **argv)
 		std::cerr << "usage: " << argv[0] << " [CHANNEL]" << std::endl;
 		return 1;
 	}
-
-	/* tw::Authenticator auth; */
-	/* auth.siggen("POST", "https://api.twitter.com/1/statuses/update.json", */
-	/* 		{{ "include_entities", "true" }}, */
-	/* 		{{ "status", "Hello Ladies + Gentlemen, a signed OAuth request!" }}); */
-	/* std::cin.get(); */
-	tw::Authenticator auth;
-	tw::Reader r(&auth);
-	r.read("735194630027763712");
-	std::cout << r.result() << std::endl;
-	std::cin.get();
 
 	if (!readSettings(&bd, error)) {
 		std::cerr << error << std::endl;

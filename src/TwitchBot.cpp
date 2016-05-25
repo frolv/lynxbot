@@ -1,7 +1,8 @@
 #include <fstream>
 #include <regex>
+#include <tw/reader.h>
+#include <utils.h>
 #include "TwitchBot.h"
-#include "utils.h"
 #include "version.h"
 
 #define MAX_BUFFER_SIZE 2048
@@ -167,7 +168,14 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		if (m_parser.wasModified()) {
 			URLParser::URL *url = m_parser.getLast();
 			if (url->twitter && !url->tweetID.empty()) {
-				/* stuff */
+				tw::Reader twr(&m_auth);
+				if (twr.read(url->tweetID)) {
+					sendMsg(twr.result());
+				} else {
+					std::cout << "Could not read tweet"
+						<< std::endl;
+					return false;
+				}
 			}
 			return true;
 		}
@@ -185,7 +193,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		sendMsg("@" + nick + ", " + m_subMsg);
 		return true;
 	} else {
-		std::cerr << "Could not extract data." << std::endl;
+		std::cerr << "Could not extract data" << std::endl;
 		return false;
 	}
 	return false;

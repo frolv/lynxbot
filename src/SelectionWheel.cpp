@@ -1,6 +1,6 @@
 #include <iostream>
+#include <utils.h>
 #include "SelectionWheel.h"
-#include "utils.h"
 
 SelectionWheel::SelectionWheel()
 {

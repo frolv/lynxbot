@@ -1,14 +1,14 @@
 #include <algorithm>
+#include <cpr/cpr.h>
 #include <fstream>
+#include <json/json.h>
 #include <iostream>
 #include <regex>
-#include <json/json.h>
-#include <cpr/cpr.h>
+#include <utils.h>
 #include "CommandHandler.h"
 #include "ExpressionParser.h"
 #include "OptionParser.h"
 #include "SkillMap.h"
-#include "utils.h"
 #include "version.h"
 
 CommandHandler::CommandHandler(const std::string &name,

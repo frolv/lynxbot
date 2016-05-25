@@ -4,7 +4,7 @@ PROGNAME=lynxbot
 
 INC=-I./include
 
-LIB=-lcurl -lpthread -lssl -lcrypto
+LIB=-lcurl -lpthread -lcrypto
 
 OBJ=obj
 SRC=src

@@ -2,8 +2,8 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
+#include <utils.h>
 #include "Moderator.h"
-#include "utils.h"
 
 Moderator::Moderator(URLParser *urlp) :m_parsep(urlp)
 {
