@@ -26,14 +26,14 @@ endif
 
 _CPR=auth.o cookies.o cprtypes.o digest.o error.o multipart.o parameters.o\
     payload.o proxies.o session.o util.o
-CPR=$(patsubst %,$(OBJ)/%,$(_CPR))
+CPR=$(patsubst %,$(OBJ)/cpr_%,$(_CPR))
 _CPRH=api.h auth.h body.h cookies.h cpr.h cprtypes.h curlholder.h defines.h\
      digest.h error.h multipart.h parameters.h payload.h proxies.h response.h\
      session.h timeout.h util.h
 CPRH=$(patsubst %,include/cpr/%,$(_CPRH))
 CPRD=$(LIBD)/cpr
 
-JSONCPP=$(OBJ)/jsoncpp.o
+JSONCPP=$(OBJ)/js_jsoncpp.o
 _JSONH=json.h json-forwards.h
 JSONH=$(patsubst %,include/json/%,$(_JSONH))
 JSOND=$(LIBD)/json
@@ -54,7 +54,7 @@ _LIBH=utils.h
 LIBH=$(patsubst %,include/%,$(_LIBH))
 
 _TW=oauth.o base64.o authenticator.o reader.o
-TW=$(patsubst %,$(OBJ)/%,$(_TW))
+TW=$(patsubst %,$(OBJ)/tw_%,$(_TW))
 _TWH=oauth.h base64.h authenticator.h reader.h
 TWH=$(patsubst %,include/tw/%,$(_TWH))
 TWD=$(LIBD)/tw
@@ -67,15 +67,15 @@ $(OBJ)/%.o: $(LIBD)/%.cpp $(LIBH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 # jsoncpp source
-$(OBJ)/%.o: $(JSOND)/%.cpp $(JSONH)
+$(OBJ)/js_%.o: $(JSOND)/%.cpp $(JSONH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 # cpr source
-$(OBJ)/%.o: $(CPRD)/%.cpp $(CPRH)
+$(OBJ)/cpr_%.o: $(CPRD)/%.cpp $(CPRH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 # tw source
-$(OBJ)/%.o: $(TWD)/%.cpp $(TWH)
+$(OBJ)/tw_%.o: $(TWD)/%.cpp $(TWH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 lynxbot: odir exec
