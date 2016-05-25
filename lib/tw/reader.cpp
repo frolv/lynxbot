@@ -32,7 +32,7 @@ std::string tw::Reader::result()
 	retweets = m_response["retweet_count"].asString();
 	likes = m_response["favorite_count"].asString();
 
-	output += "@" + m_response["user"]["name"].asString() + ": \"";
+	output += "@" + m_response["user"]["screen_name"].asString() + ": \"";
 	output += m_response["text"].asString() + "\" ";
 	output += "on " + time + " (";
 	output += retweets + " RT" + (retweets == "1" ? "" : "s") + ", ";

@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <regex>
 #include "URLParser.h"
 
@@ -20,8 +21,13 @@ bool URLParser::parse(const std::string &url)
 			std::string::size_type ind;
 			if (match.size() > 3 &&
 					(ind = match[3].str().find("status/"))
-					!= std::string::npos)
-				last.tweetID = match[3].str().substr(ind + 7);
+					!= std::string::npos) {
+				std::string s = match[3].str().substr(ind + 7);
+				for (char c : s) {
+					if (!isdigit(c)) break;
+					last.tweetID += c;
+				}
+			}
 		}
 		m_modified = true;
 	} else {
