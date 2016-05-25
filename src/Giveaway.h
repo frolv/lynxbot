@@ -15,7 +15,7 @@ class Giveaway {
 		std::string giveaway();
 		uint16_t followers();
 		time_t interval();
-		std::string currentSettings();
+		std::string currentSettings(int8_t type = -1);
 	private:
 		bool m_active;
 		bool m_type[3] = { false, false, false };

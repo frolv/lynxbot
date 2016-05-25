@@ -180,20 +180,43 @@ time_t Giveaway::interval()
 	return m_interval;
 }
 
-std::string Giveaway::currentSettings()
+std::string Giveaway::currentSettings(int8_t type)
 {
-	std::string output = "giveaways are currently ";
-	if (!m_active)
-		return output + "inactive.";
-	output += " active and set to occur ";
-	if (m_type[1])
-		output += "every " + std::to_string(m_followerLimit)
-			+ " followers" + (m_type[2] ? " and " : ".");
-	if (m_type[2])
-		output += "every " + std::to_string(m_interval / 60)
-			+ " minutes.";
-	if (!m_type[1] && !m_type[2])
-		output += "never.";
+	std::string followers = "every " + std::to_string(m_followerLimit)
+		+ " followers";
+	std::string timed = "every " + std::to_string(m_interval / 60)
+		+ " minutes";
+	std::string output;
+
+	switch (type) {
+	case 0:
+		break;
+	case 1:
+		output = "follower giveaways are currently ";
+		if (!m_type[1])
+			return output + "inactive.";
+		output += "set to occur " + followers + ".";
+		break;
+	case 2:
+		output = "timed giveaways are currently ";
+		if (!m_type[2])
+			return output + "inactive.";
+		output += "set to occur " + timed + ".";
+		break;
+	default:
+		output = "giveaways are currently ";
+		if (!m_active)
+			return output + "inactive.";
+		output += " active and set to occur ";
+		if (m_type[1])
+			output += followers + (m_type[2] ? " and " : ".");
+		if (m_type[2])
+			output += timed + ".";
+		if (!m_type[1] && !m_type[2])
+			output += "never.";
+		break;
+	}
+
 	return output;
 }
 

@@ -1021,8 +1021,14 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 	std::string err, res;
 
 	/* allow all users to check but only moderators to set */
-	if (setting == "check")
-		return output + m_givp->currentSettings();
+	if (setting == "check") {
+		int8_t type = -1;
+		if (setfollowers)
+			type = 1;
+		if (settimer)
+			type = 2;
+		return output + m_givp->currentSettings(type);
+	}
 	if (!c->privileges)
 		return output + "you do not have permission to perform "
 			"this action.";
