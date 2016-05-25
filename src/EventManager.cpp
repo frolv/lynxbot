@@ -1,8 +1,8 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <utils.h>
 #include "EventManager.h"
-#include "utils.h"
 
 EventManager::EventManager()
 	: m_msg(false)

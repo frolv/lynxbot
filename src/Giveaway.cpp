@@ -5,8 +5,8 @@
 #include <fstream>
 #include <iostream>
 #include <random>
+#include <utils.h>
 #include "Giveaway.h"
-#include "utils.h"
 
 Giveaway::Giveaway(const std::string &channel, time_t initTime)
 	: m_active(false), m_channel(channel), m_currFollowers(0),

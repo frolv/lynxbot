@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iostream>
+#include <utils.h>
 #include "GEReader.h"
-#include "utils.h"
 
 GEReader::GEReader()
 {

@@ -1,8 +1,8 @@
 #include <json/json.h>
 #include <fstream>
 #include <iostream>
+#include <utils.h>
 #include "CommandHandler.h"
-#include "utils.h"
 
 CustomCommandHandler::CustomCommandHandler(commandMap *defaultCmds,
 		TimerManager *tm, const std::string &wheelCmd)

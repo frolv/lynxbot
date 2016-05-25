@@ -10,7 +10,7 @@
 #ifdef _WIN32
  #include <Windows.h>
 #endif
-#include "utils.h"
+#include <utils.h>
 
 #define MAX_PATH_LEN 8192
 
@@ -19,6 +19,7 @@ static std::unordered_map<std::string, std::string> configs = {
 	{ "giveaway-settings", "/giveaway/giveaway-settings" },
 	{ "giveaway", "/giveaway/giveaway" },
 	{ "recurring", "/recurring" },
+	{ "twitter", "/twitter" },
 	{ "settings", "/settings" },
 	{ "submessage", "/submessage" },
 	{ "whitelist", "/whitelist" }

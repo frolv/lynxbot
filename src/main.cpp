@@ -1,8 +1,11 @@
 #include <string>
 #include <regex>
 #include <fstream>
+#include <utils.h>
 #include "TwitchBot.h"
-#include "utils.h"
+
+#include <tw/authenticator.h>
+#include <tw/reader.h>
 
 /* botData stores settings for initializing a TwitchBot instance */
 struct botData {

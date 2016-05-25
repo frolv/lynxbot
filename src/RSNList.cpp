@@ -1,8 +1,8 @@
 #include <ctype.h>
 #include <fstream>
 #include <iostream>
+#include <utils.h>
 #include "RSNList.h"
-#include "utils.h"
 
 RSNList::RSNList()
 {

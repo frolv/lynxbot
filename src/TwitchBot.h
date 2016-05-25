@@ -2,6 +2,7 @@
 
 #include <string>
 #include <thread>
+#include <tw/authenticator.h>
 #include "client.h"
 #include "Moderator.h"
 #include "CommandHandler.h"
@@ -15,6 +16,7 @@ class CommandHandler;
 class EventManager;
 class URLParser;
 class Giveaway;
+class tw::Authenticator;
 
 class TwitchBot {
 
@@ -36,6 +38,7 @@ class TwitchBot {
 		EventManager m_eventManager;
 		URLParser m_parser;
 		Giveaway m_giveaway;
+		tw::Authenticator m_auth;
 		std::string m_subMsg;
 		std::thread m_tick;
 		bool sendData(const std::string &data);
