@@ -1153,4 +1153,5 @@ void CommandHandler::populateHelp()
 	m_help["delrec"] = "/Recurring-Messages/#delrec";
 	m_help["setrec"] = "/Recurring-Messages/#setrec";
 	m_help["setgiv"] = "/Giveaways/#setgiv";
+	m_help["rsn"] = "/RSN-Management";
 }
