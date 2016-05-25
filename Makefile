@@ -38,16 +38,20 @@ _JSONH=json.h json-forwards.h
 JSONH=$(patsubst %,include/json/%,$(_JSONH))
 JSOND=$(LIBD)/json
 
-_LYNXBOT=main.o utils.o client.o TwitchBot.o Moderator.o\
+_LYNXBOT=main.o client.o TwitchBot.o Moderator.o\
 	URLParser.o CommandHandler.o CustomCommandHandler.o TimerManager.o\
 	GEReader.o ExpressionParser.o OpMap.o OptionParser.o SelectionWheel.o\
 	EventManager.o Giveaway.o SkillMap.o RSNList.o
 LYNXBOT=$(patsubst %,$(OBJ)/%,$(_LYNXBOT))
-_LBH=client.h CommandHandler.h CustomCommandHandler.h EventManager.h\
-     ExpressionParser.h GEReader.h Giveaway.h Moderator.h OpMap.h\
-     OptionParser.h RSNList.h SelectionWheel.h SkillMap.h TimerManager.h\
-     TwitchBot.h URLParser.h utils.h version.h
+_LBH=client.h CommandHandler.h EventManager.h ExpressionParser.h GEReader.h\
+     Giveaway.h Moderator.h OpMap.h OptionParser.h RSNList.h SelectionWheel.h\
+     SkillMap.h TimerManager.h TwitchBot.h URLParser.h version.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
+
+_LIBS=utils.o
+LIBS=$(patsubst %,$(OBJ)/%,$(_LIBS))
+_LIBH=utils.h
+LIBH=$(patsubst %,include/%,$(_LIBH))
 
 _TW=oauth.o base64.o authenticator.o reader.o
 TW=$(patsubst %,$(OBJ)/%,$(_TW))
@@ -56,7 +60,10 @@ TWH=$(patsubst %,include/tw/%,$(_TWH))
 TWD=$(LIBD)/tw
 
 # lynxbot source
-$(OBJ)/%.o: $(SRC)/%.cpp $(LBH)
+$(OBJ)/%.o: $(SRC)/%.cpp $(LBH) $(LIBH)
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
+$(OBJ)/%.o: $(LIBD)/%.cpp $(LIBH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 # jsoncpp source
@@ -77,7 +84,7 @@ lynxbot: odir exec
 odir:
 	@mkdir -p $(OBJ)
 
-exec: $(CPR) $(JSONCPP) $(LYNXBOT) ${TW}
+exec: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(TW)
 	$(CXX) -o $(PROGNAME) $(LIB) $^
 
 .PHONY: clean

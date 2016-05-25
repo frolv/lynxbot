@@ -22,6 +22,7 @@ static std::unordered_map<std::string, std::string> configs = {
 	{ "twitter", "/twitter" },
 	{ "settings", "/settings" },
 	{ "submessage", "/submessage" },
+	{ "submit", "/submitted" },
 	{ "whitelist", "/whitelist" }
 };
 

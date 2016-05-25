@@ -106,14 +106,16 @@ class CommandHandler {
 		std::string cmlFunc(struct cmdinfo *c);
 		std::string wheelFunc(struct cmdinfo *c);
 		std::string eightballFunc(struct cmdinfo *c);
-		std::string strawpollFunc(struct cmdinfo *c);
 		std::string activeFunc(struct cmdinfo *c);
 		std::string commandsFunc(struct cmdinfo *c);
 		std::string helpFunc(struct cmdinfo *c);
 		std::string aboutFunc(struct cmdinfo *c);
-		std::string countFunc(struct cmdinfo *c);
 		std::string uptimeFunc(struct cmdinfo *c);
 		std::string rsnFunc(struct cmdinfo *c);
+		std::string submitFunc(struct cmdinfo *c);
+
+		std::string strawpollFunc(struct cmdinfo *c);
+		std::string countFunc(struct cmdinfo *c);
 		std::string whitelistFunc(struct cmdinfo *c);
 		std::string permitFunc(struct cmdinfo *c);
 		std::string makecomFunc(struct cmdinfo *c);

@@ -16,7 +16,7 @@ class CommandHandler;
 class EventManager;
 class URLParser;
 class Giveaway;
-class tw::Authenticator;
+class Authenticator;
 
 class TwitchBot {
 

@@ -32,16 +32,19 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
 	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
 	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
-	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
 	m_defaultCmds["active"] = &CommandHandler::activeFunc;
-	m_defaultCmds["count"] = &CommandHandler::countFunc;
 	m_defaultCmds["uptime"] = &CommandHandler::uptimeFunc;
 	m_defaultCmds["rsn"] = &CommandHandler::rsnFunc;
-	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
-	m_defaultCmds["permit"] = &CommandHandler::permitFunc;
 	m_defaultCmds["commands"] = &CommandHandler::commandsFunc;
 	m_defaultCmds["help"] = &CommandHandler::helpFunc;
 	m_defaultCmds["about"] = &CommandHandler::aboutFunc;
+	m_defaultCmds["submit"] = &CommandHandler::submitFunc;
+	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheelFunc;
+
+	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
+	m_defaultCmds["count"] = &CommandHandler::countFunc;
+	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
+	m_defaultCmds["permit"] = &CommandHandler::permitFunc;
 	m_defaultCmds["addcom"] = &CommandHandler::makecomFunc;
 	m_defaultCmds["editcom"] = &CommandHandler::makecomFunc;
 	m_defaultCmds["delcom"] = &CommandHandler::delcomFunc;
@@ -50,7 +53,6 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["listrec"] = &CommandHandler::listrecFunc;
 	m_defaultCmds["setrec"] = &CommandHandler::setrecFunc;
 	m_defaultCmds["setgiv"] = &CommandHandler::setgivFunc;
-	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheelFunc;
 
 	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd());
@@ -696,6 +698,20 @@ std::string CommandHandler::rsnFunc(struct cmdinfo *c)
 			return "RSN \"" + crsn + "\" is currently set for "
 				+ nick + ".";
 	}
+}
+
+std::string CommandHandler::submitFunc(struct cmdinfo *c)
+{
+	std::string output = "@" + c->nick + ", ";
+	std::string path = utils::configdir() + utils::config("submit");
+	std::ofstream writer(path, std::ios::app);
+
+	if (c->fullCmd.length() < 7)
+		return output + "nothing to submit!";
+
+	writer << c->nick << ": " << c->fullCmd.substr(7) << std::endl;
+	writer.close();
+	return output + "your topic has been submitted. Thank you.";
 }
 
 std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
