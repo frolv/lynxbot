@@ -107,7 +107,8 @@ std::string utils::config(const std::string &cfg)
 		path += configs[cfg];
 #ifdef _WIN32
 		std::replace(path.begin(), path.end(), '/', '\\');
-		path += ".txt";
+		if (cfg != "twitter")
+			path += ".txt";
 #endif
 	}
 	return path;
