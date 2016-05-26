@@ -315,7 +315,7 @@ std::string CommandHandler::geFunc(struct cmdinfo *c)
 		+ EXCHANGE_API + item["id"].asString()),
 		cpr::Header{{ "Connection", "close" }});
 	return "[GE] " + item["name"].asString() + ": "
-		+ extractGEData(resp.text) + " gp.";
+		+ extractGEData(resp.text) + " gp";
 }
 
 std::string CommandHandler::calcFunc(struct cmdinfo *c)
@@ -587,7 +587,8 @@ std::string CommandHandler::countFunc(struct cmdinfo *c)
 
 	if (argv.size() != 2 || !(argv[1] == "start" || argv[1] == "stop"
 		|| argv[1] == "display"))
-		return "Invalid syntax.";
+		return c->cmd + ": invalid syntax. "
+			"Use \"$count start|stop|display\"";
 
 	if (argv[1] == "start") {
 		/* begin a new count */
@@ -722,7 +723,7 @@ std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
 	utils::split(c->fullCmd, ' ', argv);
 
 	if (argv.size() > 2)
-		return "Invalid syntax. Use \"$whitelist [SITE]\".";
+		return c->cmd + ": invalid syntax. Use \"$whitelist [SITE]\"";
 	/* no args: show current whitelist */
 	if (argv.size() == 1)
 		return m_modp->getFormattedWhitelist();
@@ -777,8 +778,8 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 			try {
 				cooldown = std::stoi(op.optarg());
 				if (cooldown < 0)
-					return output
-						+ "cooldown cannot be negative.";
+					return c->cmd + ": cooldown cannot be "
+						"negative";
 			} catch (std::invalid_argument) {
 				output = c->cmd  + ": invalid number -- ";
 				return output + op.optarg();
@@ -1014,7 +1015,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 
 	if (op.optind() == c->fullCmd.length())
 		return c->cmd + ": invalid syntax. Use \"$setgiv [-ft] "
-			"[-n AMOUNT] on|off|check\".";
+			"[-n AMOUNT] on|off|check\"";
 
 	std::string setting = c->fullCmd.substr(op.optind());
 	std::string err, res;
