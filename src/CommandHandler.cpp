@@ -39,6 +39,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["help"] = &CommandHandler::helpFunc;
 	m_defaultCmds["about"] = &CommandHandler::aboutFunc;
 	m_defaultCmds["submit"] = &CommandHandler::submitFunc;
+	m_defaultCmds["duck"] = &CommandHandler::duckFunc;
 	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheelFunc;
 
 	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
@@ -712,6 +713,16 @@ std::string CommandHandler::submitFunc(struct cmdinfo *c)
 	writer << c->nick << ": " << c->fullCmd.substr(7) << std::endl;
 	writer.close();
 	return output + "your topic has been submitted. Thank you.";
+}
+
+std::string CommandHandler::duckFunc(struct cmdinfo *c)
+{
+	if (c->fullCmd.length() < 6)
+		return c->cmd + ": must provide search term";
+
+	std::string search = c->fullCmd.substr(5);
+	std::replace(search.begin(), search.end(), ' ', '+');
+	return "https://duckduckgo.com/?q=" + search;
 }
 
 std::string CommandHandler::whitelistFunc(struct cmdinfo *c)

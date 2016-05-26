@@ -113,6 +113,7 @@ class CommandHandler {
 		std::string uptimeFunc(struct cmdinfo *c);
 		std::string rsnFunc(struct cmdinfo *c);
 		std::string submitFunc(struct cmdinfo *c);
+		std::string duckFunc(struct cmdinfo *c);
 
 		std::string strawpollFunc(struct cmdinfo *c);
 		std::string countFunc(struct cmdinfo *c);
