@@ -123,8 +123,8 @@ std::string CommandHandler::processCommand(const std::string &nick,
 			output += (this->*m_defaultCmds[cmd])(&c);
 			m_cooldowns.setUsed(cmd);
 		} else {
-			std::cout << "command is on cooldown: " << cmd
-				<< std::endl << std::endl;
+			output += "/w " + nick + " command is on cooldown: "
+				+ cmd;
 		}
 		break;
 	case CUSTOM:
@@ -133,13 +133,12 @@ std::string CommandHandler::processCommand(const std::string &nick,
 			output += (*ccmd)["response"].asString();
 			m_cooldowns.setUsed((*ccmd)["cmd"].asString());
 		} else {
-			std::cout << "command is on cooldown: " << cmd
-				<< std::endl << std::endl;
+			output += "/w " + nick + " command is on cooldown: "
+				+ cmd;
 		}
 		break;
 	default:
-		std::cerr << "invalid command: " << cmd << std::endl
-			<< std::endl;
+		output += "/w " + nick + " not a bot command: " + cmd;
 		break;
 	}
 
