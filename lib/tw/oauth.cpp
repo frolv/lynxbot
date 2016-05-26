@@ -8,11 +8,11 @@
 
 static bool valid(char c);
 
-std::string tw::pencode(const std::string &s)
+std::string tw::pencode(const std::string &s, const std::string &ign)
 {
 	std::ostringstream enc;
 	for (unsigned char c : s) {
-		if (valid(c)) {
+		if (valid(c) || ign.find(c) != std::string::npos) {
 			enc << c;
 		} else {
 			enc << '%';

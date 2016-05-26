@@ -7,6 +7,7 @@
 #include <regex>
 #include <sstream>
 #include <utils.h>
+#include <tw/oauth.h>
 #include "CommandHandler.h"
 #include "ExpressionParser.h"
 #include "OptionParser.h"
@@ -721,6 +722,7 @@ std::string CommandHandler::duckFunc(struct cmdinfo *c)
 		return c->cmd + ": must provide search term";
 
 	std::string search = c->fullCmd.substr(5);
+	search = tw::pencode(search, " ");
 	std::replace(search.begin(), search.end(), ' ', '+');
 	return "https://duckduckgo.com/?q=" + search;
 }
