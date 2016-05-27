@@ -264,13 +264,15 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 	}
 
 	if (op.optind() == c->fullCmd.length())
-		return c->cmd + ": invalid syntax. Use \"$level [-n] SKILL RSN\"";
+		return c->cmd + ": invalid syntax. "
+			"Use \"$level [-n] SKILL RSN\"";
 
 	std::vector<std::string> argv;
 	utils::split(c->fullCmd.substr(op.optind()), ' ', argv);
 
 	if (argv.size() != 2)
-		return c->cmd + ": invalid syntax. Use \"$level [-n] SKILL RSN\"";
+		return c->cmd + ": invalid syntax. "
+			"Use \"$level [-n] SKILL RSN\"";
 
 	std::string skill = argv[0];
 	std::string rsn, err;
@@ -287,7 +289,8 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 		: skillMap.find(skill)->second;
 
 	cpr::Response resp = cpr::Get(cpr::Url("http://" + RS_HOST
-				+ RS_HS_API + rsn), cpr::Header{{ "Connection", "close" }});
+				+ RS_HS_API + rsn),
+			cpr::Header{{ "Connection", "close" }});
 	if (resp.text.find("404 - Page not found") != std::string::npos)
 		return c->cmd + ": player not found on hiscores";
 
@@ -424,7 +427,8 @@ std::string CommandHandler::wheelFunc(struct cmdinfo *c)
 	utils::split(c->fullCmd, ' ', argv);
 
 	if (argv.size() == 1)
-		return m_wheel.name() + ": " + m_wheel.desc() + " " + m_wheel.usage();
+		return m_wheel.name() + ": " + m_wheel.desc()
+			+ " " + m_wheel.usage();
 	if (argv.size() > 2 || (!m_wheel.valid(argv[1]) && argv[1] != "check"))
 		return c->cmd + ": invalid syntax. " + m_wheel.usage();
 
@@ -448,10 +452,12 @@ std::string CommandHandler::wheelFunc(struct cmdinfo *c)
 
 std::string CommandHandler::eightballFunc(struct cmdinfo *c)
 {
-	if (c->fullCmd.length() < 6 || c->fullCmd[c->fullCmd.length() - 1] != '?')
+	if (c->fullCmd.length() < 6
+			|| c->fullCmd[c->fullCmd.length() - 1] != '?')
 		return "[8 BALL] Ask me a question.";
 	std::uniform_int_distribution<> dis(0, m_eightballResponses.size());
-	return "[8 BALL] @" + c->nick + ", " + m_eightballResponses[dis(m_gen)] + ".";
+	return "[8 BALL] @" + c->nick + ", "
+		+ m_eightballResponses[dis(m_gen)] + ".";
 }
 
 std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
@@ -517,7 +523,8 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 	const std::string content = fw.write(poll);
 	cpr::Response resp = cpr::Post(cpr::Url("http://" + STRAWPOLL_HOST
 		+ STRAWPOLL_API), cpr::Body(content), cpr::Header{
-		{ "Connection", "close" }, { "Content-Type", "application/json" },
+		{ "Connection", "close" },
+		{ "Content-Type", "application/json" },
 		{ "Content-Length", std::to_string(content.length()) } });
 
 	Json::Reader reader;
@@ -544,7 +551,8 @@ std::string CommandHandler::activeFunc(struct cmdinfo *c)
 
 std::string CommandHandler::commandsFunc(struct cmdinfo *c)
 {
-	return "[COMMANDS] @" + c->nick + ", " + SOURCE + "/wiki/Default-Commands";
+	return "[COMMANDS] @" + c->nick + ", "
+		+ SOURCE + "/wiki/Default-Commands";
 }
 
 std::string CommandHandler::helpFunc(struct cmdinfo *c)
@@ -576,7 +584,8 @@ std::string CommandHandler::helpFunc(struct cmdinfo *c)
 std::string CommandHandler::aboutFunc(struct cmdinfo *c)
 {
 	return "[ABOUT] @" + c->nick + ", " + m_name + " is running "
-		+ BOT_NAME + " v" + BOT_VERSION + ". Find out more at " + SOURCE;
+		+ BOT_NAME + " v" + BOT_VERSION + ". Find out more at "
+		+ SOURCE;
 }
 
 std::string CommandHandler::countFunc(struct cmdinfo *c)
@@ -622,7 +631,9 @@ std::string CommandHandler::countFunc(struct cmdinfo *c)
 				itr != m_messageCounts.end(); ++itr)
 				pairs.push_back(*itr);
 			std::sort(pairs.begin(), pairs.end(),
-				[=](mcount &a, mcount &b) { return a.second > b.second; });
+				[=](mcount &a, mcount &b) {
+					return a.second > b.second;
+				});
 			std::string results = "[RESULTS] ";
 			/* only show top 10 results */
 			size_t max = pairs.size() > 10 ? 10 : pairs.size();
@@ -644,7 +655,8 @@ std::string CommandHandler::uptimeFunc(struct cmdinfo *c)
 	/* don't believe me just watch */
 	std::string out = "@" + c->nick + ", ";
 	cpr::Response resp = cpr::Get(
-		cpr::Url("https://decapi.me/twitch/uptime.php?channel=" + m_channel),
+		cpr::Url("https://decapi.me/twitch/uptime.php?channel="
+			+ m_channel),
 		cpr::Header{{ "Connection", "close" }});
 	static const std::string channel =
 		(char)toupper(m_channel[0]) + m_channel.substr(1);
@@ -923,7 +935,8 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 	else if (!m_evtp->addMessage(c->fullCmd.substr(op.optind()), cooldown))
 		return c->cmd + ": limit of 5 recurring messages reached";
 	else
-		output += "recurring message \"" + c->fullCmd.substr(op.optind())
+		output += "recurring message \""
+			+ c->fullCmd.substr(op.optind())
 			+ "\" has been added at a "
 			+ std::to_string(cooldown / 60) + " min interval.";
 	return output;
@@ -951,7 +964,8 @@ std::string CommandHandler::delrecFunc(struct cmdinfo *c)
 		return c->cmd + "invalid ID provided. Use \"$listrec\" to show "
 			"all recurring message IDs.";
 	else
-		output += "recurring message " + std::to_string(id) + " deleted.";
+		output += "recurring message " + std::to_string(id)
+			+ " deleted.";
 	return output;
 }
 
@@ -1108,7 +1122,8 @@ std::string CommandHandler::extractCMLData(const std::string &httpResp) const
 		return "Name: " + elems[1] + ", Rank: " + elems[0] + ", EHP: "
 			+ ehp + " (+" + elems[3] + " this week).";
 	} else {
-		return "Player either does not exist or has not been tracked on CML.";
+		return "Player either does not exist or has not "
+			"been tracked on CML.";
 	}
 }
 
