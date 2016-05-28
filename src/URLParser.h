@@ -5,7 +5,9 @@
 class URLParser {
 	public:
 		struct URL {
+			std::string full;
 			std::string domain;
+			std::string subdomain;
 			bool twitter;
 			std::string tweetID;
 		};

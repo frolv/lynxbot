@@ -1,3 +1,4 @@
+#include <cpr/cpr.h>
 #include <fstream>
 #include <regex>
 #include <tw/reader.h>
@@ -9,6 +10,8 @@
 
 static const char *TWITCH_SERV = "irc.twitch.tv";
 static const char *TWITCH_PORT = "80";
+
+static std::string urltitle(const std::string &resp);
 
 TwitchBot::TwitchBot(const std::string nick, const std::string channel,
 	const std::string password)
@@ -166,17 +169,28 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		/* link information */
 		if (m_parser.wasModified()) {
 			URLParser::URL *url = m_parser.getLast();
+			/* print info about twitter statuses */
 			if (url->twitter && !url->tweetID.empty()) {
 				tw::Reader twr(&m_auth);
 				if (twr.read(url->tweetID)) {
 					sendMsg(twr.result());
+					return true;
 				} else {
 					std::cout << "Could not read tweet"
 						<< std::endl;
 					return false;
 				}
 			}
-			return true;
+			/* get the title of the url otherwise */
+			cpr::Response resp = cpr::Get(cpr::Url(url->full),
+					cpr::Header{{ "Connection", "close" }});
+			std::string title;
+			std::string s = url->subdomain + url->domain;
+			if (!(title = urltitle(resp.text)).empty()) {
+				sendMsg("[URL] " + title + " (at " + s + ")");
+				return true;
+			}
+			return false;
 		}
 
 		/* check for responses */
@@ -243,4 +257,16 @@ void TwitchBot::tick()
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
+}
+
+static std::string urltitle(const std::string &resp)
+{
+	size_t start;
+	if ((start = resp.find("<title>")) != std::string::npos) {
+		std::string title;
+		for (start += 7; resp[start] != '<'; ++start)
+			title += resp[start] == '\n' ? ' ' : resp[start];
+		return title;
+	}
+	return "";
 }

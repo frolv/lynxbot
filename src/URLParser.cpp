@@ -8,21 +8,23 @@ URLParser::URLParser() :m_modified(false)
 
 bool URLParser::parse(const std::string &url)
 {
-	std::regex urlRegex("(?:https?://)?(?:[a-zA-Z0-9]{1,4}\\.)*"
+	std::regex urlRegex("(?:https?://)?(?:www\\.)?([a-zA-Z0-9]+\\.)*"
 		"([a-zA-Z0-9\\-]+)((?:\\.[a-zA-Z]{2,4}){1,4})(/.+)?\\b");
 	std::smatch match;
 	if (std::regex_search(url.begin(), url.end(), match, urlRegex)) {
 		/* get the domain name */
-		std::string website = match[1].str() + match[2].str();
+		std::string website = match[2].str() + match[3].str();
+		last.full = match[0].str();
 		last.domain = website;
+		last.subdomain = match[1].str();
 		last.tweetID = "";
 		if ((last.twitter = website == "twitter.com")) {
 			/* check if the URL is a twitter status */
 			std::string::size_type ind;
 			if (match.size() > 3 &&
-					(ind = match[3].str().find("status/"))
+					(ind = match[4].str().find("status/"))
 					!= std::string::npos) {
-				std::string s = match[3].str().substr(ind + 7);
+				std::string s = match[4].str().substr(ind + 7);
 				for (char c : s) {
 					if (!isdigit(c)) break;
 					last.tweetID += c;
