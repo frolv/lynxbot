@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Lynxbot : A Twitch.tv IRC bot for Oldschool Runescape">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>setgiv - LynxBot</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
+
+          <h1 id="project_title">Lynxbot</h1>
+          <h2 id="project_tagline">A Twitch.tv IRC bot for Oldschool Runescape</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+	<h2>setgiv - LynxBot manual</h2>
+
+	<h3>NAME</h3>
+	<p>setgiv - change giveaway settings</p>
+
+	<h3>SYNOPSIS</h3>
+	<pre><code>$setgiv [-ft] [-n AMOUNT] on|off|check</code></pre>
+
+	<h3>DESCRIPTION</h3>
+	<p><b>setgiv</b> changes the status of a LynxBot giveaway while the bot
+	is running. By default, it modifies the master giveaway setting but,
+	through the <b>-f</b> and <b>-t</b> flags, it can be used to change
+	follower or subscriber giveaway settings, respectively.</p>
+
+	<p>The <b>-f</b> and <b>-t</b> flags can be combined with the <b>-n</b>
+	option to change the giveaway limit.</p>
+
+	<p><b>setgiv</b> accepts three settings:</p>
+	<dl compact="">
+	<dt><b>on</b></dt>
+	<dd>enable the giveaway</dd>
+	<dt><b>off</b></dt>
+	<dd>disable the giveaway</dd>
+	<dt><b>check</b></dt>
+	<dd>print giveaway status</dd>
+	</dl>
+
+	<h3>OPTIONS</h3>
+	<dl compact="">
+	  <dt><b>-f</b></dt>
+	  <dd>change the follower giveaway setting</dd>
+	  <dt><b>-n AMOUNT</b></dt>
+	  <dd>with <b>-f</b> or <b>-t</b>: change the giveaway limit to the value of <b>AMOUNT</b></dd>
+	  <dt><b>-t</b></dt>
+	  <dd>change the timed giveaway setting</dd>
+	</dl>
+
+	<h3>EXAMPLES</h3>
+	<p>Activates the master giveaway setting (individual follower or timed
+	settings may still be inactive):</p>
+	<pre><code>$setgiv on</code></pre>
+
+	<p>Turns follower giveaways on (uses the saved follower limit):</p>
+	<pre><code>$setgiv -f on</code></pre>
+
+	<p>Turns timed giveaways off:</p>
+	<pre><code>$setgiv -t off</code></pre>
+
+	<p>Sets timed giveaways to occur every 10 minutes:</p>
+	<pre><code>$setgiv -t -n 10 on</code></pre>
+
+	<p>Prints the status of all giveaway settings:</p>
+	<pre><code>$setgiv check</code></pre>
+
+	<h3>SEE ALSO</h3>
+	<p><a href="https://github.com/frolv/lynxbot/wiki/Giveaways">Giveaways</a></p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Lynxbot maintained by <a href="https://github.com/frolv">frolv</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
