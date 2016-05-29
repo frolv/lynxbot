@@ -21,8 +21,8 @@ class Authenticator;
 class TwitchBot {
 
 	public:
-		TwitchBot(const std::string name, const std::string channel,
-			const std::string password = "");
+		TwitchBot(const std::string &name, const std::string &channel,
+			const std::string &password, const std::string &token);
 		~TwitchBot();
 		bool isConnected() const;
 		void disconnect();
@@ -30,8 +30,11 @@ class TwitchBot {
 
 	private:
 		bool m_connected;
+		/* twitch.tv information */
 		const std::string m_nick;
 		const std::string m_channelName;
+		const std::string m_token;
+
 		Client m_client;
 		Moderator m_mod;
 		CommandHandler m_cmdHandler;
@@ -39,8 +42,10 @@ class TwitchBot {
 		URLParser m_parser;
 		Giveaway m_giveaway;
 		tw::Authenticator m_auth;
+
 		std::string m_subMsg;
 		std::thread m_tick;
+
 		bool sendData(const std::string &data);
 		bool sendMsg(const std::string &msg);
 		bool sendPong(const std::string &ping);

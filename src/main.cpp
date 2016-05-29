@@ -30,10 +30,10 @@ void twitchAuth(botData *bd);
 bool authtest(const std::string &token, std::string &user);
 void writeAuth(const std::string &token);
 #ifdef __linux__
-static int open_linux();
+ static int open_linux();
 #endif
 #ifdef _WIN32
-static int open_win();
+ static int open_win();
 #endif
 
 /* LynxBot: a Twitch.tv IRC bot for Oldschool Runescape */
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
 /* launchBot: start a TwitchBot instance */
 void launchBot(botData *bd)
 {
-	TwitchBot bot(bd->name, bd->channel, bd->pass);
+	TwitchBot bot(bd->name, bd->channel, bd->pass, bd->access_token);
 
 	if (bot.isConnected())
 		bot.serverLoop();

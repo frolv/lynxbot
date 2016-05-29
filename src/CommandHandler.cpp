@@ -18,11 +18,12 @@
 #define CUSTOM 2
 
 CommandHandler::CommandHandler(const std::string &name,
-		const std::string &channel, Moderator *mod,
-		URLParser *urlp, EventManager *evtp, Giveaway *givp)
-	: m_name(name), m_channel(channel), m_modp(mod), m_parsep(urlp),
-	m_customCmds(NULL), m_evtp(evtp), m_givp(givp), m_counting(false),
-	m_gen(m_rd())
+		const std::string &channel, const std::string &token,
+		Moderator *mod, URLParser *urlp, EventManager *evtp,
+		Giveaway *givp)
+	: m_name(name), m_channel(channel), m_token(token), m_modp(mod),
+	m_parsep(urlp), m_customCmds(NULL), m_evtp(evtp), m_givp(givp),
+	m_counting(false), m_gen(m_rd())
 {
 	/* initializing pointers to all default commands */
 	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
@@ -32,7 +33,6 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["calc"] = &CommandHandler::calcFunc;
 	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
 	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
-	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
 	m_defaultCmds["active"] = &CommandHandler::activeFunc;
 	m_defaultCmds["uptime"] = &CommandHandler::uptimeFunc;
 	m_defaultCmds["rsn"] = &CommandHandler::rsnFunc;
@@ -43,6 +43,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["duck"] = &CommandHandler::duckFunc;
 	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheelFunc;
 
+	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
 	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
 	m_defaultCmds["count"] = &CommandHandler::countFunc;
 	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
@@ -55,6 +56,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["listrec"] = &CommandHandler::listrecFunc;
 	m_defaultCmds["setrec"] = &CommandHandler::setrecFunc;
 	m_defaultCmds["setgiv"] = &CommandHandler::setgivFunc;
+	m_defaultCmds["status"] = &CommandHandler::statusFunc;
 
 	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd());
@@ -193,6 +195,7 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 	}
 }
 
+/* ehp: view players' ehp */
 std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
@@ -242,6 +245,7 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 	return "[EHP] " + extractCMLData(resp.text);
 }
 
+/* level: look up players' levels */
 std::string CommandHandler::levelFunc(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
@@ -302,6 +306,7 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 		+ extractHSData(resp.text, skillID);
 }
 
+/* ge: look up item prices */
 std::string CommandHandler::geFunc(struct cmdinfo *c)
 {
 	if (!m_GEReader.active())
@@ -323,6 +328,7 @@ std::string CommandHandler::geFunc(struct cmdinfo *c)
 		+ extractGEData(resp.text) + " gp";
 }
 
+/* calc: perform basic calculations */
 std::string CommandHandler::calcFunc(struct cmdinfo *c)
 {
 	if (c->fullCmd.length() < 6)
@@ -347,6 +353,7 @@ std::string CommandHandler::calcFunc(struct cmdinfo *c)
 	return "[CALC] " + result.str();
 }
 
+/* cml: interact with crystalmathlabs trackers */
 std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
@@ -421,6 +428,7 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 	}
 }
 
+/* wheel: select items from various categories */
 std::string CommandHandler::wheelFunc(struct cmdinfo *c)
 {
 	std::vector<std::string> argv;
@@ -450,6 +458,7 @@ std::string CommandHandler::wheelFunc(struct cmdinfo *c)
 	return output;
 }
 
+/* 8ball: respond to questions */
 std::string CommandHandler::eightballFunc(struct cmdinfo *c)
 {
 	if (c->fullCmd.length() < 6
@@ -460,6 +469,7 @@ std::string CommandHandler::eightballFunc(struct cmdinfo *c)
 		+ m_eightballResponses[dis(m_gen)] + ".";
 }
 
+/* strawpoll: create polls */
 std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
@@ -543,18 +553,21 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 	return output;
 }
 
+/* active: view current poll */
 std::string CommandHandler::activeFunc(struct cmdinfo *c)
 {
 	return "[ACTIVE] @" + c->nick + ", " + (m_activePoll.empty()
 		? "no poll has been created." : m_activePoll);
 }
 
+/* commands: view default bot commands */
 std::string CommandHandler::commandsFunc(struct cmdinfo *c)
 {
 	return "[COMMANDS] @" + c->nick + ", "
 		+ SOURCE + "/wiki/Default-Commands";
 }
 
+/* help: view command reference manuals */
 std::string CommandHandler::helpFunc(struct cmdinfo *c)
 {
 	std::vector<std::string> argv;
@@ -581,6 +594,7 @@ std::string CommandHandler::helpFunc(struct cmdinfo *c)
 	return "[HELP] Not a bot command: " + argv[1];
 }
 
+/* about: print bot information */
 std::string CommandHandler::aboutFunc(struct cmdinfo *c)
 {
 	return "[ABOUT] @" + c->nick + ", " + m_name + " is running "
@@ -588,6 +602,7 @@ std::string CommandHandler::aboutFunc(struct cmdinfo *c)
 		+ SOURCE;
 }
 
+/* count: manage message counts */
 std::string CommandHandler::countFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
@@ -650,6 +665,7 @@ std::string CommandHandler::countFunc(struct cmdinfo *c)
 	}
 }
 
+/* uptime: check how long channel has been live */
 std::string CommandHandler::uptimeFunc(struct cmdinfo *c)
 {
 	/* don't believe me just watch */
@@ -666,6 +682,7 @@ std::string CommandHandler::uptimeFunc(struct cmdinfo *c)
 		return out + channel + " has been live for " + resp.text + ".";
 }
 
+/* rsn: view and manage stored rsns */
 std::string CommandHandler::rsnFunc(struct cmdinfo *c)
 {
 	std::vector<std::string> argv;
@@ -714,6 +731,7 @@ std::string CommandHandler::rsnFunc(struct cmdinfo *c)
 	}
 }
 
+/* submit: submit a message to the streamer */
 std::string CommandHandler::submitFunc(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
@@ -728,6 +746,7 @@ std::string CommandHandler::submitFunc(struct cmdinfo *c)
 	return output + "your topic has been submitted. Thank you.";
 }
 
+/* duck: search duckduckgo with a query string */
 std::string CommandHandler::duckFunc(struct cmdinfo *c)
 {
 	if (c->fullCmd.length() < 6)
@@ -739,6 +758,7 @@ std::string CommandHandler::duckFunc(struct cmdinfo *c)
 	return "https://duckduckgo.com/?q=" + search;
 }
 
+/* whitelist: exempt websites from autoban */
 std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
@@ -767,6 +787,7 @@ std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
 	return "@" + c->nick + ", invalid URL: " + argv[1];
 }
 
+/* permit: grant user permission to post a url */
 std::string CommandHandler::permitFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
@@ -782,6 +803,7 @@ std::string CommandHandler::permitFunc(struct cmdinfo *c)
 	return argv[1] + " has been granted permission to post a link.";
 }
 
+/* makecom: create or modify a custom command */
 std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
@@ -877,6 +899,7 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 	return output;
 }
 
+/* delcom: delete a custom command */
 std::string CommandHandler::delcomFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
@@ -895,6 +918,7 @@ std::string CommandHandler::delcomFunc(struct cmdinfo *c)
 		return c->cmd + ": invalid syntax. Use \"$delcom COMMAND\"";
 }
 
+/* addrec: add a recurring message */
 std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
@@ -942,6 +966,7 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 	return output;
 }
 
+/* delrec: delete a recurring message */
 std::string CommandHandler::delrecFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
@@ -969,6 +994,7 @@ std::string CommandHandler::delrecFunc(struct cmdinfo *c)
 	return output;
 }
 
+/* listrec: show all recurring messages */
 std::string CommandHandler::listrecFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
@@ -976,6 +1002,7 @@ std::string CommandHandler::listrecFunc(struct cmdinfo *c)
 	return m_evtp->messageList();
 }
 
+/* setrec: enable and disable recurring messages */
 std::string CommandHandler::setrecFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
@@ -998,7 +1025,7 @@ std::string CommandHandler::setrecFunc(struct cmdinfo *c)
 	return output;
 }
 
-/* change giveaway settings while the bot is active */
+/* setgiv: change giveaway settings */
 std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
@@ -1094,6 +1121,34 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 		return output + err;
 
 	return output + res;
+}
+
+/* status: set channel status */
+std::string CommandHandler::statusFunc(struct cmdinfo *c)
+{
+	if (!c->privileges)
+		return "";
+	if (c->fullCmd.length() < 8)
+		return c->cmd + ": no status given";
+
+	std::string status = c->fullCmd.substr(7);
+	Json::Value response;
+	std::replace(status.begin(), status.end(), ' ', '+');
+	std::string content = "channel[status]=" + status;
+
+	cpr::Response resp = cpr::Put(cpr::Url(TWITCH_API + "/channels/"
+		+ m_channel), cpr::Body(content), cpr::Header{
+		{ "Accept", "application/vnd.twitchtv.v3+json" },
+		{ "Authorization", "OAuth " + m_token }});
+
+	Json::Reader reader;
+	if (reader.parse(resp.text, response)) {
+		if (response.isMember("error"))
+			return c->cmd + ": " + response["error"].asString();
+		return "[STATUS] Channel status changed to \""
+			+ response["status"].asString() + "\".";
+	}
+	return c->cmd + ": something went wrong, try again";
 }
 
 uint8_t CommandHandler::source(const std::string &cmd)

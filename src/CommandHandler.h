@@ -33,17 +33,19 @@ class CommandHandler {
 		typedef std::unordered_map<std::string,
 			std::string(CommandHandler::*)(CommandHandler::cmdinfo *)> commandMap;
 		CommandHandler(const std::string &name, const std::string &channel,
-			Moderator *mod, URLParser *urlp, EventManager *evtp,
-			Giveaway *givp);
+				const std::string &token, Moderator *mod,
+				URLParser *urlp, EventManager *evtp,
+				Giveaway *givp);
 		~CommandHandler();
 		std::string processCommand(const std::string &nick,
-			const std::string &fullCmd, bool privileges);
+				const std::string &fullCmd, bool privileges);
 		std::string processResponse(const std::string &message);
 		bool isCounting() const;
 		void count(const std::string &nick, const std::string &message);
 	private:
 		const std::string m_name;
 		const std::string m_channel;
+		const std::string m_token;
 		Moderator *m_modp;
 		URLParser *m_parsep;
 		commandMap m_defaultCmds;
@@ -75,6 +77,7 @@ class CommandHandler {
 		const std::string STRAWPOLL_HOST = "strawpoll.me";
 		const std::string STRAWPOLL_API = "/api/v2/polls";
 		const std::string SOURCE = "https://github.com/frolv/lynxbot";
+		const std::string TWITCH_API = "https://api.twitch.tv/kraken";
 		std::string m_activePoll;
 		std::vector<std::string> m_eightballResponses = {
 			"It is certain",
@@ -115,6 +118,7 @@ class CommandHandler {
 		std::string submitFunc(struct cmdinfo *c);
 		std::string duckFunc(struct cmdinfo *c);
 
+		/* moderator only commands */
 		std::string strawpollFunc(struct cmdinfo *c);
 		std::string countFunc(struct cmdinfo *c);
 		std::string whitelistFunc(struct cmdinfo *c);
@@ -126,6 +130,7 @@ class CommandHandler {
 		std::string listrecFunc(struct cmdinfo *c);
 		std::string setrecFunc(struct cmdinfo *c);
 		std::string setgivFunc(struct cmdinfo *c);
+		std::string statusFunc(struct cmdinfo *c);
 
 		/* helpers */
 		uint8_t source(const std::string &cmd);
