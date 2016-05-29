@@ -232,3 +232,11 @@ static int open_linux()
 	}
 }
 #endif
+
+#ifdef _WIN32
+static int open_win()
+{
+	int i = (int)ShellExecute(NULL, "open", AUTH_URL, NULL, NULL, SW_SHOWNORMAL);
+	return i <= 32;
+}
+#endif
