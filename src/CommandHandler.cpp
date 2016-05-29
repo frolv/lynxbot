@@ -576,6 +576,9 @@ std::string CommandHandler::helpFunc(struct cmdinfo *c)
 	if (argv.size() != 2)
 		return c->cmd + ": invalid syntax. Use \"$help CMD\"";
 
+	if (argv[1] == "setgiv")
+		return "[HELP] https://frolv.github.io/lynxbot/manual/setgiv.html";
+
 	std::string path = "/wiki";
 	if (m_help.find(argv[1]) != m_help.end()) {
 		path += m_help[argv[1]];
@@ -1241,6 +1244,5 @@ void CommandHandler::populateHelp()
 	m_help["listrec"] = "/Recurring-Messages/#listrec";
 	m_help["delrec"] = "/Recurring-Messages/#delrec";
 	m_help["setrec"] = "/Recurring-Messages/#setrec";
-	m_help["setgiv"] = "/Giveaways/#setgiv";
 	m_help["rsn"] = "/RSN-Management";
 }
