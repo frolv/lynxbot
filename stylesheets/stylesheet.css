@@ -315,10 +315,6 @@ Full-Width Styles
   text-shadow: #111 0px 0px 10px;
 }
 
-.title-link, .title-link:visited, .title-link:hover, .title-link:active {
-  color: #fff;
-}
-
 #downloads {
   position: absolute;
   width: 210px;
