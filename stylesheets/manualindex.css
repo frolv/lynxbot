@@ -16,3 +16,11 @@
   font-family: 'Lucida Grande', 'Calibri', Helvetica, Arial, sans-serif;
   letter-spacing: -1px;
 }
+
+.man-header:hover, .man-header:focus {
+  text-decoration: none;
+}
+
+.man-link:hover, .man-link:focus {
+  text-decoration: none;
+}

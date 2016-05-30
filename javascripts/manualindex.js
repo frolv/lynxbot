@@ -3,6 +3,8 @@
  * note: I don't do javascript
  */
 
+var hash = document.location.hash;
+
 var header1 = document.getElementById("section-1");
 var header2 = document.getElementById("section-2");
 var header3 = document.getElementById("section-3");
@@ -19,13 +21,30 @@ var man3open = false;
 var man4open = false;
 
 var man1 = body1.innerHTML;
-body1.innerHTML = "";
 var man2 = body2.innerHTML;
-body2.innerHTML = "";
 var man3 = body3.innerHTML;
-body3.innerHTML = "";
 var man4 = body4.innerHTML;
-body4.innerHTML = "";
+
+function init() {
+  body1.innerHTML = "";
+  body2.innerHTML = "";
+  body3.innerHTML = "";
+  body4.innerHTML = "";
+
+  if (hash == "#open1") {
+    body1.innerHTML = man1;
+    man1open = true;
+  } else if (hash == "#open2") {
+    body2.innerHTML = man2;
+    man2open = true;
+  } else if (hash == "#open3") {
+    body3.innerHTML = man3;
+    man3open = true;
+  } else if (hash == "#open4") {
+    body4.innerHTML = man4;
+    man4open = true;
+  }
+}
 
 function openManSection() {
   if (this === header1) {
@@ -51,6 +70,7 @@ function openManSection() {
   }
 }
 
+window.addEventListener("load", init, false);
 header1.addEventListener("click", openManSection, false);
 header2.addEventListener("click", openManSection, false);
 header3.addEventListener("click", openManSection, false);
