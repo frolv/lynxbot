@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>ehp(1) - LynxBot</title>
+    <title>rsn(1) - LynxBot</title>
   </head>
 
   <body>
@@ -32,49 +32,53 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-	<h2>ehp(1) - LynxBot manual</h2>
+	<h2>rsn(1) - LynxBot manual</h2>
 
 	<h3>NAME</h3>
-	<p>ehp - view players' ehp</p>
+	<p>rsn - view and manage stored rsns</p>
 
 	<h3>SYNOPSIS</h3>
-	<pre><code>$ehp [-n] [RSN]</code></pre>
+	<pre><code>$rsn COMMAND [ARGUMENT]</code></pre>
 
 	<h3>DESCRIPTION</h3>
-	<p><strong>ehp</strong> looks up the player specified by <strong>RSN
-	</strong>on <a href="http://crystalmathlabs.com">Crystal Math Labs</a>
-	and prints their total EHP, EHP rank and EHP gained in the last week.</p>
+	<p><strong>rsn</strong> manages users' stored RSNs.</p>
 
-	<p>Alternatively, if <strong>RSN</strong> is not given, the command
-	prints a brief explanation of EHP with a link to the CML supplies
-	calc.</p>
-
-	<p>As with all commands taking a RSN, the period <strong>.</strong> and
-	the <strong>-n</strong> option can be used to access stored RSNs.</p>
-
-	<h3>OPTIONS</h3>
+	<h3>COMMANDS</h3>
 	<dl compact="">
-	  <dt><b>-n</b></dt>
-	  <dd>search using a Twitch nick rather than a RSN. When set, the
-	  argument <strong>RSN</strong> is interpreted as a Twitch username
-	  and its corresponding RSN is looked up.</dd>
+	  <dt><b>change RSN</b></dt>
+	  <dd>change the user's RSN to the value of the argument
+	  <strong>RSN</strong>. Used only if user already has already set a
+	  RSN.</dd>
+	  <dt><b>check [NICK]</b></dt>
+	  <dd>check the Twitch user specified by <strong>NICK</strong>'s
+	  stored RSN, or, if <strong>NICK</strong> is not given, the command
+	  user's</dd>
+	  <dt><b>del</b></dt>
+	  <dd>delete the user's stored RSN.</dd>
+	  <dt><b>set RSN</b></dt>
+	  <dd>set the user's stored RSN to the value of <strong>RSN</strong>.
+	  This is used only if a RSN has not yet been set for the user. Existing
+	  RSNs can be modified with the <strong>change</strong> command.</dd>
 	</dl>
 
 	<h3>EXAMPLES</h3>
-	<p>Looks up the EHP of the player Capt King:</p>
-	<pre><code>$ehp capt_king</code></pre>
+	<p>Sets user's RSN to N Y J:</p>
+	<pre><code>$rsn set n_y_j</code></pre>
 
-	<p>Looks up the EHP of the command user's account (if they have set a
-	RSN):</p>
-	<pre><code>$ehp .</code></pre>
+	<p>Changes user's stored RSN to Aubury:</p>
+	<pre><code>$rsn change aubury</code></pre>
 
-	<p>Looks up the EHP of the account associated with the Twitch username
-	zoidburgerr:</p>
-	<pre><code>$ehp -n zoidburgerr</code></pre>
+	<p>Deletes user's stored RSN:</p>
+	<pre><code>$rsn del</code></pre>
+
+	<p>Prints the stored RSN of the Twitch account cameronza:</p>
+	<pre><code>$rsn check cameronza</code></pre>
 
 	<h3>SEE ALSO</h3>
-	<p><a href="cml.html">cml(1)</a>, <a href="rsn.html">rsn(1)</a>,
-	<a href="rsn-management.html">RSN Management(3)</a></p>
+	<p><a href="cml.html">cml(1)</a>, <a href="ehp.html">ehp(1)</a>,
+	<a href="level.html">level(1)</a>,
+	<a href="rsn-management.html">RSN Management(3)</a>,
+	<a href="rsns.html">rsns.json(4)</a></p>
 
       </section>
     </div>

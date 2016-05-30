@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>ehp(1) - LynxBot</title>
+    <title>submit(1) - LynxBot</title>
   </head>
 
   <body>
@@ -32,49 +32,22 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-	<h2>ehp(1) - LynxBot manual</h2>
+	<h2>submit(1) - LynxBot manual</h2>
 
 	<h3>NAME</h3>
-	<p>ehp - view players' ehp</p>
+	<p>submit - submit a message to the streamer</p>
 
 	<h3>SYNOPSIS</h3>
-	<pre><code>$ehp [-n] [RSN]</code></pre>
+	<pre><code>$submit MESSAGE</code></pre>
 
 	<h3>DESCRIPTION</h3>
-	<p><strong>ehp</strong> looks up the player specified by <strong>RSN
-	</strong>on <a href="http://crystalmathlabs.com">Crystal Math Labs</a>
-	and prints their total EHP, EHP rank and EHP gained in the last week.</p>
-
-	<p>Alternatively, if <strong>RSN</strong> is not given, the command
-	prints a brief explanation of EHP with a link to the CML supplies
-	calc.</p>
-
-	<p>As with all commands taking a RSN, the period <strong>.</strong> and
-	the <strong>-n</strong> option can be used to access stored RSNs.</p>
-
-	<h3>OPTIONS</h3>
-	<dl compact="">
-	  <dt><b>-n</b></dt>
-	  <dd>search using a Twitch nick rather than a RSN. When set, the
-	  argument <strong>RSN</strong> is interpreted as a Twitch username
-	  and its corresponding RSN is looked up.</dd>
-	</dl>
+	<p><strong>submit</strong> submits the string <strong>MESSAGE</strong>
+	to the streamer. The username of the person who submits a message is
+	saved alongside it.</p>
 
 	<h3>EXAMPLES</h3>
-	<p>Looks up the EHP of the player Capt King:</p>
-	<pre><code>$ehp capt_king</code></pre>
-
-	<p>Looks up the EHP of the command user's account (if they have set a
-	RSN):</p>
-	<pre><code>$ehp .</code></pre>
-
-	<p>Looks up the EHP of the account associated with the Twitch username
-	zoidburgerr:</p>
-	<pre><code>$ehp -n zoidburgerr</code></pre>
-
-	<h3>SEE ALSO</h3>
-	<p><a href="cml.html">cml(1)</a>, <a href="rsn.html">rsn(1)</a>,
-	<a href="rsn-management.html">RSN Management(3)</a></p>
+	<p>Submits the message "Hello world":</p>
+	<pre><code>$submit Hello world</code></pre>
 
       </section>
     </div>
