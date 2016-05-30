@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>level(1) - LynxBot</title>
+    <title>help(1) - LynxBot</title>
   </head>
 
   <body>
@@ -32,51 +32,27 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-	<h2>level(1) - LynxBot manual</h2>
+	<h2>help(1) - LynxBot manual</h2>
 
 	<h3>NAME</h3>
-	<p>level - look up players' levels</p>
+	<p>help - view command reference manuals</p>
 
 	<h3>SYNOPSIS</h3>
-	<pre><code>$level [-n] SKILL RSN</code></pre>
+	<pre><code>$help CMD</code></pre>
 
 	<h3>DESCRIPTION</h3>
-	<p><strong>level</strong> looks up the player specified by <strong>RSN
-	</strong> on the Old School Runescape hiscores and prints their level,
-	rank and experience in the skill specified by <strong>SKILL</strong>.
-
-	<p><strong>SKILL</strong> can be any of the 23 skills in Old School
-	Runescape, or "total", representing total level.</p>
-
-	<p>As with all commands taking a RSN, the period <strong>.</strong> and
-	the <strong>-n</strong> option can be used to access stored RSNs.</p>
-
-	<h3>OPTIONS</h3>
-	<dl compact="">
-	  <dt><b>-n</b></dt>
-	  <dd>search using a Twitch nick rather than a RSN. When set, the
-	  argument <strong>RSN</strong> is interpreted as a Twitch username
-	  and its corresponding RSN is looked up.</dd>
-	</dl>
+	<p><strong>help</strong> posts a link to the LynxBot manual page for
+	the bot command <strong>CMD</strong>.</p>
 
 	<h3>EXAMPLES</h3>
-	<p>Looks up the hunter level of the player Gingbino:</p>
-	<pre><code>$level hunter gingbino</code></pre>
+	<p>Posts link to this page:</p>
+	<pre><code>$help help</code></pre>
 
-	<p>Looks up the runecrafting level of the player Rigondeaux, using
-	shorthand:</p>
-	<pre><code>$lvl rc rigondeaux</code></pre>
-
-	<p>Looks up the cooking level of the command user:</p>
-	<pre><code>$level cooking .</code></pre>
-
-	<p>Looks up the woodcutting level of the account associated with the
-	Twitch username trancemusicforlife:</p>
-	<pre><code>$level -n woodcutting trancemusicforlife</code></pre>
+	<p>Posts link to setrec manual page:</p>
+	<pre><code>$help setrec</code></pre>
 
 	<h3>SEE ALSO</h3>
-	<p><a href="rsn.html">rsn(1)</a>,
-	<a href="rsn-management.html">RSN Management(3)</a></p>
+	<p><a href="about.html">manual(1)</a></p>
 
       </section>
     </div>
