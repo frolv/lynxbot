@@ -110,7 +110,7 @@ class CommandHandler {
 		std::string wheelFunc(struct cmdinfo *c);
 		std::string eightballFunc(struct cmdinfo *c);
 		std::string activeFunc(struct cmdinfo *c);
-		std::string commandsFunc(struct cmdinfo *c);
+		std::string manualFunc(struct cmdinfo *c);
 		std::string helpFunc(struct cmdinfo *c);
 		std::string aboutFunc(struct cmdinfo *c);
 		std::string uptimeFunc(struct cmdinfo *c);

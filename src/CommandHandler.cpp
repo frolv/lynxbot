@@ -36,7 +36,8 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_defaultCmds["active"] = &CommandHandler::activeFunc;
 	m_defaultCmds["uptime"] = &CommandHandler::uptimeFunc;
 	m_defaultCmds["rsn"] = &CommandHandler::rsnFunc;
-	m_defaultCmds["commands"] = &CommandHandler::commandsFunc;
+	m_defaultCmds["manual"] = &CommandHandler::manualFunc;
+	m_defaultCmds["commands"] = &CommandHandler::manualFunc;
 	m_defaultCmds["help"] = &CommandHandler::helpFunc;
 	m_defaultCmds["about"] = &CommandHandler::aboutFunc;
 	m_defaultCmds["submit"] = &CommandHandler::submitFunc;
@@ -561,10 +562,10 @@ std::string CommandHandler::activeFunc(struct cmdinfo *c)
 }
 
 /* commands: view default bot commands */
-std::string CommandHandler::commandsFunc(struct cmdinfo *c)
+std::string CommandHandler::manualFunc(struct cmdinfo *c)
 {
-	return "[COMMANDS] @" + c->nick + ", "
-		+ SOURCE + "/wiki/Default-Commands";
+	return "[MANUAL] @" + c->nick + ", " + BOT_WEBSITE
+		+ "/manual/index.html";
 }
 
 /* help: view command reference manuals */
@@ -602,7 +603,7 @@ std::string CommandHandler::aboutFunc(struct cmdinfo *c)
 {
 	return "[ABOUT] @" + c->nick + ", " + m_name + " is running "
 		+ BOT_NAME + " v" + BOT_VERSION + ". Find out more at "
-		+ SOURCE;
+		+ BOT_WEBSITE;
 }
 
 /* count: manage message counts */
