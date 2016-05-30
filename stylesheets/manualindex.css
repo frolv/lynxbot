@@ -1,0 +1,18 @@
+.man-header {
+  display: block;
+  margin: 10px 0;
+  font-weight: 700;
+  font-size: 21px;
+  color:#222222;
+  font-family: 'Lucida Grande', 'Calibri', Helvetica, Arial, sans-serif;
+  letter-spacing: -1px;
+}
+
+.man-link {
+  display: block;
+  margin: 10px 0;
+  font-weight: 600;
+  color:#222222;
+  font-family: 'Lucida Grande', 'Calibri', Helvetica, Arial, sans-serif;
+  letter-spacing: -1px;
+}
