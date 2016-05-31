@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="LynxBot : A Twitch.tv IRC bot for Old School Runescape">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
+
+    <title>strawpoll(2) - LynxBot</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
+
+	  <h1 id="project_title"><a class="title-link" href="../index.html">LynxBot</a></h1>
+          <h2 id="project_tagline">A Twitch.tv IRC bot for Old School Runescape</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+	<h2>strawpoll(2) - LynxBot manual</h2>
+
+	<h3>NAME</h3>
+	<p>strawpoll - create polls</p>
+
+	<h3>SYNOPSIS</h3>
+	<pre><code>$strawpoll [-bcm] QUESTION | OPTION1 | OPTION2 ...</code></pre>
+
+	<h3>DESCRIPTION</h3>
+	<p><strong>strawpoll</strong> creates polls on
+	<a href="http://strawpoll.me">strawpoll</a> with the given
+	<strong>QUESTION</strong> and <strong>OPTION</strong>s.
+
+	<p><strong>QUESTION</strong> and all <strong>OPTION</strong>s are
+	separated by pipes <strong>|</strong>.</p>
+
+	<h3>OPTIONS</h3>
+	<dl compact="">
+	  <dt><b>-b</b></dt>
+	  <dd>create a poll with only "yes" and "no" as options</dd>
+	  <dt><b>-c</b></dt>
+	  <dd>require captcha to vote in poll</dd>
+	  <dt><b>-m</b></dt>
+	  <dd>allow voters to select multiple options</dd>
+	</dl>
+
+	<h3>EXAMPLES</h3>
+	<p>Creates <a href="http://strawpoll.me/6572349">a poll</a> with the
+	question "What should I eat for dinner?" and the options
+	"Saltine crackers", "Bread" and "Lasagna":</p>
+	<pre><code>$strawpoll What should I eat for dinner? | Saltine crackers | Bread | Lasagna</code></pre>
+
+	<p>Creates <a href="http://strawpoll.me/6572366">a poll</a> with the
+	question "Should I do a 100m stake?" with "yes" and "no" as options:</p>
+	<pre><code>$strawpoll -b Should I do a 100m stake?</code></pre>
+
+	<p>Creates <a href="http://strawpoll.me/6572393">a poll</a> which
+	requires a captcha to be solved to vote, in which users can choose
+	multiple options:</p>
+	<pre><code>$strawpoll -mc Pick as many as you like | a | b | c | d</code></pre>
+
+	<h3>SEE ALSO</h3>
+	<p><a href="active.html">active(1)</a>, <a href="count.html">count(2)</a></p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LynxBot maintained by <a href="https://github.com/frolv">frolv</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>

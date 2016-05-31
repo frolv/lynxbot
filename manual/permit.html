@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="LynxBot : A Twitch.tv IRC bot for Old School Runescape">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
+
+    <title>permit(2) - LynxBot</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
+
+	  <h1 id="project_title"><a class="title-link" href="../index.html">LynxBot</a></h1>
+          <h2 id="project_tagline">A Twitch.tv IRC bot for Old School Runescape</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+	<h2>permit(2) - LynxBot manual</h2>
+
+	<h3>NAME</h3>
+	<p>permit - grant user permission to post a url</p>
+
+	<h3>SYNOPSIS</h3>
+	<pre><code>$permit NICK</code></pre>
+
+	<h3>DESCRIPTION</h3>
+	<p><strong>permit</strong> grants a user permission to post a single
+	URL in the chat without being timed out. The permission expires after
+	the user has posted a URL that is not on the bot's whitelist.</p>
+
+	<p><strong>NICK</strong> is the Twitch username of the user being
+	permitted.</p>
+
+	<h3>EXAMPLES</h3>
+	<p>Permits the user 00rsn to post a link:</p>
+	<pre><code>$permit 00rsn</code></pre>
+
+	<h3>SEE ALSO</h3>
+	<p><a href="whitelist.html">whitelist(2)</a>,
+	<a href="moderation.html">Moderation(3)</a>,
+	<a href="settings.html">settings(4)</a>,
+	<a href="settings-wl.html">whitelist(4)</a></p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LynxBot maintained by <a href="https://github.com/frolv">frolv</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
