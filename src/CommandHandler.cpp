@@ -731,15 +731,16 @@ std::string CommandHandler::rsnFunc(struct cmdinfo *c)
 /* submit: submit a message to the streamer */
 std::string CommandHandler::submitFunc(struct cmdinfo *c)
 {
+	if (c->fullCmd.length() < 7)
+		return c->cmd + ": nothing to submit";
+
 	std::string output = "@" + c->nick + ", ";
 	std::string path = utils::configdir() + utils::config("submit");
 	std::ofstream writer(path, std::ios::app);
 
-	if (c->fullCmd.length() < 7)
-		return output + "nothing to submit!";
-
 	writer << c->nick << ": " << c->fullCmd.substr(7) << std::endl;
 	writer.close();
+
 	return output + "your topic has been submitted. Thank you.";
 }
 
@@ -750,12 +751,10 @@ std::string CommandHandler::duckFunc(struct cmdinfo *c)
 		return c->cmd + ": must provide search term";
 
 	std::string search = c->fullCmd.substr(5);
-	search = tw::pencode(search, " ");
-	std::replace(search.begin(), search.end(), ' ', '+');
-	return "https://duckduckgo.com/?q=" + search;
+	return "https://duckduckgo.com/?q=" + tw::pencode(search);
 }
 
-/* whitelist: exempt websites from autoban */
+/* whitelist: exempt websites from moderation */
 std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
 {
 	if (!c->privileges)
