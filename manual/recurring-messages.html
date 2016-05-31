@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>ge(1) - LynxBot</title>
+    <title>Recurring Messages(3) - LynxBot</title>
   </head>
 
   <body>
@@ -32,32 +32,32 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>ge(1) - LynxBot manual</h2>
-
-        <h3>NAME</h3>
-        <p>ge - look up item prices</p>
-
-        <h3>SYNOPSIS</h3>
-        <pre><code>$ge ITEM</code></pre>
+        <h2>Recurring Messages(3) - LynxBot manual</h2>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>ge</strong> looks up the item specified by <strong>ITEM
-        </strong> on the RSBuddy exchange and prints its current GE price.</p>
+        <p><strong>Recurring Messages</strong> are messages automatically
+        posted in the chat at a given interval.</p>
 
-        <p><strong>ITEM</strong> must be the name of a tradeable item in
-        Old School Runescape. Either spaces or underscores can be used as
-        delimiters for multiple word items. Abbreviations can be used for some
-        of the more common items (e.g. Saradomin godsword - sgs).</p>
+        <p>There can be a maximum of five recurring messages. The interval at
+        which they are posted must be a multiple of 5 minutes and no longer than
+        60.</p>
 
-        <h3>EXAMPLES</h3>
-        <p>Looks up the item Dragon bones:</p>
-        <pre><code>$ge dragon bones</code></pre>
+        <h3>USAGE</h3>
+        <p>Recurring messages can be managed through the <strong>addrec</strong>
+        and <strong>delrec</strong> commands, viewed using
+        <strong>listrec</strong>, and enabled or disabled using
+        <strong>setrec</strong>.</p>
 
-        <p>Looks up the item Bandos chestplate, using shorthand:</p>
-        <pre><code>$ge bcp</code></pre>
+        <p>Recurring messages are stored in the <strong>recurring</strong>
+        section of the <strong>settings</strong> file.</p>
 
         <h3>SEE ALSO</h3>
-        <p><a href="itemids.html">itemids.json(4)</a></p>
+        <a href="addrec.html">addrec(3)</a>,
+        <p><a href="delrec.html">delrec(2)</a>,
+        <a href="listrec.html">listrec(2)</a>,
+        <a href="setrec.html">setrec(2)</a>,
+        <a href="settings-rec.html">recurring(4)</a>,
+        <a href="settings.html">settings(4)</a></p>
 
       </section>
     </div>

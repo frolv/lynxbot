@@ -15,78 +15,78 @@
 
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
+      <header class="inner">
+        <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
 
-	  <h1 id="project_title"><a class="title-link" href="../index.html">LynxBot</a></h1>
-          <h2 id="project_tagline">A Twitch.tv IRC bot for Old School Runescape</h2>
+        <h1 id="project_title"><a class="title-link" href="../index.html">LynxBot</a></h1>
+        <h2 id="project_tagline">A Twitch.tv IRC bot for Old School Runescape</h2>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
+        <section id="downloads">
+          <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
+          <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
+        </section>
+      </header>
     </div>
 
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-	<h2>cml(1) - LynxBot manual</h2>
+        <h2>cml(1) - LynxBot manual</h2>
 
-	<h3>NAME</h3>
-	<p>cml - interact with crystalmathlabs trackers</p>
+        <h3>NAME</h3>
+        <p>cml - interact with crystalmathlabs trackers</p>
 
-	<h3>SYNOPSIS</h3>
-	<pre><code>$cml [-nu] [RSN]</code></pre>
+        <h3>SYNOPSIS</h3>
+        <pre><code>$cml [-nu] [RSN]</code></pre>
 
-	<h3>DESCRIPTION</h3>
-	<p><strong>cml</strong> is used to interact with players'
-	<a href="http://crystalmathlabs.com">Crystal Math Labs</a> trackers.</p>
+        <h3>DESCRIPTION</h3>
+        <p><strong>cml</strong> is used to interact with players'
+        <a href="http://crystalmathlabs.com">Crystal Math Labs</a> trackers.</p>
 
-	<p>Without any arguments, <strong>cml</strong> links to the CML
-	homepage.</p>
+        <p>Without any arguments, <strong>cml</strong> links to the CML
+        homepage.</p>
 
-	<p>Alternatively, if <strong>RSN</strong> is given, <strong>cml</strong>
-	will link to that player's CML page.</p>
+        <p>Alternatively, if <strong>RSN</strong> is given, <strong>cml</strong>
+        will link to that player's CML page.</p>
 
-	<p>The <strong>-u</strong> option makes <strong>cml</strong> update the
-	given player's tracker.</p>
+        <p>The <strong>-u</strong> option makes <strong>cml</strong> update the
+        given player's tracker.</p>
 
-	<p>As with all commands taking a RSN, the period <strong>.</strong> and
-	the <strong>-n</strong> option can be used to access stored RSNs.</p>
+        <p>As with all commands taking a RSN, the period <strong>.</strong> and
+        the <strong>-n</strong> option can be used to access stored RSNs.</p>
 
-	<h3>OPTIONS</h3>
-	<dl compact="">
-	  <dt><b>-n</b></dt>
-	  <dd>search using a Twitch nick rather than a RSN. When set, the
-	  argument <strong>RSN</strong> is interpreted as a Twitch username
-	  and its corresponding RSN is looked up.</dd>
-	  <dt><b>-u</b></dt>
-	  <dd>update the CML tracker of the player <strong>RSN</strong></dd>
-	</dl>
+        <h3>OPTIONS</h3>
+        <dl compact="">
+          <dt><b>-n</b></dt>
+          <dd>search using a Twitch nick rather than a RSN. When set, the
+          argument <strong>RSN</strong> is interpreted as a Twitch username
+          and its corresponding RSN is looked up.</dd>
+          <dt><b>-u</b></dt>
+          <dd>update the CML tracker of the player <strong>RSN</strong></dd>
+        </dl>
 
-	<h3>EXAMPLES</h3>
-	<p>Posts a link the CML homepage:</p>
-	<pre><code>$cml</code></pre>
+        <h3>EXAMPLES</h3>
+        <p>Posts a link the CML homepage:</p>
+        <pre><code>$cml</code></pre>
 
-	<p>Posts a link to Lynx Titan's CML page:</p>
-	<pre><code>$cml lynx_titan</code></pre>
+        <p>Posts a link to Lynx Titan's CML page:</p>
+        <pre><code>$cml lynx_titan</code></pre>
 
-	<p>Posts a link to the CML page of the account associated with the
-	Twitch user zoydbergrs</p>
-	<pre><code>$ehp -n zoydbergs</code></pre>
+        <p>Posts a link to the CML page of the account associated with the
+        Twitch user zoydbergrs</p>
+        <pre><code>$ehp -n zoydbergs</code></pre>
 
-	<p>Updates the CML tracker of the command user:</p>
-	<pre><code>$ehp -u .</code></pre>
+        <p>Updates the CML tracker of the command user:</p>
+        <pre><code>$ehp -u .</code></pre>
 
-	<p>Updates the CML tracker of the account associated with the Twitch
-	user randalicious:</p>
-	<pre><code>$ehp -nu randalicious</code></pre>
+        <p>Updates the CML tracker of the account associated with the Twitch
+        user randalicious:</p>
+        <pre><code>$ehp -nu randalicious</code></pre>
 
-	<h3>SEE ALSO</h3>
-	<p><a href="ehp.html">ehp(1)</a>, <a href="rsn.html">rsn(1)</a>,
-	<a href="rsn-management.html">RSN Management(3)</a></p>
+        <h3>SEE ALSO</h3>
+        <p><a href="ehp.html">ehp(1)</a>, <a href="rsn.html">rsn(1)</a>,
+        <a href="rsn-management.html">RSN Management(3)</a></p>
 
       </section>
     </div>
@@ -98,8 +98,6 @@
         <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-
-    
 
   </body>
 </html>

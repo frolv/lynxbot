@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="LynxBot : A Twitch.tv IRC bot for Old School Runescape">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
+
+    <title>Moderation(3) - LynxBot</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+      <header class="inner">
+        <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
+
+        <h1 id="project_title"><a class="title-link" href="../index.html">LynxBot</a></h1>
+        <h2 id="project_tagline">A Twitch.tv IRC bot for Old School Runescape</h2>
+
+        <section id="downloads">
+          <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
+          <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
+        </section>
+      </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h2>Moderation(3) - LynxBot manual</h2>
+
+        <h3>DESCRIPTION</h3>
+        <p>LynxBot can perform automatic <strong>Moderation</strong> of the
+        chat.</p>
+
+        <p>There is a certain set of moderation rules, whose limits can be
+        defined by the bot owner. Any regular (non-mod and non-subscriber)
+        user who breaks one of these rules will automatically be timed out
+        by LynxBot. Subsequent offences will result in greater punishments,
+        culminating in a permanent ban after the sixth offense.</p>
+
+        <h3>RULES</h3>
+        <ol>
+          <li>
+            <p>Message length</p>
+            <p>Messages must be shorter than <strong>MAX_MESSAGE_LEN</strong>
+            characters (default: 300).</p>
+          </li>
+          <li>
+            <p>Repeated patterns (e.g. word spam)</p>
+            <p>A pattern in a message cannot be repeated more than
+            <strong>MAX_PATTERN</strong> times (default: 6).</p>
+          </li>
+          <li>
+            <p>Repeated characters</p>
+            <p>A single character cannot be repeated more than
+            <strong>MAX_CHAR</strong> times (default: 15).</p>
+          </li>
+          <li>
+            <p>Capital letters</p>
+            <p>Messages longer than <strong>CAP_LEN</strong> characters cannot
+            consist of over <strong>CAP_RATIO%</strong> capital
+            letters (default: 30, 80%).</p>
+          </li>
+          <li>
+            <p>URLs in chat</p>
+            <p>No links to websites not on the whitelist may be posted.</p>
+          </li>
+        </ol>
+
+        <h3>USAGE</h3>
+        <p>The limits for all moderation rules are defined in the
+        <strong>moderation</strong> section of the <strong>settings</strong>
+        file and the whitelist is stored in the <strong>whitelist</strong>
+        section.</p>
+
+        <p>The <strong>whitelist</strong> command can be used to add websites to
+        the whitelist, and the <strong>permit</strong> command grants users
+        permission to post a single link.</p>
+
+        <h3>SEE ALSO</h3>
+        <p><a href="permit.html">permit(2)</a>,
+        <a href="whitelist.html">whitelist(2)</a>,
+        <a href="settings-mod.html">moderation(4)</a>,
+        <a href="settings.html">settings(4)</a>,
+        <a href="settings-wl.html">whitelist(4)</a></p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LynxBot maintained by <a href="https://github.com/frolv">frolv</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+  </body>
+</html>
