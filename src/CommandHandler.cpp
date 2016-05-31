@@ -577,19 +577,12 @@ std::string CommandHandler::helpFunc(struct cmdinfo *c)
 	if (argv.size() != 2)
 		return c->cmd + ": invalid syntax. Use \"$help CMD\"";
 
-	if (argv[1] == "setgiv")
-		return "[HELP] https://frolv.github.io/lynxbot/manual/setgiv.html";
+	std::string path = BOT_WEBSITE + "/manual/";
+	if (m_help.find(argv[1]) != m_help.end())
+		return "[HELP] " + path + m_help[argv[1]] + ".html";
 
-	std::string path = "/wiki";
-	if (m_help.find(argv[1]) != m_help.end()) {
-		path += m_help[argv[1]];
-		return "[HELP] " + SOURCE + path;
-	}
-
-	if (m_defaultCmds.find(argv[1]) != m_defaultCmds.end()) {
-		path += "/Default-Commands/#" + argv[1];
-		return "[HELP] " + SOURCE + path;
-	}
+	if (m_defaultCmds.find(argv[1]) != m_defaultCmds.end())
+		return "[HELP] " + path + argv[1] + ".html";
 
 	Json::Value *ccmd;
 	if (!(ccmd = m_customCmds->getCom(argv[1]))->empty())
@@ -1232,18 +1225,8 @@ std::string CommandHandler::getRSN(const std::string &text,
 
 void CommandHandler::populateHelp()
 {
-	m_help[m_wheel.cmd()] = "/Selection-Wheel";
-	m_help["wheel"] = "/Selection-Wheel";
-	m_help["lvl"] = "/Default-Commands/#level";
-	m_help["sp"] = "/Default-Commands/#strawpoll";
-	m_help["whitelist"] = "/Moderation/#whitelist";
-	m_help["permit"] = "/Moderation/#permit";
-	m_help["addcom"] = "/Custom-Commands/#addcom";
-	m_help["editcom"] = "/Custom-Commands/#editcom";
-	m_help["delcom"] = "/Custom-Commands/#delcom";
-	m_help["addrec"] = "/Recurring-Messages/#addrec";
-	m_help["listrec"] = "/Recurring-Messages/#listrec";
-	m_help["delrec"] = "/Recurring-Messages/#delrec";
-	m_help["setrec"] = "/Recurring-Messages/#setrec";
-	m_help["rsn"] = "/RSN-Management";
+	m_help[m_wheel.cmd()] = "selection-wheel";
+	m_help["wheel"] = "selection-wheel";
+	m_help["lvl"] = "level";
+	m_help["sp"] = "strawpoll";
 }

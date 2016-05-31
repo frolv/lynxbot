@@ -5,6 +5,18 @@
       "regex": "how ?(much|many|often)",
       "response": "not enough.",
       "cooldown": 10
+    },
+    {
+      "name": "bane1",
+      "regex": "big guy",
+      "response": "for you.",
+      "cooldown": 10
+    },
+    {
+      "name": "bane2",
+      "regex": "was .* part of your plan?",
+      "response": "OF COURSE!",
+      "cooldown": 10
     }
   ]
 }
