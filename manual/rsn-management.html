@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>Recurring Messages(3) - LynxBot</title>
+    <title>RSN Management(3) - LynxBot</title>
   </head>
 
   <body>
@@ -32,32 +32,37 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>Recurring Messages(3) - LynxBot manual</h2>
+        <h2>RSN Management(3)<br> - LynxBot manual</h2>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>Recurring Messages</strong> are messages automatically
-        posted in the chat at a given interval.</p>
-
-        <p>There can be a maximum of five recurring messages. The interval at
-        which they are posted must be a multiple of 5 minutes and no longer than
-        60.</p>
+        <p>LynxBot can store the Runescape usernames of Twitch users. The stored
+        RSNs can then be used in bot commands which take a RSN, such as
+        <strong>cml</strong>, <strong>ehp</strong> and <strong>level</strong>.</p>
 
         <h3>USAGE</h3>
-        <p>Recurring messages can be managed through the <strong>addrec</strong>
-        and <strong>delrec</strong> commands, viewed using
-        <strong>listrec</strong>, and enabled or disabled using
-        <strong>setrec</strong>.</p>
+        <p>RSNs are set, modified and deleted using the <strong>rsn</strong>
+        command.</p>
 
-        <p>Recurring messages are stored in the <strong>recurring</strong>
-        section of the <strong>settings</strong> file.</p>
+        <p>Once set, stored RSNs can be accessed in two ways: the period
+        <strong>.</strong> keyword and the <strong>-n</strong> option to
+        commands.</p>
+
+        <p>The period <strong>.</strong> keyword is used to access the saved
+        RSN of the command user. Using a period in place of the RSN in a command
+        causes the user's stored RSN to be substituted in.</p>
+
+        <p>The <strong>-n</strong> option is supported by all commands which
+        require a RSN. It allows users to use someone's Twitch username in
+        place of the RSN in the command. Their stored RSN will be looked up
+        and subsituted in.</p>
+
+        <p>All stored RSNs are saved in <strong>json/rsns.json</strong>.</p>
 
         <h3>SEE ALSO</h3>
-        <p><a href="addrec.html">addrec(3)</a>,
-        <a href="delrec.html">delrec(2)</a>,
-        <a href="listrec.html">listrec(2)</a>,
-        <a href="setrec.html">setrec(2)</a>,
-        <a href="settings-rec.html">recurring(4)</a>,
-        <a href="settings.html">settings(4)</a></p>
+        <p><a href="cml.html">cml(1)</a>, <a href="ehp.html">ehp(1)</a>,
+        <a href="level.html">level(1)</a>,
+        <a href="rsn.html">rsn(1)</a>,
+        <a href="rsns.html">rsns.json(4)</a></p>
 
       </section>
     </div>
