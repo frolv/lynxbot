@@ -1,13 +1,16 @@
 #include <cpr/cpr.h>
+#include <cstdio>
 #include <fstream>
 #include <regex>
 #include <string>
 #include <utils.h>
 #include "TwitchBot.h"
+#include "version.h"
 #ifdef __linux__
- #include <unistd.h>
+ #include <getopt.h>
  #include <sys/types.h>
  #include <sys/wait.h>
+ #include <unistd.h>
 #endif
 
 /* LynxBot authorization URL */
@@ -15,6 +18,10 @@ static const char *AUTH_URL = "https://api.twitch.tv/kraken/oauth2/"
 "authorize?response_type=token&client_id=kkjhmekkzbepq0pgn34g671y5nexap8&"
 "redirect_uri=https://frolv.github.io/lynxbot/twitchauthconfirm.html&"
 "scope=channel_editor+channel_subscriptions";
+
+const char *BOT_NAME = "LynxBot";
+const char *BOT_VERSION = "1.2.2";
+const char *BOT_WEBSITE = "https://frolv.github.io/lynxbot";
 
 /* botData stores settings for initializing a TwitchBot instance */
 struct botData {
@@ -36,14 +43,40 @@ void writeAuth(const std::string &token);
  static int open_win();
 #endif
 
-/* LynxBot: a Twitch.tv IRC bot for Oldschool Runescape */
+/* LynxBot: a Twitch.tv IRC bot for Old School Runescape */
 int main(int argc, char **argv)
 {
 	botData bd;
 	std::string error;
 
+#ifdef __linux__
+	int c;
+	static struct option long_opts[] = {
+		{ "help", no_argument, 0, 'h' },
+		{ "version", no_argument, 0, 'v' },
+		{ 0, 0, 0, 0 }
+	};
+
+	while ((c = getopt_long(argc, argv, "", long_opts, NULL)) != EOF) {
+		switch (c) {
+			case 'h':
+				printf("usage: lynxbot [CHANNEL]\n");
+				return 0;
+			case 'v':
+				printf("%s v%s\nCopyright (C) 2016 Alexei Frolov\n"
+						"This program is distributed as free "
+						"software\nunder the terms of the MIT "
+						"License.\n", BOT_NAME, BOT_VERSION);
+				return 0;
+			default:
+				fprintf(stderr, "usage: %s [CHANNEL]\n", argv[0]);
+				return 1;
+		}
+	}
+#endif
+
 	if (argc > 2) {
-		std::cerr << "usage: " << argv[0] << " [CHANNEL]" << std::endl;
+		fprintf(stderr, "usage: %s [CHANNEL]\n", argv[0]);
 		return 1;
 	}
 
@@ -115,8 +148,8 @@ bool readSettings(botData *bd, std::string &error)
 			} else if (match[1].str() == "password") {
 				if (!utils::startsWith(match[2].str(), "oauth:"))
 					error = "Password must be a valid "
-						 "oauth token, starting with "
-						 "\"oauth:\".";
+						"oauth token, starting with "
+						"\"oauth:\".";
 				bd->pass = match[2].str();
 			} else {
 				bd->access_token = match[2].str();
@@ -218,17 +251,17 @@ void writeAuth(const std::string &token)
 static int open_linux()
 {
 	switch (fork()) {
-	case -1:
-		perror("fork");
-		exit(1);
-	case 0:
-		execl("/usr/bin/xdg-open", "xdg-open", AUTH_URL, (char *)NULL);
-		perror("/usr/bin/xdg-open");
-		exit(1);
-	default:
-		int status;
-		wait(&status);
-		return status >> 8;
+		case -1:
+			perror("fork");
+			exit(1);
+		case 0:
+			execl("/usr/bin/xdg-open", "xdg-open", AUTH_URL, (char *)NULL);
+			perror("/usr/bin/xdg-open");
+			exit(1);
+		default:
+			int status;
+			wait(&status);
+			return status >> 8;
 	}
 }
 #endif

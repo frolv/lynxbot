@@ -564,7 +564,7 @@ std::string CommandHandler::activeFunc(struct cmdinfo *c)
 /* commands: view default bot commands */
 std::string CommandHandler::manualFunc(struct cmdinfo *c)
 {
-	return "[MANUAL] @" + c->nick + ", " + BOT_WEBSITE
+	return "[MANUAL] @" + c->nick + ", " + std::string(BOT_WEBSITE)
 		+ "/manual/index.html";
 }
 
@@ -577,7 +577,7 @@ std::string CommandHandler::helpFunc(struct cmdinfo *c)
 	if (argv.size() != 2)
 		return c->cmd + ": invalid syntax. Use \"$help CMD\"";
 
-	std::string path = BOT_WEBSITE + "/manual/";
+	std::string path = std::string(BOT_WEBSITE) + "/manual/";
 	if (m_help.find(argv[1]) != m_help.end())
 		return "[HELP] " + path + m_help[argv[1]] + ".html";
 
@@ -595,8 +595,8 @@ std::string CommandHandler::helpFunc(struct cmdinfo *c)
 std::string CommandHandler::aboutFunc(struct cmdinfo *c)
 {
 	return "[ABOUT] @" + c->nick + ", " + m_name + " is running "
-		+ BOT_NAME + " v" + BOT_VERSION + ". Find out more at "
-		+ BOT_WEBSITE;
+		+ std::string(BOT_NAME) + " v" + std::string(BOT_VERSION)
+		+ ". Find out more at " + std::string(BOT_WEBSITE);
 }
 
 /* count: manage message counts */
