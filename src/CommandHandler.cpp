@@ -854,8 +854,11 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 		bool changedCd = cooldown != -1;
 		bool changedResp = sp != std::string::npos;
 		const std::string cmd = changedResp ? args.substr(0, sp) : args;
-		const std::string response = changedResp
+		std::string response = changedResp
 			? args.substr(sp + 1) : "";
+		/* don't allow reponse to activate a twitch command */
+		if (response[0] == '/')
+			response = " " + response;
 		if (!m_customCmds->editCom(cmd, response, cooldown)) {
 			return c->cmd + ": invalid command: $" + cmd;
 		} else if (!changedCd && !changedResp) {
@@ -883,6 +886,9 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 			/* first word is command, rest is response */
 			std::string cmd = args.substr(0, sp);
 			std::string response = args.substr(sp + 1);
+			/* don't allow reponse to activate a twitch command */
+			if (response[0] == '/')
+				response = " " + response;
 			if (!m_customCmds->addCom(cmd, response, cooldown))
 				return c->cmd + ": invalid command name: $"
 					+ cmd;
