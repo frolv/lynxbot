@@ -1,0 +1,95 @@
+# LynxBot configfile
+# Please see https://frolv.github.io/lynxbot/manual/config.html
+# for complete reference
+
+#### General settings ####
+
+# Twitch username of the bot
+name = bot_test_
+
+# Channel you want to join
+channel = your_twitch_channel
+
+# Oauth token for bot's Twitch account
+password = oauth:your_token
+
+# Authorization token for your Twitch account
+twitchtok = NULL
+
+
+#### Moderation settings ####
+
+# Whether LynxBot should moderate your chat
+enable_moderation = true
+
+# Whether to ban URLs in chat
+# If true, all non-whitelisted URLs will be banned
+ban_urls = true
+
+# Maximum permitted length of a message (in characters)
+max_message_len = 300
+
+# Maximum amount of times a pattern can be repeated in a message
+max_pattern = 6
+
+# Maximum amount a single character can be repeated in a message
+max_char = 15
+
+# Minimum message length at which capital letters start getting moderated
+cap_len = 30
+
+# Maximum percentage of capital letters allowed in message
+cap_ratio = 80
+
+
+#### Whitelisted websites ####
+
+# if ban_urls is set to true, any website not on this list will be banned
+whitelist = {
+	twitter.com,
+	gyazo.com,
+	puu.sh,
+	crystalmathlabs.com,
+	reddit.com,
+	hexis-rs.info,
+	imgur.com,
+	twitch.tv,
+	pastebin.com,
+	oddshot.tv,
+	youtube.com,
+	youtu.be,
+	strawpoll.me,
+	runescape.com,
+	github.com
+}
+
+
+#### Giveaway settings ####
+
+# Whether giveaways are enabled or disabled
+giveaway_active = false
+
+# Whether follower giveaways are enabled
+follower_giveaway = true
+
+# Number of followers required for giveaway
+follower_limit = 3
+
+# Whether timed giveaways are enabled
+timed_giveaway = true
+
+# Interval in minutes at which timed giveaways occur
+time_interval = 7
+
+
+#### Other settings ####
+
+# Message posted in chat whenever someone subscribes
+submessage = Thank you for subscribing!
+
+# Additional responses for the 8ball command
+extra8ballresponses = {
+	About as likely as Yekouri getting 200m mining,
+	Impossible,
+	Sure. Right after Solace win a skilling cup
+}
