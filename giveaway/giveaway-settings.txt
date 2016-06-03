@@ -1,5 +1,0 @@
-active = false
-followers = true
-numfollowers = 10
-timer = false
-mins = 15

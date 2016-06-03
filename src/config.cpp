@@ -18,6 +18,7 @@ static struct setting settings[] = {
 	{ "follower_limit", STRING },
 	{ "timed_giveaway", STRING },
 	{ "time_interval", STRING },
+	{ "recurring", OLIST },
 	{ "submessage", STRING },
 	{ "extra8ballresponses", LIST }
 };

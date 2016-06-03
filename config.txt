@@ -48,19 +48,8 @@ cap_ratio = 80
 whitelist = {
 	twitter.com,
 	gyazo.com,
-	puu.sh,
-	crystalmathlabs.com,
-	reddit.com,
-	hexis-rs.info,
 	imgur.com,
-	twitch.tv,
-	pastebin.com,
-	oddshot.tv,
-	youtube.com,
-	youtu.be,
-	strawpoll.me,
-	runescape.com,
-	github.com
+	twitch.tv
 }
 
 
@@ -73,13 +62,26 @@ giveaway_active = false
 follower_giveaway = true
 
 # Number of followers required for giveaway
-follower_limit = 3
+follower_limit = 10
 
 # Whether timed giveaways are enabled
 timed_giveaway = true
 
 # Interval in minutes at which timed giveaways occur
-time_interval = 7
+time_interval = 15
+
+
+#### Recurring messages ####
+
+# each recurring message has a period and a message
+# period must be multiple of 5 and less than 60
+# maximum of 5 recurring messages
+recurring = {
+	{
+		period = 5
+		message = Remember to follow https://twitter.com/brainsoldier . God bless.
+	}
+}
 
 
 #### Other settings ####
@@ -89,7 +91,5 @@ submessage = Thank you for subscribing!
 
 # Additional responses for the 8ball command
 extra8ballresponses = {
-	About as likely as Yekouri getting 200m mining,
-	Impossible,
-	Sure. Right after Solace win a skilling cup
+	Impossible
 }

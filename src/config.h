@@ -2,6 +2,7 @@
 
 #define STRING 0
 #define LIST 1
+#define OLIST 2
 
 #include <string>
 #include <unordered_map>
