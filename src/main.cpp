@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 	std::string error;
 
 	std::string path = utils::configdir() + "/config";
-	ConfigReader cfgr(path.c_str());
+	ConfigReader cfgr(path);
 	if (!cfgr.read())
 		return 1;
 	std::cin.get();
