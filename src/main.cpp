@@ -4,6 +4,7 @@
 #include <regex>
 #include <string>
 #include <utils.h>
+#include "config.h"
 #include "TwitchBot.h"
 #include "version.h"
 #ifdef __linux__
@@ -48,6 +49,12 @@ int main(int argc, char **argv)
 {
 	botData bd;
 	std::string error;
+
+	std::string path = utils::configdir() + "/config";
+	ConfigReader cfgr(path.c_str());
+	if (!cfgr.read())
+		return 1;
+	std::cin.get();
 
 #ifdef __linux__
 	int c;
