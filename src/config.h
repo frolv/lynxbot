@@ -21,7 +21,7 @@ class ConfigReader {
 	private:
 		const std::string m_path;
 		std::unordered_map<std::string, std::string> m_settings;
-		bool readString();
-		bool readList();
-		bool readOList();
+		std::string parseString(const std::string &buf, size_t ind);
+		bool parseList(const std::string &buf);
+		bool parseOList(const std::string &buf);
 };
