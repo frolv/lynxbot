@@ -6,6 +6,7 @@
 #define MAX_SIZE 2048
 
 static void removeLeading(std::string &s);
+static bool comment(const std::string &s);
 static bool blank(const std::string &s);
 
 static struct setting settings[] = {
@@ -38,45 +39,80 @@ ConfigReader::ConfigReader(const std::string &path)
 
 bool ConfigReader::read()
 {
-	std::string line, key, val;
+	std::string buf, line, key, val, err;
 	std::ifstream reader(m_path);
 	int16_t nline, nsettings;
-	size_t ind;
-	bool block;
+	size_t ind, set;
+	int8_t open;
 
-	nline = 0;
 	nsettings = sizeof(settings) / sizeof(settings[0]);
-	block = false;
+	nline = open = set = 0;
 	while (std::getline(reader, line)) {
 		++nline;
-		if (line[0] == '#' || line.empty())
+		if (comment(line) || line.empty())
 			continue;
-		if ((ind = line.find("=")) == std::string::npos) {
-			std::cerr << m_path << ": line " << nline <<
-				": invalid syntax" << std::endl;
-			return false;
+		if (!open) {
+			if ((ind = line.find('=')) == std::string::npos) {
+				std::cerr << m_path << ": line " << nline <<
+					": invalid syntax" << std::endl;
+				return false;
+			}
+			key = line.substr(0, ind);
+			key.erase(std::remove_if(key.begin(), key.end(),
+						isspace), key.end());
+			for (set = 0; set < nsettings; ++set) {
+				if (key == settings[set].key)
+					break;
+			}
+			if (set == nsettings) {
+				std::cerr << m_path << ": line " << nline
+					<< ": unrecognized key -- " << key
+					<< std::endl;
+				return false;
+			}
 		}
-		key = line.substr(0, ind);
-		key.erase(std::remove_if(key.begin(), key.end(), isspace),
-				key.end());
-		for (ind = 0; ind < nsettings; ++ind) {
-			if (key == settings[ind].key)
-				break;
-		}
-		if (ind == nsettings) {
-			std::cerr << m_path << ": line " << nline
-				<< ": unrecognized key -- " << key << std::endl;
-			return false;
-		}
-		if (settings[ind].val_type == STRING) {
-			if ((val = parseString(line, ind)).empty()) {
-				std::cerr << m_path << ": line " << nline << ": no "
-					"setting provided for " << key << std::endl;
+		if (settings[set].val_type == STRING) {
+			if ((val = parseString(line)).empty()) {
+				std::cerr << m_path << ": line " << nline <<
+					": no setting provided for " << key
+					<< std::endl;
 				return false;
 			}
 			m_settings[key] = val;
+		} else {
+			/* reading a list within a brace block */
+			ind = -1;
+			while ((ind = line.find('{', ind + 1)) != std::string::npos)
+				++open;
+			if (open) {
+				removeLeading(line);
+				buf += line + '\n';
+				ind = -1;
+				while ((ind = line.find('}', ind + 1))
+						!= std::string::npos)
+					--open;
+			}
+			if (!open) {
+				if ((val = parseString(buf)).empty()) {
+					std::cerr << m_path << ": line "
+						<< nline << ": no setting "
+						"provided for " << key
+						<< std::endl;
+					return false;
+				}
+				if ((val = parseList(val, err)).empty()) {
+					std::cerr << m_path << ": line "
+						<< nline << ": " << err
+						<< std::endl;
+					return false;
+				}
+				buf = "";
+			}
 		}
-		std::cout << key << std::endl << val << std::endl;
+	}
+	if (open) {
+		std::cerr << m_path << ": unexpected end of file" << std::endl;
+		return false;
 	}
 	return true;
 }
@@ -89,15 +125,42 @@ std::string ConfigReader::getSetting(const std::string &setting)
 {
 }
 
-std::string ConfigReader::parseString(const std::string &buf, size_t ind)
+std::string ConfigReader::parseString(const std::string &buf)
 {
 	std::string val = buf.substr(buf.find("=") + 1);
 	removeLeading(val);
 	return val;
 }
 
-bool ConfigReader::parseList(const std::string &buf)
+std::string ConfigReader::parseList(const std::string &buf, std::string &err)
 {
+	std::string out, s, val;
+	size_t ind, nl;
+
+	/* remove surrounding braces */
+	s = buf.substr(1);
+	while (isspace(s.back()) || s.back() == '}')
+		s.pop_back();
+
+	ind = 0;
+	while (ind != std::string::npos) {
+		removeLeading(s);
+		if ((ind = s.find(',')) == std::string::npos)
+			val = s;
+		else
+			val = s.substr(0, ind);
+		if ((nl = val.find('\n')) != std::string::npos) {
+			err = "unrecognized token in list -- ";
+			s = val.substr(nl + 1);
+			nl = 0;
+			while (nl < s.length() && !isspace(s[nl]))
+				err += s[nl++];
+			return "";
+		}
+		out += val + '\n';
+		s = s.substr(ind + 1);
+	}
+	return out;
 }
 
 bool ConfigReader::parseOList(const std::string &buf)
@@ -108,9 +171,17 @@ bool ConfigReader::parseOList(const std::string &buf)
 static void removeLeading(std::string &s)
 {
 	size_t ind = 0;
-	while (ind < s.length() && (s[ind] == ' ' || s[ind] == '\t'))
+	while (ind < s.length() && isspace(s[ind]))
 		++ind;
 	s = s.substr(ind);
+}
+
+static bool comment(const std::string &s)
+{
+	size_t ind = 0;
+	while (ind < s.length() && (s[ind] == ' ' || s[ind] == '\t'))
+		++ind;
+	return ind != s.length() && s[ind] == '#';
 }
 
 static bool blank(const std::string &s)
