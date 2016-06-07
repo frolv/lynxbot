@@ -56,9 +56,13 @@ bool ConfigReader::read()
 		if (blank(line))
 			continue;
 		if (!open) {
+			removeLeading(line);
 			if ((ind = line.find('=')) == std::string::npos) {
+				err = "unrecognized token -- ";
+				for (ind = 0; !isspace(line[ind]); ++ind)
+					err += line[ind];
 				std::cerr << m_path << ": line " << nline <<
-					": invalid syntax" << std::endl;
+					": " << err << std::endl;
 				return false;
 			}
 			key = line.substr(0, ind);
@@ -123,6 +127,13 @@ bool ConfigReader::read()
 		std::cerr << m_path << ": unexpected end of file" << std::endl;
 		return false;
 	}
+	for (set = 0; set < nsettings; ++set) {
+		if (m_settings.find(settings[set].key) == m_settings.end()) {
+			std::cerr << m_path << ": missing required setting: "
+				<< settings[set].key << std::endl;
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -130,9 +141,14 @@ bool ConfigReader::write()
 {
 }
 
-std::string ConfigReader::getSetting(const std::string &setting)
+std::string ConfigReader::get(const std::string &key)
 {
-	return m_settings[setting];
+	return m_settings[key];
+}
+
+void ConfigReader::set(const std::string &key, const std::string &val)
+{
+	m_settings[key] = val;
 }
 
 std::string ConfigReader::parseString(const std::string &buf)

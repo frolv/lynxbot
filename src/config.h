@@ -18,7 +18,8 @@ class ConfigReader {
 		ConfigReader(const std::string &path);
 		bool read();
 		bool write();
-		std::string getSetting(const std::string &setting);
+		std::string get(const std::string &key);
+		void set(const std::string &key, const std::string &val);
 	private:
 		const std::string m_path;
 		std::unordered_map<std::string, std::string> m_settings;

@@ -8,10 +8,10 @@
 #include "TwitchBot.h"
 #include "version.h"
 #ifdef __linux__
- #include <getopt.h>
- #include <sys/types.h>
- #include <sys/wait.h>
- #include <unistd.h>
+#include <getopt.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 /* LynxBot authorization URL */
@@ -24,36 +24,28 @@ const char *BOT_NAME = "LynxBot";
 const char *BOT_VERSION = "1.2.2";
 const char *BOT_WEBSITE = "https://frolv.github.io/lynxbot";
 
-/* botData stores settings for initializing a TwitchBot instance */
-struct botData {
+struct botset {
 	std::string name;
 	std::string channel;
 	std::string pass;
 	std::string access_token;
 };
 
-void launchBot(botData *bd);
-bool readSettings(botData *bd, std::string &error);
-void twitchAuth(botData *bd);
+void launchBot(struct botset *b);
+void twitchAuth(struct botset *b);
 bool authtest(const std::string &token, std::string &user);
-void writeAuth(const std::string &token);
 #ifdef __linux__
- static int open_linux();
+static int open_linux();
 #endif
 #ifdef _WIN32
- static int open_win();
+static int open_win();
 #endif
 
 /* LynxBot: a Twitch.tv IRC bot for Old School Runescape */
 int main(int argc, char **argv)
 {
-	botData bd;
-	std::string error;
-
-	std::string path = utils::configdir() + "/config";
-	ConfigReader cfgr(path);
-	if (!cfgr.read())
-		return 1;
+	struct botset b;
+	std::string path;
 
 #ifdef __linux__
 	int c;
@@ -86,94 +78,43 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if (!readSettings(&bd, error)) {
-		std::cerr << error << std::endl;
-		std::cin.get();
+	path = utils::configdir() + "/config";
+	ConfigReader cfgr(path);
+	if (!cfgr.read())
 		return 1;
-	}
+
+	b.name = cfgr.get("name");
+	b.channel = cfgr.get("channel");
+	b.pass = cfgr.get("password");
+	b.access_token = cfgr.get("twitchtok");
 
 	/* authenticate with twitch */
-	if (bd.access_token.empty()) {
-		twitchAuth(&bd);
-		writeAuth(bd.access_token);
+	if (b.access_token == "UNSET") {
+		twitchAuth(&b);
+		cfgr.set("twitchtok", b.access_token);
+		cfgr.write();
 	}
 
-	if (argc == 2) {
-		bd.channel = argv[1];
-		if (bd.channel[0] != '#')
-			bd.channel = '#' + bd.channel;
-	}
+	if (argc == 2)
+		b.channel = argv[1];
+	if (b.channel[0] != '#')
+		b.channel = '#' + b.channel;
 
-	launchBot(&bd);
+	launchBot(&b);
 	return 0;
 }
 
 /* launchBot: start a TwitchBot instance */
-void launchBot(botData *bd)
+void launchBot(struct botset *b)
 {
-	TwitchBot bot(bd->name, bd->channel, bd->pass, bd->access_token);
+	TwitchBot bot(b->name, b->channel, b->pass, b->access_token);
 
 	if (bot.isConnected())
 		bot.serverLoop();
 }
 
-/* readSettings: read LynxBot settings file */
-bool readSettings(botData *bd, std::string &error)
-{
-	/* open settings */
-	std::string path = utils::configdir() + utils::config("settings");
-	std::ifstream reader(path);
-	if (!reader.is_open()) {
-		error = "could not locate " + path;
-		return false;
-	}
-
-	std::string line;
-	uint8_t lineNum = 0;
-
-	while (std::getline(reader, line)) {
-		++lineNum;
-		/* remove whitespace */
-		line.erase(std::remove_if(line.begin(), line.end(), isspace),
-				line.end());
-
-		/* lines starting with * are comments */
-		if (utils::startsWith(line, "*"))
-			continue;
-
-		std::regex lineRegex("(name|channel|password|twitchtok):(.+?)");
-		std::smatch match;
-		const std::string s = line;
-		if (std::regex_match(s.begin(), s.end(), match, lineRegex)) {
-			if (match[1].str() == "name") {
-				bd->name = match[2].str();
-			} else if (match[1].str() == "channel") {
-				if (!utils::startsWith(match[2].str(), "#"))
-					error = "Channel must start with #";
-				bd->channel = match[2].str();
-			} else if (match[1].str() == "password") {
-				if (!utils::startsWith(match[2].str(), "oauth:"))
-					error = "Password must be a valid "
-						"oauth token, starting with "
-						"\"oauth:\".";
-				bd->pass = match[2].str();
-			} else {
-				bd->access_token = match[2].str();
-			}
-		} else {
-			error = "Syntax error on line "
-				+ std::to_string(lineNum) + " of " + path;
-		}
-		if (!error.empty())
-			return false;
-	}
-
-	reader.close();
-	return true;
-}
-
 /* twitchAuth: interactively authorize LynxBot with a Twitch account */
-void twitchAuth(botData *bd)
+void twitchAuth(struct botset *b)
 {
 	char c = '\0';
 	std::cout << "In order for the $status command to work, LynxBot must be"
@@ -182,7 +123,7 @@ void twitchAuth(botData *bd)
 	while (c != 'y' && c != 'n')
 		std::cin >> c;
 	if (c == 'n') {
-		bd->access_token = "NULL";
+		b->access_token = "NULL";
 		return;
 	}
 
@@ -211,7 +152,7 @@ void twitchAuth(botData *bd)
 		std::getline(std::cin, token);
 
 	if (authtest(token, user)) {
-		bd->access_token = token;
+		b->access_token = token;
 		std::cout << "Welcome, " << user << "!\nLynxBot has "
 			"successfully been authorized with "
 			"your Twitch account." << std::endl;
@@ -238,18 +179,6 @@ bool authtest(const std::string &token, std::string &user)
 		return true;
 	}
 	return false;
-}
-
-/* writeAuth: write access token to settings file */
-void writeAuth(const std::string &token)
-{
-	if (token.empty())
-		return;
-
-	std::string path = utils::configdir() + utils::config("settings");
-	std::ofstream writer(path, std::ios::app);
-	writer << "twitchtok: " << token << std::endl;
-	writer.close();
 }
 
 #ifdef __linux__
