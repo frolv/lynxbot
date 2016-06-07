@@ -54,7 +54,6 @@ int main(int argc, char **argv)
 	ConfigReader cfgr(path);
 	if (!cfgr.read())
 		return 1;
-	std::cin.get();
 
 #ifdef __linux__
 	int c;

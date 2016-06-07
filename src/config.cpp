@@ -1,12 +1,12 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <utils.h>
 #include "config.h"
 
 #define MAX_SIZE 2048
 
 static void removeLeading(std::string &s);
-static bool comment(const std::string &s);
 static bool blank(const std::string &s);
 
 static struct setting settings[] = {
@@ -41,7 +41,7 @@ bool ConfigReader::read()
 {
 	std::string buf, line, key, val, err;
 	std::ifstream reader(m_path);
-	int16_t nline, nsettings;
+	uint16_t nline, nsettings;
 	size_t ind, set;
 	int8_t open;
 
@@ -49,7 +49,11 @@ bool ConfigReader::read()
 	nline = open = set = 0;
 	while (std::getline(reader, line)) {
 		++nline;
-		if (comment(line) || line.empty())
+		/* remove commented sections of lines */
+		if ((ind = line.find('#')) != std::string::npos
+				&& line[ind - 1] != '\\')
+			line = line.substr(0, ind);
+		if (blank(line))
 			continue;
 		if (!open) {
 			if ((ind = line.find('=')) == std::string::npos) {
@@ -58,8 +62,8 @@ bool ConfigReader::read()
 				return false;
 			}
 			key = line.substr(0, ind);
-			key.erase(std::remove_if(key.begin(), key.end(),
-						isspace), key.end());
+			while (isspace(key.back()))
+				key.pop_back();
 			for (set = 0; set < nsettings; ++set) {
 				if (key == settings[set].key)
 					break;
@@ -100,12 +104,17 @@ bool ConfigReader::read()
 						<< std::endl;
 					return false;
 				}
-				if ((val = parseList(val, err)).empty()) {
+				if (settings[set].val_type == LIST)
+					val = parseList(val, err);
+				else
+					val = parseOList(key, val, err);
+				if (val.empty()) {
 					std::cerr << m_path << ": line "
 						<< nline << ": " << err
 						<< std::endl;
 					return false;
 				}
+				m_settings[key] = val;
 				buf = "";
 			}
 		}
@@ -123,11 +132,12 @@ bool ConfigReader::write()
 
 std::string ConfigReader::getSetting(const std::string &setting)
 {
+	return m_settings[setting];
 }
 
 std::string ConfigReader::parseString(const std::string &buf)
 {
-	std::string val = buf.substr(buf.find("=") + 1);
+	std::string val = buf.substr(buf.find('=') + 1);
 	removeLeading(val);
 	return val;
 }
@@ -163,8 +173,78 @@ std::string ConfigReader::parseList(const std::string &buf, std::string &err)
 	return out;
 }
 
-bool ConfigReader::parseOList(const std::string &buf)
+std::string ConfigReader::parseOList(const std::string &key,
+		const std::string &buf, std::string &err)
 {
+	std::string s, item;
+	size_t end;
+
+	s = buf.substr(1);
+	while (s.back() != '}')
+		s.pop_back();
+	s.pop_back();
+	while (isspace(s.back()))
+		s.pop_back();
+
+	end = 0;
+	while (end != std::string::npos) {
+		removeLeading(s);
+		if ((end = s.find('}')) != std::string::npos) {
+			item = s.substr(0, end + 1);
+			if (!parseObj(key, item, err))
+				return "";
+			s = s.substr(end + 1);
+			removeLeading(s);
+			if (s[0] == ',') {
+				s = s.substr(1);
+				if (s.find('{') == std::string::npos) {
+					err = "expected item after comma";
+					return "";
+				}
+			} else if (s.find('{') != std::string::npos) {
+				err = "unexpected list continuation";
+				return "";
+			}
+		}
+	}
+
+	return "olist";
+}
+
+bool ConfigReader::parseObj(const std::string &key, std::string &obj,
+		std::string &err)
+{
+	std::vector<std::string> items;
+	std::string okey, oval;
+	std::unordered_map<std::string, std::string> map;
+	size_t ind;
+
+	/* remove surrounding braces and whitespace */
+	obj = obj.substr(1);
+	removeLeading(obj);
+	while (obj.back() != '}')
+		obj.pop_back();
+	obj.pop_back();
+	while (isspace(obj.back()))
+		obj.pop_back();
+
+	utils::split(obj, '\n', items);
+
+	for (std::string s : items) {
+		if ((ind = s.find('=')) == std::string::npos) {
+			err = "unrecognized token in list -- ";
+			for (ind = 0; !isspace(s[ind]); ++ind)
+				err += s[ind];
+			return false;
+		}
+		okey = s.substr(0, ind);
+		while (isspace(okey.back()))
+			okey.pop_back();
+		oval = parseString(s);
+		map[okey] = oval;
+	}
+	m_olist[key].emplace_back(map);
+	return true;
 }
 
 /* removeLeading: remove all leading whitespace from string */
@@ -176,14 +256,12 @@ static void removeLeading(std::string &s)
 	s = s.substr(ind);
 }
 
-static bool comment(const std::string &s)
-{
-	size_t ind = 0;
-	while (ind < s.length() && (s[ind] == ' ' || s[ind] == '\t'))
-		++ind;
-	return ind != s.length() && s[ind] == '#';
-}
-
+/* blank: return true if line is empty or only contains whitespace */
 static bool blank(const std::string &s)
 {
+	for (char c : s) {
+		if (!isspace(c))
+			return false;
+	}
+	return true;
 }
