@@ -14,6 +14,8 @@ channel = your_twitch_channel
 password = oauth:your_token
 
 # Authorization token for your Twitch account
+# If UNSET, LynxBot will go through an interactive authorization setup when run
+# If NULL, LynxBot will not try to access your Twitch account
 twitchtok = UNSET
 
 
