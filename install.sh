@@ -26,16 +26,14 @@ config() {
 			echo $cfgdir/$n already exists: ignoring
 		fi
 	done
-	for d in giveaway json; do
-		[[ ! -d $cfgdir/$d ]] && mkdir $cfgdir/$d
-		for f in $d/*; do
-			n=$(echo $f | sed 's/\.txt//')
-			if [[ ! -e $cfgdir/$n ]]; then
-				cp $f $cfgdir/$n
-			else
-				echo $cfgdir/$n already exists: ignoring
-			fi
-		done
+	[[ ! -d $cfgdir/json ]] && mkdir $cfgdir/json
+	for f in json/*; do
+		n=$(echo $f | sed 's/\.txt//')
+		if [[ ! -e $cfgdir/$n ]]; then
+			cp $f $cfgdir/$n
+		else
+			echo $cfgdir/$n already exists: ignoring
+		fi
 	done
 	echo all configuration files copied to $cfgdir
 }

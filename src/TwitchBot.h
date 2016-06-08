@@ -4,25 +4,28 @@
 #include <thread>
 #include <tw/authenticator.h>
 #include "client.h"
-#include "Moderator.h"
 #include "CommandHandler.h"
+#include "config.h"
 #include "EventManager.h"
-#include "URLParser.h"
 #include "Giveaway.h"
+#include "Moderator.h"
+#include "URLParser.h"
 
-class Client;
-class Moderator;
-class CommandHandler;
-class EventManager;
-class URLParser;
-class Giveaway;
 class Authenticator;
+class Client;
+class CommandHandler;
+class ConfigReader;
+class EventManager;
+class Giveaway;
+class Moderator;
+class URLParser;
 
 class TwitchBot {
 
 	public:
 		TwitchBot(const std::string &name, const std::string &channel,
-			const std::string &password, const std::string &token);
+			const std::string &password, const std::string &token,
+			ConfigReader *cfgr);
 		~TwitchBot();
 		bool isConnected() const;
 		void disconnect();
@@ -35,13 +38,14 @@ class TwitchBot {
 		const std::string m_channelName;
 		const std::string m_token;
 
-		Client m_client;
-		Moderator m_mod;
-		CommandHandler m_cmdHandler;
-		EventManager m_eventManager;
-		URLParser m_parser;
-		Giveaway m_giveaway;
 		tw::Authenticator m_auth;
+		Client m_client;
+		CommandHandler m_cmdHandler;
+		ConfigReader *m_cfgr;
+		EventManager m_eventManager;
+		Giveaway m_giveaway;
+		Moderator m_mod;
+		URLParser m_parser;
 
 		std::string m_subMsg;
 		std::thread m_tick;

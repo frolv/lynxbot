@@ -14,12 +14,13 @@ static const char *TWITCH_PORT = "80";
 static std::string urltitle(const std::string &resp);
 
 TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
-	const std::string &password, const std::string &token)
+		const std::string &password, const std::string &token,
+		ConfigReader *cfgr)
 	: m_connected(false), m_nick(nick), m_channelName(channel),
-	m_token(token), m_client(TWITCH_SERV, TWITCH_PORT), m_mod(&m_parser),
+	m_token(token), m_client(TWITCH_SERV, TWITCH_PORT),
 	m_cmdHandler(nick, channel.substr(1), token, &m_mod, &m_parser,
-			&m_eventManager, &m_giveaway),
-	m_giveaway(channel.substr(1), time(nullptr))
+			&m_eventManager, &m_giveaway, cfgr), m_cfgr(cfgr),
+	m_giveaway(channel.substr(1), time(nullptr)), m_mod(&m_parser, cfgr)
 {
 	if ((m_connected = m_client.cconnect())) {
 		/* send required IRC data: PASS, NICK, USER */
@@ -39,10 +40,7 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 		m_eventManager.add("checkgiveaway", 10, time(nullptr));
 
 		/* read the subscriber message */
-		std::string path = utils::configdir() + utils::config("submessage");
-		std::ifstream reader(path);
-		if (reader.is_open())
-			std::getline(reader, m_subMsg);
+		m_subMsg = m_cfgr->get("submessage");
 	}
 }
 
@@ -60,6 +58,7 @@ void TwitchBot::disconnect()
 {
 	m_client.cdisconnect();
 	m_connected = false;
+	m_tick.join();
 }
 
 void TwitchBot::serverLoop()
@@ -74,6 +73,8 @@ void TwitchBot::serverLoop()
 		}
 		std::cout << "[RECV] " << msg << std::endl;
 		processData(msg);
+		if (!m_connected)
+			break;
 	}
 }
 
@@ -104,10 +105,12 @@ bool TwitchBot::sendPong(const std::string &ping)
 
 void TwitchBot::processData(const std::string &data)
 {
-	if (data.find("Error logging in") != std::string::npos) {
+	if (data.find("Error logging in") != std::string::npos
+			|| data.find("Login unsuccessful")
+			!= std::string::npos) {
 		disconnect();
 		std::cerr << "\nCould not log in to Twitch IRC.\nMake sure "
-			<< utils::configdir() << utils::config("settings")
+			<< utils::configdir() << utils::config("config")
 			<< " is configured correctly." << std::endl;
 		std::cin.get();
 	} else if (utils::startsWith(data, "PING")) {
@@ -138,7 +141,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		/* confirm message is from current channel */
 		if (channel != m_channelName)
 			return false;
-		
+
 		/* channel owner or mod */
 		const bool privileges = nick == channel.substr(1)
 			|| !type.empty() || nick == "brainsoldier";
@@ -147,7 +150,8 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		m_parser.parse(msg);
 
 		/* check if message is valid */
-		if (!privileges && !subscriber && moderate(nick, msg))
+		if (!privileges && !subscriber && m_mod.active()
+				&& moderate(nick, msg))
 			return true;
 
 		/* all chat commands start with $ */
@@ -197,7 +201,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		std::string output = m_cmdHandler.processResponse(msg);
 		if (!output.empty())
 			sendMsg("@" + nick + ", " + output);
-		
+
 		return true;
 
 	} else if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
@@ -239,8 +243,8 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 void TwitchBot::tick()
 {
 	while (m_connected) {
-		/* check a set of variables every second and perform
-		 * actions if certain conditions are met */
+		/* check a set of variables every second and perform */
+		/* actions if certain conditions are met */
 		for (std::vector<std::string>::size_type i = 0;
 				i < m_eventManager.messages()->size(); ++i) {
 			if (m_eventManager.ready("msg" + std::to_string(i))) {

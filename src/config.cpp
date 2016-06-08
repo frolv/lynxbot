@@ -6,8 +6,6 @@
 #include "config.h"
 #include "version.h"
 
-#define MAX_SIZE 2048
-
 static void removeLeading(std::string &s);
 static bool blank(const std::string &s);
 
@@ -220,6 +218,11 @@ std::string ConfigReader::get(const std::string &key)
 void ConfigReader::set(const std::string &key, const std::string &val)
 {
 	m_settings[key] = val;
+}
+
+std::string ConfigReader::path() const
+{
+	return m_path;
 }
 
 std::string ConfigReader::parseString(const std::string &buf)

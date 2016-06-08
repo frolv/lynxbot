@@ -20,10 +20,10 @@
 CommandHandler::CommandHandler(const std::string &name,
 		const std::string &channel, const std::string &token,
 		Moderator *mod, URLParser *urlp, EventManager *evtp,
-		Giveaway *givp)
+		Giveaway *givp, ConfigReader *cfgr)
 	: m_name(name), m_channel(channel), m_token(token), m_modp(mod),
 	m_parsep(urlp), m_customCmds(NULL), m_evtp(evtp), m_givp(givp),
-	m_counting(false), m_gen(m_rd())
+	m_cfgr(cfgr), m_counting(false), m_gen(m_rd())
 {
 	/* initializing pointers to all default commands */
 	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
@@ -86,16 +86,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_cooldowns.add(m_wheel.name(), 10);
 
 	/* read extra 8ball responses */
-	std::string path = utils::configdir() + utils::config("8ball");
-	std::ifstream reader(path);
-	if (!reader.is_open()) {
-		std::cerr << "could not read " + path << std::endl;
-		return;
-	}
-	std::string line;
-	while (std::getline(reader, line))
-		m_eightballResponses.push_back(line);
-	reader.close();
+	utils::split(m_cfgr->get("extra8ballresponses"), '\n', m_eightball);
 
 	populateHelp();
 }
@@ -338,7 +329,7 @@ std::string CommandHandler::calcFunc(struct cmdinfo *c)
 	std::string expr = c->fullCmd.substr(5);
 	/* remove all whitespace */
 	expr.erase(std::remove_if(expr.begin(), expr.end(), isspace), expr.end());
-	
+
 	std::ostringstream result;
 	try {
 		ExpressionParser exprP(expr);
@@ -394,7 +385,7 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 		return err;
 	if (rsn.find(' ') != std::string::npos)
 		return output += "invalid syntax. Use \"$cml [-nu] [RSN]\"";
-	
+
 	if (update) {
 		cpr::Response resp = cpr::Get(
 				cpr::Url("http://" + CML_HOST + CML_UPDATE_API + rsn),
@@ -465,9 +456,8 @@ std::string CommandHandler::eightballFunc(struct cmdinfo *c)
 	if (c->fullCmd.length() < 6
 			|| c->fullCmd[c->fullCmd.length() - 1] != '?')
 		return "[8 BALL] Ask me a question.";
-	std::uniform_int_distribution<> dis(0, m_eightballResponses.size());
-	return "[8 BALL] @" + c->nick + ", "
-		+ m_eightballResponses[dis(m_gen)] + ".";
+	std::uniform_int_distribution<> dis(0, m_eightball.size());
+	return "[8 BALL] @" + c->nick + ", " + m_eightball[dis(m_gen)] + ".";
 }
 
 /* strawpoll: create polls */
@@ -495,7 +485,7 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 			multi = true;
 			break;
 		case '?':
-			output = c->cmd + ": illegal option -- "; 
+			output = c->cmd + ": illegal option -- ";
 			output += (char)op.optopt();
 			return output;
 		default:
@@ -1035,7 +1025,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 	int16_t opt;
 	int32_t amt = 0;
 	bool setfollowers = false, settimer = false;
-	
+
 	while ((opt = op.getopt()) != EOF) {
 		switch (opt) {
 		case 'f':
@@ -1189,7 +1179,7 @@ std::string CommandHandler::extractHSData(const std::string &httpResp,
 {
 	std::vector<std::string> skills;
 	utils::split(httpResp, '\n', skills);
-	
+
 	std::vector<std::string> argv;
 	utils::split(skills[skillID], ',', argv);
 

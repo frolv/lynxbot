@@ -1,17 +1,17 @@
 #ifdef __linux__
- #include <cstdio>
- #include <cstdlib>
- #include <cstring>
- #include <netdb.h>
- #include <unistd.h>
- #include <sys/types.h>
- #include <sys/socket.h>
- #include <netinet/in.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <netdb.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #endif
 #ifdef _WIN32
- #include <WS2tcpip.h>
- #include <sdkddkver.h>
- #pragma comment(lib, "ws2_32.lib")
+#include <WS2tcpip.h>
+#include <sdkddkver.h>
+#pragma comment(lib, "ws2_32.lib")
 #endif
 #include "client.h"
 
@@ -40,15 +40,17 @@ bool Client::cconnect()
 
 void Client::cdisconnect()
 {
-	m_connected = false;
+	if (m_connected) {
+		m_connected = false;
 #ifdef __linux__
-	if (close(m_fd) == -1)
-		perror("close");
+		if (close(m_fd) == -1)
+			perror("close");
 #endif
 #ifdef _WIN32
-	closesocket(m_socket);
-	WSACleanup();
+		closesocket(m_socket);
+		WSACleanup();
 #endif
+	}
 }
 
 int32_t Client::cwrite(const std::string &msg)

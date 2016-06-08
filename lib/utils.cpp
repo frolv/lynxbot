@@ -4,26 +4,21 @@
 #include <sstream>
 #include <unordered_map>
 #ifdef __linux__
- #include <cstdlib>
- #include <unistd.h>
+#include <cstdlib>
+#include <unistd.h>
 #endif
 #ifdef _WIN32
- #include <Windows.h>
+#include <Windows.h>
 #endif
 #include <utils.h>
 
 #define MAX_PATH_LEN 8192
 
 static std::unordered_map<std::string, std::string> configs = {
-	{ "8ball", "/extra8ballresponses" },
-	{ "giveaway-settings", "/giveaway/giveaway-settings" },
-	{ "giveaway", "/giveaway/giveaway" },
-	{ "recurring", "/recurring" },
+	{ "giveaway", "/giveaway" },
 	{ "twitter", "/twitter" },
-	{ "settings", "/settings" },
-	{ "submessage", "/submessage" },
+	{ "config", "/config" },
 	{ "submit", "/submitted" },
-	{ "whitelist", "/whitelist" }
 };
 
 bool utils::startsWith(const std::string &str, const std::string &prefix)
@@ -125,4 +120,29 @@ bool utils::readJSON(const std::string &filename, Json::Value &val)
 		return false;
 	}
 	return true;
+}
+
+bool utils::parseBool(bool &b, const std::string &s, std::string &err)
+{
+	if (s == "true") {
+		b = true;
+		return true;
+	}
+	if (s == "false") {
+		b = false;
+		return true;
+	}
+	err = "invalid setting -- " + s;
+	return false;
+}
+
+bool utils::parseInt(uint32_t &i, const std::string &s, std::string &err)
+{
+	try {
+		i = std::stoi(s);
+		return true;
+	} catch (std::invalid_argument) {
+		err = "invalid number -- " + s;
+		return false;
+	}
 }

@@ -31,7 +31,7 @@ struct botset {
 	std::string access_token;
 };
 
-void launchBot(struct botset *b);
+void launchBot(struct botset *b, ConfigReader *cfgr);
 void twitchAuth(struct botset *b);
 bool authtest(const std::string &token, std::string &user);
 #ifdef __linux__
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	path = utils::configdir() + "/config";
+	path = utils::configdir() + utils::config("config");
 	ConfigReader cfgr(path);
 	if (!cfgr.read())
 		return 1;
@@ -100,14 +100,14 @@ int main(int argc, char **argv)
 	if (b.channel[0] != '#')
 		b.channel = '#' + b.channel;
 
-	launchBot(&b);
+	launchBot(&b, &cfgr);
 	return 0;
 }
 
 /* launchBot: start a TwitchBot instance */
-void launchBot(struct botset *b)
+void launchBot(struct botset *b, ConfigReader *cfgr)
 {
-	TwitchBot bot(b->name, b->channel, b->pass, b->access_token);
+	TwitchBot bot(b->name, b->channel, b->pass, b->access_token, cfgr);
 
 	if (bot.isConnected())
 		bot.serverLoop();

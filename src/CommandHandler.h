@@ -11,6 +11,7 @@
 #include "URLParser.h"
 #include "Giveaway.h"
 #include "RSNList.h"
+#include "config.h"
 
 class Moderator;
 class CustomCommandHandler;
@@ -21,6 +22,7 @@ class SelectionWheel;
 class URLParser;
 class Giveaway;
 class RSNList;
+class ConfigReader;
 
 class CommandHandler {
 	public:
@@ -35,7 +37,7 @@ class CommandHandler {
 		CommandHandler(const std::string &name, const std::string &channel,
 				const std::string &token, Moderator *mod,
 				URLParser *urlp, EventManager *evtp,
-				Giveaway *givp);
+				Giveaway *givp, ConfigReader *cfgr);
 		~CommandHandler();
 		std::string processCommand(const std::string &nick,
 				const std::string &fullCmd, bool privileges);
@@ -56,6 +58,7 @@ class CommandHandler {
 		EventManager *m_evtp;
 		Giveaway *m_givp;
 		RSNList m_rsns;
+		ConfigReader *m_cfgr;
 		Json::Value m_responses;
 		bool m_responding;
 		bool m_counting;
@@ -79,7 +82,7 @@ class CommandHandler {
 		const std::string SOURCE = "https://github.com/frolv/lynxbot";
 		const std::string TWITCH_API = "https://api.twitch.tv/kraken";
 		std::string m_activePoll;
-		std::vector<std::string> m_eightballResponses = {
+		std::vector<std::string> m_eightball = {
 			"It is certain",
 			"It is decidedly so",
 			"Without a doubt",

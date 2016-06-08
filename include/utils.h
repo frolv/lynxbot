@@ -20,4 +20,8 @@ namespace utils {
 	std::string config(const std::string &cfg);
 	/* reads a .json file and stores data in val */
 	bool readJSON(const std::string &filename, Json::Value &val);
+	/* parses bool from string into b */
+	bool parseBool(bool &b, const std::string &s, std::string &err);
+	/* parses int from string into i */
+	bool parseInt(uint32_t &i, const std::string &s, std::string &err);
 }
