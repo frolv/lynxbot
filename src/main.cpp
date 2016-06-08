@@ -80,8 +80,10 @@ int main(int argc, char **argv)
 
 	path = utils::configdir() + utils::config("config");
 	ConfigReader cfgr(path);
-	if (!cfgr.read())
+	if (!cfgr.read()) {
+		std::cin.get();
 		return 1;
+	}
 
 	b.name = cfgr.get("name");
 	b.channel = cfgr.get("channel");
@@ -136,8 +138,9 @@ void twitchAuth(struct botset *b)
 #endif
 	if (status != 0) {
 		std::cerr << "Could not open web browser" << std::endl;
+		std::cout << "Please navigate to the following URL manually:"
+			<< std::endl << AUTH_URL << std::endl;
 		std::cin.get();
-		exit(1);
 	}
 
 	std::cout << "The authorization URL has been opened in your "

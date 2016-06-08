@@ -121,9 +121,10 @@ bool Moderator::whitelist(const std::string &site)
 			!= m_whitelist.end())
 		return false;
 	m_whitelist.push_back(site);
-	std::ofstream writer(utils::configdir() + utils::config("whitelist"));
-	for (auto &s : m_whitelist)
-		writer << s << std::endl;
+	std::string wl = m_cfgr->get("whitelist");
+	wl += '\n' + site;
+	m_cfgr->set("whitelist", wl);
+	m_cfgr->write();
 	return true;
 }
 

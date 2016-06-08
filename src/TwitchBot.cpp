@@ -20,7 +20,8 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 	m_token(token), m_client(TWITCH_SERV, TWITCH_PORT),
 	m_cmdHandler(nick, channel.substr(1), token, &m_mod, &m_parser,
 			&m_eventManager, &m_giveaway, cfgr), m_cfgr(cfgr),
-	m_giveaway(channel.substr(1), time(nullptr)), m_mod(&m_parser, cfgr)
+	m_giveaway(channel.substr(1), time(nullptr), cfgr),
+	m_mod(&m_parser, cfgr)
 {
 	if ((m_connected = m_client.cconnect())) {
 		/* send required IRC data: PASS, NICK, USER */

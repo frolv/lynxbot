@@ -37,7 +37,7 @@ static struct setting settings[] = {
 		"disabled" },
 	{ "follower_giveaway", STRING, "Whether follower giveaways are "
 		"enabled" },
-	{ "follower_limit", STRING, "Number of followers required for"
+	{ "follower_limit", STRING, "Number of followers required for "
 		"giveaway" },
 	{ "timed_giveaway", STRING, "Whether timed giveaways are enabled" },
 	{ "time_interval", STRING, "Interval in minutes at which timed "
@@ -245,16 +245,18 @@ std::string ConfigReader::parseList(const std::string &buf, std::string &err)
 	ind = 0;
 	while (ind != std::string::npos) {
 		removeLeading(s);
-		if ((ind = s.find(',')) == std::string::npos)
+		if ((ind = s.find(',')) == std::string::npos) {
 			val = s;
-		else
+		} else {
 			val = s.substr(0, ind);
+			if (ind == s.length() - 1) {
+				err = "expected item after comma";
+				return "";
+			}
+		}
 		if ((nl = val.find('\n')) != std::string::npos) {
-			err = "unrecognized token in list -- ";
-			s = val.substr(nl + 1);
-			nl = 0;
-			while (nl < s.length() && !isspace(s[nl]))
-				err += s[nl++];
+			err = "unexpected list continuation after ";
+			err += val.substr(0, nl);
 			return "";
 		}
 		out += val;

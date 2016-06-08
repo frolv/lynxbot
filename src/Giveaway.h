@@ -1,8 +1,14 @@
 #pragma once
 
+#include <string>
+#include "config.h"
+
+class ConfigReader;
+
 class Giveaway {
 	public:
-		Giveaway(const std::string &channel, time_t initTime);
+		Giveaway(const std::string &channel, time_t initTime,
+				ConfigReader *cfgr);
 		~Giveaway();
 		bool init(time_t initTime, bool first);
 		bool active() const;
@@ -13,15 +19,16 @@ class Giveaway {
 		/* bool checkSubs(); */
 		bool checkConditions(time_t curr);
 		std::string giveaway();
-		uint16_t followers();
+		uint32_t followers();
 		time_t interval();
 		std::string currentSettings(int8_t type = -1);
 	private:
+		ConfigReader *m_cfgr;
 		bool m_active;
 		bool m_type[3] = { false, false, false };
 		const std::string m_channel;
 		uint8_t m_reason;
-		uint16_t m_followerLimit;
+		uint32_t m_followerLimit;
 		uint32_t m_currFollowers;
 		time_t m_lastRequest;
 		time_t m_interval;
@@ -35,7 +42,6 @@ class Giveaway {
 		bool readGiveaway();
 		void writeGiveaway() const;
 		void writeSettings() const;
-		bool parseBool(const std::string &s) const;
 		void updateTimes(time_t curr);
 		std::string getItem();
 };
