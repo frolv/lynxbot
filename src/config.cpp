@@ -225,6 +225,12 @@ std::string ConfigReader::path() const
 	return m_path;
 }
 
+std::unordered_map<std::string, std::vector<std::unordered_map<
+	std::string, std::string>>> &ConfigReader::olist()
+{
+	return m_olist;
+}
+
 std::string ConfigReader::parseString(const std::string &buf)
 {
 	std::string val = buf.substr(buf.find('=') + 1);

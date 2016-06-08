@@ -122,6 +122,14 @@ bool utils::readJSON(const std::string &filename, Json::Value &val)
 	return true;
 }
 
+void utils::writeJSON(const std::string &filename, Json::Value &val)
+{
+	std::ofstream ofile(configdir() + "/json/" + filename);
+	Json::StyledWriter sw;
+	ofile << sw.write(val);
+	ofile.close();
+}
+
 bool utils::parseBool(bool &b, const std::string &s, std::string &err)
 {
 	if (s == "true") {

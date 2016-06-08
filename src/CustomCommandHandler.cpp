@@ -65,7 +65,7 @@ bool CustomCommandHandler::addCom(const std::string &cmd,
 
 	m_commands["commands"].append(command);
 	m_tmp->add(cmd, cooldown);
-	writeToFile();
+	utils::writeJSON("customcmds.json", m_commands);
 	return true;
 }
 
@@ -84,7 +84,7 @@ bool CustomCommandHandler::delCom(const std::string &cmd)
 
 	m_commands["commands"].removeIndex(ind, &rem);
 	m_tmp->remove(cmd);
-	writeToFile();
+	utils::writeJSON("customcmds.json", m_commands);
 	return true;
 }
 
@@ -98,7 +98,7 @@ bool CustomCommandHandler::editCom(const std::string &cmd,
 		(*com)["response"] = newResp;
 	if (newcd != -1)
 		(*com)["cooldown"] = (Json::Int64)newcd;
-	writeToFile();
+	utils::writeJSON("customcmds.json", m_commands);
 	return true;
 }
 
@@ -119,13 +119,4 @@ bool CustomCommandHandler::validName(const std::string &cmd, bool loading)
 	 * it doesn't need to check against its stored commands */
 	return m_cmp->find(cmd) == m_cmp->end() && cmd != m_wheelCmd
 		&& cmd.length() < 20 && (loading ? true : getCom(cmd)->empty());
-}
-
-void CustomCommandHandler::writeToFile() const
-{
-	std::ofstream ccfile;
-	ccfile.open(utils::configdir() + "/json/customcmds.json");
-	Json::StyledWriter sw;
-	ccfile << sw.write(m_commands);
-	ccfile.close();
 }

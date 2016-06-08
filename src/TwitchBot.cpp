@@ -19,8 +19,8 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 	: m_connected(false), m_nick(nick), m_channelName(channel),
 	m_token(token), m_client(TWITCH_SERV, TWITCH_PORT),
 	m_cmdHandler(nick, channel.substr(1), token, &m_mod, &m_parser,
-			&m_eventManager, &m_giveaway, cfgr), m_cfgr(cfgr),
-	m_giveaway(channel.substr(1), time(nullptr), cfgr),
+			&m_event, &m_giveaway, cfgr), m_cfgr(cfgr),
+	m_event(cfgr), m_giveaway(channel.substr(1), time(nullptr), cfgr),
 	m_mod(&m_parser, cfgr)
 {
 	if ((m_connected = m_client.cconnect())) {
@@ -38,7 +38,7 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 		m_tick = std::thread(&TwitchBot::tick, this);
 
 		/* create giveaway checking event */
-		m_eventManager.add("checkgiveaway", 10, time(nullptr));
+		m_event.add("checkgiveaway", 10, time(nullptr));
 
 		/* read the subscriber message */
 		m_subMsg = m_cfgr->get("submessage");
@@ -247,18 +247,18 @@ void TwitchBot::tick()
 		/* check a set of variables every second and perform */
 		/* actions if certain conditions are met */
 		for (std::vector<std::string>::size_type i = 0;
-				i < m_eventManager.messages()->size(); ++i) {
-			if (m_eventManager.ready("msg" + std::to_string(i))) {
-				if (m_eventManager.messagesActive())
-					sendMsg(((*m_eventManager.messages())[i]).first);
-				m_eventManager.setUsed("msg" + std::to_string(i));
+				i < m_event.messages()->size(); ++i) {
+			if (m_event.ready("msg" + std::to_string(i))) {
+				if (m_event.messagesActive())
+					sendMsg(((*m_event.messages())[i]).first);
+				m_event.setUsed("msg" + std::to_string(i));
 				break;
 			}
 		}
-		if (m_giveaway.active() && m_eventManager.ready("checkgiveaway")) {
+		if (m_giveaway.active() && m_event.ready("checkgiveaway")) {
 			if (m_giveaway.checkConditions(time(nullptr)))
 				sendMsg(m_giveaway.giveaway());
-			m_eventManager.setUsed("checkgiveaway");
+			m_event.setUsed("checkgiveaway");
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}

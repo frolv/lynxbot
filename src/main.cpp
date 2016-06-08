@@ -57,18 +57,21 @@ int main(int argc, char **argv)
 
 	while ((c = getopt_long(argc, argv, "", long_opts, NULL)) != EOF) {
 		switch (c) {
-			case 'h':
-				printf("usage: lynxbot [CHANNEL]\n");
-				return 0;
-			case 'v':
-				printf("%s v%s\nCopyright (C) 2016 Alexei Frolov\n"
-						"This program is distributed as free "
-						"software\nunder the terms of the MIT "
-						"License.\n", BOT_NAME, BOT_VERSION);
-				return 0;
-			default:
-				fprintf(stderr, "usage: %s [CHANNEL]\n", argv[0]);
-				return 1;
+		case 'h':
+			printf("usage: lynxbot [CHANNEL]\n%s: A Twitch.tv IRC "
+					"bot for Old School Runescape\n"
+					"Documentation can be found at %s\n",
+					BOT_NAME, BOT_WEBSITE);
+			return 0;
+		case 'v':
+			printf("%s v%s\nCopyright (C) 2016 Alexei Frolov\n"
+					"This program is distributed as free "
+					"software\nunder the terms of the MIT "
+					"License.\n", BOT_NAME, BOT_VERSION);
+			return 0;
+		default:
+			fprintf(stderr, "usage: %s [CHANNEL]\n", argv[0]);
+			return 1;
 		}
 	}
 #endif

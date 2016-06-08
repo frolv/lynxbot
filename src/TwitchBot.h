@@ -42,7 +42,7 @@ class TwitchBot {
 		Client m_client;
 		CommandHandler m_cmdHandler;
 		ConfigReader *m_cfgr;
-		EventManager m_eventManager;
+		EventManager m_event;
 		Giveaway m_giveaway;
 		Moderator m_mod;
 		URLParser m_parser;

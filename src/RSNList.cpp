@@ -27,7 +27,7 @@ bool RSNList::add(const std::string &nick, const std::string &rsn,
 	user["rsn"] = rsn;
 	user["prev"] = prev;
 	m_rsns["rsns"].append(user);
-	writeFile();
+	utils::writeJSON("rsns.json", m_rsns);
 	return true;
 }
 
@@ -44,7 +44,7 @@ bool RSNList::edit(const std::string &nick, const std::string &rsn,
 	}
 	user["prev"].append(user["rsn"].asString());
 	user["rsn"] = rsn;
-	writeFile();
+	utils::writeJSON("rsns.json", m_rsns);
 	return true;
 }
 
@@ -63,7 +63,7 @@ bool RSNList::del(const std::string &nick)
 		return false;
 
 	m_rsns["rsns"].removeIndex(ind, &rem);
-	writeFile();
+	utils::writeJSON("rsns.json", m_rsns);
 	return true;
 }
 
@@ -146,14 +146,4 @@ bool RSNList::readFile()
 		}
 	}
 	return true;
-}
-
-/* write the contents of m_rsns to the rsns file */
-void RSNList::writeFile()
-{
-	std::ofstream ccfile;
-	ccfile.open(utils::configdir() + "/json/rsns.json");
-	Json::StyledWriter sw;
-	ccfile << sw.write(m_rsns);
-	ccfile.close();
 }

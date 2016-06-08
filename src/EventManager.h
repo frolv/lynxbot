@@ -2,14 +2,16 @@
 
 #include <string>
 #include <vector>
+#include "config.h"
 #include "TimerManager.h"
 
+class ConfigReader;
 class TimerManager;
 
 class EventManager : public TimerManager {
 
 	public:
-		EventManager();
+		EventManager(ConfigReader *cfgr);
 		~EventManager();
 		bool messagesActive();
 		void activateMessages();
@@ -20,6 +22,7 @@ class EventManager : public TimerManager {
 		std::string messageList() const;
 		std::vector<std::pair<std::string, time_t>> *messages();
 	private:
+		ConfigReader *m_cfgr;
 		bool m_msg;
 		std::vector<std::pair<std::string, time_t>> m_messages;
 		void readFile();

@@ -18,8 +18,10 @@ namespace utils {
 	std::string configdir();
 	/* returns relative path of the config file within config dir */
 	std::string config(const std::string &cfg);
-	/* reads a .json file and stores data in val */
+	/* reads a json file and stores data in val */
 	bool readJSON(const std::string &filename, Json::Value &val);
+	/* writes the contents of val to a file */
+	void writeJSON(const std::string &filename, Json::Value &val);
 	/* parses bool from string into b */
 	bool parseBool(bool &b, const std::string &s, std::string &err);
 	/* parses int from string into i */
