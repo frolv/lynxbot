@@ -391,7 +391,8 @@
     },
     {
       "id": 225,
-      "name": "Limpwurt root"
+      "name": "Limpwurt root",
+      "nick": ["Limpwurt"]
     },
     {
       "id": 227,
@@ -695,35 +696,43 @@
     },
     {
       "id": 436,
-      "name": "Copper ore"
+      "name": "Copper ore",
+      "nick": ["Copper"]
     },
     {
       "id": 438,
-      "name": "Tin ore"
+      "name": "Tin ore",
+      "nick": ["Tin"]
     },
     {
       "id": 440,
-      "name": "Iron ore"
+      "name": "Iron ore",
+      "nick": ["Iron"]
     },
     {
       "id": 442,
-      "name": "Silver ore"
+      "name": "Silver ore",
+      "nick": ["Silver"]
     },
     {
       "id": 444,
-      "name": "Gold ore"
+      "name": "Gold ore",
+      "nick": ["Gold"]
     },
     {
       "id": 447,
-      "name": "Mithril ore"
+      "name": "Mithril ore",
+      "nick": ["Mithril", "Mith ore"]
     },
     {
       "id": 449,
-      "name": "Adamantite ore"
+      "name": "Adamantite ore",
+      "nick": ["Adamantite", "Addy ore"]
     },
     {
       "id": 451,
-      "name": "Runite ore"
+      "name": "Runite ore",
+      "nick": ["Runite", "Rune ore"]
     },
     {
       "id": 453,
@@ -1057,27 +1066,33 @@
     },
     {
       "id": 819,
-      "name": "Bronze dart tip"
+      "name": "Bronze dart tip",
+      "nick": ["Bronze tips"]
     },
     {
       "id": 820,
-      "name": "Iron dart tip"
+      "name": "Iron dart tip",
+      "nick": ["Iron tips"]
     },
     {
       "id": 821,
-      "name": "Steel dart tip"
+      "name": "Steel dart tip",
+      "nick": ["Steel tips"]
     },
     {
       "id": 822,
-      "name": "Mithril dart tip"
+      "name": "Mithril dart tip",
+      "nick": ["Mith tips"]
     },
     {
       "id": 823,
-      "name": "Adamant dart tip"
+      "name": "Adamant dart tip",
+      "nick": ["Addy tips"]
     },
     {
       "id": 824,
-      "name": "Rune dart tip"
+      "name": "Rune dart tip",
+      "nick": ["Rune tips"]
     },
     {
       "id": 825,
@@ -1165,19 +1180,23 @@
     },
     {
       "id": 855,
-      "name": "Yew longbow"
+      "name": "Yew longbow",
+      "nick": ["Yew long"]
     },
     {
       "id": 857,
-      "name": "Yew shortbow"
+      "name": "Yew shortbow",
+      "nick": ["Yew short"]
     },
     {
       "id": 859,
-      "name": "Magic longbow"
+      "name": "Magic longbow",
+      "nick": ["Magic long", "Mage long"]
     },
     {
       "id": 861,
-      "name": "Magic shortbow"
+      "name": "Magic shortbow",
+      "nick": ["Magic short", "Mage short", "Msb"]
     },
     {
       "id": 863,
@@ -1357,11 +1376,13 @@
     },
     {
       "id": 985,
-      "name": "Tooth half of key"
+      "name": "Tooth half of key",
+      "nick": ["Tooth half"]
     },
     {
       "id": 987,
-      "name": "Loop half of key"
+      "name": "Loop half of key",
+      "nick": ["Loop half"]
     },
     {
       "id": 989,
@@ -1441,31 +1462,38 @@
     },
     {
       "id": 1038,
-      "name": "Red partyhat"
+      "name": "Red partyhat",
+      "nick": ["Red phat"]
     },
     {
       "id": 1040,
-      "name": "Yellow partyhat"
+      "name": "Yellow partyhat",
+      "nick": ["Yellow phat"]
     },
     {
       "id": 1042,
-      "name": "Blue partyhat"
+      "name": "Blue partyhat",
+      "nick": ["Blue phat"]
     },
     {
       "id": 1044,
-      "name": "Green partyhat"
+      "name": "Green partyhat",
+      "nick": ["Green phat"]
     },
     {
       "id": 1046,
-      "name": "Purple partyhat"
+      "name": "Purple partyhat",
+      "nick": ["Purple phat"]
     },
     {
       "id": 1048,
-      "name": "White partyhat"
+      "name": "White partyhat",
+      "nick": ["White phat"]
     },
     {
       "id": 1050,
-      "name": "Santa hat"
+      "name": "Santa hat",
+      "nick": ["Santa"]
     },
     {
       "id": 1053,
@@ -1661,7 +1689,8 @@
     },
     {
       "id": 1149,
-      "name": "Dragon med helm"
+      "name": "Dragon med helm",
+      "nick": ["D med"]
     },
     {
       "id": 1151,
@@ -1737,7 +1766,8 @@
     },
     {
       "id": 1187,
-      "name": "Dragon sq shield"
+      "name": "Dragon sq shield",
+      "nick": ["D square", "D sq"]
     },
     {
       "id": 1189,
@@ -1857,7 +1887,8 @@
     },
     {
       "id": 1249,
-      "name": "Dragon spear"
+      "name": "Dragon spear",
+      "nick": ["D spear"]
     },
     {
       "id": 1251,
@@ -1969,7 +2000,8 @@
     },
     {
       "id": 1305,
-      "name": "Dragon longsword"
+      "name": "Dragon longsword",
+      "nick": ["D long"]
     },
     {
       "id": 1307,
@@ -2113,7 +2145,8 @@
     },
     {
       "id": 1377,
-      "name": "Dragon battleaxe"
+      "name": "Dragon battleaxe",
+      "nick": ["D battleaxe", "Dba"]
     },
     {
       "id": 1379,
@@ -2141,7 +2174,8 @@
     },
     {
       "id": 1391,
-      "name": "Battlestaff"
+      "name": "Battlestaff",
+      "nick": ["B staff", "Bstaff"]
     },
     {
       "id": 1393,
@@ -2205,7 +2239,8 @@
     },
     {
       "id": 1434,
-      "name": "Dragon mace"
+      "name": "Dragon mace",
+      "nick": ["D mace"]
     },
     {
       "id": 1436,
@@ -2277,27 +2312,33 @@
     },
     {
       "id": 1511,
-      "name": "Logs"
+      "name": "Logs",
+      "nick": ["Log"]
     },
     {
       "id": 1513,
-      "name": "Magic logs"
+      "name": "Magic logs",
+      "nick": ["Magic log"]
     },
     {
       "id": 1515,
-      "name": "Yew logs"
+      "name": "Yew logs",
+      "nick": ["Yew log"]
     },
     {
       "id": 1517,
-      "name": "Maple logs"
+      "name": "Maple logs",
+      "nick": ["Maple log"]
     },
     {
       "id": 1519,
-      "name": "Willow logs"
+      "name": "Willow logs",
+      "nick": ["Willow log"]
     },
     {
       "id": 1521,
-      "name": "Oak logs"
+      "name": "Oak logs",
+      "nick": ["Oak log"]
     },
     {
       "id": 1523,
@@ -2501,7 +2542,8 @@
     },
     {
       "id": 1704,
-      "name": "Amulet of glory"
+      "name": "Amulet of glory",
+      "nick": ["Uncharged glory"]
     },
     {
       "id": 1712,
@@ -2582,19 +2624,23 @@
     },
     {
       "id": 1747,
-      "name": "Black dragonhide"
+      "name": "Black dragonhide",
+      "nick": ["Black d\u0027hide", "Black dhide", "Black hide"]
     },
     {
       "id": 1749,
-      "name": "Red dragonhide"
+      "name": "Red dragonhide",
+      "nick": ["Red d\u0027hide", "Red dhide", "Red hide"]
     },
     {
       "id": 1751,
-      "name": "Blue dragonhide"
+      "name": "Blue dragonhide",
+      "nick": ["Blue d\u0027hide", "Blue dhide", "Blue hide"]
     },
     {
       "id": 1753,
-      "name": "Green dragonhide"
+      "name": "Green dragonhide",
+      "nick": ["Green d\u0027hide", "Green dhide", "Green hide"]
     },
     {
       "id": 1755,
@@ -3350,15 +3396,18 @@
     },
     {
       "id": 2359,
-      "name": "Mithril bar"
+      "name": "Mithril bar",
+      "nick": ["Mith bar"]
     },
     {
       "id": 2361,
-      "name": "Adamantite bar"
+      "name": "Adamantite bar",
+      "nick": ["Addy bar"]
     },
     {
       "id": 2363,
-      "name": "Runite bar"
+      "name": "Runite bar",
+      "nick": ["Rune bar"]
     },
     {
       "id": 2366,
@@ -3429,7 +3478,8 @@
     },
     {
       "id": 2452,
-      "name": "Antifire potion(4)"
+      "name": "Antifire potion(4)",
+      "nick": ["Antifire"]
     },
     {
       "id": 2454,
@@ -4757,7 +4807,7 @@
     {
       "id": 4151,
       "name": "Abyssal whip",
-      "nick": ["Whip"]
+      "nick": ["Whip", "Abby whip"]
     },
     {
       "id": 4153,
@@ -5666,11 +5716,13 @@
     },
     {
       "id": 5289,
-      "name": "Palm tree seed"
+      "name": "Palm tree seed",
+      "nick": ["Palm seed"]
     },
     {
       "id": 5290,
-      "name": "Calquat tree seed"
+      "name": "Calquat tree seed",
+      "nick": ["Calquat seed"]
     },
     {
       "id": 5291,
@@ -7302,7 +7354,8 @@
     },
     {
       "id": 6729,
-      "name": "Dagannoth bones"
+      "name": "Dagannoth bones",
+      "nick": ["Dag bones", "Dagg bones"]
     },
     {
       "id": 6731,
@@ -7322,7 +7375,8 @@
     },
     {
       "id": 6739,
-      "name": "Dragon axe"
+      "name": "Dragon axe",
+      "nick": ["D axe"]
     },
     {
       "id": 6750,
@@ -7989,7 +8043,7 @@
     {
       "id": 8013,
       "name": "Teleport to house",
-      "nick": ["House tab"]
+      "nick": ["House tab", "House tele"]
     },
     {
       "id": 8014,
@@ -10164,11 +10218,13 @@
     },
     {
       "id": 11284,
-      "name": "Dragonfire shield"
+      "name": "Dragonfire shield",
+      "nick": ["Dfs"]
     },
     {
       "id": 11286,
-      "name": "Draconic visage"
+      "name": "Draconic visage",
+      "nick": ["Visage"]
     },
     {
       "id": 11324,
@@ -10196,7 +10252,8 @@
     },
     {
       "id": 11335,
-      "name": "Dragon full helm"
+      "name": "Dragon full helm",
+      "nick": ["Dfh"]
     },
     {
       "id": 11367,
@@ -11840,7 +11897,8 @@
     },
     {
       "id": 12938,
-      "name": "Zul-andra teleport"
+      "name": "Zul-andra teleport",
+      "nick": ["Zulrah tele"]
     },
     {
       "id": 12960,
@@ -12125,11 +12183,11 @@
     },
     {
       "id": 13229,
-      "name": "Pegasian boots"
+      "name": "Pegasian crystal"
     },
     {
       "id": 13231,
-      "name": "Primordial boots"
+      "name": "Primordial crystal"
     },
     {
       "id": 13233,
@@ -12335,6 +12393,211 @@
     {
       "id": 13657,
       "name": "Grape seed"
+    },
+    {
+      "id": 19478,
+      "name": "Light ballista"
+    },
+    {
+      "id": 19481,
+      "name": "Heavy ballista"
+    },
+    {
+      "id": 19484,
+      "name": "Dragon javelin"
+    },
+    {
+      "id": 19486,
+      "name": "Dragon javelin(p)"
+    },
+    {
+      "id": 19488,
+      "name": "Dragon javelin(p+)"
+    },
+    {
+      "id": 19490,
+      "name": "Dragon javelin(p++)"
+    },
+    {
+      "id": 19493,
+      "name": "Zenyte"
+    },
+    {
+      "id": 19496,
+      "name": "Uncut zenyte"
+    },
+    {
+      "id": 19501,
+      "name": "Zenyte amulet (u)"
+    },
+    {
+      "id": 19529,
+      "name": "Zenyte shard"
+    },
+    {
+      "id": 19532,
+      "name": "Zenyte bracelet"
+    },
+    {
+      "id": 19535,
+      "name": "Zenyte necklace"
+    },
+    {
+      "id": 19538,
+      "name": "Zenyte ring"
+    },
+    {
+      "id": 19541,
+      "name": "Zenyte amulet"
+    },
+    {
+      "id": 19544,
+      "name": "Tormented bracelet"
+    },
+    {
+      "id": 19547,
+      "name": "Necklace of anguish"
+    },
+    {
+      "id": 19550,
+      "name": "Ring of suffering"
+    },
+    {
+      "id": 19553,
+      "name": "Amulet of torture"
+    },
+    {
+      "id": 19570,
+      "name": "Bronze javelin heads"
+    },
+    {
+      "id": 19572,
+      "name": "Iron javelin heads"
+    },
+    {
+      "id": 19574,
+      "name": "Steel javelin heads"
+    },
+    {
+      "id": 19576,
+      "name": "Mithril javelin heads"
+    },
+    {
+      "id": 19578,
+      "name": "Adamant javelin heads"
+    },
+    {
+      "id": 19580,
+      "name": "Rune javelin heads"
+    },
+    {
+      "id": 19582,
+      "name": "Dragon javelin heads"
+    },
+    {
+      "id": 19584,
+      "name": "Javelin shaft"
+    },
+    {
+      "id": 19586,
+      "name": "Light frame"
+    },
+    {
+      "id": 19589,
+      "name": "Heavy frame"
+    },
+    {
+      "id": 19592,
+      "name": "Ballista limbs"
+    },
+    {
+      "id": 19595,
+      "name": "Incomplete light ballista"
+    },
+    {
+      "id": 19598,
+      "name": "Incomplete heavy ballista"
+    },
+    {
+      "id": 19601,
+      "name": "Ballista spring"
+    },
+    {
+      "id": 19604,
+      "name": "Unstrung light ballista"
+    },
+    {
+      "id": 19607,
+      "name": "Unstrung heavy ballista"
+    },
+    {
+      "id": 19610,
+      "name": "Monkey tail"
+    },
+    {
+      "id": 19613,
+      "name": "Lumbridge graveyard teleport"
+    },
+    {
+      "id": 19615,
+      "name": "Draynor manor teleport"
+    },
+    {
+      "id": 19617,
+      "name": "Mind altar teleport"
+    },
+    {
+      "id": 19619,
+      "name": "Salve graveyard teleport"
+    },
+    {
+      "id": 19621,
+      "name": "Fenkenstrain\u0027s castle teleport"
+    },
+    {
+      "id": 19623,
+      "name": "West ardougne teleport"
+    },
+    {
+      "id": 19625,
+      "name": "Harmony island teleport"
+    },
+    {
+      "id": 19627,
+      "name": "Cemetary teleport"
+    },
+    {
+      "id": 19629,
+      "name": "Barrows teleport"
+    },
+    {
+      "id": 19631,
+      "name": "Ape atoll teleport"
+    },
+    {
+      "id": 19653,
+      "name": "Golovanova fruit top"
+    },
+    {
+      "id": 19656,
+      "name": "Uncooked botanical pie"
+    },
+    {
+      "id": 19662,
+      "name": "Botanical pie"
+    },
+    {
+      "id": 19665,
+      "name": "Damaged monkey tail"
+    },
+    {
+      "id": 19669,
+      "name": "Redwood logs",
+      "nick": ["Redwood log"]
+    },
+    {
+      "id": 19672,
+      "name": "Redwood pyre logs"
     }
   ]
 }
