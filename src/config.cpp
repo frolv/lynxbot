@@ -65,7 +65,7 @@ bool ConfigReader::read()
 	int8_t open;
 
 	nsettings = sizeof(settings) / sizeof(settings[0]);
-	nline = open = set = 0;
+	nline = set = open = 0;
 	while (std::getline(reader, line)) {
 		++nline;
 		/* remove commented sections of lines */
@@ -165,7 +165,7 @@ void ConfigReader::write()
 
 	nsettings = sizeof(settings) / sizeof(settings[0]);
 	t = time(nullptr);
-	tm = *std::localtime(&t);
+	localtime_s(&tm, &t);
 	std::ofstream writer(m_path);
 
 	/* header */
