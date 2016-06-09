@@ -1224,4 +1224,16 @@ void CommandHandler::populateHelp()
 	m_help["wheel"] = "selection-wheel";
 	m_help["lvl"] = "level";
 	m_help["sp"] = "strawpoll";
+	m_help["responses"] = "automated-responses";
+	m_help["custom"] = "custom-commands";
+	m_help["giveaways"] = "giveaways";
+	m_help["moderation"] = "moderation";
+	m_help["recurring"] = "recurring-messages";
+	m_help["rsns"] = "rsn-management";
+	m_help["submessage"] = "subscriber-message";
+	m_help["tweet"] = "tweet-reader";
+	m_help["twitter"] = "tweet-reader";
+	m_help["twitch"] = "twitch-authorization";
+	m_help["auth"] = "twitch-authorization";
+	m_help["authorization"] = "twitch-authorization";
 }
