@@ -165,7 +165,12 @@ void ConfigReader::write()
 
 	nsettings = sizeof(settings) / sizeof(settings[0]);
 	t = time(nullptr);
+#ifdef __linux__
+	tm = *localtime(&t);
+#endif
+#ifdef _WIN32
 	localtime_s(&tm, &t);
+#endif
 	std::ofstream writer(m_path);
 
 	/* header */
