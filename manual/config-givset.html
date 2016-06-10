@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>permit(2) - LynxBot</title>
+    <title>giveaway-settings(4) - LynxBot</title>
   </head>
 
   <body>
@@ -32,30 +32,42 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>permit(2) - LynxBot manual</h2>
-
-        <h3>NAME</h3>
-        <p>permit - grant user permission to post a url</p>
-
-        <h3>SYNOPSIS</h3>
-        <pre><code>$permit NICK</code></pre>
+        <h2>giveaway-settings(4) - LynxBot manual</h2>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>permit</strong> grants a user permission to post a single
-        URL in the chat without being timed out. The permission expires after
-        the user has posted a URL that is not on the bot's whitelist.</p>
+        <p>The <strong>Giveaway settings</strong> section of the LynxBot
+        <strong>config</strong> file contains all the settings that govern
+        bot giveaways.</p>
 
-        <p><strong>NICK</strong> is the Twitch username of the user being
-        permitted.</p>
+        <h3>SETTINGS</h3>
+        <p>The settings within the <strong>Giveaway settings</strong>
+        section are as follows:</p>
 
-        <h3>EXAMPLES</h3>
-        <p>Permits the user 00rsn to post a link:</p>
-        <pre><code>$permit 00rsn</code></pre>
+        <dl compact="">
+          <dt><b>giveaway_active</b></dt>
+          <dd><p>Whether giveaways are active or inactive.</p></dd>
+          <dt><b>follower_giveaway</b></dt>
+          <dd><p>Whether follower giveaways should occur.</p></dd>
+          <dt><b>follower_limit</b></dt>
+          <dd><p>The number of followers required for a follower giveaway to
+          occur.</p></dd>
+          <dt><b>timed_giveaway</b></dt>
+          <dd><p>Whether time based giveaways should occur.</p></dd>
+          <dt><b>time_interval</b></dt>
+          <dd><p>The average period, in minutes, at which timed giveaways
+          occur.</p></dd>
+
+        </dl>
 
         <h3>SEE ALSO</h3>
-        <p><a href="whitelist.html">whitelist(2)</a>,
-        <a href="moderation.html">Moderation(3)</a>,
+        <p><a href="setgiv.html">setgiv(2)</a>,
+        <a href="giveaways.html">Giveaways(3)</a>,
         <a href="config.html">config(4)</a>,
+        <a href="config-general.html">general-settings(4)</a>,
+        <a href="giveaway.html">giveaway(4)</a>,
+        <a href="config-mod.html">moderation(4)</a>,
+        <a href="config-other.html">other-settings(4)</a>,
+        <a href="config-rec.html">recurring(4)</a>,
         <a href="config-wl.html">whitelist(4)</a></p>
 
       </section>
