@@ -48,23 +48,23 @@
         <ol>
           <li>
             <p>Message length</p>
-            <p>Messages must be shorter than <strong>MAX_MESSAGE_LEN</strong>
+            <p>Messages must be shorter than <strong>max_message_len</strong>
             characters (default: 300).</p>
           </li>
           <li>
             <p>Repeated patterns (e.g. word spam)</p>
             <p>A pattern in a message cannot be repeated more than
-            <strong>MAX_PATTERN</strong> times (default: 6).</p>
+            <strong>max_pattern</strong> times (default: 6).</p>
           </li>
           <li>
             <p>Repeated characters</p>
             <p>A single character cannot be repeated more than
-            <strong>MAX_CHAR</strong> times (default: 15).</p>
+            <strong>max_char</strong> times (default: 15).</p>
           </li>
           <li>
             <p>Capital letters</p>
-            <p>Messages longer than <strong>CAP_LEN</strong> characters cannot
-            consist of over <strong>CAP_RATIO%</strong> capital
+            <p>Messages longer than <strong>cap_len</strong> characters cannot
+            consist of over <strong>cap_ratio%</strong> capital
             letters (default: 30, 80%).</p>
           </li>
           <li>
@@ -86,8 +86,8 @@
         <h3>SEE ALSO</h3>
         <p><a href="permit.html">permit(2)</a>,
         <a href="whitelist.html">whitelist(2)</a>,
-        <a href="config-mod.html">moderation(4)</a>,
         <a href="config.html">config(4)</a>,
+        <a href="config-mod.html">moderation(4)</a>,
         <a href="config-wl.html">whitelist(4)</a></p>
 
       </section>
