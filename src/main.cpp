@@ -21,7 +21,7 @@ static const char *AUTH_URL = "https://api.twitch.tv/kraken/oauth2/"
 "scope=channel_editor+channel_subscriptions";
 
 const char *BOT_NAME = "LynxBot";
-const char *BOT_VERSION = "1.2.2";
+const char *BOT_VERSION = "1.3.0";
 const char *BOT_WEBSITE = "https://frolv.github.io/lynxbot";
 
 struct botset {
