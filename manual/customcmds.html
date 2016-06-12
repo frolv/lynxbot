@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="LynxBot : A Twitch.tv IRC bot for Old School Runescape">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
+
+    <title>customcmds.json(4) - LynxBot</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+      <header class="inner">
+        <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
+
+        <h1 id="project_title"><a class="title-link" href="../index.html">LynxBot</a></h1>
+        <h2 id="project_tagline">A Twitch.tv IRC bot for Old School Runescape</h2>
+
+        <section id="downloads">
+          <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
+          <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
+        </section>
+      </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h2>customcmds.json(4)<br>- LynxBot manual</h2>
+
+        <h3>DESCRIPTION</h3>
+        <p><strong>customcmds.json</strong> is the file in which LynxBot stores
+        the user's custom bot commands.</p>
+
+        <p>Each individual custom command is an object within the array named
+        <strong>commands</strong>.</p>
+
+        <h3>SYNOPSIS</h3>
+        <p>The format of each custom command object is as follows:</p>
+
+        <div class="highlight highlight-source-json"><pre>{
+        <span class="pl-s"><span class="pl-pds">"</span>cmd<span class="pl-pds">"</span></span> : <span class="pl-s"><span class="pl-pds">"</span>command<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>cooldown<span class="pl-pds">"</span></span> : <span class="pl-c1">30</span>,
+        <span class="pl-s"><span class="pl-pds">"</span>response<span class="pl-pds">"</span></span> : <span class="pl-s"><span class="pl-pds">"</span>response<span class="pl-pds">"</span></span>
+}</pre></div>
+
+        <dl compact="">
+          <dt><b>cmd</b></dt>
+          <dd><p>The keyword that activates the command.</p></dd>
+          <dt><b>cooldown</b></dt>
+          <dd><p>The cooldown, in seconds, of the command.</p></dd>
+          <dt><b>response</b></dt>
+          <dd><p>The string to post when the command is used.</p></dd>
+        </dl>
+
+        <h3>SEE ALSO</h3>
+        <p><a href="addcom.html">addcom(2)</a>,
+        <a href="delcom.html">delcom(2)</a>,
+        <a href="editcom.html">editcom(2)</a>,
+        <a href="custom-commands.html">Custom Commands(3)</a></p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LynxBot maintained by <a href="https://github.com/frolv">frolv</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="LynxBot : A Twitch.tv IRC bot for Old School Runescape">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
+
+    <title>itemids.json(4) - LynxBot</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+      <header class="inner">
+        <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
+
+        <h1 id="project_title"><a class="title-link" href="../index.html">LynxBot</a></h1>
+        <h2 id="project_tagline">A Twitch.tv IRC bot for Old School Runescape</h2>
+
+        <section id="downloads">
+          <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
+          <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
+        </section>
+      </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h2>itemids.json(4) - LynxBot manual</h2>
+
+        <h3>DESCRIPTION</h3>
+        <p><strong>itemids.json</strong> is the file which stores the names, IDs
+        and nicknames of Oldschool Runescape items.</p>
+
+        <p>This is required for the <strong>ge</strong> command to function.</p>
+
+        <p>Each item is an object within the <strong>items</strong> array.</p>
+
+        <h3>SYNOPSIS</h3>
+        <p>The format of each item object is as follows:</p>
+
+        <div class="highlight highlight-source-json"><pre>{
+        <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span> : <span class="pl-c1">2</span>,
+        <span class="pl-s"><span class="pl-pds">"</span>name<span class="pl-pds">"</span></span> : <span class="pl-s"><span class="pl-pds">"</span>Cannonball<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>nick<span class="pl-pds">"</span></span> : [<span class="pl-s"><span class="pl-pds">"</span>C balls<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Cballs<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Cannonballs<span class="pl-pds">"</span></span>]
+}</pre></div>
+
+        <dl compact="">
+          <dt><b>id</b></dt>
+          <dd><p>The ID of the item.</p></dd>
+          <dt><b>name</b></dt>
+          <dd><p>The full name of the item.</p></dd>
+          <dt><b>nick</b></dt>
+          <dd><p>An array of strings, each representing a nickname for the
+          item.</p><p>The nicknames must be in Runescape item format, i.e.
+          first letter capitalized and the rest in lowercase.</p></dd>
+        </dl>
+
+        <h3>SEE ALSO</h3>
+        <p><a href="ge.html">ge(1)</a></p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LynxBot maintained by <a href="https://github.com/frolv">frolv</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+  </body>
+</html>
