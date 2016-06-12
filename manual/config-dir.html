@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>config(4) - LynxBot</title>
+    <title>configdir(4) - LynxBot</title>
   </head>
 
   <body>
@@ -32,40 +32,22 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>config(4) - LynxBot manual</h2>
+        <h2>configdir(4) - LynxBot manual</h2>
 
         <h3>DESCRIPTION</h3>
-        <p>Most of LynxBot's configuration is done within the
-        <strong>config</strong> file found in the LynxBot config directory.</p>
+        <p>The LynxBot <strong>configdir</strong> is the directory
+        which stores all of LynxBot's configuration files.</p>
 
-        <p>Settings in the <strong>config</strong> file are given as key-value
-        pairs separated by a <strong>=</strong>, with one setting per line.</p>
+        <p>It contains the subdirectory <strong>json</strong> which stores all
+        the json files.</p>
 
-        <p>Lines beginning with a <strong>#</strong> are comments which are
-        ignored by the parser.</p>
-
-        <h3>SECTIONS</h3>
-        <p>There are 6 sections within the <strong>config</strong> file. Click
-        one below for detailed information about the settings within that
-        section:</p>
-
-        <ol>
-          <li><a href="config-general.html">General settings</a></li>
-          <li><a href="config-mod.html">Moderation settings</a></li>
-          <li><a href="config-wl.html">Whitelisted websites</a></li>
-          <li><a href="config-givset.html">Giveaway settings</a></li>
-          <li><a href="config-rec.html">Recurring messages</a></li>
-          <li><a href="config-other.html">Other settings</a></li>
-        </ol>
+        <h3>LOCATION</h3>
+        <p>On Linux: <strong>~/.lynxbot/</strong></p>
+        <p>On Windows: <strong>%LYNXBOT_INSTALL_DIR%</strong></p>
 
         <h3>SEE ALSO</h3>
-        <p><a href="config-dir.html">configdir(4)</a>,
-        <a href="config-general.html">general-settings(4)</a>,
-        <a href="config-givset.html">giveaway-settings(4)</a>,
-        <a href="config-mod.html">moderation(4)</a>,
-        <a href="config-other.html">other-settings(4)</a>,
-        <a href="config-rec.html">recurring(4)</a>,
-        <a href="config-wl.html">whitelist(4)</a></p>
+        <p><a href="config.html">config(4)</a>,
+        <a href="giveaway.html">giveaway(4)</a></p>
 
       </section>
     </div>
