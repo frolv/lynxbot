@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="LynxBot : A Twitch.tv IRC bot for Old School Runescape">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
+
+    <title>wheel.json(4) - LynxBot</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+      <header class="inner">
+        <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
+
+        <h1 id="project_title"><a class="title-link" href="../index.html">LynxBot</a></h1>
+        <h2 id="project_tagline">A Twitch.tv IRC bot for Old School Runescape</h2>
+
+        <section id="downloads">
+          <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
+          <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
+        </section>
+      </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h2>wheel.json(4) - LynxBot manual</h2>
+
+        <h3>DESCRIPTION</h3>
+        <p><strong>wheel.json</strong> is the file which contains the
+        implementation of the selection wheel.</p>
+
+        <h3>SYNOPSIS</h3>
+        <p>The format of <strong>wheel.json</strong> is as follows:</p>
+
+        <div class="highlight highlight-source-json"><pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>wheelactive<span class="pl-pds">"</span></span>: <span class="pl-c1">true</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>wheelname<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Selection Wheel<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>wheelcmd<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>swheel<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>wheeldesc<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Selects items at random from various categories.<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>wheelusage<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>Use <span class="pl-cce">\"</span>$swheel<span class="pl-cce">\"</span> followed by the name of a category, or <span class="pl-cce">\"</span>$swheel check<span class="pl-cce">\"</span>.<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>wheelcooldown<span class="pl-pds">"</span></span>: <span class="pl-c1">20</span>,
+    <span class="pl-s"><span class="pl-pds">"</span>categories<span class="pl-pds">"</span></span>: {
+        <span class="pl-s"><span class="pl-pds">"</span>letter<span class="pl-pds">"</span></span>: [
+            <span class="pl-s"><span class="pl-pds">"</span>a<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>b<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>c<span class="pl-pds">"</span></span>
+        ],
+        <span class="pl-s"><span class="pl-pds">"</span>number<span class="pl-pds">"</span></span>: [
+            <span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>2<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>3<span class="pl-pds">"</span></span>
+        ]
+    }
+}</pre></div>
+
+          <dl compact="">
+            <dt><b>wheelactive</b></dt>
+            <dd><p>Whether the Selection Wheel is active.</p></dd>
+            <dt><b>wheelname</b></dt>
+            <dd><p>The full name of the wheel.</p></dd>
+            <dt><b>wheelcmd</b></dt>
+            <dd><p>The command keyword to use the wheel.</p></dd>
+            <dt><b>wheeldesc</b></dt>
+            <dd><p>The description of the wheel.</p></dd>
+            <dt><b>wheelusage</b></dt>
+            <dd><p>A message describing how to use the wheel (typically
+            containing the names of each available category).</p></dd>
+            <dt><b>wheelcooldown</b></dt>
+            <dd><p>The cooldown of the wheel.</p></dd>
+            <dt><b>categories</b></dt>
+            <dd><p>An object which contains arrays of strings.</p><p>Each array
+            represents a wheel category and each string in the array is an item
+            within that category.</p><p>The name of each array is what the user
+            would specify in the wheel command.</p></dd>
+          </dl>
+
+          <h3>SEE ALSO</h3>
+          <p><a href="selection-wheel.html">Selection Wheel(3)</a></p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LynxBot maintained by <a href="https://github.com/frolv">frolv</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+  </body>
+</html>
