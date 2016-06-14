@@ -12,6 +12,7 @@
 #include "Giveaway.h"
 #include "RSNList.h"
 #include "config.h"
+#include "permissions.h"
 
 class Moderator;
 class CustomCommandHandler;
@@ -30,7 +31,7 @@ class CommandHandler {
 			std::string nick;
 			std::string cmd;
 			std::string fullCmd;
-			bool privileges;
+			perm_t privileges;
 		};
 		typedef std::unordered_map<std::string,
 			std::string(CommandHandler::*)(CommandHandler::cmdinfo *)> commandMap;
@@ -40,7 +41,7 @@ class CommandHandler {
 				Giveaway *givp, ConfigReader *cfgr);
 		~CommandHandler();
 		std::string processCommand(const std::string &nick,
-				const std::string &fullCmd, bool privileges);
+				const std::string &fullCmd, perm_t p);
 		std::string processResponse(const std::string &message);
 		bool isCounting() const;
 		void count(const std::string &nick, const std::string &message);

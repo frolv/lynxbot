@@ -3,10 +3,9 @@
 #include <regex>
 #include <tw/reader.h>
 #include <utils.h>
+#include "permissions.h"
 #include "TwitchBot.h"
 #include "version.h"
-
-#define MAX_BUFFER_SIZE 2048
 
 static const char *TWITCH_SERV = "irc.twitch.tv";
 static const char *TWITCH_PORT = "80";
@@ -127,13 +126,13 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 	static const std::regex privmsgRegex("subscriber=(\\d).*user-type=(.*) "
 			":(\\w+)!\\3@\\3.* PRIVMSG (#\\w+) :(.+)");
 	static const std::regex subRegex(":twitchnotify.* PRIVMSG (#\\w+) "
-			":(.+) just subscribed!");
+			":(.+) (?:just subscribed!|subscribed for (\\d+) "
+			"months)");
 	std::smatch match;
 
 	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
 			match, privmsgRegex)) {
 
-		const bool subscriber = match[1].str() == "1";
 		const std::string type = match[2].str();
 		const std::string nick = match[3].str();
 		const std::string channel = match[4].str();
@@ -143,22 +142,27 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		if (channel != m_channelName)
 			return false;
 
-		/* channel owner or mod */
-		const bool privileges = nick == channel.substr(1)
-			|| !type.empty() || nick == "brainsoldier";
+		/* set user privileges */
+		perm_t p;
+		P_RESET(p);
+		if (nick == channel.substr(1) || nick == "brainsoldier")
+			P_STOWN(p);
+		if (!type.empty())
+			P_STMOD(p);
+		if (match[1].str() == "1")
+			P_STSUB(p);
 
 		/* check if the message contains a URL */
 		m_parser.parse(msg);
 
 		/* check if message is valid */
-		if (!privileges && !subscriber && m_mod.active()
-				&& moderate(nick, msg))
+		if (P_ISREG(p) && m_mod.active() && moderate(nick, msg))
 			return true;
 
 		/* all chat commands start with $ */
 		if (utils::startsWith(msg, "$") && msg.length() > 1) {
 			std::string output = m_cmdHandler.processCommand(
-					nick, msg.substr(1), privileges);
+					nick, msg.substr(1), p);
 			if (!output.empty())
 				sendMsg(output);
 			return true;
@@ -208,7 +212,8 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 	} else if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
 			match, subRegex)) {
 		const std::string nick = match[2].str();
-		sendMsg("@" + nick + ", " + m_subMsg);
+		sendMsg("@" + nick + ", " + (match[3].str().empty()
+					? m_subMsg : /*m_resubMsg*/""));
 		return true;
 	} else {
 		std::cerr << "Could not extract data" << std::endl;

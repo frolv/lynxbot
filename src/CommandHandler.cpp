@@ -97,7 +97,7 @@ CommandHandler::~CommandHandler()
 }
 
 std::string CommandHandler::processCommand(const std::string &nick,
-	const std::string &fullCmd, bool privileges)
+	const std::string &fullCmd, perm_t p)
 {
 	std::string output = "";
 
@@ -108,14 +108,14 @@ std::string CommandHandler::processCommand(const std::string &nick,
 	c.nick = nick;
 	c.cmd = cmd;
 	c.fullCmd = fullCmd;
-	c.privileges = privileges;
+	c.privileges = p;
 
 	/* custom command */
 	Json::Value *ccmd;
 
 	switch (source(cmd)) {
 	case DEFAULT:
-		if (privileges || m_cooldowns.ready(cmd)) {
+		if (P_ALSUB(p) || m_cooldowns.ready(cmd)) {
 			output += (this->*m_defaultCmds[cmd])(&c);
 			m_cooldowns.setUsed(cmd);
 		} else {
@@ -125,7 +125,7 @@ std::string CommandHandler::processCommand(const std::string &nick,
 		break;
 	case CUSTOM:
 		ccmd = m_customCmds->getCom(cmd);
-		if (privileges || m_cooldowns.ready((*ccmd)["cmd"].asString())) {
+		if (P_ALSUB(p) || m_cooldowns.ready((*ccmd)["cmd"].asString())) {
 			output += (*ccmd)["response"].asString();
 			m_cooldowns.setUsed((*ccmd)["cmd"].asString());
 		} else {
@@ -463,7 +463,7 @@ std::string CommandHandler::eightballFunc(struct cmdinfo *c)
 /* strawpoll: create polls */
 std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 
 	/* json values to hold created poll, poll options and http response */
@@ -592,7 +592,7 @@ std::string CommandHandler::aboutFunc(struct cmdinfo *c)
 /* count: manage message counts */
 std::string CommandHandler::countFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 
 	std::vector<std::string> argv;
@@ -747,7 +747,7 @@ std::string CommandHandler::duckFunc(struct cmdinfo *c)
 /* whitelist: exempt websites from moderation */
 std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 
 	std::vector<std::string> argv;
@@ -776,7 +776,7 @@ std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
 /* permit: grant user permission to post a url */
 std::string CommandHandler::permitFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 
 	std::vector<std::string> argv;
@@ -792,7 +792,7 @@ std::string CommandHandler::permitFunc(struct cmdinfo *c)
 /* makecom: create or modify a custom command */
 std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 
 	if (!m_customCmds->isActive())
@@ -894,7 +894,7 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 /* delcom: delete a custom command */
 std::string CommandHandler::delcomFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 	if (!m_customCmds->isActive())
 		return "Custom commands are currently disabled.";
@@ -913,7 +913,7 @@ std::string CommandHandler::delcomFunc(struct cmdinfo *c)
 /* addrec: add a recurring message */
 std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 
 	std::string output = "@" + c->nick + ", ";
@@ -961,7 +961,7 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 /* delrec: delete a recurring message */
 std::string CommandHandler::delrecFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 
 	std::string output = "@" + c->nick + ", ";
@@ -989,7 +989,7 @@ std::string CommandHandler::delrecFunc(struct cmdinfo *c)
 /* listrec: show all recurring messages */
 std::string CommandHandler::listrecFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 	return m_evtp->messageList();
 }
@@ -997,7 +997,7 @@ std::string CommandHandler::listrecFunc(struct cmdinfo *c)
 /* setrec: enable and disable recurring messages */
 std::string CommandHandler::setrecFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 
 	std::string output = "@" + c->nick + ", ";
@@ -1075,7 +1075,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			type = 2;
 		return output + m_givp->currentSettings(type);
 	}
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return output + "you do not have permission to perform "
 			"this action.";
 
@@ -1118,7 +1118,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 /* status: set channel status */
 std::string CommandHandler::statusFunc(struct cmdinfo *c)
 {
-	if (!c->privileges)
+	if (!P_ALMOD(c->privileges))
 		return "";
 	if (c->fullCmd.length() < 8)
 		return c->cmd + ": no status given";
