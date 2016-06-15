@@ -6,19 +6,21 @@ URLParser::URLParser() :m_modified(false)
 {
 }
 
+/* parse: search message for URL and extract data into m_last */
 bool URLParser::parse(const std::string &url)
 {
 	std::regex urlRegex("(?:https?://)?(?:www\\.)?([a-zA-Z0-9]+\\.)*"
 		"([a-zA-Z0-9\\-]+)((?:\\.[a-zA-Z]{2,4}){1,4})(/.+)?\\b");
 	std::smatch match;
-	if (std::regex_search(url.begin(), url.end(), match, urlRegex)) {
+	if ((m_modified = std::regex_search(url.begin(), url.end(),
+					match, urlRegex))) {
 		/* get the domain name */
 		std::string website = match[2].str() + match[3].str();
-		last.full = match[0].str();
-		last.domain = website;
-		last.subdomain = match[1].str();
-		last.tweetID = "";
-		if ((last.twitter = website == "twitter.com")) {
+		m_last.full = match[0].str();
+		m_last.domain = website;
+		m_last.subdomain = match[1].str();
+		m_last.tweetID = "";
+		if ((m_last.twitter = website == "twitter.com")) {
 			/* check if the URL is a twitter status */
 			std::string::size_type ind;
 			if (match.size() > 3 &&
@@ -27,20 +29,17 @@ bool URLParser::parse(const std::string &url)
 				std::string s = match[4].str().substr(ind + 7);
 				for (char c : s) {
 					if (!isdigit(c)) break;
-					last.tweetID += c;
+					m_last.tweetID += c;
 				}
 			}
 		}
-		m_modified = true;
-	} else {
-		m_modified = false;
 	}
 	return m_modified;
 }
 
 URLParser::URL *URLParser::getLast()
 {
-	return &last;
+	return &m_last;
 }
 
 bool URLParser::wasModified()

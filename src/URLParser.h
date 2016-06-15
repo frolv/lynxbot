@@ -17,6 +17,6 @@ class URLParser {
 		bool wasModified();
 
 	private:
-		URL last;
+		URL m_last;
 		bool m_modified;
 };
