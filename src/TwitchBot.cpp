@@ -230,8 +230,8 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 			fmt = m_resubMsg;
 			len = match[3].str();
 		}
-		std::cout << formatSubMsg(fmt, nick, len) << std::endl;
-		/* sendMsg(formatSubMsg(fmt, nick, len)); */
+		if (!fmt.empty())
+			sendMsg(formatSubMsg(fmt, nick, len));
 		return true;
 
 	} else {
