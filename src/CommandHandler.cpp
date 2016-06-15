@@ -585,7 +585,7 @@ std::string CommandHandler::helpFunc(struct cmdinfo *c)
 std::string CommandHandler::aboutFunc(struct cmdinfo *c)
 {
 	return "[ABOUT] @" + c->nick + ", " + m_name + " is running "
-		+ std::string(BOT_NAME) + " v" + std::string(BOT_VERSION)
+		+ std::string(BOT_NAME) + " " + std::string(BOT_VERSION)
 		+ ". Find out more at " + std::string(BOT_WEBSITE);
 }
 

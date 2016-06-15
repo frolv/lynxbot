@@ -1,18 +1,20 @@
 #ifdef __linux__
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <netdb.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+# include <cstdio>
+# include <cstdlib>
+# include <cstring>
+# include <netdb.h>
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
 #endif
+
 #ifdef _WIN32
-#include <WS2tcpip.h>
-#include <sdkddkver.h>
-#pragma comment(lib, "ws2_32.lib")
+# include <WS2tcpip.h>
+# include <sdkddkver.h>
+# pragma comment(lib, "ws2_32.lib")
 #endif
+
 #include "client.h"
 
 #define MAX_SIZE 2048

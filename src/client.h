@@ -2,8 +2,9 @@
 
 #include <iostream>
 #include <string>
+
 #ifdef _WIN32
- #include <Winsock2.h>
+# include <Winsock2.h>
 #endif
 
 class Client {

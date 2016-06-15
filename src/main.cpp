@@ -1,5 +1,11 @@
+/*
+ * LynxBot: a Twitch.tv IRC bot for Old School Runescape
+ * Copyright (C) 2016 Alexei Frolov
+ */
+
 #include <cpr/cpr.h>
 #include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <regex>
 #include <string>
@@ -7,11 +13,12 @@
 #include "config.h"
 #include "TwitchBot.h"
 #include "version.h"
+
 #ifdef __linux__
-#include <getopt.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
+# include <getopt.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <unistd.h>
 #endif
 
 /* LynxBot authorization URL */
@@ -20,25 +27,33 @@ static const char *AUTH_URL = "https://api.twitch.tv/kraken/oauth2/"
 "redirect_uri=https://frolv.github.io/lynxbot/twitchauthconfirm.html&"
 "scope=channel_editor+channel_subscriptions";
 
+/* github api for latest release */
+static const char *RELEASE_API =
+"https://api.github.com/repos/frolv/lynxbot/releases/latest";
+
+/* bot information */
 const char *BOT_NAME = "LynxBot";
-const char *BOT_VERSION = "1.3.0";
+const char *BOT_VERSION = "v1.3.0";
 const char *BOT_WEBSITE = "https://frolv.github.io/lynxbot";
 
 struct botset {
-	std::string name;
-	std::string channel;
-	std::string pass;
-	std::string access_token;
+	std::string name;		/* twitch username of bot */
+	std::string channel;		/* channel to join */
+	std::string pass;		/* oauth token for account */
+	std::string access_token;	/* access token for user's twitch */
 };
 
+void checkupdates();
 void launchBot(struct botset *b, ConfigReader *cfgr);
 void twitchAuth(struct botset *b);
 bool authtest(const std::string &token, std::string &user);
+
 #ifdef __linux__
-static int open_linux();
+static int open_linux(const char *url);
 #endif
+
 #ifdef _WIN32
-static int open_win();
+static int open_win(const char *url);
 #endif
 
 /* LynxBot: a Twitch.tv IRC bot for Old School Runescape */
@@ -55,7 +70,7 @@ int main(int argc, char **argv)
 		{ 0, 0, 0, 0 }
 	};
 
-	while ((c = getopt_long(argc, argv, "", long_opts, NULL)) != EOF) {
+	while ((c = getopt_long(argc, argv, "hv", long_opts, NULL)) != EOF) {
 		switch (c) {
 		case 'h':
 			printf("usage: lynxbot [CHANNEL]\n%s: A Twitch.tv IRC "
@@ -64,7 +79,7 @@ int main(int argc, char **argv)
 					BOT_NAME, BOT_WEBSITE);
 			return 0;
 		case 'v':
-			printf("%s v%s\nCopyright (C) 2016 Alexei Frolov\n"
+			printf("%s %s\nCopyright (C) 2016 Alexei Frolov\n"
 					"This program is distributed as free "
 					"software\nunder the terms of the MIT "
 					"License.\n", BOT_NAME, BOT_VERSION);
@@ -81,6 +96,10 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	/* check if a new version is available */
+	checkupdates();
+
+	/* read the config file */
 	path = utils::configdir() + utils::config("config");
 	ConfigReader cfgr(path);
 	if (!cfgr.read()) {
@@ -100,6 +119,7 @@ int main(int argc, char **argv)
 		cfgr.write();
 	}
 
+	/* overwrite channel with arg */
 	if (argc == 2)
 		b.channel = argv[1];
 	if (b.channel[0] != '#')
@@ -121,23 +141,25 @@ void launchBot(struct botset *b, ConfigReader *cfgr)
 /* twitchAuth: interactively authorize LynxBot with a Twitch account */
 void twitchAuth(struct botset *b)
 {
-	char c = '\0';
-	std::cout << "In order for the $status command to work, LynxBot must be"
-		" authorized to update your Twitch channel settings.\nWould you"
-		" like to authorize LynxBot now? (y/n) ";
-	while (c != 'y' && c != 'n')
-		std::cin >> c;
+	char c;
+	int status;
+	std::string token, user;
+
+	printf("In order for the $status command to work, %s must be authorized"
+			" to update your Twitch channel settings.\nWould you "
+			"like to authorize %s now? (y/n) ", BOT_NAME, BOT_NAME);
+	while ((c = getchar()) != 'n' && c != 'y')
+		;
 	if (c == 'n') {
 		b->access_token = "NULL";
 		return;
 	}
 
-	int status;
 #ifdef __linux__
-	status = open_linux();
+	status = open_linux(AUTH_URL);
 #endif
 #ifdef _WIN32
-	status = open_win();
+	status = open_win(AUTH_URL);
 #endif
 	if (status != 0) {
 		std::cerr << "Could not open web browser" << std::endl;
@@ -150,7 +172,6 @@ void twitchAuth(struct botset *b)
 		"browser. Sign in with your Twitch account and click "
 		"\"Authorize\" to proceed." << std::endl;
 
-	std::string token, user;
 	std::cout << "After you have clicked \"Authorize\" you will be "
 		"redirected to a webpage with an access token." << std::endl;
 	std::cout << "Enter the access token here:" << std::endl;
@@ -159,8 +180,8 @@ void twitchAuth(struct botset *b)
 
 	if (authtest(token, user)) {
 		b->access_token = token;
-		std::cout << "Welcome, " << user << "!\nLynxBot has "
-			"successfully been authorized with "
+		std::cout << "Welcome, " << user << "!\n" << BOT_NAME
+			<< " has successfully been authorized with "
 			"your Twitch account." << std::endl;
 	} else {
 		std::cout << "Invalid token. Authorization failed."
@@ -187,16 +208,49 @@ bool authtest(const std::string &token, std::string &user)
 	return false;
 }
 
+/* check for new lynxbot version and prompt user to install */
+void checkupdates()
+{
+	static const char *accept = "application/vnd.github.v3+json";
+	Json::Value js;
+	Json::Reader reader;
+	char c;
+
+	cpr::Response resp = cpr::Get(cpr::Url(RELEASE_API),
+			cpr::Header{{ "Accept", accept }});
+	if (!reader.parse(resp.text, js))
+		return;
+
+	if (strcmp(js["tag_name"].asCString(), BOT_VERSION) != 0) {
+		printf("A new version of %s (%s) is available.\nWould you like "
+				"to open the download page? (y/n)\n", BOT_NAME,
+				js["tag_name"].asCString());
+		while ((c = getchar()) != 'y' && c != 'n')
+			;
+		if (c == 'n')
+			return;
+#ifdef __linux__
+		open_linux(js["html_url"].asCString());
+#endif
+
+#ifdef _WIN32
+		open_win(js["html_url"].asCString());
+#endif
+		exit(0);
+	}
+}
+
 #ifdef __linux__
 /* open_linux: launch browser on linux systems */
-static int open_linux()
+static int open_linux(const char *url)
 {
 	switch (fork()) {
 		case -1:
 			perror("fork");
 			exit(1);
 		case 0:
-			execl("/usr/bin/xdg-open", "xdg-open", AUTH_URL, (char *)NULL);
+			execl("/usr/bin/xdg-open", "xdg-open",
+					url, (char *)NULL);
 			perror("/usr/bin/xdg-open");
 			exit(1);
 		default:
@@ -208,9 +262,10 @@ static int open_linux()
 #endif
 
 #ifdef _WIN32
-static int open_win()
+/* open_win: launch browser on windows systems */
+static int open_win(const char *url)
 {
-	int i = (int)ShellExecute(NULL, "open", AUTH_URL, NULL, NULL, SW_SHOWNORMAL);
+	int i = (int)ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
 	return i <= 32;
 }
 #endif
