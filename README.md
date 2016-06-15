@@ -1,4 +1,4 @@
-# LynxBot: A bot for Old School Runescape Twitch chat
+# LynxBot: A Twitch.tv IRC bot for Old School Runescape
 
 ## Contents
 
