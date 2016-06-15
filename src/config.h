@@ -10,9 +10,10 @@
 #include <vector>
 
 struct setting {
-	std::string key;
-	int val_type;
-	std::string comment;
+	std::string key;	/* setting key */
+	int val_type;		/* type of setting value */
+	std::string comment;	/* comment written above setting */
+	bool blank;		/* write a blank line after setting */
 };
 
 class ConfigReader {

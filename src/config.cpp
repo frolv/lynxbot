@@ -10,45 +10,51 @@ static void removeLeading(std::string &s);
 static bool blank(const std::string &s);
 
 static struct setting settings[] = {
-	{ "name", STRING, "The Twitch username of the bot" },
-	{ "channel", STRING, "Channel you want to join" },
-	{ "password", STRING, "Oauth token for bot's Twitch account" },
+	{ "name", STRING, "The Twitch username of the bot", true },
+	{ "channel", STRING, "Channel you want to join", true },
+	{ "password", STRING, "Oauth token for bot's Twitch account", true },
 	{ "twitchtok", STRING, "Authorization token for your Twitch account\n"
 		"If UNSET, LynxBot will go through an interactive authorization"
 		" setup when run\nIf NULL, LynxBot will not try to access your "
-		"Twitch account" },
+		"Twitch account", true },
 	{ "enable_moderation", STRING, "Whether LynxBot should moderate "
-		"your chat" },
+		"your chat", true },
 	{ "ban_urls", STRING, "Whether to ban URLs in chat\nIf true, all non-"
-		"whitelisted URLs will be banned" },
+		"whitelisted URLs will be banned", true },
 	{ "max_message_len", STRING, "Maximum permitted length of a message "
-		"(in characters)" },
+		"(in characters)", true },
 	{ "max_pattern", STRING, "Maximum amount of times a pattern can be "
-		"repeated in a message" },
+		"repeated in a message", true },
 	{ "max_char", STRING, "Maximum amount a single character can be "
-		"repeated in a message" },
+		"repeated in a message", true },
 	{ "cap_len", STRING, "Minimum message length at which capital letters "
-		"start getting moderated" },
+		"start getting moderated", true },
 	{ "cap_ratio", STRING, "Maximum percentage of capital letters allowed "
-		"in message" },
+		"in message", true },
 	{ "whitelist", LIST, "if ban_urls is set to true, any website not on "
-		"this list will be banned" },
+		"this list will be banned", true },
 	{ "giveaway_active", STRING, "Whether giveaways are enabled or "
-		"disabled" },
+		"disabled", true },
 	{ "follower_giveaway", STRING, "Whether follower giveaways are "
-		"enabled" },
+		"enabled", true },
 	{ "follower_limit", STRING, "Number of followers required for "
-		"giveaway" },
-	{ "timed_giveaway", STRING, "Whether timed giveaways are enabled" },
+		"giveaway", true },
+	{ "timed_giveaway", STRING, "Whether timed giveaways are enabled",
+		true },
 	{ "time_interval", STRING, "Interval in minutes at which timed "
-		"giveaways occur" },
+		"giveaways occur", true },
 	{ "recurring", OLIST, "each recurring message has a period in mins and "
 		"a message\nperiod must be multiple of 5 and less than 60\n"
-		"maximum of 5 recurring messages" },
-	{ "submessage", STRING, "Message posted in chat whenever someone "
-		"subscribes" },
+		"maximum of 5 recurring messages", true },
+	{ "submessage", STRING, "Message posted in chat when someone subscribes"
+		" or resubscribes, respectively\nThe following format sequences"
+		" are accepted:\n\t%c - channel name\n\t%m - number of months "
+		"person has resubscribed (resubmessage only)\n\t%n - Twitch "
+		"nickname of the person who subscribed\n\t%N - equivalent to "
+		"\"@%n,\" i.e. \"@NICK,\"\n\t%% - a literal '%'", false },
+	{ "resubmessage", STRING, "", true },
 	{ "extra8ballresponses", LIST, "Additional responses for the 8ball "
-		"command" }
+		"command", false }
 };
 
 ConfigReader::ConfigReader(const std::string &path)
@@ -358,19 +364,20 @@ void ConfigReader::writeSetting(std::ofstream &writer, size_t ind)
 	std::vector<std::string> list_elems;
 	size_t i;
 
-	writer << "# ";
-	for (char c : settings[ind].comment) {
-		if (c == '\n')
-			writer << std::endl << "# ";
-		else
-			writer << c;
+	if (!settings[ind].comment.empty()) {
+		writer << "# ";
+		for (char c : settings[ind].comment) {
+			if (c == '\n')
+				writer << std::endl << "# ";
+			else
+				writer << c;
+		}
+		writer << std::endl;
 	}
-	writer << std::endl;
 
 	if (settings[ind].val_type == STRING) {
 		writer << settings[ind].key << " = "
-			<< m_settings[settings[ind].key]
-			<< std::endl << std::endl;
+			<< m_settings[settings[ind].key] << std::endl;
 	} else if (settings[ind].val_type == LIST) {
 		utils::split(m_settings[settings[ind].key], '\n', list_elems);
 		writer << settings[ind].key << " = {" << std::endl;
@@ -378,7 +385,7 @@ void ConfigReader::writeSetting(std::ofstream &writer, size_t ind)
 			writer << '\t' << list_elems[i]
 				<< (i == list_elems.size() - 1 ? "" : ",")
 				<< std::endl;
-		writer << '}' << std::endl << std::endl;
+		writer << '}' << std::endl;
 	} else {
 		writer << settings[ind].key << " = {" << std::endl;
 		for (i = 0; i < m_olist[settings[ind].key].size(); ++i) {
@@ -392,8 +399,10 @@ void ConfigReader::writeSetting(std::ofstream &writer, size_t ind)
 				writer << ',';
 			writer << std::endl;
 		}
-		writer << '}' << std::endl << std::endl;
+		writer << '}' << std::endl;
 	}
+	if (settings[ind].blank)
+		writer << std::endl;
 }
 
 /* removeLeading: remove all leading whitespace from string */

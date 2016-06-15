@@ -48,6 +48,7 @@ class TwitchBot {
 		URLParser m_parser;
 
 		std::string m_subMsg;
+		std::string m_resubMsg;
 		std::thread m_tick;
 
 		bool sendData(const std::string &data);

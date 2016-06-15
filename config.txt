@@ -89,8 +89,15 @@ recurring = {
 
 #### Other settings ####
 
-# Message posted in chat whenever someone subscribes
+# Messages posted in chat when someone subscribes or resubscribes, respectively
+# The following format sequences are accepted:
+# 	%c - channel name
+# 	%m - number of months person has resubscribed (resubmessage only)
+# 	%n - Twitch nickname of the person who subscribed
+# 	%N - equivalent to "@%n," i.e. "@NICK,"
+# 	%% - a literal '%'
 submessage = Thank you for subscribing!
+resubmessage = %N thank you for resubscribing for %m months in a row!
 
 # Additional responses for the 8ball command
 extra8ballresponses = {
