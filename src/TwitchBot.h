@@ -58,5 +58,8 @@ class TwitchBot {
 		bool processPRIVMSG(const std::string &PRIVMSG);
 		bool moderate(const std::string &nick, const std::string &msg);
 		void tick();
+		void parseSubMsg(std::string &fmt, const std::string &which);
+		std::string formatSubMsg(const std::string &format,
+				const std::string &n, const std::string &m);
 
 };

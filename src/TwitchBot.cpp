@@ -39,8 +39,9 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 		/* create giveaway checking event */
 		m_event.add("checkgiveaway", 10, time(nullptr));
 
-		/* read the subscriber message */
-		m_subMsg = m_cfgr->get("submessage");
+		/* read the subscriber messages */
+		parseSubMsg(m_subMsg, "submessage");
+		parseSubMsg(m_resubMsg, "resubmessage");
 	}
 }
 
@@ -54,6 +55,7 @@ bool TwitchBot::isConnected() const
 	return m_connected;
 }
 
+/* disconnect: disconnect from Twitch server */
 void TwitchBot::disconnect()
 {
 	m_client.cdisconnect();
@@ -61,6 +63,7 @@ void TwitchBot::disconnect()
 	m_tick.join();
 }
 
+/* serverLoop: continously receive and process data */
 void TwitchBot::serverLoop()
 {
 	std::string msg;
@@ -78,6 +81,7 @@ void TwitchBot::serverLoop()
 	}
 }
 
+/* sendData: format data and write to client */
 bool TwitchBot::sendData(const std::string &data)
 {
 	/* format string by adding CRLF */
@@ -92,17 +96,20 @@ bool TwitchBot::sendData(const std::string &data)
 	return bytes > 0;
 }
 
+/* sendMsg: send a PRIVMSG to the connected channel */
 bool TwitchBot::sendMsg(const std::string &msg)
 {
 	return sendData("PRIVMSG " + m_channelName + " :" + msg);
 }
 
+/* sendPong: send an IRC PONG */
 bool TwitchBot::sendPong(const std::string &ping)
 {
 	/* first six chars are "PING :", server name starts after */
 	return sendData("PONG " + ping.substr(6));
 }
 
+/* processData: send data to designated function */
 void TwitchBot::processData(const std::string &data)
 {
 	if (data.find("Error logging in") != std::string::npos
@@ -120,6 +127,7 @@ void TwitchBot::processData(const std::string &data)
 	}
 }
 
+/* processPRIVMSG: parse a chat message and perform relevant actions */
 bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 {
 	/* regex to extract all necessary data from message */
@@ -211,10 +219,21 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 
 	} else if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
 			match, subRegex)) {
-		const std::string nick = match[2].str();
-		sendMsg("@" + nick + ", " + (match[3].str().empty()
-					? m_subMsg : /*m_resubMsg*/""));
+
+		std::string nick, fmt, len;
+
+		nick = match[2].str();
+		if (match[3].str().empty()) {
+			fmt = m_subMsg;
+			len = "1";
+		} else {
+			fmt = m_resubMsg;
+			len = match[3].str();
+		}
+		std::cout << formatSubMsg(fmt, nick, len) << std::endl;
+		/* sendMsg(formatSubMsg(fmt, nick, len)); */
 		return true;
+
 	} else {
 		std::cerr << "Could not extract data" << std::endl;
 		return false;
@@ -222,6 +241,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 	return false;
 }
 
+/* moderate: check if message is valid; penalize nick if not */
 bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 {
 	std::string reason;
@@ -246,11 +266,11 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 	return false;
 }
 
+/* tick: repeatedly check variables and perform actions if conditions met */
 void TwitchBot::tick()
 {
+	/* check every second */
 	while (m_connected) {
-		/* check a set of variables every second and perform */
-		/* actions if certain conditions are met */
 		for (std::vector<std::string>::size_type i = 0;
 				i < m_event.messages()->size(); ++i) {
 			if (m_event.ready("msg" + std::to_string(i))) {
@@ -269,6 +289,78 @@ void TwitchBot::tick()
 	}
 }
 
+/* parseSubMsg: read which from m_cfgr into tgt and verify validity */
+void TwitchBot::parseSubMsg(std::string &tgt, const std::string &which)
+{
+	static const std::string fmt_c = "%Ncmn";
+	size_t ind;
+	std::string fmt, err;
+	char c;
+
+	ind = -1;
+	fmt = m_cfgr->get(which);
+	while ((ind = fmt.find('%', ind + 1)) != std::string::npos) {
+		if (ind == fmt.length() - 1) {
+			err = "unexpected end of line after '%'";
+			break;
+		}
+		c = fmt[ind + 1];
+		if (fmt_c.find(c) == std::string::npos) {
+			err = "invalid format character -- ";
+			err += c;
+			break;
+		}
+		if (c == '%')
+			++ind;
+	}
+	if (!err.empty()) {
+		std::cerr << m_cfgr->path() << ": " << which << ": "
+			<< err << std::endl;
+		std::cin.get();
+		fmt = "";
+	}
+	tgt = fmt;
+}
+
+/* formatSubMsg: replace placeholders in format string with data */
+std::string TwitchBot::formatSubMsg(const std::string &format,
+		const std::string &n, const std::string &m)
+{
+	size_t ind;
+	std::string out, ins;
+	char c;
+
+	ind = 0;
+	out = format;
+	while ((ind = out.find('%', ind)) != std::string::npos) {
+		c = out[ind + 1];
+		out.erase(ind, 2);
+		switch (c) {
+		case '%':
+			ins = "%";
+			break;
+		case 'N':
+			ins = "@" + n + ",";
+			break;
+		case 'c':
+			ins = m_channelName.substr(1);
+			break;
+		case 'm':
+			ins = m;
+			break;
+		case 'n':
+			ins = n;
+			break;
+		default:
+			break;
+		}
+		out.insert(ind, ins);
+		ind += ins.length();
+	}
+	return out;
+}
+
+/* urltitle: extract webpage title from html */
 static std::string urltitle(const std::string &resp)
 {
 	size_t start;

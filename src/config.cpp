@@ -49,9 +49,9 @@ static struct setting settings[] = {
 	{ "submessage", STRING, "Message posted in chat when someone subscribes"
 		" or resubscribes, respectively\nThe following format sequences"
 		" are accepted:\n\t%c - channel name\n\t%m - number of months "
-		"person has resubscribed (resubmessage only)\n\t%n - Twitch "
-		"nickname of the person who subscribed\n\t%N - equivalent to "
-		"\"@%n,\" i.e. \"@NICK,\"\n\t%% - a literal '%'", false },
+		"person has subscribed in a row\n\t%n - Twitch nickname of the "
+		"person who subscribed\n\t%N - equivalent to \"@%n,\" i.e. "
+		"\"@NICK,\"\n\t%% - a literal '%'", false },
 	{ "resubmessage", STRING, "", true },
 	{ "extra8ballresponses", LIST, "Additional responses for the 8ball "
 		"command", false }
