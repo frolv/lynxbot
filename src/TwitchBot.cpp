@@ -131,7 +131,7 @@ void TwitchBot::processData(const std::string &data)
 bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 {
 	/* regex to extract all necessary data from message */
-	static const std::regex privmsgRegex("subscriber=(\\d).*user-type=(.*) "
+	static const std::regex privmsgRegex("mod=(\\d).*subscriber=(\\d).*"
 			":(\\w+)!\\3@\\3.* PRIVMSG (#\\w+) :(.+)");
 	static const std::regex subRegex(":twitchnotify.* PRIVMSG (#\\w+) "
 			":(.+) (?:just subscribed!|subscribed for (\\d+) "
@@ -141,7 +141,6 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
 			match, privmsgRegex)) {
 
-		const std::string type = match[2].str();
 		const std::string nick = match[3].str();
 		const std::string channel = match[4].str();
 		const std::string msg = match[5].str();
@@ -155,9 +154,9 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		P_RESET(p);
 		if (nick == channel.substr(1) || nick == "brainsoldier")
 			P_STOWN(p);
-		if (!type.empty())
-			P_STMOD(p);
 		if (match[1].str() == "1")
+			P_STMOD(p);
+		if (match[2].str() == "1")
 			P_STSUB(p);
 
 		/* check if the message contains a URL */
