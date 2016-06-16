@@ -45,8 +45,19 @@
 
         <dl compact="">
           <dt><b>submessage</b></dt>
-          <dd><p>The message LynxBot posts in the chat whenever someone
-          subscribes to your channel.</p></dd>
+          <dt><b>resubmessage</b></dt>
+          <dd><p>The messages LynxBot posts in the chat whenever someone
+          subscribes or resubscribes to your channel, respectively.</p>
+          <p>Both submessage and resubmessage accept the following format
+          sequences - placeholders in which data is substituted:</p>
+          <ul>
+            <li>%c - the name of the Twitch channel</li>
+            <li>%m - number of months in a row the person has subscribed</li>
+            <li>%n - Twitch username of the subscriber</li>
+            <li>%N - equivalent to "@<strong>%n</strong>," i.e. "@NICK,"</li>
+            <li>%% - a literal '%'</li>
+          </ul>
+          </dd>
           <dt><b>extra8ballresponses</b></dt>
           <dd><p>List of additional responses for the <strong>8ball</strong>
           command.</p></dd>
