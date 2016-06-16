@@ -201,7 +201,7 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 				usenick = true;
 				break;
 			case '?':
-				output = c->cmd + ": illegal option -- ";
+				output = c->cmd + ": invalid option -- ";
 				output += (char)op.optopt();
 				return output;
 			default:
@@ -251,7 +251,7 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 				usenick = true;
 				break;
 			case '?':
-				output = c->cmd + ": illegal option -- ";
+				output = c->cmd + ": invalid option -- ";
 				output += (char)op.optopt();
 				return output;
 			default:
@@ -362,7 +362,7 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 			update = true;
 			break;
 		case '?':
-			output = c->cmd + ": illegal option -- ";
+			output = c->cmd + ": invalid option -- ";
 			output += (char)op.optopt();
 			return output;
 		default:
@@ -485,7 +485,7 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 			multi = true;
 			break;
 		case '?':
-			output = c->cmd + ": illegal option -- ";
+			output = c->cmd + ": invalid option -- ";
 			output += (char)op.optopt();
 			return output;
 		default:
@@ -825,7 +825,7 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 					"cooldown";
 				return output;
 			} else {
-				output = c->cmd + ": illegal option -- ";
+				output = c->cmd + ": invalid option -- ";
 				output += (char)op.optopt();
 				return output;
 			}
@@ -933,7 +933,7 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 		case '?':
 			if (op.optopt() == 'c')
 				return c->cmd + "-c flag given without interval";
-			output = c->cmd + ": illegal option -- ";
+			output = c->cmd + ": invalid option -- ";
 			output += (char)op.optopt();
 			return output;
 		default:
@@ -1048,7 +1048,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			if (op.optopt() == 'n')
 				return c->cmd + ": -n option given "
 					"without amount";
-			output = c->cmd + ": illegal option -- ";
+			output = c->cmd + ": invalid option -- ";
 			output += (char)op.optopt();
 			return output;
 		default:
