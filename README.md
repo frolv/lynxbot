@@ -30,10 +30,10 @@ You can now launch the bot and it will guide you through authorizing it with
 your Twitch and Twitter accounts, if you wish to do so, and then it will join
 your channel, ready for use.
 
-For more detailed setup instructions, see the
-[wiki](https://github.com/frolv/lynxbot/wiki/Setup).
+For more detailed setup instructions, see
+[setup](https://frolv.github.io/lynxbot/setup.html).
 
 ## Additional Information
 
-See the [manual](https://frolv.github.io/lynxbot/manual) for full documentation
-on LynxBot's functionality.
+See the [manual](https://frolv.github.io/lynxbot/manual/index.html) for full
+documentation on LynxBot's functionality.
