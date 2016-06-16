@@ -212,6 +212,10 @@ ol {
   padding-left: 20px;
 }
 
+ol > li > ol {
+  list-style: lower-roman;
+}
+
 dl dt {
   font-weight: bold;
 }

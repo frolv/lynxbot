@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="LynxBot : A Twitch.tv IRC bot for Old School Runescape">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>LynxBot</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+      <header class="inner">
+        <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
+
+        <h1 id="project_title"><a class="title-link" href="index.html">LynxBot</a></h1>
+        <h2 id="project_tagline">A Twitch.tv IRC bot for Old School Runescape</h2>
+
+        <section id="downloads">
+          <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
+          <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
+        </section>
+      </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h2>LynxBot Setup</h2>
+        <p>This page will guide you through getting LynxBot to run on your
+        machine.</p>
+
+        <h2>Contents</h2>
+        <ol>
+          <li>
+            Installation
+            <ol>
+              <li>Linux</li>
+              <li>Windows</li>
+            </ol>
+          </li>
+          <li>Setup</li>
+        </ol>
+
+        <h2>Installation</h2>
+
+        <h3>Linux</h3>
+        <p>Precompiled binaries will not be provided for Linux-based systems.
+        <br>LynxBot must be compiled from source.</p>
+        <p>Make sure you have the following dependencies installed:
+        <strong>glibc</strong>, <strong>libcurl</strong> and
+        <strong>libcrypto</strong> (from OpenSSL).</p>
+
+        <p>Then, do the following:</p>
+        <pre><code>git clone "https://github.com/frolv/lynxbot.git"</code></pre>
+        <pre><code>cd lynxbot</code></pre>
+        <pre><code>make && ./install.sh</code></pre>
+
+        <p>LynxBot will be installed to <strong>~/bin</strong> and the config
+        files will be placed in <strong>~/.lynxbot</strong>.
+
+        <h3>Windows</h3>
+        <p>Download the latest binary release from the
+        <a href="https://github.com/frolv/lynxbot/releases/latest">releases
+        page</a>.</p>
+
+        <p>Extract the contents of the archive into a directory.</p>
+
+        <h2>Setup</h2>
+        <ol>
+          <li>Create an account on <a href="https://twitch.tv/signup">Twitch</a>
+          for your bot. Name it whatever you want; it does not have to refer to
+          LynxBot in any way.</li><br>
+          <li>Logging into Twitch IRC is not done using a Twitch password, but
+          rather through <a href="https://en.wikipedia.org/wiki/OAuth">OAuth</a>.
+          An <strong>OAuth token</strong> must be generated for your bot's
+          account. This can be done via
+          <a href="https://twitchapps.com/tmi">TwitchApps</a>. Login with the
+          account you created for your bot and the site will automatically
+          generate a token for you. Save this token. You can confirm the token
+          is connected to your Twitch account by checking the Connections page
+          of your Twitch settings.</li><br>
+          <li>Go to the LynxBot <a href="manual/config-dir.html">config
+          directory</a> and open the <strong>config</strong> file.</li><br>
+          <li>Enter the name of your bot's account, the channel you wish to join
+          and the OAuth token (including the <strong>oauth:</strong>) into their
+          respective fields.</li><br>
+          <li>You can now launch the <strong>lynxbot</strong> program. It will
+          guide you through authorizing it with your Twitch and Twitter
+          accounts and then join your channel, ready for use.</li><br>
+          <li>View the <a href="manual/index.html">manual</a> for information on
+          how you can configure LynxBot to your liking.</li>
+        </ol>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LynxBot maintained by <a href="https://github.com/frolv">frolv</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+  </body>
+</html>
