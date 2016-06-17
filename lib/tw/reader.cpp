@@ -25,15 +25,22 @@ bool tw::Reader::read(const std::string &tweetID)
 /* result: build a formatted result string from the currently stored tweet */
 std::string tw::Reader::result()
 {
-	std::string output, time, retweets, likes;
+	std::string output, status, time, retweets, likes;
 
 	time = m_response["created_at"].asString();
 	time = time.substr(0, time.find('+') - 1);
 	retweets = m_response["retweet_count"].asString();
 	likes = m_response["favorite_count"].asString();
 
+	for (char c : m_response["text"].asString()) {
+		if (c == '\n')
+			status += ' ';
+		else
+			status += c;
+	}
+
 	output += "@" + m_response["user"]["screen_name"].asString() + ": \"";
-	output += m_response["text"].asString() + "\" ";
+	output += status + "\" ";
 	output += "on " + time + " (";
 	output += retweets + " RT" + (retweets == "1" ? "" : "s") + ", ";
 	output += likes + " like" + (likes == "1" ? "" : "s") + ")";
