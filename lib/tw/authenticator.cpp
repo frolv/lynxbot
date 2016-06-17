@@ -55,7 +55,7 @@ void tw::Authenticator::siggen(const std::string &method, const std::string &URL
 	enc_params.push_back("oauth_timestamp=" + m_data.timestamp);
 	enc_params.push_back("oauth_token=" + m_data.token);
 	enc_params.push_back("oauth_version=" + m_data.version);
-	
+
 	std::sort(enc_params.begin(), enc_params.end());
 
 	std::string param_str;
@@ -135,7 +135,7 @@ void tw::Authenticator::interactiveSetup()
 		std::cin >> c;
 	if (c == 'n')
 		return;
-	
+
 	std::cout << INSTRUCTIONS << std::endl;
 	std::cout << "Would you like to proceed? (y/n) ";
 
