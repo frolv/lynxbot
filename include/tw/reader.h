@@ -15,7 +15,7 @@ class Reader {
 		std::string result();
 	private:
 		const std::string API =
-			"https://api.twitter.com/1.1/statuses/show.json"; 
+			"https://api.twitter.com/1.1/statuses/show.json";
 		Authenticator *m_auth;
 		Json::Value m_response;
 		std::string authenticate(const std::string &tweetID);

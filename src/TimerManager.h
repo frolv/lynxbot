@@ -18,7 +18,7 @@ class TimerManager {
 		bool ready(const std::string &cmd) const;
 		void setUsed(const std::string &cmd);
 		void clear();
-		
+
 	private:
 		TimerMap m_timers;
 		time_t cooldown(const std::string &cmd) const;

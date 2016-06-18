@@ -13,7 +13,7 @@ class OptionParser {
 		std::string::size_type optind();
 		std::string optarg();
 		int16_t optopt();
-		
+
 	private:
 		const std::string m_optstr;
 		const std::string m_options;

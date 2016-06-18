@@ -34,7 +34,7 @@ void TimerManager::clear()
 time_t TimerManager::cooldown(const std::string &cmd) const
 {
 	return m_timers.find(cmd)->second.first;
-}	
+}
 
 time_t TimerManager::lastUsed(const std::string &cmd) const
 {

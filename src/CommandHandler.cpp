@@ -231,7 +231,8 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 	std::replace(rsn.begin(), rsn.end(), '-', '_');
 
 	cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST +
-				CML_EHP_API + rsn), cpr::Header{{ "Connection", "close" }});
+				CML_EHP_API + rsn),
+			cpr::Header{{ "Connection", "close" }});
 	if (resp.text == "-4")
 		return c->cmd + ": could not reach CML API, try again";
 	return "[EHP] " + extractCMLData(resp.text);

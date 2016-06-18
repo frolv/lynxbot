@@ -65,7 +65,7 @@ void ExpressionParser::shuntingYard()
 						&& comparePrecedence(t.c, top.c) <= 0)
 						|| (isAssociative(t.c, RIGHT_ASSOC)
 						&& comparePrecedence(t.c, top.c) < 0))) {
-					
+
 					/* pop from stack into queue */
 					m_opstack.pop();
 					m_revpol.push(top);
@@ -82,7 +82,7 @@ void ExpressionParser::shuntingYard()
 		} else if (t.c == ')') {
 			if (m_opstack.empty())
 				throw std::runtime_error("Mismatched parentheses.");
-			
+
 			token top = m_opstack.top();
 			/* pop until matching paren */
 			while (top.c != '(') {
