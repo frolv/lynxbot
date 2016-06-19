@@ -86,7 +86,7 @@ odir:
 	@mkdir -p $(OBJ)
 
 exec: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(TW)
-	$(CXX) -o $(PROGNAME) $(LIB) $^
+	$(CXX) -s -o $(PROGNAME) $(LIB) $^
 
 .PHONY: clean
 
