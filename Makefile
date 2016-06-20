@@ -22,6 +22,7 @@ ifeq ($(DEBUG), 1)
 else
 	CXXFLAGS+=-O2
 	OBJ:=$(OBJ)/release
+	OFLAGS=-s
 endif
 
 _CPR=auth.o cookies.o cprtypes.o digest.o error.o multipart.o parameters.o\
@@ -86,7 +87,7 @@ odir:
 	@mkdir -p $(OBJ)
 
 exec: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(TW)
-	$(CXX) -s -o $(PROGNAME) $(LIB) $^
+	$(CXX) ${OFLAGS} -o $(PROGNAME) $(LIB) $^
 
 .PHONY: clean
 
