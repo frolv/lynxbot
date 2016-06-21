@@ -536,7 +536,7 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 		} else {
 			m_activePoll = "http://" + STRAWPOLL_HOST + "/"
 				+ response["id"].asString();
-			output += "Poll created : " + m_activePoll;
+			output += "Poll created: " + m_activePoll;
 		}
 	} else {
 		return c->cmd + ": error connecting to server";
