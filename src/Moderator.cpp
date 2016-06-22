@@ -87,9 +87,10 @@ bool Moderator::isValidMsg(const std::string &msg,
 			m_permitted.erase(std::remove(m_permitted.begin(),
 						m_permitted.end(), nick),
 					m_permitted.end());
+		} else {
+			reason = "no posting links!";
+			valid = false;
 		}
-		reason = "no posting links!";
-		valid = false;
 	}
 	if (valid && checkSpam(msg)) {
 		reason = "no spamming words!";

@@ -771,7 +771,7 @@ std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
 				+ " is already on the whitelist.";
 	}
 
-	return "@" + c->nick + ", invalid URL: " + argv[1];
+	return c->cmd + ": invalid URL: " + argv[1];
 }
 
 /* permit: grant user permission to post a url */
