@@ -1121,20 +1121,32 @@ std::string CommandHandler::statusFunc(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return "";
-	if (c->fullCmd.length() < 8)
-		return c->cmd + ": no status given";
+
+	cpr::Response resp;
+	cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
+		{ "Authorization", "OAuth " + m_token }};
+	Json::Reader reader;
+	Json::Value response;
+
+	if (c->fullCmd.length() < 8) {
+		resp = cpr::Get(cpr::Url(TWITCH_API + "/channels/" + m_channel),
+				head);
+		if (reader.parse(resp.text, response)) {
+			if (response.isMember("error"))
+				return c->cmd + ": "
+					+ response["error"].asString();
+			return "[STATUS] Current status for " + m_channel + " is "
+				"\"" + response["status"].asString() + "\".";
+		}
+	}
 
 	std::string status = c->fullCmd.substr(7);
-	Json::Value response;
 	std::replace(status.begin(), status.end(), ' ', '+');
 	std::string content = "channel[status]=" + status;
 
-	cpr::Response resp = cpr::Put(cpr::Url(TWITCH_API + "/channels/"
-		+ m_channel), cpr::Body(content), cpr::Header{
-		{ "Accept", "application/vnd.twitchtv.v3+json" },
-		{ "Authorization", "OAuth " + m_token }});
+	resp = cpr::Put(cpr::Url(TWITCH_API + "/channels/"
+				+ m_channel), cpr::Body(content), head);
 
-	Json::Reader reader;
 	if (reader.parse(resp.text, response)) {
 		if (response.isMember("error"))
 			return c->cmd + ": " + response["error"].asString();
