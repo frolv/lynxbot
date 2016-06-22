@@ -38,16 +38,20 @@
         <p>status - set stream status</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$status STATUS</code></pre>
+        <pre><code>$status [STATUS]</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>status</strong> changes the status of the Twitch stream to
-        <strong>STATUS</strong>.</p>
+        <strong>STATUS</strong> if it is provided, or prints the current status
+        otherwise.</p>
 
-        <p>Use of this command requires LynxBot to be authorized to modify the
-        streamer's Twitch settings.</p>
+        <p>Changing the stream status requires LynxBot to be authorized to
+        modify the streamer's channel settings.</p>
 
         <h3>EXAMPLES</h3>
+        <p>Prints the stream's current status:</p>
+        <pre><code>$status</code></pre>
+
         <p>Changes the stream's status to "116/200m Hunter | $about":</p>
         <pre><code>$status 116/200m Hunter | $about</code></pre>
 
