@@ -1119,8 +1119,10 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 /* status: set channel status */
 std::string CommandHandler::statusFunc(struct cmdinfo *c)
 {
-	if (!P_ALMOD(c->privileges))
-		return "";
+	int opt;
+	OptionParser op(c->fullCmd, "a");
+	std::string output, status;
+	bool append = false;
 
 	cpr::Response resp;
 	cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
@@ -1128,19 +1130,46 @@ std::string CommandHandler::statusFunc(struct cmdinfo *c)
 	Json::Reader reader;
 	Json::Value response;
 
-	if (c->fullCmd.length() < 8) {
+	if (!P_ALMOD(c->privileges))
+		return "";
+
+	while ((opt = op.getopt()) != EOF) {
+		switch (opt) {
+		case 'a':
+			append = true;
+			break;
+		case '?':
+			output += c->cmd + ": invalid option -- ";
+			output += (char)op.optopt();
+			return output;
+		default:
+			return "";
+		}
+	}
+
+	output = "[STATUS] ";
+
+	if (op.optind() == c->fullCmd.length() || append) {
 		resp = cpr::Get(cpr::Url(TWITCH_API + "/channels/" + m_channel),
 				head);
 		if (reader.parse(resp.text, response)) {
 			if (response.isMember("error"))
 				return c->cmd + ": "
 					+ response["error"].asString();
-			return "[STATUS] Current status for " + m_channel + " is "
-				"\"" + response["status"].asString() + "\".";
+			status = response["status"].asString();
 		}
 	}
 
-	std::string status = c->fullCmd.substr(7);
+	if (op.optind() == c->fullCmd.length()) {
+		if (append)
+			return c->cmd + ": no text to append";
+		return output + "Current status for " + m_channel + " is \""
+			+ status + "\".";
+	}
+
+	if (append)
+		status += " ";
+	status += c->fullCmd.substr(op.optind());
 	std::replace(status.begin(), status.end(), ' ', '+');
 	std::string content = "channel[status]=" + status;
 
