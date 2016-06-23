@@ -1067,6 +1067,10 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 	std::string setting = c->fullCmd.substr(op.optind());
 	std::string err, res;
 
+	if (setting != "on" && setting != "off" && setting != "check")
+		return c->cmd + ": invalid syntax. Use \"$setgiv [-ft] "
+			"[-n AMOUNT] on|off|check\"";
+
 	/* allow all users to check but only moderators to set */
 	if (setting == "check") {
 		int8_t type = -1;
@@ -1095,7 +1099,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			m_givp->activate(time(nullptr), err);
 			res = "giveaways have been activated.";
 		}
-	} else if (setting == "off") {
+	} else {
 		if (setfollowers) {
 			m_givp->setFollowers(false);
 			res = "follower giveaways have been disabled.";
@@ -1106,9 +1110,6 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			m_givp->deactivate();
 			res = "giveaways have been deactivated.";
 		}
-	} else {
-		return c->cmd + ": invalid syntax. Use \"$setgiv [-ft] "
-			"[-n AMOUNT] on|off|check\"";
 	}
 	if (!err.empty())
 		return output + err;
