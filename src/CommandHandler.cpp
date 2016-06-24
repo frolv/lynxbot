@@ -1071,7 +1071,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 		return c->cmd + ": invalid syntax. Use \"$setgiv [-ft] "
 			"[-n AMOUNT] on|off|check\"";
 
-	/* allow all users to check but only moderators to set */
+	/* allow all users to check but only owner to set */
 	if (setting == "check") {
 		int8_t type = -1;
 		if (setfollowers)
@@ -1080,7 +1080,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			type = 2;
 		return output + m_givp->currentSettings(type);
 	}
-	if (!P_ALMOD(c->privileges))
+	if (!P_ISOWN(c->privileges))
 		return output + "you do not have permission to perform "
 			"this action.";
 
