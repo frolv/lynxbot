@@ -35,6 +35,9 @@ static struct setting settings[] = {
 		"this list will be banned", true },
 	{ "giveaway_active", STRING, "Whether giveaways are enabled or "
 		"disabled", true },
+	{ "image_giveaways", STRING, "Whether to generate images containing "
+		"giveaway items rather than posting\nthem in plaintext "
+		"(GNU/Linux systems only)", true },
 	{ "follower_giveaway", STRING, "Whether follower giveaways are "
 		"enabled", true },
 	{ "follower_limit", STRING, "Number of followers required for "
@@ -206,7 +209,7 @@ void ConfigReader::write()
 	/* giveaway settings */
 	writer << std::endl << "#### Giveaway settings ####" << std::endl
 		<< std::endl;
-	for (; set < 17; ++set)
+	for (; set < 18; ++set)
 		writeSetting(writer, set);
 
 	/* recurring */

@@ -61,6 +61,10 @@ whitelist = {
 # Whether giveaways are enabled or disabled
 giveaway_active = false
 
+# Whether to generate images containing giveaway items rather than posting
+# them in plaintext (GNU/Linux systems only)
+image_giveaways = false
+
 # Whether follower giveaways are enabled
 follower_giveaway = true
 

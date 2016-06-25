@@ -26,6 +26,7 @@ class Giveaway {
 		ConfigReader *m_cfgr;
 		bool m_active;
 		bool m_type[3] = { false, false, false };
+		bool m_images;
 		const std::string m_channel;
 		uint8_t m_reason;
 		uint32_t m_followerLimit;

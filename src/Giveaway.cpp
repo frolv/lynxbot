@@ -8,10 +8,31 @@
 #include <utils.h>
 #include "Giveaway.h"
 
+#ifdef __linux__
+# include <stdio.h>
+# include <string.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <unistd.h>
+#endif
+
+#define MAX_PATH 4096
+#define MAX_LABL 256
+
+static std::string mkimg(const std::string &item);
+
+#ifdef __linux__
+static void genimg(const char *conf, const char *code, const char *font);
+static void mergeimg(const char *conf);
+static std::string upload(const char *conf);
+
+static const char *PTPB = "https://ptpb.pw";
+#endif
+
 Giveaway::Giveaway(const std::string &channel, time_t initTime,
 		ConfigReader *cfgr)
-	: m_cfgr(cfgr), m_active(false), m_channel(channel), m_currFollowers(0),
-	m_lastRequest(initTime), m_interval(0)
+	: m_cfgr(cfgr), m_active(false), m_images(false), m_channel(channel),
+	m_currFollowers(0), m_lastRequest(initTime), m_interval(0)
 {
 	init(initTime, true);
 	if (!readGiveaway()) {
@@ -270,6 +291,12 @@ bool Giveaway::readSettings()
 		m_active = false;
 		valid = false;
 	}
+	if (!utils::parseBool(m_images, m_cfgr->get("image_giveaways"), err)) {
+		std::cerr << m_cfgr->path() << ": image_giveaways: " << err
+			<< " (defaulting to false)" << std::endl;
+		m_images = false;
+		valid = false;
+	}
 	if (!utils::parseBool(m_type[1], m_cfgr->get("follower_giveaway"), err)) {
 		std::cerr << m_cfgr->path() << ": follower_giveaway: " << err
 			<< " (defaulting to false)" << std::endl;
@@ -310,8 +337,15 @@ bool Giveaway::readGiveaway()
 		return false;
 	}
 	std::string line;
-	while (std::getline(reader, line))
-		m_items.push_back(line);
+	while (std::getline(reader, line)) {
+		if (line.length() > MAX_LABL - 7) {
+			std::cerr << "giveaway item too long: " << line
+				<< std::endl;
+			continue;
+		} else {
+			m_items.push_back(line);
+		}
+	}
 	reader.close();
 	return true;
 }
@@ -356,5 +390,135 @@ std::string Giveaway::getItem()
 		m_items.pop_back();
 		writeGiveaway();
 	}
+	if (m_images)
+		item = mkimg(item);
 	return item;
 }
+
+/* mkimg: transform item into an image, upload to ptpb and return url */
+static std::string mkimg(const std::string &item)
+{
+#ifdef _WIN32
+	std::cerr << "image-based giveaways are not available on Windows "
+		"systems" << std::endl;
+	return item;
+#endif
+
+#ifdef __linux__
+	static const char *font = "DejaVu-Sans-Mono-Bold";
+	std::string path, url;
+
+	path = utils::configdir();
+	if (path.length() > MAX_PATH - 15) {
+		fprintf(stderr, "%s: path too long\n", path.c_str());
+		return item;
+	}
+
+	genimg(path.c_str(), item.c_str(), font);
+	mergeimg(path.c_str());
+	url = upload(path.c_str());
+
+	return url.empty() ? item : url;
+#endif
+}
+
+#ifdef __linux__
+static void genimg(const char *conf, const char *code, const char *font)
+{
+	char path[MAX_PATH];
+	char label[MAX_LABL];
+	int status;
+
+	strcpy(path, conf);
+	strcat(path, "/img/code.png");
+	strcpy(label, "label:");
+	strcat(label, code);
+
+	switch (fork()) {
+	case -1:
+		perror("fork");
+		break;
+	case 0:
+		execl("/usr/bin/convert", "convert", "-font", font,
+				"-pointsize", "40", "-gravity", "center",
+				"-transparent", "white", label, path,
+				(char *)NULL);
+		perror("/usr/bin/convert");
+		exit(1);
+	default:
+		wait(&status);
+		break;
+	}
+}
+
+static void mergeimg(const char *conf)
+{
+	char code[MAX_PATH];
+	char back[MAX_PATH];
+	int status;
+
+	strcpy(code, conf);
+	strcpy(back, conf);
+	strcat(code, "/img/code.png");
+	strcat(back, "/img/back1.jpg");
+
+	switch (fork()) {
+	case -1:
+		perror("fork");
+		break;
+	case 0:
+		execl("/usr/bin/composite", "composite", "-gravity", "center",
+				code, back, code, (char *)NULL);
+		perror("/usr/bin/composite");
+		exit(1);
+	default:
+		wait(&status);
+		break;
+	}
+}
+
+static std::string upload(const char *conf)
+{
+	int pipefd[2], status, bytes;
+	char path[MAX_PATH];
+	char buf[MAX_PATH];
+	char *s, *t;
+
+	strcpy(path, "c=@");
+	strcat(path, conf);
+	strcat(path, "/img/code.png");
+
+	if (pipe(pipefd)) {
+		perror("pipe");
+		return "";
+	}
+
+	switch (fork()) {
+	case -1:
+		perror("fork");
+		return "";
+	case 0:
+		dup2(pipefd[1], STDOUT_FILENO);
+		close(pipefd[0]);
+		close(pipefd[1]);
+		execl("/usr/bin/curl", "curl", "-F", path, PTPB, (char *)NULL);
+		perror("/usr/bin/curl");
+		exit(1);
+	default:
+		close(pipefd[1]);
+		if ((bytes = read(pipefd[0], buf, sizeof(buf) - 1)) < 0) {
+			perror("read");
+			return "";
+		}
+		buf[bytes] = '\0';
+		wait(&status);
+		if (!(s = strstr(buf, "url:")))
+			return "";
+		s += 5;
+		if (!(t = strchr(s, '\n')))
+			return "";
+		*t = '\0';
+		return std::string(s);
+	}
+}
+#endif

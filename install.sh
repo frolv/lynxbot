@@ -27,12 +27,12 @@ config() {
 		fi
 	done
 	[[ ! -d $cfgdir/json ]] && mkdir $cfgdir/json
-	for f in json/*; do
-		n=$(echo $f | sed 's/\.txt//')
-		if [[ ! -e $cfgdir/$n ]]; then
-			cp $f $cfgdir/$n
+	[[ ! -d $cfgdir/img ]] && mkdir $cfgdir/img
+	for f in json/* img/*; do
+		if [[ ! -e $cfgdir/$f ]]; then
+			cp $f $cfgdir/$f
 		else
-			echo $cfgdir/$n already exists: ignoring
+			echo $cfgdir/$f already exists: ignoring
 		fi
 	done
 	echo all configuration files copied to $cfgdir
