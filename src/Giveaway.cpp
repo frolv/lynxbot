@@ -22,8 +22,8 @@
 static std::string mkimg(const std::string &item);
 
 #ifdef __linux__
-static void genimg(const char *conf, const char *code, const char *font);
-static void mergeimg(const char *conf);
+static int genimg(const char *conf, const char *code, const char *font);
+static int mergeimg(const char *conf);
 static std::string upload(const char *conf);
 
 static const char *PTPB = "https://ptpb.pw";
@@ -414,8 +414,14 @@ static std::string mkimg(const std::string &item)
 		return item;
 	}
 
-	genimg(path.c_str(), item.c_str(), font);
-	mergeimg(path.c_str());
+	if (genimg(path.c_str(), item.c_str(), font)) {
+		fprintf(stderr, "failed to generate code image\n");
+		return item;
+	}
+	if (mergeimg(path.c_str())) {
+		fprintf(stderr, "failed to impose image on background\n");
+		return item;
+	}
 	url = upload(path.c_str());
 
 	return url.empty() ? item : url;
@@ -423,7 +429,7 @@ static std::string mkimg(const std::string &item)
 }
 
 #ifdef __linux__
-static void genimg(const char *conf, const char *code, const char *font)
+static int genimg(const char *conf, const char *code, const char *font)
 {
 	char path[MAX_PATH];
 	char label[MAX_LABL];
@@ -437,7 +443,7 @@ static void genimg(const char *conf, const char *code, const char *font)
 	switch (fork()) {
 	case -1:
 		perror("fork");
-		break;
+		return 1;
 	case 0:
 		execl("/usr/bin/convert", "convert", "-font", font,
 				"-pointsize", "40", "-gravity", "center",
@@ -447,11 +453,11 @@ static void genimg(const char *conf, const char *code, const char *font)
 		exit(1);
 	default:
 		wait(&status);
-		break;
+		return status >> 8;
 	}
 }
 
-static void mergeimg(const char *conf)
+static int mergeimg(const char *conf)
 {
 	char code[MAX_PATH];
 	char back[MAX_PATH];
@@ -465,7 +471,7 @@ static void mergeimg(const char *conf)
 	switch (fork()) {
 	case -1:
 		perror("fork");
-		break;
+		return 1;
 	case 0:
 		execl("/usr/bin/composite", "composite", "-gravity", "center",
 				code, back, code, (char *)NULL);
@@ -473,7 +479,7 @@ static void mergeimg(const char *conf)
 		exit(1);
 	default:
 		wait(&status);
-		break;
+		return status >> 8;
 	}
 }
 
