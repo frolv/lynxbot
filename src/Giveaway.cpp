@@ -113,6 +113,12 @@ void Giveaway::setTimer(bool setting, time_t interval)
 	writeSettings();
 }
 
+void Giveaway::setImages(bool setting)
+{
+	m_images = setting;
+	writeSettings();
+}
+
 /*
 bool Giveaway::checkSubs()
 {
@@ -219,6 +225,10 @@ std::string Giveaway::currentSettings(int8_t type)
 		if (!m_type[2])
 			return output + "inactive.";
 		output += "set to occur " + timed + ".";
+		break;
+	case 3:
+		output = "image-based giveaways are currently ";
+		output += m_images ? "active." : "inactive.";
 		break;
 	default:
 		output = "giveaways are currently ";
@@ -366,6 +376,7 @@ void Giveaway::writeGiveaway() const
 void Giveaway::writeSettings() const
 {
 	m_cfgr->set("giveaway_active", m_active ? "true" : "false");
+	m_cfgr->set("image_giveaways", m_images ? "true" : "false");
 	m_cfgr->set("follower_giveaway", m_type[1] ? "true" : "false");
 	m_cfgr->set("follower_limit", std::to_string(m_followerLimit));
 	m_cfgr->set("timed_giveaway", m_type[2] ? "true" : "false");

@@ -1022,15 +1022,19 @@ std::string CommandHandler::setrecFunc(struct cmdinfo *c)
 std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
-	OptionParser op(c->fullCmd, "fn:t");
-	int16_t opt;
-	int32_t amt = 0;
-	bool setfollowers = false, settimer = false;
+	OptionParser op(c->fullCmd, "fin:t");
+	int opt, amt;
+	bool setfollowers, settimer, setimages;
 
+	amt = 0;
+	setfollowers = settimer = setimages = false;
 	while ((opt = op.getopt()) != EOF) {
 		switch (opt) {
 		case 'f':
 			setfollowers = true;
+			break;
+		case 'i':
+			setimages = true;
 			break;
 		case 'n':
 			try {
@@ -1057,8 +1061,9 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 		}
 	}
 
-	if (setfollowers && settimer)
-		return c->cmd + ": cannot combine -f and -t flags";
+	if ((setfollowers && settimer) || (setfollowers && setimages)
+			|| (setimages && settimer))
+		return c->cmd + ": cannot combine -f, -i and -t flags";
 
 	if (op.optind() == c->fullCmd.length())
 		return c->cmd + ": invalid syntax. Use \"$setgiv [-ft] "
@@ -1078,6 +1083,8 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			type = 1;
 		if (settimer)
 			type = 2;
+		if (setimages)
+			type = 3;
 		return output + m_givp->currentSettings(type);
 	}
 	if (!P_ISOWN(c->privileges))
@@ -1095,6 +1102,9 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			res = "giveaways set to occur every ";
 			res += std::to_string(m_givp->interval() / 60);
 			res += " minutes.";
+		} else if (setimages) {
+			m_givp->setImages(true);
+			res = "image-based giveaways enabled.";
 		} else {
 			m_givp->activate(time(nullptr), err);
 			res = "giveaways have been activated.";
@@ -1106,6 +1116,9 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 		} else if (settimer) {
 			m_givp->setTimer(false);
 			res = "timed giveaways have been disabled.";
+		} else if (setimages) {
+			m_givp->setImages(false);
+			res = "image-based giveaways disabled.";
 		} else {
 			m_givp->deactivate();
 			res = "giveaways have been deactivated.";

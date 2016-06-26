@@ -15,6 +15,7 @@ class Giveaway {
 		bool activate(time_t initTime, std::string &reason);
 		void setFollowers(bool setting, uint32_t amt = 0);
 		void setTimer(bool setting, time_t interval = 0);
+		void setImages(bool setting);
 		void deactivate();
 		/* bool checkSubs(); */
 		bool checkConditions(time_t curr);
