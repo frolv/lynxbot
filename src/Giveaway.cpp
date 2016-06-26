@@ -231,10 +231,12 @@ std::string Giveaway::currentSettings(int8_t type)
 		output += m_images ? "active." : "inactive.";
 		break;
 	default:
-		output = "giveaways are currently ";
+		if (m_active && m_images)
+			output += "image-based ";
+		output += "giveaways are currently ";
 		if (!m_active)
 			return output + "inactive.";
-		output += " active and set to occur ";
+		output += "active and set to occur ";
 		if (m_type[1])
 			output += followers + (m_type[2] ? " and " : ".");
 		if (m_type[2])

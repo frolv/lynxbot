@@ -1066,14 +1066,14 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 		return c->cmd + ": cannot combine -f, -i and -t flags";
 
 	if (op.optind() == c->fullCmd.length())
-		return c->cmd + ": invalid syntax. Use \"$setgiv [-ft] "
+		return c->cmd + ": invalid syntax. Use \"$setgiv [-fit] "
 			"[-n AMOUNT] on|off|check\"";
 
 	std::string setting = c->fullCmd.substr(op.optind());
 	std::string err, res;
 
 	if (setting != "on" && setting != "off" && setting != "check")
-		return c->cmd + ": invalid syntax. Use \"$setgiv [-ft] "
+		return c->cmd + ": invalid syntax. Use \"$setgiv [-fit] "
 			"[-n AMOUNT] on|off|check\"";
 
 	/* allow all users to check but only owner to set */
