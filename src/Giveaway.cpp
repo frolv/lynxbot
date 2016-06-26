@@ -429,6 +429,7 @@ static std::string mkimg(const std::string &item)
 }
 
 #ifdef __linux__
+/* genimg: generate an image containing the text of code */
 static int genimg(const char *conf, const char *code, const char *font)
 {
 	char path[MAX_PATH];
@@ -457,6 +458,7 @@ static int genimg(const char *conf, const char *code, const char *font)
 	}
 }
 
+/* mergeimg: merge code image file with a background */
 static int mergeimg(const char *conf)
 {
 	char code[MAX_PATH];
@@ -483,6 +485,7 @@ static int mergeimg(const char *conf)
 	}
 }
 
+/* upload: upload code image file to ptpb */
 static std::string upload(const char *conf)
 {
 	int pipefd[2], status, bytes;
@@ -518,6 +521,7 @@ static std::string upload(const char *conf)
 		}
 		buf[bytes] = '\0';
 		wait(&status);
+		/* extract the url of the paste */
 		if (!(s = strstr(buf, "url:")))
 			return "";
 		s += 5;
