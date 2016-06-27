@@ -1163,6 +1163,7 @@ std::string CommandHandler::statusFunc(struct cmdinfo *c)
 
 	output = "[STATUS] ";
 
+	/* get the current status if no arg provided or if appending */
 	if (op.optind() == c->fullCmd.length() || append) {
 		resp = cpr::Get(cpr::Url(TWITCH_API + "/channels/" + m_channel),
 				head);
@@ -1199,6 +1200,7 @@ std::string CommandHandler::statusFunc(struct cmdinfo *c)
 	return c->cmd + ": something went wrong, try again";
 }
 
+/* source: determine whether cmd is a default or custom command */
 uint8_t CommandHandler::source(const std::string &cmd)
 {
 	if (m_defaultCmds.find(cmd) != m_defaultCmds.end())
@@ -1211,6 +1213,7 @@ uint8_t CommandHandler::source(const std::string &cmd)
 	return 0;
 }
 
+/* extractCMLData: extract and format CML response data in httpResp */
 std::string CommandHandler::extractCMLData(const std::string &httpResp) const
 {
 	std::vector<std::string> elems;
@@ -1230,6 +1233,7 @@ std::string CommandHandler::extractCMLData(const std::string &httpResp) const
 	}
 }
 
+/* extractHSData: return skill information of the json data in httpResp */
 std::string CommandHandler::extractHSData(const std::string &httpResp,
 	uint8_t skillID) const
 {
@@ -1244,6 +1248,7 @@ std::string CommandHandler::extractHSData(const std::string &httpResp,
 		+ utils::formatInteger(argv[0]) + ".";
 }
 
+/* extractGEData: return the price of the json data in httpResp */
 std::string CommandHandler::extractGEData(const std::string &httpResp) const
 {
 	Json::Reader reader;
@@ -1254,6 +1259,7 @@ std::string CommandHandler::extractGEData(const std::string &httpResp) const
 		return "An error occurred. Please try again.";
 }
 
+/* getRsn: find the rsn referred to by text */
 std::string CommandHandler::getRSN(const std::string &text,
 	const std::string &nick, std::string &err, bool username)
 {
@@ -1274,22 +1280,33 @@ std::string CommandHandler::getRSN(const std::string &text,
 	return rsn;
 }
 
+/* populateHelp: fill m_help with manual page names */
 void CommandHandler::populateHelp()
 {
 	m_help[m_wheel.cmd()] = "selection-wheel";
 	m_help["wheel"] = "selection-wheel";
 	m_help["lvl"] = "level";
 	m_help["sp"] = "strawpoll";
+	m_help["automated-responses"] = "automated-responses";
 	m_help["responses"] = "automated-responses";
 	m_help["custom"] = "custom-commands";
+	m_help["custom-commands"] = "custom-commands";
+	m_help["giveaway"] = "giveaways";
 	m_help["giveaways"] = "giveaways";
+	m_help["mod"] = "moderation";
 	m_help["moderation"] = "moderation";
+	m_help["moderator"] = "moderation";
 	m_help["recurring"] = "recurring-messages";
+	m_help["recurring-messages"] = "recurring-messages";
 	m_help["rsns"] = "rsn-management";
+	m_help["rsn-management"] = "rsn-management";
 	m_help["submessage"] = "subscriber-message";
 	m_help["tweet"] = "tweet-reader";
+	m_help["tweet-reader"] = "tweet-reader";
 	m_help["twitter"] = "tweet-reader";
 	m_help["twitch"] = "twitch-authorization";
+	m_help["twitchauth"] = "twitch-authorization";
+	m_help["twitch-autorization"] = "twitch-authorization";
 	m_help["auth"] = "twitch-authorization";
 	m_help["authorization"] = "twitch-authorization";
 }
