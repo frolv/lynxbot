@@ -418,8 +418,10 @@ static std::string mkimg(const std::string &item)
 #endif
 
 #ifdef __linux__
-	static const char *font = "DejaVu-Sans-Mono-Bold";
+	static const char *fonts[] = { "DejaVu-Sans-Bold", "DejaVu-Serif-Bold",
+		"DejaVu-Serif-Bold-Italic" };
 	std::string path, url;
+	size_t i;
 
 	path = utils::configdir();
 	if (path.length() > MAX_PATH - 15) {
@@ -427,7 +429,9 @@ static std::string mkimg(const std::string &item)
 		return item;
 	}
 
-	if (genimg(path.c_str(), item.c_str(), font)) {
+	srand(time(NULL));
+	i = rand() % (sizeof(fonts) / sizeof(fonts[0]));
+	if (genimg(path.c_str(), item.c_str(), fonts[i])) {
 		fprintf(stderr, "failed to generate code image\n");
 		return item;
 	}
@@ -476,12 +480,15 @@ static int mergeimg(const char *conf)
 {
 	char code[MAX_PATH];
 	char back[MAX_PATH];
-	int status;
+	char *s;
+	int status, i;
 
 	strcpy(code, conf);
-	strcpy(back, conf);
 	strcat(code, "/img/code.png");
-	strcat(back, "/img/back1.jpg");
+
+	s = strcpy(back, conf) + strlen(conf);
+	i = rand() % 5;
+	sprintf(s, "/img/back%d.jpg", i);
 
 	switch (fork()) {
 	case -1:
