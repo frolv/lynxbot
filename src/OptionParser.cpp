@@ -169,10 +169,9 @@ char *OptionParser::opterr()
 /* parseopt: process a single option */
 int OptionParser::parseopt(int c)
 {
-	int t, i;
+	int i;
 
-	m_optopt = c;
-	switch ((t = type(c))) {
+	switch (type((m_optopt = c))) {
 	case NO_ARG:
 		m_optarg[0] = '\0';
 		++m_optind;
@@ -202,7 +201,6 @@ int OptionParser::type(int c) const
 {
 	const char *s;
 
-	s = strchr(m_optstr, c);
 	if (!(s = strchr(m_optstr, c)))
 		return INV_OPT;
 	return *++s == ':' ? REQ_ARG : NO_ARG;
