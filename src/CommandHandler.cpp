@@ -193,7 +193,7 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "n");
 	int opt;
-	struct OptionParser::option long_opts[] = {
+	static struct OptionParser::option long_opts[] = {
 		{ "nick", NO_ARG, 'n' },
 		{ 0, 0, 0 }
 	};
@@ -246,7 +246,7 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "n");
 	int opt;
-	struct OptionParser::option long_opts[] = {
+	static struct OptionParser::option long_opts[] = {
 		{ "nick", NO_ARG, 'n' },
 		{ 0, 0, 0 }
 	};
@@ -356,7 +356,7 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "nu");
 	int opt;
-	struct OptionParser::option long_opts[] = {
+	static struct OptionParser::option long_opts[] = {
 		{ "nick", NO_ARG, 'n' },
 		{ "update", NO_ARG, 'u' },
 		{ 0, 0, 0 }
@@ -481,7 +481,7 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 
 	int opt;
 	OptionParser op(c->fullCmd, "bcm");
-	struct OptionParser::option long_opts[] = {
+	static struct OptionParser::option long_opts[] = {
 		{ "binary", NO_ARG, 'b' },
 		{ "captcha", NO_ARG, 'c' },
 		{ "multi", NO_ARG, 'm' },
@@ -929,7 +929,7 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 	time_t cooldown = 300;
 	int opt;
 	OptionParser op(c->fullCmd, "c:");
-	struct OptionParser::option long_opts[] = {
+	static struct OptionParser::option long_opts[] = {
 		{ "cooldown", REQ_ARG, 'c' },
 		{ "interval", REQ_ARG, 'c' },
 		{ 0, 0, 0 }
@@ -1034,7 +1034,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "fin:t");
 	int opt, amt;
-	struct OptionParser::option long_opts[] = {
+	static struct OptionParser::option long_opts[] = {
 		{ "followers", NO_ARG, 'f' },
 		{ "image", NO_ARG, 'i' },
 		{ "amount", REQ_ARG, 'n' },

@@ -185,8 +185,8 @@ int OptionParser::parseopt(int c)
 			return '?';
 		}
 		/* arg is the sequence of chars until next space */
-		for (i = m_optind; m_cmdstr[m_optind] &&
-				!isspace(m_cmdstr[m_optind]); ++m_optind)
+		for (i = m_optind; m_cmdstr[m_optind]
+				&& !isspace(m_cmdstr[m_optind]); ++m_optind)
 			m_optarg[m_optind - i] = m_cmdstr[m_optind];
 		m_optarg[m_optind - i] = '\0';
 		return c;
@@ -262,7 +262,7 @@ int OptionParser::parselong(struct option* lo)
 				m_optarg[0] = '\0';
 				if (m_cmdstr[m_optind] == '=') {
 					puterr(INVAL_ARG);
-					return '?';
+					return m_optopt = '?';
 				}
 				return m_optopt = lo->val;
 			}
