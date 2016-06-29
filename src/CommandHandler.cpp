@@ -193,9 +193,13 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "n");
 	int opt;
+	struct OptionParser::option long_opts[] = {
+		{ "nick", NO_ARG, 'n' },
+		{ 0, 0, 0 }
+	};
 	bool usenick = false;
 
-	while ((opt = op.getopt()) != EOF) {
+	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
 			case 'n':
 				usenick = true;
@@ -242,9 +246,13 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "n");
 	int opt;
+	struct OptionParser::option long_opts[] = {
+		{ "nick", NO_ARG, 'n' },
+		{ 0, 0, 0 }
+	};
 	bool usenick = false;
 
-	while ((opt = op.getopt()) != EOF) {
+	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
 			case 'n':
 				usenick = true;
@@ -348,9 +356,14 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "nu");
 	int opt;
+	struct OptionParser::option long_opts[] = {
+		{ "nick", NO_ARG, 'n' },
+		{ "update", NO_ARG, 'u' },
+		{ 0, 0, 0 }
+	};
 	bool usenick = false, update = false;
 
-	while ((opt = op.getopt()) != EOF) {
+	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
 		case 'n':
 			usenick = true;
@@ -468,7 +481,14 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 
 	int opt;
 	OptionParser op(c->fullCmd, "bcm");
-	while ((opt = op.getopt()) != EOF) {
+	struct OptionParser::option long_opts[] = {
+		{ "binary", NO_ARG, 'b' },
+		{ "captcha", NO_ARG, 'c' },
+		{ "multi", NO_ARG, 'm' },
+		{ 0, 0, 0 }
+	};
+
+	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
 		case 'b':
 			binary = true;
@@ -797,7 +817,12 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 
 	OptionParser op(c->fullCmd, "c:");
 	int opt;
-	while ((opt = op.getopt()) != EOF) {
+	static struct OptionParser::option long_opts[] = {
+		{ "cooldown", REQ_ARG, 'c'},
+		{ 0, 0, 0 }
+	};
+
+	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
 		case 'c':
 			/* user provided a cooldown */
@@ -904,8 +929,13 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 	time_t cooldown = 300;
 	int opt;
 	OptionParser op(c->fullCmd, "c:");
+	struct OptionParser::option long_opts[] = {
+		{ "cooldown", REQ_ARG, 'c' },
+		{ "interval", REQ_ARG, 'c' },
+		{ 0, 0, 0 }
+	};
 
-	while ((opt = op.getopt()) != EOF) {
+	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
 		case 'c':
 			try {
@@ -1004,11 +1034,18 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "fin:t");
 	int opt, amt;
+	struct OptionParser::option long_opts[] = {
+		{ "followers", NO_ARG, 'f' },
+		{ "image", NO_ARG, 'i' },
+		{ "amount", REQ_ARG, 'n' },
+		{ "timed", NO_ARG, 't' },
+		{ 0, 0, 0 }
+	};
 	bool setfollowers, settimer, setimages;
 
 	amt = 0;
 	setfollowers = settimer = setimages = false;
-	while ((opt = op.getopt()) != EOF) {
+	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
 		case 'f':
 			setfollowers = true;
@@ -1113,6 +1150,11 @@ std::string CommandHandler::statusFunc(struct cmdinfo *c)
 	std::string output, status;
 	bool append = false;
 
+	static struct OptionParser::option long_opts[] = {
+		{ "append", NO_ARG, 'a' },
+		{ 0, 0, 0 }
+	};
+
 	cpr::Response resp;
 	cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
 		{ "Authorization", "OAuth " + m_token }};
@@ -1122,7 +1164,7 @@ std::string CommandHandler::statusFunc(struct cmdinfo *c)
 	if (!P_ALMOD(c->privileges))
 		return "";
 
-	while ((opt = op.getopt()) != EOF) {
+	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
 		case 'a':
 			append = true;
@@ -1135,7 +1177,6 @@ std::string CommandHandler::statusFunc(struct cmdinfo *c)
 	}
 
 	output = "[STATUS] ";
-	std::cout << op.optind() << std::endl;
 
 	/* get the current status if no arg provided or if appending */
 	if (op.optind() == c->fullCmd.length() || append) {

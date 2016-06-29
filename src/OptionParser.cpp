@@ -7,6 +7,9 @@
 #define UNREC_TOK 127
 #define INVAL_OPT 126
 #define NOPRV_ARG 125
+#define UNREC_LNG 124
+#define INVAL_ARG 123
+#define NOARG_LNG 122
 
 OptionParser::OptionParser(const std::string &cmd, const char *optstr)
 	: m_cmdstr(cmd.c_str()), m_optstr(optstr), m_cmdlen(cmd.length()),
@@ -30,7 +33,7 @@ int OptionParser::getopt()
 		c = m_cmdstr[m_optind];
 		switch (m_state) {
 		case 0:
-			while (isspace(m_cmdstr[m_optind]))
+			while (isspace((c = m_cmdstr[m_optind])))
 				++m_optind;
 			if (c == '-') {
 				m_state = 1;
@@ -51,7 +54,9 @@ int OptionParser::getopt()
 			}
 			/* -- indicates end of options */
 			if (c == '-') {
-				if (!isspace(m_cmdstr[++m_optind])) {
+				if (!m_cmdstr[++m_optind]) {
+					return EOF;
+				} else if (!isspace(m_cmdstr[m_optind])) {
 					puterr(UNREC_TOK);
 					return '?';
 				} else {
@@ -82,6 +87,61 @@ int OptionParser::getopt()
  * that start with -- */
 int OptionParser::getopt_long(struct option *long_opts)
 {
+	int c;
+
+	while (m_optind < m_cmdlen) {
+		c = m_cmdstr[m_optind];
+		switch (m_state) {
+		case 0:
+			while (isspace((c = m_cmdstr[m_optind])))
+				++m_optind;
+			if (c == '-') {
+				m_state = 1;
+				/* '-' is last char in string - treat as arg */
+				if (++m_optind == m_cmdlen) {
+					--m_optind;
+					return EOF;
+				}
+			} else {
+				return EOF;
+			}
+			break;
+		case 1:
+			/* isolated '-' - treat as arg */
+			if (isspace(c)) {
+				--m_optind;
+				return EOF;
+			}
+			/* -- indicates end of options */
+			if (c == '-') {
+				if (!m_cmdstr[m_optind + 1]) {
+					++m_optind;
+					return EOF;
+				} else if (!isspace(m_cmdstr[m_optind + 1])) {
+					readlong();
+					m_state = 0;
+					return parselong(long_opts);
+				} else {
+					while (isspace(m_cmdstr[++m_optind]))
+						;
+					return EOF;
+				}
+			}
+			m_state = 2;
+			return parseopt(c);
+		case 2:
+			/* end of current option cluster - find next */
+			if (isspace(c)) {
+				++m_optind;
+				m_state = 0;
+				continue;
+			}
+			return parseopt(c);
+		default:
+			/* unreachable */
+			return EOF;
+		}
+	}
 	return EOF;
 }
 
@@ -125,7 +185,8 @@ int OptionParser::parseopt(int c)
 			return '?';
 		}
 		/* arg is the sequence of chars until next space */
-		for (i = m_optind; !isspace(m_cmdstr[m_optind]); ++m_optind)
+		for (i = m_optind; m_cmdstr[m_optind] &&
+				!isspace(m_cmdstr[m_optind]); ++m_optind)
 			m_optarg[m_optind - i] = m_cmdstr[m_optind];
 		m_optarg[m_optind - i] = '\0';
 		return c;
@@ -151,8 +212,8 @@ void OptionParser::puterr(int type)
 {
 	switch (type) {
 	case UNREC_TOK:
-		sprintf(m_opterr, "%s: char %lu: unexpected token -- '%c'", m_cmd,
-				m_optind + 1, m_cmdstr[m_optind]);
+		sprintf(m_opterr, "%s: char %lu: unexpected token -- '%c'",
+				m_cmd, m_optind + 1, m_cmdstr[m_optind]);
 		break;
 	case INVAL_OPT:
 		sprintf(m_opterr, "%s: invalid option -- '%c'", m_cmd, m_optopt);
@@ -161,8 +222,70 @@ void OptionParser::puterr(int type)
 		sprintf(m_opterr, "%s: option requires an argument -- '%c'",
 				m_cmd, m_optopt);
 		break;
+	case UNREC_LNG:
+		sprintf(m_opterr, "%s: unrecognized option '--%s'", m_cmd,
+				m_longopt);
+		break;
+	case INVAL_ARG:
+		sprintf(m_opterr, "%s: option '--%s' doesn't allow an argument",
+				m_cmd, m_longopt);
+		break;
+	case NOARG_LNG:
+		sprintf(m_opterr, "%s: option '--%s' requires an argument",
+				m_cmd, m_longopt);
+		break;
 	default:
 		sprintf(m_opterr, "%s: could not parse options", m_cmd);
 		break;
 	}
+}
+
+/* read_long: read a long option into long_opt */
+void OptionParser::readlong()
+{
+	int i;
+
+	for (i = ++m_optind; m_cmdstr[m_optind]
+			&& !isspace(m_cmdstr[m_optind])
+			&& m_cmdstr[m_optind] != '='; ++m_optind)
+		m_longopt[m_optind - i] = m_cmdstr[m_optind];
+	m_longopt[m_optind - i] = '\0';
+}
+
+/* parselong: parse a long option */
+int OptionParser::parselong(struct option* lo)
+{
+	int i;
+
+	for (; lo->name && lo->type && lo->val; ++lo) {
+		if (strcmp(lo->name, m_longopt) == 0) {
+			if (lo->type == NO_ARG) {
+				if (m_cmdstr[m_optind] == '=') {
+					puterr(INVAL_ARG);
+					return '?';
+				}
+				return m_optopt = lo->val;
+			}
+			/* find the start of argument */
+			if (m_cmdstr[m_optind] == '=') {
+				++m_optind;
+			} else {
+				while (isspace(m_cmdstr[m_optind]))
+					++m_optind;
+				if (m_optind == m_cmdlen
+						|| m_cmdstr[m_optind] == '-') {
+					puterr(NOARG_LNG);
+					return m_optopt = '?';
+				}
+			}
+			/* read the argument */
+			for (i = m_optind; m_cmdstr[m_optind] &&
+					!isspace(m_cmdstr[m_optind]); ++m_optind)
+				m_optarg[m_optind - i] = m_cmdstr[m_optind];
+			m_optarg[m_optind - i] = '\0';
+			return m_optopt = lo->val;
+		}
+	}
+	puterr(UNREC_LNG);
+	return m_optopt = '?';
 }

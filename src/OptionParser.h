@@ -6,8 +6,8 @@
 # define EOF (-1)
 #endif
 
-#define NO_ARG  0
-#define REQ_ARG 1
+#define NO_ARG  1
+#define REQ_ARG 2
 
 #define ERR_SIZE 256
 
@@ -36,10 +36,13 @@ class OptionParser {
 		size_t m_cmdlen;
 		size_t m_optind;
 		char m_optarg[ERR_SIZE];
+		char m_longopt[ERR_SIZE];
 		uint8_t m_state;
 		int m_optopt;
 		int parseopt(int c);
 		int type(int c) const;
 		void puterr(int type);
+		void readlong();
+		int parselong(struct option* long_opts);
 
 };
