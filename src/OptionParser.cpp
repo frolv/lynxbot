@@ -6,6 +6,7 @@
 
 #define UNREC_TOK 127
 #define INVAL_OPT 126
+#define NOPRV_ARG 125
 
 OptionParser::OptionParser(const std::string &cmd, const char *optstr)
 	: m_cmdstr(cmd.c_str()), m_optstr(optstr), m_cmdlen(cmd.length()),
@@ -120,7 +121,7 @@ int OptionParser::parseopt(int c)
 		while (isspace(m_cmdstr[++m_optind]))
 			;
 		if (m_cmdstr[m_optind] == '-' || m_optind == m_cmdlen) {
-			puterr(NO_ARG);
+			puterr(NOPRV_ARG);
 			return '?';
 		}
 		/* arg is the sequence of chars until next space */
@@ -156,7 +157,7 @@ void OptionParser::puterr(int type)
 	case INVAL_OPT:
 		sprintf(m_opterr, "%s: invalid option -- '%c'", m_cmd, m_optopt);
 		break;
-	case NO_ARG:
+	case NOPRV_ARG:
 		sprintf(m_opterr, "%s: option requires an argument -- '%c'",
 				m_cmd, m_optopt);
 		break;
