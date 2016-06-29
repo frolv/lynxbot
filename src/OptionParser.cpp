@@ -1,132 +1,163 @@
+#include <cstdio>
+#include <cstring>
 #include "OptionParser.h"
 
-OptionParser::OptionParser(const std::string &optstr,
-		const std::string &options)
-	: m_optstr(optstr), m_options(options), m_optind(optstr.find(' ')),
-	m_state(0), m_optopt('\0')
-{}
+#define INV_OPT (-1)
 
-OptionParser::~OptionParser() {}
+#define UNREC_TOK 127
+#define INVAL_OPT 126
 
-int16_t OptionParser::getopt()
+OptionParser::OptionParser(const std::string &cmd, const char *optstr)
+	: m_cmdstr(cmd.c_str()), m_optstr(optstr), m_cmdlen(cmd.length()),
+	m_optind(0), m_state(0), m_optopt('\0')
 {
-	if (m_optind == std::string::npos) {
-		m_optind = m_optstr.length();
-		return EOF;
-	}
-	while (m_optind < m_optstr.length()) {
-		int16_t c = m_optstr[m_optind];
-		std::string optarg;
+	/* skip over and grab the command */
+	while (m_cmdstr[m_optind]
+			&& !isspace((m_cmd[m_optind] = m_cmdstr[m_optind])))
+		++m_optind;
+	m_cmd[m_optind] = '\0';
+	while (isspace(m_cmdstr[m_optind]))
+		++m_optind;
+}
+
+int OptionParser::getopt()
+{
+	int c;
+
+	while (m_optind < m_cmdlen) {
+		c = m_cmdstr[m_optind];
 		switch (m_state) {
 		case 0:
-			/* looking for next '-' */
-			if (c == '-')
+			while (isspace(m_cmdstr[m_optind]))
+				++m_optind;
+			if (c == '-') {
 				m_state = 1;
-			else if (c != ' ') {
-				/* no '-' found - end of options reached */
+				/* '-' is last char in string - treat as arg */
+				if (++m_optind == m_cmdlen) {
+					--m_optind;
+					return EOF;
+				}
+			} else {
 				return EOF;
 			}
-			/* c is another space - keep looking */
-			m_optind++;
 			break;
 		case 1:
-			/* first char after a '-' */
-			if (c == ' ') {
-				/* isolated '-' in string - treat as arg */
-				m_optind--;
+			/* isolated '-' - treat as arg */
+			if (isspace(c)) {
+				--m_optind;
 				return EOF;
 			}
-			m_optind++;
-			if (valid(c)) {
-				m_optopt = c;
-				if (arg(c)) {
-					/* c requires an argument */
-					if (m_optind == m_optstr.length())
-						return '?';
-					m_state = 3;
+			/* -- indicates end of options */
+			if (c == '-') {
+				if (!isspace(m_cmdstr[++m_optind])) {
+					puterr(UNREC_TOK);
+					return '?';
 				} else {
-					/* c doesn't require an argument */
-					m_state = 2;
-					return c;
+					while (isspace(m_cmdstr[++m_optind]))
+						;
+					return EOF;
 				}
-			} else {
-				/* invalid option */
-				m_optopt = c;
-				m_state = 2;
-				return '?';
 			}
-			break;
+			m_state = 2;
+			return parseopt(c);
 		case 2:
-			/* multiple characters after a '-' */
-			m_optind++;
-			if (c == ' ') {
-				/* end of current option - look for next '-' */
+			/* end of current option cluster - find next */
+			if (isspace(c)) {
+				++m_optind;
 				m_state = 0;
-			} else if (valid(c)) {
-				m_optopt = c;
-				if (arg(c)) {
-					/* c requires an argument */
-					m_state = 3;
-				} else {
-					/* c doesn't require an argument */
-					return c;
-				}
-			} else {
-				/* invalid option */
-				m_optopt = c;
-				return '?';
+				continue;
 			}
-			break;
-		case 3:
-			/* option requires an argument */
-			while (m_optstr[m_optind] == ' ')
-				m_optind++;
-			if (m_optind == m_optstr.length())
-				return '?';
-			if (m_optstr[m_optind] == '-') {
-				/* start of next option - no arg provided */
-				m_optind++;
-				m_state = 1;
-				return '?';
-			}
-			/* grab the argument up to the next space */
-			while (m_optind < m_optstr.length()
-					&& m_optstr[m_optind] != ' ')
-				optarg += m_optstr[m_optind++];
-			m_optarg = optarg;
-			m_state = 0;
-			return m_optopt;
+			return parseopt(c);
 		default:
-			/* uncreachable (hopefully) */
 			break;
 		}
 	}
 	return EOF;
 }
 
-std::string::size_type OptionParser::optind()
+int OptionParser::getopt_long(struct option *long_opts)
+{
+	return EOF;
+}
+
+size_t OptionParser::optind() const
 {
 	return m_optind;
 }
 
-std::string OptionParser::optarg()
+char *OptionParser::optarg()
 {
 	return m_optarg;
 }
 
-int16_t OptionParser::optopt()
+int OptionParser::optopt() const
 {
 	return m_optopt;
 }
 
-bool OptionParser::valid(int16_t c)
+char *OptionParser::opterr()
 {
-	return m_options.find(static_cast<char>(c)) != std::string::npos;
+	return m_opterr;
 }
 
-bool OptionParser::arg(int16_t c)
+/* parseopt: process a single option */
+int OptionParser::parseopt(int c)
 {
-	std::string::size_type pos = m_options.find(static_cast<char>(c));
-	return pos != std::string::npos && pos < m_options.length() - 1
-		&& m_options[pos + 1] == ':';
+	int t, i;
+
+	m_optopt = c;
+	switch ((t = type(c))) {
+	case NO_ARG:
+		m_optarg[0] = '\0';
+		++m_optind;
+		return c;
+	case REQ_ARG:
+		/* skip any whitespace between option and arg */
+		while (isspace(m_cmdstr[++m_optind]))
+			;
+		if (m_cmdstr[m_optind] == '-' || m_optind == m_cmdlen) {
+			puterr(NO_ARG);
+			return '?';
+		}
+		/* arg is the sequence of chars until next space */
+		for (i = m_optind; !isspace(m_cmdstr[m_optind]); ++m_optind)
+			m_optarg[m_optind - i] = m_cmdstr[m_optind];
+		m_optarg[m_optind - i] = '\0';
+		return c;
+	default:
+		puterr(INVAL_OPT);
+		return '?';
+	}
+}
+
+/* type: determine whether c is a valid option and if it requires an argument */
+int OptionParser::type(int c) const
+{
+	const char *s;
+
+	s = strchr(m_optstr, c);
+	if (!(s = strchr(m_optstr, c)))
+		return INV_OPT;
+	return *++s == ':' ? REQ_ARG : NO_ARG;
+}
+
+/* puterr: write an error message to m_opterr */
+void OptionParser::puterr(int type)
+{
+	switch (type) {
+	case UNREC_TOK:
+		sprintf(m_opterr, "%s: char %lu: unexpected token -- '%c'", m_cmd,
+				m_optind + 1, m_cmdstr[m_optind]);
+		break;
+	case INVAL_OPT:
+		sprintf(m_opterr, "%s: invalid option -- '%c'", m_cmd, m_optopt);
+		break;
+	case NO_ARG:
+		sprintf(m_opterr, "%s: option requires an argument -- '%c'",
+				m_cmd, m_optopt);
+		break;
+	default:
+		sprintf(m_opterr, "%s: could not parse options", m_cmd);
+		break;
+	}
 }

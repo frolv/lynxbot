@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 	while ((c = getopt_long(argc, argv, "hv", long_opts, NULL)) != EOF) {
 		switch (c) {
 		case 'h':
-			printf("usage: lynxbot [CHANNEL]\n%s: A Twitch.tv IRC "
+			printf("usage: lynxbot [CHANNEL]\n%s - A Twitch.tv IRC "
 					"bot for Old School Runescape\n"
 					"Documentation can be found at %s\n",
 					BOT_NAME, BOT_WEBSITE);

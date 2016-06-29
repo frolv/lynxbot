@@ -192,7 +192,7 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "n");
-	int16_t opt;
+	int opt;
 	bool usenick = false;
 
 	while ((opt = op.getopt()) != EOF) {
@@ -201,9 +201,7 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 				usenick = true;
 				break;
 			case '?':
-				output = c->cmd + ": invalid option -- ";
-				output += (char)op.optopt();
-				return output;
+				return std::string(op.opterr());
 			default:
 				return "";
 		}
@@ -243,7 +241,7 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "n");
-	int16_t opt;
+	int opt;
 	bool usenick = false;
 
 	while ((opt = op.getopt()) != EOF) {
@@ -252,9 +250,7 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 				usenick = true;
 				break;
 			case '?':
-				output = c->cmd + ": invalid option -- ";
-				output += (char)op.optopt();
-				return output;
+				return std::string(op.opterr());
 			default:
 				return "";
 		}
@@ -351,7 +347,7 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "nu");
-	int16_t opt;
+	int opt;
 	bool usenick = false, update = false;
 
 	while ((opt = op.getopt()) != EOF) {
@@ -363,9 +359,7 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 			update = true;
 			break;
 		case '?':
-			output = c->cmd + ": invalid option -- ";
-			output += (char)op.optopt();
-			return output;
+			return std::string(op.opterr());
 		default:
 			return "";
 		}
@@ -472,7 +466,7 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 	std::string output = "[SPOLL] ";
 	bool binary = false, multi = false, captcha = false;
 
-	int16_t opt;
+	int opt;
 	OptionParser op(c->fullCmd, "bcm");
 	while ((opt = op.getopt()) != EOF) {
 		switch (opt) {
@@ -486,9 +480,7 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 			multi = true;
 			break;
 		case '?':
-			output = c->cmd + ": invalid option -- ";
-			output += (char)op.optopt();
-			return output;
+			return std::string(op.opterr());
 		default:
 			return "";
 		}
@@ -804,7 +796,7 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 	time_t cooldown = editing ? -1 : 15;
 
 	OptionParser op(c->fullCmd, "c:");
-	int16_t opt;
+	int opt;
 	while ((opt = op.getopt()) != EOF) {
 		switch (opt) {
 		case 'c':
@@ -820,16 +812,7 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 			}
 			break;
 		case '?':
-			/* invalid option */
-			if (op.optopt() == 'c') {
-				output = c->cmd + ": -c option given without "
-					"cooldown";
-				return output;
-			} else {
-				output = c->cmd + ": invalid option -- ";
-				output += (char)op.optopt();
-				return output;
-			}
+			return std::string(op.opterr());
 		default:
 			return "";
 		}
@@ -919,8 +902,9 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 
 	std::string output = "@" + c->nick + ", ";
 	time_t cooldown = 300;
-	int16_t opt;
+	int opt;
 	OptionParser op(c->fullCmd, "c:");
+
 	while ((opt = op.getopt()) != EOF) {
 		switch (opt) {
 		case 'c':
@@ -932,11 +916,7 @@ std::string CommandHandler::addrecFunc(struct cmdinfo *c)
 			}
 			break;
 		case '?':
-			if (op.optopt() == 'c')
-				return c->cmd + "-c flag given without interval";
-			output = c->cmd + ": invalid option -- ";
-			output += (char)op.optopt();
-			return output;
+			return std::string(op.opterr());
 		default:
 			return "";
 		}
@@ -1050,12 +1030,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 			settimer = true;
 			break;
 		case '?':
-			if (op.optopt() == 'n')
-				return c->cmd + ": -n option given "
-					"without amount";
-			output = c->cmd + ": invalid option -- ";
-			output += (char)op.optopt();
-			return output;
+			return std::string(op.opterr());
 		default:
 			return "";
 		}
@@ -1153,15 +1128,14 @@ std::string CommandHandler::statusFunc(struct cmdinfo *c)
 			append = true;
 			break;
 		case '?':
-			output += c->cmd + ": invalid option -- ";
-			output += (char)op.optopt();
-			return output;
+			return std::string(op.opterr());
 		default:
 			return "";
 		}
 	}
 
 	output = "[STATUS] ";
+	std::cout << op.optind() << std::endl;
 
 	/* get the current status if no arg provided or if appending */
 	if (op.optind() == c->fullCmd.length() || append) {

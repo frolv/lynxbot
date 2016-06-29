@@ -2,26 +2,44 @@
 
 #include <string>
 
-#define EOF (-1)
+#ifndef EOF
+# define EOF (-1)
+#endif
+
+#define NO_ARG  0
+#define REQ_ARG 1
+
+#define ERR_SIZE 256
 
 class OptionParser {
 
 	public:
-		OptionParser(const std::string &optstr, const std::string &options);
-		~OptionParser();
-		int16_t getopt();
-		std::string::size_type optind();
-		std::string optarg();
-		int16_t optopt();
+		struct option {
+			const char *name;
+			int type;
+			int val;
+		};
+
+		OptionParser(const std::string &cmd, const char *optstr);
+		int getopt();
+		int getopt_long(struct option *long_opts);
+		size_t optind() const;
+		char *optarg();
+		int optopt() const;
+		char *opterr();
 
 	private:
-		const std::string m_optstr;
-		const std::string m_options;
-		std::string::size_type m_optind;
-		std::string m_optarg;
+		const char *m_cmdstr;
+		const char *m_optstr;
+		char m_cmd[ERR_SIZE];
+		char m_opterr[ERR_SIZE];
+		size_t m_cmdlen;
+		size_t m_optind;
+		char m_optarg[ERR_SIZE];
 		uint8_t m_state;
-		int16_t m_optopt;
-		bool valid(int16_t c);
-		bool arg(int16_t c);
+		int m_optopt;
+		int parseopt(int c);
+		int type(int c) const;
+		void puterr(int type);
 
 };
