@@ -112,16 +112,17 @@ int OptionParser::getopt_long(struct option *long_opts)
 				--m_optind;
 				return EOF;
 			}
-			/* -- indicates end of options */
 			if (c == '-') {
 				if (!m_cmdstr[m_optind + 1]) {
 					++m_optind;
 					return EOF;
 				} else if (!isspace(m_cmdstr[m_optind + 1])) {
+					/* long option */
 					readlong();
 					m_state = 0;
 					return parselong(long_opts);
 				} else {
+					/* end of options */
 					while (isspace(m_cmdstr[++m_optind]))
 						;
 					return EOF;
@@ -260,6 +261,7 @@ int OptionParser::parselong(struct option* lo)
 	for (; lo->name && lo->type && lo->val; ++lo) {
 		if (strcmp(lo->name, m_longopt) == 0) {
 			if (lo->type == NO_ARG) {
+				m_optarg[0] = '\0';
 				if (m_cmdstr[m_optind] == '=') {
 					puterr(INVAL_ARG);
 					return '?';
