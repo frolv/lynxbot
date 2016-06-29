@@ -20,6 +20,7 @@ OptionParser::OptionParser(const std::string &cmd, const char *optstr)
 		++m_optind;
 }
 
+/* getopt: parse command options */
 int OptionParser::getopt()
 {
 	int c;
@@ -69,12 +70,15 @@ int OptionParser::getopt()
 			}
 			return parseopt(c);
 		default:
-			break;
+			/* unreachable */
+			return EOF;
 		}
 	}
 	return EOF;
 }
 
+/* getopt_long: parse command options, with support for long options
+ * that start with -- */
 int OptionParser::getopt_long(struct option *long_opts)
 {
 	return EOF;
