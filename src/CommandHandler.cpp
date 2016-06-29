@@ -1103,6 +1103,12 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 		return output + "you do not have permission to perform "
 			"this action.";
 
+#ifdef _WIN32
+	if (setimages)
+		return c->cmd + ": image-based giveaways are not available "
+			"on Windows systems.";
+#endif
+
 	if (setting == "on") {
 		if (setfollowers) {
 			m_givp->setFollowers(true, amt);
