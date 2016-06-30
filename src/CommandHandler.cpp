@@ -25,39 +25,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_parsep(urlp), m_customCmds(NULL), m_evtp(evtp), m_givp(givp),
 	m_cfgr(cfgr), m_counting(false), m_gen(m_rd())
 {
-	/* initializing pointers to all default commands */
-	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
-	m_defaultCmds["level"] = &CommandHandler::levelFunc;
-	m_defaultCmds["lvl"] = &CommandHandler::levelFunc;
-	m_defaultCmds["ge"] = &CommandHandler::geFunc;
-	m_defaultCmds["calc"] = &CommandHandler::calcFunc;
-	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
-	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
-	m_defaultCmds["active"] = &CommandHandler::activeFunc;
-	m_defaultCmds["uptime"] = &CommandHandler::uptimeFunc;
-	m_defaultCmds["rsn"] = &CommandHandler::rsnFunc;
-	m_defaultCmds["manual"] = &CommandHandler::manualFunc;
-	m_defaultCmds["commands"] = &CommandHandler::manualFunc;
-	m_defaultCmds["help"] = &CommandHandler::helpFunc;
-	m_defaultCmds["about"] = &CommandHandler::aboutFunc;
-	m_defaultCmds["submit"] = &CommandHandler::submitFunc;
-	m_defaultCmds["duck"] = &CommandHandler::duckFunc;
-	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheelFunc;
-
-	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
-	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
-	m_defaultCmds["count"] = &CommandHandler::countFunc;
-	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
-	m_defaultCmds["permit"] = &CommandHandler::permitFunc;
-	m_defaultCmds["addcom"] = &CommandHandler::makecomFunc;
-	m_defaultCmds["editcom"] = &CommandHandler::makecomFunc;
-	m_defaultCmds["delcom"] = &CommandHandler::delcomFunc;
-	m_defaultCmds["addrec"] = &CommandHandler::addrecFunc;
-	m_defaultCmds["delrec"] = &CommandHandler::delrecFunc;
-	m_defaultCmds["listrec"] = &CommandHandler::listrecFunc;
-	m_defaultCmds["setrec"] = &CommandHandler::setrecFunc;
-	m_defaultCmds["setgiv"] = &CommandHandler::setgivFunc;
-	m_defaultCmds["status"] = &CommandHandler::statusFunc;
+	populateCmds();
 
 	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd());
@@ -1299,6 +1267,45 @@ std::string CommandHandler::getRSN(const std::string &text,
 		}
 	}
 	return rsn;
+}
+
+/* populateCmds: initialize pointers to all default commands */
+void CommandHandler::populateCmds()
+{
+	/* regular commands */
+	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
+	m_defaultCmds["level"] = &CommandHandler::levelFunc;
+	m_defaultCmds["lvl"] = &CommandHandler::levelFunc;
+	m_defaultCmds["ge"] = &CommandHandler::geFunc;
+	m_defaultCmds["calc"] = &CommandHandler::calcFunc;
+	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
+	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
+	m_defaultCmds["active"] = &CommandHandler::activeFunc;
+	m_defaultCmds["uptime"] = &CommandHandler::uptimeFunc;
+	m_defaultCmds["rsn"] = &CommandHandler::rsnFunc;
+	m_defaultCmds["manual"] = &CommandHandler::manualFunc;
+	m_defaultCmds["commands"] = &CommandHandler::manualFunc;
+	m_defaultCmds["help"] = &CommandHandler::helpFunc;
+	m_defaultCmds["about"] = &CommandHandler::aboutFunc;
+	m_defaultCmds["submit"] = &CommandHandler::submitFunc;
+	m_defaultCmds["duck"] = &CommandHandler::duckFunc;
+	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheelFunc;
+
+	/* moderator commands */
+	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
+	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
+	m_defaultCmds["count"] = &CommandHandler::countFunc;
+	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
+	m_defaultCmds["permit"] = &CommandHandler::permitFunc;
+	m_defaultCmds["addcom"] = &CommandHandler::makecomFunc;
+	m_defaultCmds["editcom"] = &CommandHandler::makecomFunc;
+	m_defaultCmds["delcom"] = &CommandHandler::delcomFunc;
+	m_defaultCmds["addrec"] = &CommandHandler::addrecFunc;
+	m_defaultCmds["delrec"] = &CommandHandler::delrecFunc;
+	m_defaultCmds["listrec"] = &CommandHandler::listrecFunc;
+	m_defaultCmds["setrec"] = &CommandHandler::setrecFunc;
+	m_defaultCmds["setgiv"] = &CommandHandler::setgivFunc;
+	m_defaultCmds["status"] = &CommandHandler::statusFunc;
 }
 
 /* populateHelp: fill m_help with manual page names */

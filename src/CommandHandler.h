@@ -45,6 +45,7 @@ class CommandHandler {
 		std::string processResponse(const std::string &message);
 		bool isCounting() const;
 		void count(const std::string &nick, const std::string &message);
+
 	private:
 		const std::string m_name;
 		const std::string m_channel;
@@ -145,6 +146,7 @@ class CommandHandler {
 		std::string getRSN(const std::string &text,
 			const std::string &nick, std::string &err,
 			bool username = false);
+		void populateCmds();
 		void populateHelp();
 };
 

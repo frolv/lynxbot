@@ -239,7 +239,7 @@ void OptionParser::puterr(int type)
 	}
 }
 
-/* read_long: read a long option into long_opt */
+/* read_long: read a long option into m_longopt */
 void OptionParser::readlong()
 {
 	int i;

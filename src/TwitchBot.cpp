@@ -159,6 +159,9 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		if (match[2].str() == "1")
 			P_STSUB(p);
 
+		if (!utils::startsWith(msg, "$setgiv"))
+			return true;
+
 		/* check if the message contains a URL */
 		m_parser.parse(msg);
 
