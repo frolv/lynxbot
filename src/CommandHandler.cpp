@@ -1174,6 +1174,7 @@ std::string CommandHandler::statusFunc(struct cmdinfo *c)
 	if (append)
 		status += " ";
 	status += c->fullCmd.substr(op.optind());
+	status = tw::pencode(status, " ");
 	std::replace(status.begin(), status.end(), ' ', '+');
 	std::string content = "channel[status]=" + status;
 
