@@ -504,14 +504,6 @@ std::string CommandHandler::makecom(struct cmdinfo *c)
 	return output;
 }
 
-/* listrec: show all recurring messages */
-std::string CommandHandler::listrec(struct cmdinfo *c)
-{
-	if (!P_ALMOD(c->privileges))
-		return "";
-	return m_evtp->messageList();
-}
-
 /* setrec: enable and disable recurring messages */
 std::string CommandHandler::setrec(struct cmdinfo *c)
 {

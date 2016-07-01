@@ -132,8 +132,6 @@ class CommandHandler {
 
 		/* helpers */
 		uint8_t source(const std::string &cmd);
-		std::string extractHSData(const std::string &httpResp,
-			uint8_t skillID) const;
 		std::string getRSN(const std::string &text,
 			const std::string &nick, std::string &err,
 			bool username = false);

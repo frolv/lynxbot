@@ -5,7 +5,6 @@
 #include "command.h"
 #include "../CommandHandler.h"
 #include "../OptionParser.h"
-#include "../version.h"
 
 /* full name of the command */
 CMDNAME("ge");

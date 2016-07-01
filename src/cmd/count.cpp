@@ -17,7 +17,7 @@ static std::string getresults(std::unordered_map<std::string, uint16_t> *count);
 std::string CommandHandler::count(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
-		return "";
+		return NO_PERM(c->nick, c->cmd);
 
 	std::vector<std::string> argv;
 

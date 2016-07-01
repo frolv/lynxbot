@@ -19,7 +19,7 @@ static std::string formatoutput(std::vector<std::string> &del,
 std::string CommandHandler::delcom(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
-		return "";
+		return NO_PERM(c->nick, c->cmd);
 
 	std::string commands;
 	std::vector<std::string> argv, del, inv;

@@ -13,7 +13,7 @@ CMDUSAGE("$addrec [-c INT] MSG");
 std::string CommandHandler::addrec(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
-		return "";
+		return NO_PERM(c->nick, c->cmd);
 
 	std::string output = "@" + c->nick + ", ";
 	time_t cooldown = 300;
