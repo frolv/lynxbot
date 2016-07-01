@@ -83,7 +83,8 @@ std::string CommandHandler::ge(struct cmdinfo *c)
 /* getamt: read number from string num into amt */
 static bool getamt(char *num, int64_t *amt)
 {
-	int n, last, mult;
+	size_t last;
+	int64_t n, mult;
 
 	last = strlen(num) - 1;
 	mult = 1;
