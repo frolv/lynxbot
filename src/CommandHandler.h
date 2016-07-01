@@ -73,10 +73,6 @@ class CommandHandler {
 		std::unordered_map<std::string, std::string> m_help;
 		std::random_device m_rd;
 		std::mt19937 m_gen;
-		const std::string RS_HOST = "services.runescape.com";
-		const std::string RS_HS_API = "/m=hiscore_oldschool/index_lite.ws?player=";
-		const std::string EXCHANGE_HOST = "api.rsbuddy.com";
-		const std::string EXCHANGE_API = "/grandExchange?a=guidePrice&i=";
 		const std::string STRAWPOLL_HOST = "strawpoll.me";
 		const std::string STRAWPOLL_API = "/api/v2/polls";
 		const std::string TWITCH_API = "https://api.twitch.tv/kraken";
@@ -138,7 +134,6 @@ class CommandHandler {
 		uint8_t source(const std::string &cmd);
 		std::string extractHSData(const std::string &httpResp,
 			uint8_t skillID) const;
-		int64_t extractGEData(const std::string &httpResp) const;
 		std::string getRSN(const std::string &text,
 			const std::string &nick, std::string &err,
 			bool username = false);

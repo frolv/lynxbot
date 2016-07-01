@@ -10,7 +10,6 @@
 #include <tw/oauth.h>
 #include "CommandHandler.h"
 #include "OptionParser.h"
-#include "SkillMap.h"
 #include "version.h"
 
 #define DEFAULT 1
@@ -154,128 +153,6 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 	}
 }
 
-/* level: look up players' levels */
-std::string CommandHandler::level(struct cmdinfo *c)
-{
-	std::string output = "@" + c->nick + ", ";
-	OptionParser op(c->fullCmd, "n");
-	int opt;
-	static struct OptionParser::option long_opts[] = {
-		{ "nick", NO_ARG, 'n' },
-		{ 0, 0, 0 }
-	};
-	bool usenick = false;
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
-		switch (opt) {
-			case 'n':
-				usenick = true;
-				break;
-			case '?':
-				return std::string(op.opterr());
-			default:
-				return "";
-		}
-	}
-
-	if (op.optind() == c->fullCmd.length())
-		return c->cmd + ": invalid syntax. "
-			"Use \"$level [-n] SKILL RSN\"";
-
-	std::vector<std::string> argv;
-	utils::split(c->fullCmd.substr(op.optind()), ' ', argv);
-
-	if (argv.size() != 2)
-		return c->cmd + ": invalid syntax. "
-			"Use \"$level [-n] SKILL RSN\"";
-
-	std::string skill = argv[0];
-	std::string rsn, err;
-	if ((rsn = getRSN(argv[1], c->nick, err, usenick)).empty())
-		return err;
-	std::replace(rsn.begin(), rsn.end(), '-', '_');
-
-	if (skillMap.find(skill) == skillMap.end()
-			&& skillNickMap.find(skill) == skillNickMap.end())
-		return c->cmd + ": invalid skill name";
-
-	uint8_t skillID = skillMap.find(skill) == skillMap.end()
-		? skillNickMap.find(skill)->second
-		: skillMap.find(skill)->second;
-
-	cpr::Response resp = cpr::Get(cpr::Url("http://" + RS_HOST
-				+ RS_HS_API + rsn),
-			cpr::Header{{ "Connection", "close" }});
-	if (resp.text.find("404 - Page not found") != std::string::npos)
-		return c->cmd + ": player not found on hiscores";
-
-	/* skill nickname is displayed to save space */
-	std::string nick = getSkillNick(skillID);
-	std::transform(nick.begin(), nick.end(), nick.begin(), toupper);
-
-	return "[" + nick + "] Name: " + rsn + ", "
-		+ extractHSData(resp.text, skillID);
-}
-
-/* ge: look up item prices */
-std::string CommandHandler::ge(struct cmdinfo *c)
-{
-	if (!m_GEReader.active())
-		return "";
-
-	std::string output;
-	int opt, amt;
-	int64_t price;
-	OptionParser op(c->fullCmd, "n:");
-	static struct OptionParser::option long_opts[] = {
-		{ "amount", REQ_ARG, 'n' },
-		{ 0, 0, 0 }
-	};
-
-	amt = 1;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
-		switch (opt) {
-		case 'n':
-			try {
-				amt = std::stoi(op.optarg());
-			} catch (std::invalid_argument) {
-				return c->cmd  + ": invalid number -- "
-					+ std::string(op.optarg());
-			}
-			break;
-		case '?':
-			return std::string(op.opterr());
-		default:
-			return "";
-		}
-	}
-
-	if (op.optind() == c->fullCmd.length())
-		return c->cmd + ": no item name provided";
-
-	std::string itemName = c->fullCmd.substr(op.optind());
-	std::replace(itemName.begin(), itemName.end(), '_', ' ');
-
-	Json::Value item = m_GEReader.getItem(itemName);
-	if (item.empty())
-		return c->cmd + ": item not found: " + itemName;
-
-	cpr::Response resp = cpr::Get(cpr::Url("http://" + EXCHANGE_HOST
-		+ EXCHANGE_API + item["id"].asString()),
-		cpr::Header{{ "Connection", "close" }});
-
-	if ((price = extractGEData(resp.text)) == -1)
-		return c->cmd + ": could not extract price";
-
-	output = "[GE] ";
-	if (amt != 1)
-		output += utils::formatInteger(std::to_string(amt)) + "x ";
-	output += item["name"].asString() + ": ";
-	output += utils::formatInteger(std::to_string(amt * price)) + " gp";
-
-	return output;
-}
-
 /* wheel: select items from various categories */
 std::string CommandHandler::wheel(struct cmdinfo *c)
 {
@@ -400,29 +277,6 @@ std::string CommandHandler::manual(struct cmdinfo *c)
 {
 	return "[MANUAL] @" + c->nick + ", " + std::string(BOT_WEBSITE)
 		+ "/manual/index.html";
-}
-
-/* help: view command reference manuals */
-std::string CommandHandler::help(struct cmdinfo *c)
-{
-	std::vector<std::string> argv;
-	utils::split(c->fullCmd, ' ', argv);
-
-	if (argv.size() != 2)
-		return c->cmd + ": invalid syntax. Use \"$help CMD\"";
-
-	std::string path = std::string(BOT_WEBSITE) + "/manual/";
-	if (m_help.find(argv[1]) != m_help.end())
-		return "[HELP] " + path + m_help[argv[1]] + ".html";
-
-	if (m_defaultCmds.find(argv[1]) != m_defaultCmds.end())
-		return "[HELP] " + path + argv[1] + ".html";
-
-	Json::Value *ccmd;
-	if (!(ccmd = m_customCmds->getCom(argv[1]))->empty())
-		return "[HELP] " + argv[1] + " is a custom command";
-
-	return "[HELP] Not a bot command: " + argv[1];
 }
 
 /* uptime: check how long channel has been live */
@@ -886,32 +740,6 @@ uint8_t CommandHandler::source(const std::string &cmd)
 			return CUSTOM;
 	}
 	return 0;
-}
-
-/* extractHSData: return skill information of the json data in httpResp */
-std::string CommandHandler::extractHSData(const std::string &httpResp,
-	uint8_t skillID) const
-{
-	std::vector<std::string> skills;
-	utils::split(httpResp, '\n', skills);
-
-	std::vector<std::string> argv;
-	utils::split(skills[skillID], ',', argv);
-
-	return "Level: " + argv[1] + ", Exp: "
-		+ utils::formatInteger(argv[2]) + ", Rank: "
-		+ utils::formatInteger(argv[0]);
-}
-
-/* extractGEData: return the price of the json data in httpResp */
-int64_t CommandHandler::extractGEData(const std::string &httpResp) const
-{
-	Json::Reader reader;
-	Json::Value item;
-	if (reader.parse(httpResp, item))
-		return item["overall"].asInt();
-	else
-		return -1;
 }
 
 /* getRsn: find the rsn referred to by text */

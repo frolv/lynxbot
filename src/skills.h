@@ -1,8 +1,9 @@
 #pragma once
 
+#include <string>
 #include <unordered_map>
 
-const std::unordered_map<std::string, uint8_t> skillMap = {
+const std::unordered_map<std::string, uint8_t> skillmap = {
 	{ "overall", 0 },
 	{ "attack", 1 },
 	{ "defence", 2 },
@@ -29,7 +30,7 @@ const std::unordered_map<std::string, uint8_t> skillMap = {
 	{ "construction", 23 }
 };
 
-const std::unordered_map<std::string, uint8_t> skillNickMap = {
+const std::unordered_map<std::string, uint8_t> nickmap = {
 	{ "total", 0 },
 	{ "att", 1 },
 	{ "def", 2 },
@@ -56,4 +57,5 @@ const std::unordered_map<std::string, uint8_t> skillNickMap = {
 	{ "con", 23 }
 };
 
-std::string getSkillNick(uint8_t skillID);
+int8_t skill_id(const std::string &skill);
+std::string skill_nick(uint8_t id);
