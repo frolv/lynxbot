@@ -154,59 +154,6 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 	}
 }
 
-/* ehp: view players' ehp */
-std::string CommandHandler::ehp(struct cmdinfo *c)
-{
-	std::string output = "@" + c->nick + ", ";
-	OptionParser op(c->fullCmd, "n");
-	int opt;
-	static struct OptionParser::option long_opts[] = {
-		{ "nick", NO_ARG, 'n' },
-		{ 0, 0, 0 }
-	};
-	bool usenick = false;
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
-		switch (opt) {
-			case 'n':
-				usenick = true;
-				break;
-			case '?':
-				return std::string(op.opterr());
-			default:
-				return "";
-		}
-	}
-
-	if (op.optind() == c->fullCmd.length()) {
-		if (usenick)
-			return c->cmd + ": must provide Twitch name for -n flag";
-		else
-			return "[EHP] EHP stands for efficient hours played. "
-				"You earn 1 EHP whenever you gain a certain "
-				"amount of experience in a skill, depending "
-				"on your level. You can find XP rates here: "
-				"http://crystalmathlabs.com/tracker/suppliescalc.php . "
-				"Watch a video explaining EHP: "
-				"https://www.youtube.com/watch?v=rhxHlO8mvpc";
-	}
-
-	std::string rsn, err;
-	if ((rsn = getRSN(c->fullCmd.substr(op.optind()),
-			c->nick, err, usenick)).empty())
-		return err;
-	if (rsn.find(' ') != std::string::npos)
-		return c->cmd + ": invalid syntax. Use \"$ehp [-n] [RSN]\"";
-	std::replace(rsn.begin(), rsn.end(), '-', '_');
-
-	cpr::Response resp = cpr::Get(cpr::Url("http://" + CML_HOST +
-				CML_EHP_API + rsn),
-			cpr::Header{{ "Connection", "close" }});
-	if (resp.text == "-4")
-		return c->cmd + ": could not reach CML API, try again";
-	return "[EHP] " + extractCMLData(resp.text);
-}
-
 /* level: look up players' levels */
 std::string CommandHandler::level(struct cmdinfo *c)
 {
@@ -560,16 +507,6 @@ std::string CommandHandler::submit(struct cmdinfo *c)
 	return output + "your topic has been submitted. Thank you.";
 }
 
-/* duck: search duckduckgo with a query string */
-std::string CommandHandler::duck(struct cmdinfo *c)
-{
-	if (c->fullCmd.length() < 6)
-		return c->cmd + ": must provide search term";
-
-	std::string search = c->fullCmd.substr(5);
-	return "https://duckduckgo.com/?q=" + tw::pencode(search);
-}
-
 /* whitelist: exempt websites from moderation */
 std::string CommandHandler::whitelist(struct cmdinfo *c)
 {
@@ -710,34 +647,6 @@ std::string CommandHandler::makecom(struct cmdinfo *c)
 					std::to_string(cooldown) + "s cooldown.";
 		}
 	}
-	return output;
-}
-
-/* delrec: delete a recurring message */
-std::string CommandHandler::delrec(struct cmdinfo *c)
-{
-	if (!P_ALMOD(c->privileges))
-		return "";
-
-	std::string output = "@" + c->nick + ", ";
-	std::vector<std::string> argv;
-	utils::split(c->fullCmd, ' ', argv);
-	if (argv.size() != 2)
-		return c->cmd + ": invalid syntax. Use \"$delrec ID\"";
-
-	uint32_t id;
-	try {
-		id = std::stoi(argv[1]);
-	} catch (std::invalid_argument) {
-		return c->cmd + ": invalid number -- " + argv[1];
-	}
-
-	if (!m_evtp->delMessage(id))
-		return c->cmd + "invalid ID provided. Use \"$listrec\" to show "
-			"all recurring message IDs.";
-	else
-		output += "recurring message " + std::to_string(id)
-			+ " deleted.";
 	return output;
 }
 
@@ -977,26 +886,6 @@ uint8_t CommandHandler::source(const std::string &cmd)
 			return CUSTOM;
 	}
 	return 0;
-}
-
-/* extractCMLData: extract and format CML response data in httpResp */
-std::string CommandHandler::extractCMLData(const std::string &httpResp) const
-{
-	std::vector<std::string> elems;
-	utils::split(httpResp, ',', elems);
-	if (elems.size() == 4) {
-		std::string ehp = elems[2];
-		std::string::size_type dot;
-		if ((dot = ehp.find(".")) != std::string::npos) {
-			/* truncate to one decimal place */
-			ehp = ehp.substr(0, dot + 2);
-		}
-		return "Name: " + elems[1] + ", Rank: " + elems[0] + ", EHP: "
-			+ ehp + " (+" + elems[3] + " this week)";
-	} else {
-		return "Player either does not exist or has not "
-			"been tracked on CML.";
-	}
 }
 
 /* extractHSData: return skill information of the json data in httpResp */

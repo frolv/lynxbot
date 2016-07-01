@@ -11,6 +11,7 @@ CMDDESCR("interact with crystalmathlabs trackers");
 CMDUSAGE("$cml [-nu] [RSN]");
 
 static const std::string CML_HOST = "crystalmathlabs.com";
+static const std::string CML_USER = "/tracker/track.php?player=";
 static const std::string CML_UPDATE = "/tracker/api.php?type=update&player=";
 
 static int updatecml(const std::string &rsn, std::string &err);
