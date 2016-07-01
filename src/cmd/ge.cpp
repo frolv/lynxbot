@@ -84,7 +84,6 @@ std::string CommandHandler::ge(struct cmdinfo *c)
 static bool getamt(char *num, int64_t *amt)
 {
 	int n, last, mult;
-	char *s;
 
 	last = strlen(num) - 1;
 	mult = 1;
@@ -104,10 +103,10 @@ static bool getamt(char *num, int64_t *amt)
 	}
 
 	n = 0;
-	for (s = num; *s; ++s) {
-		if (*s < '0' || *s > '9')
+	for (; *num; ++num) {
+		if (*num < '0' || *num > '9')
 			return false;
-		n = 10 * n + (*s - '0');
+		n = 10 * n + (*num - '0');
 	}
 	*amt = n * mult;
 	return true;
