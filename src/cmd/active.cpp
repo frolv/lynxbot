@@ -30,6 +30,9 @@ std::string CommandHandler::active(struct cmdinfo *c)
 		}
 	}
 
+	if (op.optind() != c->fullCmd.length())
+		return USAGEMSG(CMDNAME, CMDUSAGE);
+
 	return "[ACTIVE] " + (m_activePoll.empty() ? "no poll has been created"
 			: m_activePoll);
 }

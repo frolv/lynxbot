@@ -85,7 +85,6 @@ class CommandHandler {
 		const std::string EXCHANGE_API = "/grandExchange?a=guidePrice&i=";
 		const std::string STRAWPOLL_HOST = "strawpoll.me";
 		const std::string STRAWPOLL_API = "/api/v2/polls";
-		const std::string SOURCE = "https://github.com/frolv/lynxbot";
 		const std::string TWITCH_API = "https://api.twitch.tv/kraken";
 		std::string m_activePoll;
 		std::vector<std::string> m_eightball = {

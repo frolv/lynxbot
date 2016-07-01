@@ -9,7 +9,6 @@
 #include <utils.h>
 #include <tw/oauth.h>
 #include "CommandHandler.h"
-#include "ExpressionParser.h"
 #include "OptionParser.h"
 #include "SkillMap.h"
 #include "version.h"
@@ -330,109 +329,6 @@ std::string CommandHandler::ge(struct cmdinfo *c)
 	return output;
 }
 
-/* calc: perform basic calculations */
-std::string CommandHandler::calc(struct cmdinfo *c)
-{
-	if (c->fullCmd.length() < 6)
-		return c->cmd + ": invalid mathematical expression";
-
-	std::string expr = c->fullCmd.substr(5);
-	/* remove all whitespace */
-	expr.erase(std::remove_if(expr.begin(), expr.end(), isspace), expr.end());
-
-	std::ostringstream result;
-	try {
-		ExpressionParser exprP(expr);
-		exprP.tokenizeExpr();
-		double res = exprP.eval();
-		result << res;
-	} catch (std::runtime_error &e) {
-		return e.what();
-	}
-	if (result.str() == "inf" || result.str() == "-nan(ind)")
-		return c->cmd + ": division by 0";
-
-	return "[CALC] " + result.str();
-}
-
-/* cml: interact with crystalmathlabs trackers */
-std::string CommandHandler::cml(struct cmdinfo *c)
-{
-	std::string output = "@" + c->nick + ", ";
-	OptionParser op(c->fullCmd, "nu");
-	int opt;
-	static struct OptionParser::option long_opts[] = {
-		{ "nick", NO_ARG, 'n' },
-		{ "update", NO_ARG, 'u' },
-		{ 0, 0, 0 }
-	};
-	bool usenick = false, update = false;
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
-		switch (opt) {
-		case 'n':
-			usenick = true;
-			break;
-		case 'u':
-			update = true;
-			break;
-		case '?':
-			return std::string(op.opterr());
-		default:
-			return "";
-		}
-	}
-
-	if (op.optind() == c->fullCmd.length()) {
-		if (update)
-			return c->cmd + ": must provide RSN for -u flag";
-		if (usenick)
-			return c->cmd + ": must provide Twitch name for -n flag";
-		else
-			return "[CML] http://" + CML_HOST;
-	}
-
-	std::string rsn, err;
-	if ((rsn = getRSN(c->fullCmd.substr(op.optind()),
-			c->nick, err, usenick)).empty())
-		return err;
-	if (rsn.find(' ') != std::string::npos)
-		return output += "invalid syntax. Use \"$cml [-nu] [RSN]\"";
-
-	if (update) {
-		cpr::Response resp = cpr::Get(
-				cpr::Url("http://" + CML_HOST + CML_UPDATE_API + rsn),
-				cpr::Header{{ "Connection", "close" }});
-		uint8_t i = std::stoi(resp.text);
-		switch (i) {
-		case 1:
-			output += rsn + "'s CML was updated";
-			break;
-		case 2:
-			output += rsn + " could not be found on the hiscores";
-			break;
-		case 3:
-			output += rsn + " has had a negative XP gain";
-			break;
-		case 4:
-			output += "unknown error, try again";
-			break;
-		case 5:
-			output += rsn + " has been updated within the last 30s";
-			break;
-		case 6:
-			output += rsn + " is an invalid RSN";
-			break;
-		default:
-			output += "could not reach CML API, try again";
-			break;
-		}
-		return output;
-	} else {
-		return "[CML] http://" + CML_HOST + CML_USER + rsn;
-	}
-}
-
 /* wheel: select items from various categories */
 std::string CommandHandler::wheel(struct cmdinfo *c)
 {
@@ -580,69 +476,6 @@ std::string CommandHandler::help(struct cmdinfo *c)
 		return "[HELP] " + argv[1] + " is a custom command";
 
 	return "[HELP] Not a bot command: " + argv[1];
-}
-
-/* count: manage message counts */
-std::string CommandHandler::count(struct cmdinfo *c)
-{
-	if (!P_ALMOD(c->privileges))
-		return "";
-
-	std::vector<std::string> argv;
-	utils::split(c->fullCmd, ' ', argv);
-
-	if (argv.size() != 2 || !(argv[1] == "start" || argv[1] == "stop"
-		|| argv[1] == "display"))
-		return c->cmd + ": invalid syntax. "
-			"Use \"$count start|stop|display\"";
-
-	if (argv[1] == "start") {
-		/* begin a new count */
-		if (m_counting)
-			return "A count is already running. "
-				"End it before starting a new one.";
-		m_usersCounted.clear();
-		m_messageCounts.clear();
-		m_counting = true;
-		return "Message counting has begun. Prepend your message with "
-			"a + to have it counted.";
-	} else if (argv[1] == "stop") {
-		/* end the current count */
-		if (!m_counting)
-			return "There is no active count.";
-		m_counting = false;
-		return "Count ended. Use \"$count display\" to view the results.";
-	} else {
-		/* display results from last count */
-		if (m_counting)
-			return "End the count before viewing the results.";
-		if (m_messageCounts.empty()) {
-			return "Nothing to display.";
-		} else {
-			typedef std::pair<std::string, uint16_t> mcount;
-			/* add each result to a vector to be sorted */
-			std::vector<mcount> pairs;
-			for (auto itr = m_messageCounts.begin();
-				itr != m_messageCounts.end(); ++itr)
-				pairs.push_back(*itr);
-			std::sort(pairs.begin(), pairs.end(),
-				[=](mcount &a, mcount &b) {
-					return a.second > b.second;
-				});
-			std::string results = "[RESULTS] ";
-			/* only show top 10 results */
-			size_t max = pairs.size() > 10 ? 10 : pairs.size();
-			for (size_t i = 0; i < max; ++i) {
-				mcount &pair = pairs[i];
-				/* print rank and number of votes */
-				results += std::to_string(i + 1) + ". "
-					+ pair.first + " ("
-					+ std::to_string(pair.second) + ")"
-					+ (i == max - 1 ? "." : ", ");
-			}
-			return results;
-		}
-	}
 }
 
 /* uptime: check how long channel has been live */
@@ -878,25 +711,6 @@ std::string CommandHandler::makecom(struct cmdinfo *c)
 		}
 	}
 	return output;
-}
-
-/* delcom: delete a custom command */
-std::string CommandHandler::delcom(struct cmdinfo *c)
-{
-	if (!P_ALMOD(c->privileges))
-		return "";
-	if (!m_customCmds->isActive())
-		return "Custom commands are currently disabled.";
-
-	std::vector<std::string> argv;
-	utils::split(c->fullCmd, ' ', argv);
-
-	if (argv.size() == 2)
-		return "@" + c->nick + ", command $" + argv[1]
-			+ (m_customCmds->delCom(argv[1])
-			? " has been deleted." : " not found.");
-	else
-		return c->cmd + ": invalid syntax. Use \"$delcom COMMAND\"";
 }
 
 /* delrec: delete a recurring message */

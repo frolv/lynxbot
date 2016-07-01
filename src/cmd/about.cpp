@@ -10,6 +10,8 @@ CMDDESCR("print bot information");
 /* command usage synopsis */
 CMDUSAGE("$about [-s]");
 
+static const std::string SOURCE = "https://github.com/frolv/lynxbot";
+
 /* about: print bot information */
 std::string CommandHandler::about(struct cmdinfo *c)
 {
@@ -33,6 +35,9 @@ std::string CommandHandler::about(struct cmdinfo *c)
 			return "";
 		}
 	}
+
+	if (op.optind() != c->fullCmd.length())
+		return USAGEMSG(CMDNAME, CMDUSAGE);
 
 	return "[ABOUT] " + m_name + " is running " + std::string(BOT_NAME)
 		+ " " + std::string(BOT_VERSION) + ". Find out more at "

@@ -11,3 +11,5 @@
 			+ NAME + " - " + DESC + " | read more: "\
 			+ (std::string(BOT_WEBSITE) + "/manual/" + NAME\
 			+ ".html")))
+#define USAGEMSG(NAME,USAGE) (std::string(NAME + ": invalid syntax. usage: "\
+			+ USAGE))

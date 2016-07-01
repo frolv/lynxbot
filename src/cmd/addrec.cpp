@@ -50,8 +50,8 @@ std::string CommandHandler::addrec(struct cmdinfo *c)
 	else if (cooldown > 3600)
 		return CMDNAME + ": interval cannot be longer than 60 mins";
 
-	if (op.optind() >= c->fullCmd.length())
-		return CMDNAME + ": no message specified";
+	if (op.optind() == c->fullCmd.length())
+		return USAGEMSG(CMDNAME, CMDUSAGE);
 	else if (!m_evtp->addMessage(c->fullCmd.substr(op.optind()), cooldown))
 		return CMDNAME + ": limit of 5 recurring messages reached";
 	else
