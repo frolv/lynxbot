@@ -8,15 +8,16 @@ CMDNAME("about");
 /* description of the command */
 CMDDESCR("print bot information");
 /* command usage synopsis */
-CMDUSAGE("$about");
+CMDUSAGE("$about [-s]");
 
 /* about: print bot information */
 std::string CommandHandler::about(struct cmdinfo *c)
 {
 	int opt;
-	OptionParser op(c->fullCmd, "");
+	OptionParser op(c->fullCmd, "s");
 	static struct OptionParser::option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
+		{ "source", NO_ARG, 's' },
 		{ 0, 0, 0 }
 	};
 
@@ -24,6 +25,8 @@ std::string CommandHandler::about(struct cmdinfo *c)
 		switch (opt) {
 		case 'h':
 			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+		case 's':
+			return "[ABOUT] source: " + SOURCE;
 		case '?':
 			return std::string(op.opterr());
 		default:
