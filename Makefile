@@ -50,6 +50,14 @@ _LBH=client.h CommandHandler.h config.h EventManager.h ExpressionParser.h\
      version.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
+_COMMANDS=about.o active.o addrec.o calc.o cml.o count.o delcom.o delrec.o\
+	  duck.o ehp.o eightball.o ge.o help.o level.o listrec.o makecom.o\
+	  manual.o permit.o rsn.o setgiv.o setrec.o status.o strawpoll.o\
+	  submit.o uptime.o wheel.o whitelist.o
+COMMANDS=$(patsubst %, $(OBJ)/cmd/%,$(_COMMANDS))
+_CMDH=command.h
+CMDH=$(patsubst %, $(SRC)/cmd/%,$(_CMDH))
+
 _LIBS=utils.o
 LIBS=$(patsubst %,$(OBJ)/%,$(_LIBS))
 _LIBH=utils.h
@@ -68,6 +76,9 @@ $(OBJ)/%.o: $(SRC)/%.cpp $(LBH) $(LIBH)
 $(OBJ)/%.o: $(LIBD)/%.cpp $(LIBH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
+$(OBJ)/cmd/%.o: $(SRC)/cmd/%.cpp $(LBH) $(CMDH)
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
 # jsoncpp source
 $(OBJ)/js_%.o: $(JSOND)/%.cpp $(JSONH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
@@ -84,9 +95,9 @@ lynxbot: odir exec
 
 # create directory for .o files
 odir:
-	@mkdir -p $(OBJ)
+	@mkdir -p $(OBJ)/cmd
 
-exec: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(TW)
+exec: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(COMMANDS) $(TW)
 	$(CXX) ${OFLAGS} -o $(PROGNAME) $(LIB) $^
 
 .PHONY: clean

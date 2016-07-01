@@ -26,6 +26,7 @@ class RSNList;
 class ConfigReader;
 
 class CommandHandler {
+
 	public:
 		struct cmdinfo {
 			std::string nick;
@@ -33,13 +34,16 @@ class CommandHandler {
 			std::string fullCmd;
 			perm_t privileges;
 		};
+
 		typedef std::unordered_map<std::string,
 			std::string(CommandHandler::*)(CommandHandler::cmdinfo *)> commandMap;
+
 		CommandHandler(const std::string &name, const std::string &channel,
 				const std::string &token, Moderator *mod,
 				URLParser *urlp, EventManager *evtp,
 				Giveaway *givp, ConfigReader *cfgr);
 		~CommandHandler();
+
 		std::string processCommand(const std::string &nick,
 				const std::string &fullCmd, perm_t p);
 		std::string processResponse(const std::string &message);
@@ -107,42 +111,42 @@ class CommandHandler {
 		};
 
 		/* default bot commands */
-		std::string ehpFunc(struct cmdinfo *c);
-		std::string levelFunc(struct cmdinfo *c);
-		std::string geFunc(struct cmdinfo *c);
-		std::string calcFunc(struct cmdinfo *c);
-		std::string cmlFunc(struct cmdinfo *c);
-		std::string wheelFunc(struct cmdinfo *c);
-		std::string eightballFunc(struct cmdinfo *c);
-		std::string activeFunc(struct cmdinfo *c);
-		std::string manualFunc(struct cmdinfo *c);
-		std::string helpFunc(struct cmdinfo *c);
-		std::string aboutFunc(struct cmdinfo *c);
-		std::string uptimeFunc(struct cmdinfo *c);
-		std::string rsnFunc(struct cmdinfo *c);
-		std::string submitFunc(struct cmdinfo *c);
-		std::string duckFunc(struct cmdinfo *c);
+		std::string ehp(struct cmdinfo *c);
+		std::string level(struct cmdinfo *c);
+		std::string ge(struct cmdinfo *c);
+		std::string calc(struct cmdinfo *c);
+		std::string cml(struct cmdinfo *c);
+		std::string wheel(struct cmdinfo *c);
+		std::string eightball(struct cmdinfo *c);
+		std::string active(struct cmdinfo *c);
+		std::string manual(struct cmdinfo *c);
+		std::string help(struct cmdinfo *c);
+		std::string about(struct cmdinfo *c);
+		std::string uptime(struct cmdinfo *c);
+		std::string rsn(struct cmdinfo *c);
+		std::string submit(struct cmdinfo *c);
+		std::string duck(struct cmdinfo *c);
 
 		/* moderator only commands */
-		std::string strawpollFunc(struct cmdinfo *c);
-		std::string countFunc(struct cmdinfo *c);
-		std::string whitelistFunc(struct cmdinfo *c);
-		std::string permitFunc(struct cmdinfo *c);
-		std::string makecomFunc(struct cmdinfo *c);
-		std::string delcomFunc(struct cmdinfo *c);
-		std::string addrecFunc(struct cmdinfo *c);
-		std::string delrecFunc(struct cmdinfo *c);
-		std::string listrecFunc(struct cmdinfo *c);
-		std::string setrecFunc(struct cmdinfo *c);
-		std::string setgivFunc(struct cmdinfo *c);
-		std::string statusFunc(struct cmdinfo *c);
+		std::string strawpoll(struct cmdinfo *c);
+		std::string count(struct cmdinfo *c);
+		std::string whitelist(struct cmdinfo *c);
+		std::string permit(struct cmdinfo *c);
+		std::string makecom(struct cmdinfo *c);
+		std::string delcom(struct cmdinfo *c);
+		std::string addrec(struct cmdinfo *c);
+		std::string delrec(struct cmdinfo *c);
+		std::string listrec(struct cmdinfo *c);
+		std::string setrec(struct cmdinfo *c);
+		std::string setgiv(struct cmdinfo *c);
+		std::string status(struct cmdinfo *c);
 
 		/* helpers */
 		uint8_t source(const std::string &cmd);
 		std::string extractCMLData(const std::string &httpResp) const;
 		std::string extractHSData(const std::string &httpResp,
 			uint8_t skillID) const;
-		std::string extractGEData(const std::string &httpResp) const;
+		int64_t extractGEData(const std::string &httpResp) const;
 		std::string getRSN(const std::string &text,
 			const std::string &nick, std::string &err,
 			bool username = false);

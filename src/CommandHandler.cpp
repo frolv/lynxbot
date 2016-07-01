@@ -156,7 +156,7 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 }
 
 /* ehp: view players' ehp */
-std::string CommandHandler::ehpFunc(struct cmdinfo *c)
+std::string CommandHandler::ehp(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "n");
@@ -209,7 +209,7 @@ std::string CommandHandler::ehpFunc(struct cmdinfo *c)
 }
 
 /* level: look up players' levels */
-std::string CommandHandler::levelFunc(struct cmdinfo *c)
+std::string CommandHandler::level(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "n");
@@ -272,14 +272,42 @@ std::string CommandHandler::levelFunc(struct cmdinfo *c)
 }
 
 /* ge: look up item prices */
-std::string CommandHandler::geFunc(struct cmdinfo *c)
+std::string CommandHandler::ge(struct cmdinfo *c)
 {
 	if (!m_GEReader.active())
 		return "";
-	if (c->fullCmd.length() < 4)
+
+	std::string output;
+	int opt, amt;
+	int64_t price;
+	OptionParser op(c->fullCmd, "n:");
+	static struct OptionParser::option long_opts[] = {
+		{ "amount", REQ_ARG, 'n' },
+		{ 0, 0, 0 }
+	};
+
+	amt = 1;
+	while ((opt = op.getopt_long(long_opts)) != EOF) {
+		switch (opt) {
+		case 'n':
+			try {
+				amt = std::stoi(op.optarg());
+			} catch (std::invalid_argument) {
+				return c->cmd  + ": invalid number -- "
+					+ std::string(op.optarg());
+			}
+			break;
+		case '?':
+			return std::string(op.opterr());
+		default:
+			return "";
+		}
+	}
+
+	if (op.optind() == c->fullCmd.length())
 		return c->cmd + ": no item name provided";
 
-	std::string itemName = c->fullCmd.substr(3);
+	std::string itemName = c->fullCmd.substr(op.optind());
 	std::replace(itemName.begin(), itemName.end(), '_', ' ');
 
 	Json::Value item = m_GEReader.getItem(itemName);
@@ -289,12 +317,21 @@ std::string CommandHandler::geFunc(struct cmdinfo *c)
 	cpr::Response resp = cpr::Get(cpr::Url("http://" + EXCHANGE_HOST
 		+ EXCHANGE_API + item["id"].asString()),
 		cpr::Header{{ "Connection", "close" }});
-	return "[GE] " + item["name"].asString() + ": "
-		+ extractGEData(resp.text) + " gp";
+
+	if ((price = extractGEData(resp.text)) == -1)
+		return c->cmd + ": could not extract price";
+
+	output = "[GE] ";
+	if (amt != 1)
+		output += utils::formatInteger(std::to_string(amt)) + "x ";
+	output += item["name"].asString() + ": ";
+	output += utils::formatInteger(std::to_string(amt * price)) + " gp";
+
+	return output;
 }
 
 /* calc: perform basic calculations */
-std::string CommandHandler::calcFunc(struct cmdinfo *c)
+std::string CommandHandler::calc(struct cmdinfo *c)
 {
 	if (c->fullCmd.length() < 6)
 		return c->cmd + ": invalid mathematical expression";
@@ -319,7 +356,7 @@ std::string CommandHandler::calcFunc(struct cmdinfo *c)
 }
 
 /* cml: interact with crystalmathlabs trackers */
-std::string CommandHandler::cmlFunc(struct cmdinfo *c)
+std::string CommandHandler::cml(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "nu");
@@ -397,7 +434,7 @@ std::string CommandHandler::cmlFunc(struct cmdinfo *c)
 }
 
 /* wheel: select items from various categories */
-std::string CommandHandler::wheelFunc(struct cmdinfo *c)
+std::string CommandHandler::wheel(struct cmdinfo *c)
 {
 	std::vector<std::string> argv;
 	utils::split(c->fullCmd, ' ', argv);
@@ -426,18 +463,8 @@ std::string CommandHandler::wheelFunc(struct cmdinfo *c)
 	return output;
 }
 
-/* 8ball: respond to questions */
-std::string CommandHandler::eightballFunc(struct cmdinfo *c)
-{
-	if (c->fullCmd.length() < 6
-			|| c->fullCmd[c->fullCmd.length() - 1] != '?')
-		return "[8 BALL] Ask me a question.";
-	std::uniform_int_distribution<> dis(0, m_eightball.size());
-	return "[8 BALL] @" + c->nick + ", " + m_eightball[dis(m_gen)] + ".";
-}
-
 /* strawpoll: create polls */
-std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
+std::string CommandHandler::strawpoll(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return "";
@@ -525,22 +552,15 @@ std::string CommandHandler::strawpollFunc(struct cmdinfo *c)
 	return output;
 }
 
-/* active: view current poll */
-std::string CommandHandler::activeFunc(struct cmdinfo *c)
-{
-	return "[ACTIVE] @" + c->nick + ", " + (m_activePoll.empty()
-		? "no poll has been created." : m_activePoll);
-}
-
 /* commands: view default bot commands */
-std::string CommandHandler::manualFunc(struct cmdinfo *c)
+std::string CommandHandler::manual(struct cmdinfo *c)
 {
 	return "[MANUAL] @" + c->nick + ", " + std::string(BOT_WEBSITE)
 		+ "/manual/index.html";
 }
 
 /* help: view command reference manuals */
-std::string CommandHandler::helpFunc(struct cmdinfo *c)
+std::string CommandHandler::help(struct cmdinfo *c)
 {
 	std::vector<std::string> argv;
 	utils::split(c->fullCmd, ' ', argv);
@@ -562,16 +582,8 @@ std::string CommandHandler::helpFunc(struct cmdinfo *c)
 	return "[HELP] Not a bot command: " + argv[1];
 }
 
-/* about: print bot information */
-std::string CommandHandler::aboutFunc(struct cmdinfo *c)
-{
-	return "[ABOUT] @" + c->nick + ", " + m_name + " is running "
-		+ std::string(BOT_NAME) + " " + std::string(BOT_VERSION)
-		+ ". Find out more at " + std::string(BOT_WEBSITE);
-}
-
 /* count: manage message counts */
-std::string CommandHandler::countFunc(struct cmdinfo *c)
+std::string CommandHandler::count(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return "";
@@ -634,7 +646,7 @@ std::string CommandHandler::countFunc(struct cmdinfo *c)
 }
 
 /* uptime: check how long channel has been live */
-std::string CommandHandler::uptimeFunc(struct cmdinfo *c)
+std::string CommandHandler::uptime(struct cmdinfo *c)
 {
 	/* don't believe me just watch */
 	std::string out = "@" + c->nick + ", ";
@@ -651,7 +663,7 @@ std::string CommandHandler::uptimeFunc(struct cmdinfo *c)
 }
 
 /* rsn: view and manage stored rsns */
-std::string CommandHandler::rsnFunc(struct cmdinfo *c)
+std::string CommandHandler::rsn(struct cmdinfo *c)
 {
 	std::vector<std::string> argv;
 	utils::split(c->fullCmd, ' ', argv);
@@ -700,7 +712,7 @@ std::string CommandHandler::rsnFunc(struct cmdinfo *c)
 }
 
 /* submit: submit a message to the streamer */
-std::string CommandHandler::submitFunc(struct cmdinfo *c)
+std::string CommandHandler::submit(struct cmdinfo *c)
 {
 	if (c->fullCmd.length() < 7)
 		return c->cmd + ": nothing to submit";
@@ -716,7 +728,7 @@ std::string CommandHandler::submitFunc(struct cmdinfo *c)
 }
 
 /* duck: search duckduckgo with a query string */
-std::string CommandHandler::duckFunc(struct cmdinfo *c)
+std::string CommandHandler::duck(struct cmdinfo *c)
 {
 	if (c->fullCmd.length() < 6)
 		return c->cmd + ": must provide search term";
@@ -726,7 +738,7 @@ std::string CommandHandler::duckFunc(struct cmdinfo *c)
 }
 
 /* whitelist: exempt websites from moderation */
-std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
+std::string CommandHandler::whitelist(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return "";
@@ -755,7 +767,7 @@ std::string CommandHandler::whitelistFunc(struct cmdinfo *c)
 }
 
 /* permit: grant user permission to post a url */
-std::string CommandHandler::permitFunc(struct cmdinfo *c)
+std::string CommandHandler::permit(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return "";
@@ -771,7 +783,7 @@ std::string CommandHandler::permitFunc(struct cmdinfo *c)
 }
 
 /* makecom: create or modify a custom command */
-std::string CommandHandler::makecomFunc(struct cmdinfo *c)
+std::string CommandHandler::makecom(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return "";
@@ -869,7 +881,7 @@ std::string CommandHandler::makecomFunc(struct cmdinfo *c)
 }
 
 /* delcom: delete a custom command */
-std::string CommandHandler::delcomFunc(struct cmdinfo *c)
+std::string CommandHandler::delcom(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return "";
@@ -887,58 +899,8 @@ std::string CommandHandler::delcomFunc(struct cmdinfo *c)
 		return c->cmd + ": invalid syntax. Use \"$delcom COMMAND\"";
 }
 
-/* addrec: add a recurring message */
-std::string CommandHandler::addrecFunc(struct cmdinfo *c)
-{
-	if (!P_ALMOD(c->privileges))
-		return "";
-
-	std::string output = "@" + c->nick + ", ";
-	time_t cooldown = 300;
-	int opt;
-	OptionParser op(c->fullCmd, "c:");
-	static struct OptionParser::option long_opts[] = {
-		{ "cooldown", REQ_ARG, 'c' },
-		{ "interval", REQ_ARG, 'c' },
-		{ 0, 0, 0 }
-	};
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
-		switch (opt) {
-		case 'c':
-			try {
-				cooldown = 60 * std::stoi(op.optarg());
-			} catch (std::invalid_argument) {
-				return c->cmd + ": invalid number -- "
-					+ op.optarg();
-			}
-			break;
-		case '?':
-			return std::string(op.opterr());
-		default:
-			return "";
-		}
-	}
-
-	if (cooldown % 300 != 0)
-		return c->cmd + ": interval must be a multiple of 5 minutes";
-	else if (cooldown > 3600)
-		return c->cmd + ": interval cannot be longer than an hour";
-
-	if (op.optind() >= c->fullCmd.length())
-		return c->cmd + ": no message specified";
-	else if (!m_evtp->addMessage(c->fullCmd.substr(op.optind()), cooldown))
-		return c->cmd + ": limit of 5 recurring messages reached";
-	else
-		output += "recurring message \""
-			+ c->fullCmd.substr(op.optind())
-			+ "\" has been added at a "
-			+ std::to_string(cooldown / 60) + " min interval.";
-	return output;
-}
-
 /* delrec: delete a recurring message */
-std::string CommandHandler::delrecFunc(struct cmdinfo *c)
+std::string CommandHandler::delrec(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return "";
@@ -966,7 +928,7 @@ std::string CommandHandler::delrecFunc(struct cmdinfo *c)
 }
 
 /* listrec: show all recurring messages */
-std::string CommandHandler::listrecFunc(struct cmdinfo *c)
+std::string CommandHandler::listrec(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return "";
@@ -974,7 +936,7 @@ std::string CommandHandler::listrecFunc(struct cmdinfo *c)
 }
 
 /* setrec: enable and disable recurring messages */
-std::string CommandHandler::setrecFunc(struct cmdinfo *c)
+std::string CommandHandler::setrec(struct cmdinfo *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return "";
@@ -997,7 +959,7 @@ std::string CommandHandler::setrecFunc(struct cmdinfo *c)
 }
 
 /* setgiv: change giveaway settings */
-std::string CommandHandler::setgivFunc(struct cmdinfo *c)
+std::string CommandHandler::setgiv(struct cmdinfo *c)
 {
 	std::string output = "@" + c->nick + ", ";
 	OptionParser op(c->fullCmd, "fin:t");
@@ -1117,7 +1079,7 @@ std::string CommandHandler::setgivFunc(struct cmdinfo *c)
 }
 
 /* status: set channel status */
-std::string CommandHandler::statusFunc(struct cmdinfo *c)
+std::string CommandHandler::status(struct cmdinfo *c)
 {
 	int opt;
 	OptionParser op(c->fullCmd, "a");
@@ -1216,7 +1178,7 @@ std::string CommandHandler::extractCMLData(const std::string &httpResp) const
 			ehp = ehp.substr(0, dot + 2);
 		}
 		return "Name: " + elems[1] + ", Rank: " + elems[0] + ", EHP: "
-			+ ehp + " (+" + elems[3] + " this week).";
+			+ ehp + " (+" + elems[3] + " this week)";
 	} else {
 		return "Player either does not exist or has not "
 			"been tracked on CML.";
@@ -1235,18 +1197,18 @@ std::string CommandHandler::extractHSData(const std::string &httpResp,
 
 	return "Level: " + argv[1] + ", Exp: "
 		+ utils::formatInteger(argv[2]) + ", Rank: "
-		+ utils::formatInteger(argv[0]) + ".";
+		+ utils::formatInteger(argv[0]);
 }
 
 /* extractGEData: return the price of the json data in httpResp */
-std::string CommandHandler::extractGEData(const std::string &httpResp) const
+int64_t CommandHandler::extractGEData(const std::string &httpResp) const
 {
 	Json::Reader reader;
 	Json::Value item;
 	if (reader.parse(httpResp, item))
-		return utils::formatInteger(item["overall"].asString());
+		return item["overall"].asInt();
 	else
-		return "An error occurred. Please try again.";
+		return -1;
 }
 
 /* getRsn: find the rsn referred to by text */
@@ -1274,39 +1236,39 @@ std::string CommandHandler::getRSN(const std::string &text,
 void CommandHandler::populateCmds()
 {
 	/* regular commands */
-	m_defaultCmds["ehp"] = &CommandHandler::ehpFunc;
-	m_defaultCmds["level"] = &CommandHandler::levelFunc;
-	m_defaultCmds["lvl"] = &CommandHandler::levelFunc;
-	m_defaultCmds["ge"] = &CommandHandler::geFunc;
-	m_defaultCmds["calc"] = &CommandHandler::calcFunc;
-	m_defaultCmds["cml"] = &CommandHandler::cmlFunc;
-	m_defaultCmds["8ball"] = &CommandHandler::eightballFunc;
-	m_defaultCmds["active"] = &CommandHandler::activeFunc;
-	m_defaultCmds["uptime"] = &CommandHandler::uptimeFunc;
-	m_defaultCmds["rsn"] = &CommandHandler::rsnFunc;
-	m_defaultCmds["manual"] = &CommandHandler::manualFunc;
-	m_defaultCmds["commands"] = &CommandHandler::manualFunc;
-	m_defaultCmds["help"] = &CommandHandler::helpFunc;
-	m_defaultCmds["about"] = &CommandHandler::aboutFunc;
-	m_defaultCmds["submit"] = &CommandHandler::submitFunc;
-	m_defaultCmds["duck"] = &CommandHandler::duckFunc;
-	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheelFunc;
+	m_defaultCmds["ehp"] = &CommandHandler::ehp;
+	m_defaultCmds["level"] = &CommandHandler::level;
+	m_defaultCmds["lvl"] = &CommandHandler::level;
+	m_defaultCmds["ge"] = &CommandHandler::ge;
+	m_defaultCmds["calc"] = &CommandHandler::calc;
+	m_defaultCmds["cml"] = &CommandHandler::cml;
+	m_defaultCmds["8ball"] = &CommandHandler::eightball;
+	m_defaultCmds["active"] = &CommandHandler::active;
+	m_defaultCmds["uptime"] = &CommandHandler::uptime;
+	m_defaultCmds["rsn"] = &CommandHandler::rsn;
+	m_defaultCmds["manual"] = &CommandHandler::manual;
+	m_defaultCmds["commands"] = &CommandHandler::manual;
+	m_defaultCmds["help"] = &CommandHandler::help;
+	m_defaultCmds["about"] = &CommandHandler::about;
+	m_defaultCmds["submit"] = &CommandHandler::submit;
+	m_defaultCmds["duck"] = &CommandHandler::duck;
+	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheel;
 
 	/* moderator commands */
-	m_defaultCmds["sp"] = &CommandHandler::strawpollFunc;
-	m_defaultCmds["strawpoll"] = &CommandHandler::strawpollFunc;
-	m_defaultCmds["count"] = &CommandHandler::countFunc;
-	m_defaultCmds["whitelist"] = &CommandHandler::whitelistFunc;
-	m_defaultCmds["permit"] = &CommandHandler::permitFunc;
-	m_defaultCmds["addcom"] = &CommandHandler::makecomFunc;
-	m_defaultCmds["editcom"] = &CommandHandler::makecomFunc;
-	m_defaultCmds["delcom"] = &CommandHandler::delcomFunc;
-	m_defaultCmds["addrec"] = &CommandHandler::addrecFunc;
-	m_defaultCmds["delrec"] = &CommandHandler::delrecFunc;
-	m_defaultCmds["listrec"] = &CommandHandler::listrecFunc;
-	m_defaultCmds["setrec"] = &CommandHandler::setrecFunc;
-	m_defaultCmds["setgiv"] = &CommandHandler::setgivFunc;
-	m_defaultCmds["status"] = &CommandHandler::statusFunc;
+	m_defaultCmds["sp"] = &CommandHandler::strawpoll;
+	m_defaultCmds["strawpoll"] = &CommandHandler::strawpoll;
+	m_defaultCmds["count"] = &CommandHandler::count;
+	m_defaultCmds["whitelist"] = &CommandHandler::whitelist;
+	m_defaultCmds["permit"] = &CommandHandler::permit;
+	m_defaultCmds["addcom"] = &CommandHandler::makecom;
+	m_defaultCmds["editcom"] = &CommandHandler::makecom;
+	m_defaultCmds["delcom"] = &CommandHandler::delcom;
+	m_defaultCmds["addrec"] = &CommandHandler::addrec;
+	m_defaultCmds["delrec"] = &CommandHandler::delrec;
+	m_defaultCmds["listrec"] = &CommandHandler::listrec;
+	m_defaultCmds["setrec"] = &CommandHandler::setrec;
+	m_defaultCmds["setgiv"] = &CommandHandler::setgiv;
+	m_defaultCmds["status"] = &CommandHandler::status;
 }
 
 /* populateHelp: fill m_help with manual page names */

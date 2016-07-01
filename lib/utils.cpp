@@ -63,7 +63,8 @@ static std::string configdir_win()
 {
 	char buf[MAX_PATH_LEN];
 	int bytes;
-	if ((bytes = GetModuleFileName(NULL, buf, sizeof(buf))) == 0) {
+
+	if (!(bytes = GetModuleFileName(NULL, buf, sizeof(buf)))) {
 		std::cerr << "could not get current directory" << std::endl;
 		return "";
 	}
