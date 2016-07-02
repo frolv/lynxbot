@@ -17,7 +17,7 @@ class Moderator {
 				const std::string &nick, std::string &reason);
 		uint8_t getOffenses(const std::string &nick) const;
 		bool whitelist(const std::string &site);
-		void permit(const std::string &nick);
+		void permit(std::string &nick);
 		std::string getFormattedWhitelist() const;
 	private:
 		URLParser *m_parsep;

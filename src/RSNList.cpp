@@ -20,7 +20,7 @@ bool RSNList::add(const std::string &nick, const std::string &rsn,
 	if (!validRSN(rsn, err))
 		return false;
 	if (!(t = findByNick(nick)).empty()) {
-		err = "you already have a RSN set.";
+		err = "you already have a RSN set";
 		return false;
 	}
 	user["nick"] = nick;
@@ -39,7 +39,7 @@ bool RSNList::edit(const std::string &nick, const std::string &rsn,
 	if (!validRSN(rsn, err))
 		return false;
 	if (user.empty()) {
-		err = "you don't have a RSN set.";
+		err = "you don't have a RSN set";
 		return false;
 	}
 	user["prev"].append(user["rsn"].asString());
@@ -91,20 +91,20 @@ bool RSNList::validRSN(const std::string &rsn, std::string &err)
 	Json::Value t;
 	for (char c : rsn) {
 		if (!isalnum(c) && c != '_' && c != '-') {
-			err = "RSN contains invalid characters.";
+			err = "'" + rsn + "' contains invalid characters";
 			return false;
 		}
 	}
 	if (rsn == "lynx_titan") {
-		err = "nice try.";
+		err = "nice try";
 		return false;
 	}
 	if (rsn.length() > 12) {
-		err = "invalid RSN - too long.";
+		err = "invalid RSN - too long";
 		return false;
 	}
 	if (!(t = findByRSN(rsn)).empty()) {
-		err = "the RSN " + rsn + " is already taken by "
+		err = "the RSN '" + rsn + "' is already taken by "
 			+ t["nick"].asString() + ".";
 		return false;
 	}

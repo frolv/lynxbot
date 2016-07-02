@@ -10,7 +10,6 @@
 #include <tw/oauth.h>
 #include "CommandHandler.h"
 #include "OptionParser.h"
-#include "version.h"
 
 #define DEFAULT 1
 #define CUSTOM 2
@@ -275,7 +274,6 @@ std::string CommandHandler::strawpoll(struct cmdinfo *c)
 /* uptime: check how long channel has been live */
 std::string CommandHandler::uptime(struct cmdinfo *c)
 {
-	/* don't believe me just watch */
 	std::string out = "@" + c->nick + ", ";
 	cpr::Response resp = cpr::Get(
 		cpr::Url("https://decapi.me/twitch/uptime.php?channel="
@@ -287,55 +285,6 @@ std::string CommandHandler::uptime(struct cmdinfo *c)
 		return out + channel + " is not currently live.";
 	else
 		return out + channel + " has been live for " + resp.text + ".";
-}
-
-/* rsn: view and manage stored rsns */
-std::string CommandHandler::rsn(struct cmdinfo *c)
-{
-	std::vector<std::string> argv;
-	utils::split(c->fullCmd, ' ', argv);
-
-	if (argv.size() < 2 || (argv[1] != "set" && argv[1] != "check"
-				&& argv[1] != "del" && argv[1] != "change")
-			|| (argv[1] == "set" && argv.size() != 3)
-			|| (argv[1] == "check" && argv.size() > 3)
-			|| (argv[1] == "del" && argv.size() != 2)
-			|| (argv[1] == "change" && argv.size() != 3))
-		return "Invalid syntax. Use \"$rsn set RSN\", \"$rsn del\", "
-			"\"$rsn change RSN\" or \"$rsn check [NICK]\"";
-
-	std::string err, rsn;
-	if (argv.size() > 2) {
-		rsn = argv[2];
-		std::transform(rsn.begin(), rsn.end(), rsn.begin(), tolower);
-	}
-	if (argv[1] == "set") {
-		if (!m_rsns.add(c->nick, rsn, err))
-			return "@" + c->nick + ", " + err;
-		else
-			return "RSN " + rsn + " has been set for "
-				+ c->nick + ".";
-	} else if (argv[1] == "del") {
-		if (!m_rsns.del(c->nick))
-			return "@" + c->nick + ", you do not have a RSN set.";
-		else
-			return "RSN for " + c->nick + " has been deleted.";
-	} else if (argv[1] == "change") {
-		if (!m_rsns.edit(c->nick, rsn, err))
-			return "@" + c->nick + ", " + err;
-		else
-			return "RSN for " + c->nick + " changed to "
-				+ rsn + ".";
-	} else {
-		/* check own nick or the one that was given */
-		std::string crsn, nick;
-		nick = argv.size() == 2 ? c->nick : argv[2];
-		if ((crsn = m_rsns.getRSN(nick)).empty())
-			return "No RSN set for " + nick + ".";
-		else
-			return "RSN \"" + crsn + "\" is currently set for "
-				+ nick + ".";
-	}
 }
 
 /* submit: submit a message to the streamer */
@@ -381,22 +330,6 @@ std::string CommandHandler::whitelist(struct cmdinfo *c)
 	}
 
 	return c->cmd + ": invalid URL: " + argv[1];
-}
-
-/* permit: grant user permission to post a url */
-std::string CommandHandler::permit(struct cmdinfo *c)
-{
-	if (!P_ALMOD(c->privileges))
-		return "";
-
-	std::vector<std::string> argv;
-	utils::split(c->fullCmd, ' ', argv);
-
-	if (argv.size() != 2)
-		return c->cmd + ": invalid syntax. Use \"$permit USER\"";
-
-	m_modp->permit(argv[1]);
-	return argv[1] + " has been granted permission to post a link.";
 }
 
 /* makecom: create or modify a custom command */

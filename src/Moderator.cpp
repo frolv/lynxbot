@@ -129,8 +129,9 @@ bool Moderator::whitelist(const std::string &site)
 	return true;
 }
 
-void Moderator::permit(const std::string &nick)
+void Moderator::permit(std::string &nick)
 {
+	std::transform(nick.begin(), nick.end(), nick.begin(), tolower);
 	if (std::find(m_permitted.begin(), m_permitted.end(), nick)
 			== m_permitted.end())
 		m_permitted.push_back(nick);
