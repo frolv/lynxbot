@@ -125,7 +125,7 @@ class CommandHandler {
 		std::string delcom(struct cmdinfo *c);
 		std::string addrec(struct cmdinfo *c);
 		std::string delrec(struct cmdinfo *c);
-		std::string listrec(struct cmdinfo *c);
+		std::string showrec(struct cmdinfo *c);
 		std::string setrec(struct cmdinfo *c);
 		std::string setgiv(struct cmdinfo *c);
 		std::string status(struct cmdinfo *c);

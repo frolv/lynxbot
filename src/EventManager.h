@@ -18,8 +18,9 @@ class EventManager : public TimerManager {
 		void deactivateMessages();
 		bool addMessage(const std::string &message,
 				time_t cooldown, bool write = true);
-		bool delMessage(uint32_t id);
+		bool delMessage(size_t id);
 		std::string messageList() const;
+		std::string message(size_t id, int lim = -1) const;
 		std::vector<std::pair<std::string, time_t>> *messages();
 	private:
 		ConfigReader *m_cfgr;

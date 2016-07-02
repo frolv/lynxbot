@@ -51,8 +51,8 @@ _LBH=client.h CommandHandler.h config.h EventManager.h ExpressionParser.h\
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
 _COMMANDS=about.o active.o addrec.o calc.o cml.o count.o delcom.o delrec.o\
-	  duck.o ehp.o eightball.o ge.o help.o level.o listrec.o makecom.o\
-	  manual.o permit.o rsn.o setgiv.o setrec.o status.o strawpoll.o\
+	  duck.o ehp.o eightball.o ge.o help.o level.o makecom.o manual.o\
+	  permit.o rsn.o setgiv.o setrec.o showrec.o status.o strawpoll.o\
 	  submit.o uptime.o wheel.o whitelist.o
 COMMANDS=$(patsubst %, $(OBJ)/cmd/%,$(_COMMANDS))
 _CMDH=command.h

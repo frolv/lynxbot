@@ -45,7 +45,7 @@ bool EventManager::addMessage(const std::string &message,
 }
 
 /* delMessage: delete a recurring message */
-bool EventManager::delMessage(uint32_t id)
+bool EventManager::delMessage(size_t id)
 {
 	if (id < 1 || id > m_messages.size())
 		return false;
@@ -64,14 +64,28 @@ std::string EventManager::messageList() const
 	output += ") ";
 	for (size_t i = 0; i < m_messages.size(); ++i) {
 		/* only display first 35 characters of each message */
-		const std::string &msg = m_messages[i].first;
 		output += std::to_string(i + 1) + ": "
-			+ (msg.length() < 35 ? msg : (msg.substr(0, 32) + "..."))
-			+ " [" + std::to_string(m_messages[i].second / 60) + "m]"
+			+ message(i, 35)
 			+ (i == m_messages.size() - 1 ? "" : ", ");
 	}
 	if (output.empty())
 		output += "No recurring messages exist.";
+	return output;
+}
+
+/* message: return a single message and its interval */
+std::string EventManager::message(size_t id, int lim) const
+{
+	std::string output;
+
+	const std::string &msg = m_messages[id].first;
+	if (lim == -1)
+		output += msg;
+	else
+		output += msg.length() < (size_t)lim
+			? msg : (msg.substr(0, lim - 3) + "...");
+	output += " [" + std::to_string(m_messages[id].second / 60) + "m]";
+
 	return output;
 }
 

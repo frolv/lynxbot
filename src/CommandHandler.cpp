@@ -272,13 +272,6 @@ std::string CommandHandler::strawpoll(struct cmdinfo *c)
 	return output;
 }
 
-/* commands: view default bot commands */
-std::string CommandHandler::manual(struct cmdinfo *c)
-{
-	return "[MANUAL] @" + c->nick + ", " + std::string(BOT_WEBSITE)
-		+ "/manual/index.html";
-}
-
 /* uptime: check how long channel has been live */
 std::string CommandHandler::uptime(struct cmdinfo *c)
 {
@@ -788,7 +781,7 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["delcom"] = &CommandHandler::delcom;
 	m_defaultCmds["addrec"] = &CommandHandler::addrec;
 	m_defaultCmds["delrec"] = &CommandHandler::delrec;
-	m_defaultCmds["listrec"] = &CommandHandler::listrec;
+	m_defaultCmds["showrec"] = &CommandHandler::showrec;
 	m_defaultCmds["setrec"] = &CommandHandler::setrec;
 	m_defaultCmds["setgiv"] = &CommandHandler::setgiv;
 	m_defaultCmds["status"] = &CommandHandler::status;
