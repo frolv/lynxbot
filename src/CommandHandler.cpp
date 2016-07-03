@@ -430,29 +430,6 @@ std::string CommandHandler::makecom(struct cmdinfo *c)
 	return output;
 }
 
-/* setrec: enable and disable recurring messages */
-std::string CommandHandler::setrec(struct cmdinfo *c)
-{
-	if (!P_ALMOD(c->privileges))
-		return "";
-
-	std::string output = "@" + c->nick + ", ";
-	std::vector<std::string> argv;
-	utils::split(c->fullCmd, ' ', argv);
-
-	if (argv.size() != 2 || (argv[1] != "on" && argv[1] != "off"))
-		return c->cmd + ": invalid syntax. Use \"setrec on|off\"";
-
-	if (argv[1] == "on") {
-		m_evtp->activateMessages();
-		output += "recurring messages enabled.";
-	} else {
-		m_evtp->deactivateMessages();
-		output += "recurring messages disabled.";
-	}
-	return output;
-}
-
 /* status: set channel status */
 std::string CommandHandler::status(struct cmdinfo *c)
 {
