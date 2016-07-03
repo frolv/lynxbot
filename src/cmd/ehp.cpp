@@ -100,7 +100,8 @@ static bool lookup_player(const std::string &rsn, std::string &res)
 			+ ehp + " (+" + elems[3] + " this week)";
 		return true;
 	} else {
-		res = "player does not exist or has not been tracked on CML";
+		res = "player '" + rsn + "' does not exist or has not been "
+			"tracked on CML";
 		return false;
 	}
 }

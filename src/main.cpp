@@ -33,7 +33,7 @@ static const char *RELEASE_API =
 
 /* bot information */
 const char *BOT_NAME = "LynxBot";
-const char *BOT_VERSION = "v1.3.2";
+const char *BOT_VERSION = "v1.3.3-beta";
 const char *BOT_WEBSITE = "https://frolv.github.io/lynxbot";
 
 struct botset {
@@ -61,11 +61,14 @@ int main(int argc, char **argv)
 {
 	struct botset b;
 	std::string path;
+	int update;
 
+	update = 1;
 #ifdef __linux__
 	int c;
 	static struct option long_opts[] = {
 		{ "help", no_argument, 0, 'h' },
+		{ "no-check-update", no_argument, 0, 'n' },
 		{ "version", no_argument, 0, 'v' },
 		{ 0, 0, 0, 0 }
 	};
@@ -78,6 +81,9 @@ int main(int argc, char **argv)
 					"Documentation can be found at %s\n",
 					BOT_NAME, BOT_WEBSITE);
 			return 0;
+		case 'n':
+			update = 0;
+			break;
 		case 'v':
 			printf("%s %s\nCopyright (C) 2016 Alexei Frolov\n"
 					"This program is distributed as free "
@@ -90,14 +96,18 @@ int main(int argc, char **argv)
 		}
 	}
 #endif
+#ifdef _WIN32
+	int optind = 1;
+#endif
 
-	if (argc > 2) {
+	if (argc - optind > 1) {
 		fprintf(stderr, "usage: %s [CHANNEL]\n", argv[0]);
 		return 1;
 	}
 
 	/* check if a new version is available */
-	checkupdates();
+	if (update)
+		checkupdates();
 
 	/* read the config file */
 	path = utils::configdir() + utils::config("config");
@@ -120,8 +130,8 @@ int main(int argc, char **argv)
 	}
 
 	/* overwrite channel with arg */
-	if (argc == 2)
-		b.channel = argv[1];
+	if (optind != argc)
+		b.channel = argv[optind];
 	if (b.channel[0] != '#')
 		b.channel = '#' + b.channel;
 

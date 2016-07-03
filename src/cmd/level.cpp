@@ -86,7 +86,7 @@ static std::string get_hiscores(const std::string &rsn, int8_t id,
 	resp = cpr::Get(cpr::Url(HS_API + rsn),
 			cpr::Header{{ "Connection", "close" }});
 	if (resp.text.find("404 - Page not found") != std::string::npos) {
-		err = "player not found on hiscores";
+		err = "player '" + rsn + "' not found on hiscores";
 		return "";
 	}
 

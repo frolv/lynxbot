@@ -90,15 +90,15 @@ static int updatecml(const std::string &rsn, std::string &err)
 		/* success */
 		break;
 	case 2:
-		err = rsn + " could not be found on the hiscores";
+		err = "'" + rsn + "' could not be found on the hiscores";
 	case 3:
-		err = rsn + " has had a negative XP gain";
+		err = "'" + rsn + "' has had a negative XP gain";
 	case 4:
 		err = "unknown error, try again";
 	case 5:
-		err = rsn + " has been updated within the last 30s";
+		err = "'" + rsn + "' has been updated within the last 30s";
 	case 6:
-		err = rsn + " is an invalid RSN";
+		err = "'" + rsn + "' is an invalid RSN";
 	default:
 		err = "could not reach CML API, try again";
 	}

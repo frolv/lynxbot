@@ -182,6 +182,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 			return true;
 		}
 
+		return true;
 		/* link information */
 		if (m_parser.wasModified()) {
 			URLParser::URL *url = m_parser.getLast();
@@ -191,11 +192,9 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 				if (twr.read(url->tweetID)) {
 					sendMsg(twr.result());
 					return true;
-				} else {
-					std::cout << "Could not read tweet"
-						<< std::endl;
-					return false;
 				}
+				std::cerr << "could not read tweet" << std::endl;
+				return false;
 			}
 			/* get the title of the url otherwise */
 			cpr::Response resp = cpr::Get(cpr::Url(url->full),
