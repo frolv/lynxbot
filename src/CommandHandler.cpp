@@ -148,65 +148,6 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 	}
 }
 
-/* wheel: select items from various categories */
-std::string CommandHandler::wheel(struct cmdinfo *c)
-{
-	std::vector<std::string> argv;
-	utils::split(c->fullCmd, ' ', argv);
-
-	if (argv.size() == 1)
-		return m_wheel.name() + ": " + m_wheel.desc()
-			+ " " + m_wheel.usage();
-	if (argv.size() > 2 || (!m_wheel.valid(argv[1]) && argv[1] != "check"))
-		return c->cmd + ": invalid syntax. " + m_wheel.usage();
-
-	std::string output = "@" + c->nick + ", ";
-	if (argv[1] == "check") {
-		/* return the current selection */
-		output += m_wheel.ready(c->nick)
-			? "you are not currently assigned anything."
-			: "you are currently assigned "
-			+ m_wheel.selection(c->nick) + ".";
-	} else if (!m_wheel.ready(c->nick)) {
-		output += "you have already been assigned something!";
-	} else {
-		/* make a new selection */
-		output += "your entertainment for tonight is "
-			+ m_wheel.choose(c->nick, argv[1]) + ".";
-	}
-
-	return output;
-}
-
-/* whitelist: exempt websites from moderation */
-std::string CommandHandler::whitelist(struct cmdinfo *c)
-{
-	if (!P_ALMOD(c->privileges))
-		return "";
-
-	std::vector<std::string> argv;
-	utils::split(c->fullCmd, ' ', argv);
-
-	if (argv.size() > 2)
-		return c->cmd + ": invalid syntax. Use \"$whitelist [SITE]\"";
-	/* no args: show current whitelist */
-	if (argv.size() == 1)
-		return m_modp->getFormattedWhitelist();
-
-	if (m_parsep->parse(argv[1])) {
-		/* extract website and add to whitelist */
-		std::string website = m_parsep->getLast()->domain;
-		if (m_modp->whitelist(website))
-			return "@" + c->nick + ", " + website
-				+ " has been whitelisted.";
-		else
-			return "@" + c->nick + ", " + website
-				+ " is already on the whitelist.";
-	}
-
-	return c->cmd + ": invalid URL: " + argv[1];
-}
-
 /* makecom: create or modify a custom command */
 std::string CommandHandler::makecom(struct cmdinfo *c)
 {
