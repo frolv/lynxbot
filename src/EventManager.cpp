@@ -5,7 +5,7 @@
 #include "EventManager.h"
 
 EventManager::EventManager(ConfigReader *cfgr)
-	: m_cfgr(cfgr), m_msg(false)
+	: m_init(time(nullptr)), m_cfgr(cfgr), m_msg(false)
 {
 	readFile();
 	m_msg = m_messages.size() > 0;
@@ -93,6 +93,11 @@ std::string EventManager::message(size_t id, int lim) const
 std::vector<std::pair<std::string, time_t>> *EventManager::messages()
 {
 	return &m_messages;
+}
+
+time_t EventManager::init()
+{
+	return m_init;
 }
 
 /* readFile: read recurring messages from file */

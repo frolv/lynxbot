@@ -22,7 +22,9 @@ class EventManager : public TimerManager {
 		std::string messageList() const;
 		std::string message(size_t id, int lim = -1) const;
 		std::vector<std::pair<std::string, time_t>> *messages();
+		time_t init();
 	private:
+		time_t m_init;
 		ConfigReader *m_cfgr;
 		bool m_msg;
 		std::vector<std::pair<std::string, time_t>> m_messages;

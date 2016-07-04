@@ -9,6 +9,8 @@ CMDDESCR("view current poll");
 /* command usage synopsis */
 CMDUSAGE("$active");
 
+static const std::string STRAWPOLL_HOST = "https://strawpoll.me";
+
 /* active: view current poll */
 std::string CommandHandler::active(struct cmdinfo *c)
 {
@@ -34,5 +36,5 @@ std::string CommandHandler::active(struct cmdinfo *c)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
 	return "[ACTIVE] " + (m_activePoll.empty() ? "no poll has been created"
-			: m_activePoll);
+			: (STRAWPOLL_HOST + "/" + m_activePoll));
 }

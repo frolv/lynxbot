@@ -182,7 +182,6 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 			return true;
 		}
 
-		return true;
 		/* link information */
 		if (m_parser.wasModified()) {
 			URLParser::URL *url = m_parser.getLast();

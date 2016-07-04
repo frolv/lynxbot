@@ -36,7 +36,9 @@ std::string CommandHandler::setrec(struct cmdinfo *c)
 	}
 
 	out = "@" + c->nick + ", ";
-	if ((set = c->fullCmd.substr(op.optind())) != "on" && set != "off")
+	if (op.optind() == c->fullCmd.length()
+			|| ((set = c->fullCmd.substr(op.optind())) != "on"
+			&& set != "off"))
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
 	if (set == "on") {

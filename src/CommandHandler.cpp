@@ -1,13 +1,9 @@
 #include <algorithm>
-#include <ctime>
-#include <cpr/cpr.h>
 #include <fstream>
 #include <json/json.h>
 #include <iostream>
 #include <regex>
-#include <sstream>
 #include <utils.h>
-#include <tw/oauth.h>
 #include "CommandHandler.h"
 #include "OptionParser.h"
 
@@ -27,7 +23,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd());
 	if (!m_customCmds->isActive()) {
-		std::cerr << " Custom commands will be disabled "
+		std::cerr << "Custom commands will be disabled "
 			"for this session." << std::endl;
 		std::cin.get();
 	}
@@ -182,127 +178,6 @@ std::string CommandHandler::wheel(struct cmdinfo *c)
 	return output;
 }
 
-/* strawpoll: create polls */
-std::string CommandHandler::strawpoll(struct cmdinfo *c)
-{
-	if (!P_ALMOD(c->privileges))
-		return "";
-
-	/* json values to hold created poll, poll options and http response */
-	Json::Value poll, options(Json::arrayValue), response;
-	std::string output = "[SPOLL] ";
-	bool binary = false, multi = false, captcha = false;
-
-	int opt;
-	OptionParser op(c->fullCmd, "bcm");
-	static struct OptionParser::option long_opts[] = {
-		{ "binary", NO_ARG, 'b' },
-		{ "captcha", NO_ARG, 'c' },
-		{ "multi", NO_ARG, 'm' },
-		{ 0, 0, 0 }
-	};
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
-		switch (opt) {
-		case 'b':
-			binary = true;
-			break;
-		case 'c':
-			captcha = true;
-			break;
-		case 'm':
-			multi = true;
-			break;
-		case '?':
-			return std::string(op.opterr());
-		default:
-			return "";
-		}
-	}
-
-	if (op.optind() >= c->fullCmd.length())
-		return c->cmd + ": not enough arguments given";
-	const std::string req = c->fullCmd.substr(op.optind());
-	std::vector<std::string> argv;
-	utils::split(req, '|', argv);
-
-	if (binary && argv.size() != 1)
-		return c->cmd + ": cannot provide options for binary poll";
-	if (!binary && argv.size() < 3)
-		return c->cmd + ": poll must have a question and at least "
-			"two answers";
-
-	if (binary) {
-		options.append("yes");
-		options.append("no");
-	} else {
-		for (size_t i = 1; i < argv.size(); ++i)
-			options.append(argv[i]);
-	}
-
-	/* populate the poll json */
-	poll["title"] = argv[0];
-	poll["options"] = options;
-	poll["captcha"] = captcha;
-	poll["multi"] = multi;
-
-	/* format and post the poll */
-	Json::FastWriter fw;
-	const std::string content = fw.write(poll);
-	cpr::Response resp = cpr::Post(cpr::Url("http://" + STRAWPOLL_HOST
-		+ STRAWPOLL_API), cpr::Body(content), cpr::Header{
-		{ "Connection", "close" },
-		{ "Content-Type", "application/json" },
-		{ "Content-Length", std::to_string(content.length()) } });
-
-	Json::Reader reader;
-	if (reader.parse(resp.text, response)) {
-		if (!response.isMember("id")) {
-			return c->cmd + ": poll could not be created";
-		} else {
-			m_activePoll = "http://" + STRAWPOLL_HOST + "/"
-				+ response["id"].asString();
-			output += "Poll created: " + m_activePoll;
-		}
-	} else {
-		return c->cmd + ": error connecting to server";
-	}
-
-	return output;
-}
-
-/* uptime: check how long channel has been live */
-std::string CommandHandler::uptime(struct cmdinfo *c)
-{
-	std::string out = "@" + c->nick + ", ";
-	cpr::Response resp = cpr::Get(
-		cpr::Url("https://decapi.me/twitch/uptime.php?channel="
-			+ m_channel),
-		cpr::Header{{ "Connection", "close" }});
-	static const std::string channel =
-		(char)toupper(m_channel[0]) + m_channel.substr(1);
-	if (resp.text.substr(0, 7) == "Channel")
-		return out + channel + " is not currently live.";
-	else
-		return out + channel + " has been live for " + resp.text + ".";
-}
-
-/* submit: submit a message to the streamer */
-std::string CommandHandler::submit(struct cmdinfo *c)
-{
-	if (c->fullCmd.length() < 7)
-		return c->cmd + ": nothing to submit";
-
-	std::string output = "@" + c->nick + ", ";
-	std::string path = utils::configdir() + utils::config("submit");
-	std::ofstream writer(path, std::ios::app);
-
-	writer << c->nick << ": " << c->fullCmd.substr(7) << std::endl;
-	writer.close();
-
-	return output + "your topic has been submitted. Thank you.";
-}
-
 /* whitelist: exempt websites from moderation */
 std::string CommandHandler::whitelist(struct cmdinfo *c)
 {
@@ -428,80 +303,6 @@ std::string CommandHandler::makecom(struct cmdinfo *c)
 		}
 	}
 	return output;
-}
-
-/* status: set channel status */
-std::string CommandHandler::status(struct cmdinfo *c)
-{
-	int opt;
-	OptionParser op(c->fullCmd, "a");
-	std::string output, status;
-	bool append = false;
-
-	static struct OptionParser::option long_opts[] = {
-		{ "append", NO_ARG, 'a' },
-		{ 0, 0, 0 }
-	};
-
-	cpr::Response resp;
-	cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
-		{ "Authorization", "OAuth " + m_token }};
-	Json::Reader reader;
-	Json::Value response;
-
-	if (!P_ALMOD(c->privileges))
-		return "";
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
-		switch (opt) {
-		case 'a':
-			append = true;
-			break;
-		case '?':
-			return std::string(op.opterr());
-		default:
-			return "";
-		}
-	}
-
-	output = "[STATUS] ";
-
-	/* get the current status if no arg provided or if appending */
-	if (op.optind() == c->fullCmd.length() || append) {
-		resp = cpr::Get(cpr::Url(TWITCH_API + "/channels/" + m_channel),
-				head);
-		if (reader.parse(resp.text, response)) {
-			if (response.isMember("error"))
-				return c->cmd + ": "
-					+ response["error"].asString();
-			status = response["status"].asString();
-		}
-	}
-
-	if (op.optind() == c->fullCmd.length()) {
-		if (append)
-			return c->cmd + ": no text to append";
-		return output + "Current status for " + m_channel + " is \""
-			+ status + "\".";
-	}
-
-	if (append)
-		status += " ";
-	status += c->fullCmd.substr(op.optind());
-	status = tw::pencode(status, " ");
-	std::replace(status.begin(), status.end(), ' ', '+');
-	std::string content = "channel[status]=" + status;
-
-	resp = cpr::Put(cpr::Url(TWITCH_API + "/channels/"
-				+ m_channel), cpr::Body(content), head);
-
-	if (reader.parse(resp.text, response)) {
-		if (response.isMember("error"))
-			return c->cmd + ": " + response["error"].asString();
-		return "[STATUS] Channel status changed to \""
-			+ response["status"].asString() + "\".";
-	}
-	return c->cmd + ": something went wrong, try again";
 }
 
 /* source: determine whether cmd is a default or custom command */

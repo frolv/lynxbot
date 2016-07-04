@@ -73,9 +73,6 @@ class CommandHandler {
 		std::unordered_map<std::string, std::string> m_help;
 		std::random_device m_rd;
 		std::mt19937 m_gen;
-		const std::string STRAWPOLL_HOST = "strawpoll.me";
-		const std::string STRAWPOLL_API = "/api/v2/polls";
-		const std::string TWITCH_API = "https://api.twitch.tv/kraken";
 		std::string m_activePoll;
 		std::vector<std::string> m_eightball = {
 			"It is certain",
