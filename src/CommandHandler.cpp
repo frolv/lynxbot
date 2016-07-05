@@ -175,12 +175,11 @@ std::string CommandHandler::getRSN(const std::string &text,
 	if (username) {
 		rsn = m_rsns.getRSN(text);
 		if (rsn.empty())
-			err = "No RSN set for user " + text + ".";
+			err = "no RSN set for user " + text;
 	} else {
 		if (text == ".") {
 			if ((rsn = m_rsns.getRSN(nick)).empty())
-				err = "No RSN set for user " + nick + ". "
-					"Use \"$rsn set RSN\" to set one.";
+				err = "no RSN set for user " + nick;
 		} else {
 			rsn = text;
 		}

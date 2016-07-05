@@ -49,7 +49,7 @@ std::string CommandHandler::calc(struct cmdinfo *c)
 		res = exp.eval();
 		result << res;
 	} catch (std::runtime_error &e) {
-		return e.what();
+		return CMDNAME + ": " + e.what();
 	}
 	if (result.str() == "inf" || result.str() == "-nan(ind)")
 		return CMDNAME + ": division by 0";

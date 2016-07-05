@@ -63,7 +63,7 @@ std::string CommandHandler::ehp(struct cmdinfo *c)
 
 	if ((rsn = getRSN(c->fullCmd.substr(op.optind()),
 			c->nick, err, usenick)).empty())
-		return err;
+		return CMDNAME + ": " + err;
 	if (rsn.find(' ') != std::string::npos)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 

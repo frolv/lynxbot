@@ -59,7 +59,7 @@ std::string CommandHandler::level(struct cmdinfo *c)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
 	if ((rsn = getRSN(argv[1], c->nick, err, usenick)).empty())
-		return err;
+		return c->cmd + ": " + err;
 	std::replace(rsn.begin(), rsn.end(), '-', '_');
 
 	if ((id = skill_id(argv[0])) == -1)

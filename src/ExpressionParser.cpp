@@ -12,8 +12,8 @@ ExpressionParser::ExpressionParser(const std::string &expr) : m_expr(expr)
 	/* expression only contains numbers and basic mathematical operators */
 	for (char c : expr) {
 		if (!isdigit(c) && !isop(c) && !isparen(c) && c != '.')
-			throw std::runtime_error("Expression can only contain "
-					"numbers, parentheses and operators.");
+			throw std::runtime_error("expression can only contain "
+					"numbers, parentheses and operators");
 	}
 }
 
@@ -81,7 +81,7 @@ void ExpressionParser::shuntingYard()
 			m_opstack.push(t);
 		} else if (t.c == ')') {
 			if (m_opstack.empty())
-				throw std::runtime_error("Mismatched parentheses.");
+				throw std::runtime_error("mismatched parentheses");
 
 			token top = m_opstack.top();
 			/* pop until matching paren */
@@ -89,12 +89,12 @@ void ExpressionParser::shuntingYard()
 				m_opstack.pop();
 				m_revpol.push(top);
 				if (m_opstack.empty())
-					throw std::runtime_error("Mismatched parentheses.");
+					throw std::runtime_error("mismatched parentheses");
 				top = m_opstack.top();
 			}
 
 			if (top.c != '(')
-				throw std::runtime_error("Mismatched parentheses.");
+				throw std::runtime_error("mismatched parentheses");
 
 			/* pop the left paren from the stack */
 			m_opstack.pop();
@@ -109,7 +109,7 @@ void ExpressionParser::shuntingYard()
 	while (!m_opstack.empty()) {
 		token top = m_opstack.top();
 		if (top.c == '(' || top.c == ')')
-			throw std::runtime_error("Mismatched parentheses.");
+			throw std::runtime_error("mismatched parentheses");
 		m_opstack.pop();
 		m_revpol.push(top);
 	}
@@ -125,8 +125,8 @@ void ExpressionParser::evalRevPol()
 			/* token is operator */
 			if (next.c == 'm' || next.c == 'p') {
 				if (m_output.empty())
-					throw std::runtime_error("Invalid "
-						"mathematical expression.");
+					throw std::runtime_error("invalid "
+						"mathematical expression");
 
 				double d = m_output.top();
 				m_output.pop();
@@ -134,8 +134,8 @@ void ExpressionParser::evalRevPol()
 			} else {
 				/* all other operators are binary */
 				if (m_output.size() < 2)
-					throw std::runtime_error("Invalid "
-						"mathematical expression.");
+					throw std::runtime_error("invalid "
+						"mathematical expression");
 
 				double d1, d2, result;
 				d2 = m_output.top();
