@@ -33,7 +33,7 @@ static const char *RELEASE_API =
 
 /* bot information */
 const char *BOT_NAME = "LynxBot";
-const char *BOT_VERSION = "v1.3.3-beta";
+const char *BOT_VERSION = "v1.3.3";
 const char *BOT_WEBSITE = "https://frolv.github.io/lynxbot";
 
 struct botset {
