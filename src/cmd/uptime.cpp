@@ -1,5 +1,6 @@
 #include <cpr/cpr.h>
 #include <ctime>
+#include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
 #include "../OptionParser.h"
@@ -14,8 +15,6 @@ CMDUSAGE("$uptime [-b]");
 
 static const std::string UPTIME_API =
 	"https://decapi.me/twitch/uptime.php?channel=";
-
-static const std::string get_time(time_t t);
 
 /* uptime: check how long channel has been live */
 std::string CommandHandler::uptime(struct cmdinfo *c)
@@ -54,7 +53,7 @@ std::string CommandHandler::uptime(struct cmdinfo *c)
 
 	if (bot)
 		return m_name + " has been running for "
-			+ get_time(time(NULL) - m_evtp->init()) + ".";
+			+ utils::conv_time((time(NULL) - m_evtp->init())) + ".";
 
 	out = "@" + c->nick + ", ";
 	resp = cpr::Get(cpr::Url(UPTIME_API + m_channel),
@@ -63,21 +62,4 @@ std::string CommandHandler::uptime(struct cmdinfo *c)
 		return out + channel + " is not currently live.";
 	else
 		return out + channel + " has been live for " + resp.text + ".";
-}
-
-/* get_time: convert t to hours, minutes and seconds */
-static const std::string get_time(time_t t)
-{
-	time_t h, m;
-	std::string out;
-
-	h = t / 3600;
-	t %= 3600;
-	m = t / 60;
-	t %= 60;
-
-	out += std::to_string(h) + " hour" + (h == 1 ? "" : "s") + ", ";
-	out += std::to_string(m) + " minute" + (m == 1 ? "" : "s") + " and ";
-	out += std::to_string(t) + " second" + (t == 1 ? "" : "s");
-	return out;
 }

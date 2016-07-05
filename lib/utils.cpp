@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #ifdef __linux__
-# include <cstdlib>
+# include <stdlib.h>
 # include <unistd.h>
 #endif
 
@@ -157,4 +157,32 @@ bool utils::parseInt(uint32_t &i, const std::string &s, std::string &err)
 		err = "invalid number -- " + s;
 		return false;
 	}
+}
+
+#define MIN	 60
+#define HOUR	 3600
+#define DAY	 86400
+
+/* conv_time: convert t to days, hours, minutes and seconds */
+std::string utils::conv_time(time_t t)
+{
+	time_t d, h, m;
+	std::string out;
+
+	d = t / DAY;
+	t %= DAY;
+	h = t / HOUR;
+	t %= HOUR;
+	m = t / MIN;
+	t %= MIN;
+
+	if (d)
+		out += std::to_string(d) + " day" + (d == 1 ? "" : "s") + ", ";
+	if (h)
+		out += std::to_string(h) + " hour" + (h == 1 ? "" : "s") + ", ";
+	if (m)
+		out += std::to_string(m) + " minute" + (m == 1 ? "" : "s")
+			+ " and ";
+	out += std::to_string(t) + " second" + (t == 1 ? "" : "s");
+	return out;
 }

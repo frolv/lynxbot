@@ -26,4 +26,6 @@ namespace utils {
 	bool parseBool(bool &b, const std::string &s, std::string &err);
 	/* parses int from string into i */
 	bool parseInt(uint32_t &i, const std::string &s, std::string &err);
+	/* conv_time: convert t to hours, minutes and seconds */
+	std::string conv_time(time_t t);
 }
