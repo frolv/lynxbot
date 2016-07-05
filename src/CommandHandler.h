@@ -118,7 +118,8 @@ class CommandHandler {
 		std::string count(struct cmdinfo *c);
 		std::string whitelist(struct cmdinfo *c);
 		std::string permit(struct cmdinfo *c);
-		std::string makecom(struct cmdinfo *c);
+		std::string addcom(struct cmdinfo *c);
+		std::string editcom(struct cmdinfo *c);
 		std::string delcom(struct cmdinfo *c);
 		std::string addrec(struct cmdinfo *c);
 		std::string delrec(struct cmdinfo *c);
@@ -145,13 +146,14 @@ class CustomCommandHandler {
 				const std::string &wheelCmd);
 		~CustomCommandHandler();
 		bool isActive();
-		bool addCom(const std::string &cmd,
-				const std::string &response, time_t cooldown);
+		bool addCom(const std::string &cmd, const std::string &response,
+				const std::string &nick, time_t cooldown);
 		bool delCom(const std::string &cmd);
 		bool editCom(const std::string &cmd,
 				const std::string &newResp = "", time_t newcd = -1);
 		Json::Value *getCom(const std::string &cmd);
 		bool validName(const std::string &cmd, bool loading = false);
+		void write();
 
 	private:
 		bool m_active;
@@ -160,6 +162,5 @@ class CustomCommandHandler {
 		const std::string m_wheelCmd;
 		Json::Value m_commands;
 		Json::Value m_emptyVal;
-		void writeToFile() const;
 
 };

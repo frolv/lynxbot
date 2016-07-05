@@ -57,6 +57,7 @@ CommandHandler::~CommandHandler()
 	delete m_customCmds;
 }
 
+/* processCommand: run message as a bot command and return output */
 std::string CommandHandler::processCommand(const std::string &nick,
 	const std::string &fullCmd, perm_t p)
 {
@@ -88,7 +89,10 @@ std::string CommandHandler::processCommand(const std::string &nick,
 		ccmd = m_customCmds->getCom(cmd);
 		if (P_ALSUB(p) || m_cooldowns.ready((*ccmd)["cmd"].asString())) {
 			output += (*ccmd)["response"].asString();
+			(*ccmd)["atime"] = (Json::Int64)time(nullptr);
+			(*ccmd)["uses"] = (*ccmd)["uses"].asInt() + 1;
 			m_cooldowns.setUsed((*ccmd)["cmd"].asString());
+			m_customCmds->write();
 		} else {
 			output += "/w " + nick + " command is on cooldown: "
 				+ cmd;
@@ -102,6 +106,7 @@ std::string CommandHandler::processCommand(const std::string &nick,
 	return output;
 }
 
+/* processResponse: test a message against auto response regexes */
 std::string CommandHandler::processResponse(const std::string &message)
 {
 	if (!m_responding)
@@ -132,6 +137,7 @@ bool CommandHandler::isCounting() const
 	return m_counting;
 }
 
+/* count: count message in m_messageCounts */
 void CommandHandler::count(const std::string &nick, const std::string &message)
 {
 	std::string msg = message;
@@ -148,104 +154,6 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 	}
 }
 
-/* makecom: create or modify a custom command */
-std::string CommandHandler::makecom(struct cmdinfo *c)
-{
-	if (!P_ALMOD(c->privileges))
-		return "";
-
-	if (!m_customCmds->isActive())
-		return "Custom commands are currently disabled.";
-
-	bool editing = c->cmd == "editcom";
-	std::string output = "@" + c->nick + ", ";
-	time_t cooldown = editing ? -1 : 15;
-
-	OptionParser op(c->fullCmd, "c:");
-	int opt;
-	static struct OptionParser::option long_opts[] = {
-		{ "cooldown", REQ_ARG, 'c'},
-		{ 0, 0, 0 }
-	};
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
-		switch (opt) {
-		case 'c':
-			/* user provided a cooldown */
-			try {
-				cooldown = std::stoi(op.optarg());
-				if (cooldown < 0)
-					return c->cmd + ": cooldown cannot be "
-						"negative";
-			} catch (std::invalid_argument) {
-				output = c->cmd  + ": invalid number -- ";
-				return output + op.optarg();
-			}
-			break;
-		case '?':
-			return std::string(op.opterr());
-		default:
-			return "";
-		}
-	}
-
-	if (op.optind() >= c->fullCmd.length())
-		return c->cmd + ": not enough arguments given";
-
-	std::string args = c->fullCmd.substr(op.optind());
-	std::string::size_type sp = args.find(' ');
-	if (editing) {
-		/* determine which parts are being changed */
-		bool changedCd = cooldown != -1;
-		bool changedResp = sp != std::string::npos;
-		const std::string cmd = changedResp ? args.substr(0, sp) : args;
-		std::string response = changedResp
-			? args.substr(sp + 1) : "";
-		/* don't allow reponse to activate a twitch command */
-		if (response[0] == '/')
-			response = " " + response;
-		if (!m_customCmds->editCom(cmd, response, cooldown)) {
-			return c->cmd + ": invalid command: $" + cmd;
-		} else if (!changedCd && !changedResp) {
-			output += "command $" + cmd + " was unchanged";
-		} else {
-			/* build an output string detailing changes */
-			output += "command $" + cmd + " has been changed to ";
-			if (changedResp)
-				output += "\"" + response + "\""
-					+ (changedCd ? ", with " : ".");
-			if (changedCd) {
-				/* reset cooldown in TimerManager */
-				m_cooldowns.remove(cmd);
-				m_cooldowns.add(cmd, cooldown);
-				output += "a " + std::to_string(cooldown)
-					+ "s cooldown.";
-			}
-		}
-	} else {
-		/* adding a new command */
-		if (sp == std::string::npos) {
-			return c->cmd + ": no response provided for command $"
-				+ args;
-		} else {
-			/* first word is command, rest is response */
-			std::string cmd = args.substr(0, sp);
-			std::string response = args.substr(sp + 1);
-			/* don't allow reponse to activate a twitch command */
-			if (response[0] == '/')
-				response = " " + response;
-			if (!m_customCmds->addCom(cmd, response, cooldown))
-				return c->cmd + ": invalid command name: $"
-					+ cmd;
-			else
-				output += "command $" + cmd
-					+ " has been added with a " +
-					std::to_string(cooldown) + "s cooldown.";
-		}
-	}
-	return output;
-}
-
 /* source: determine whether cmd is a default or custom command */
 uint8_t CommandHandler::source(const std::string &cmd)
 {
@@ -259,7 +167,7 @@ uint8_t CommandHandler::source(const std::string &cmd)
 	return 0;
 }
 
-/* getRsn: find the rsn referred to by text */
+/* getRSN: find the rsn referred to by text */
 std::string CommandHandler::getRSN(const std::string &text,
 	const std::string &nick, std::string &err, bool username)
 {
@@ -308,8 +216,8 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["count"] = &CommandHandler::count;
 	m_defaultCmds["whitelist"] = &CommandHandler::whitelist;
 	m_defaultCmds["permit"] = &CommandHandler::permit;
-	m_defaultCmds["addcom"] = &CommandHandler::makecom;
-	m_defaultCmds["editcom"] = &CommandHandler::makecom;
+	m_defaultCmds["addcom"] = &CommandHandler::addcom;
+	m_defaultCmds["editcom"] = &CommandHandler::editcom;
 	m_defaultCmds["delcom"] = &CommandHandler::delcom;
 	m_defaultCmds["addrec"] = &CommandHandler::addrec;
 	m_defaultCmds["delrec"] = &CommandHandler::delrec;
