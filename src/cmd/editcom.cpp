@@ -1,6 +1,7 @@
 #include "command.h"
 #include "../CommandHandler.h"
 #include "../OptionParser.h"
+#include "../TimerManager.h"
 
 /* full name of the command */
 CMDNAME("editcom");
@@ -8,6 +9,9 @@ CMDNAME("editcom");
 CMDDESCR("modify a custom command");
 /* command usage synopsis */
 CMDUSAGE("$editcom [-c CD] CMD [RESPONSE]");
+
+static bool edit(CustomCommandHandler *cch, const std::string &args,
+		time_t cooldown, TimerManager *tm, std::string &res);
 
 /* editcom: modify a custom command */
 std::string CommandHandler::editcom(struct cmdinfo *c)
@@ -18,10 +22,8 @@ std::string CommandHandler::editcom(struct cmdinfo *c)
 	if (!m_customCmds->isActive())
 		return CMDNAME + ": custom commands are currently disabled";
 
-	std::string out, cmd, args;
+	std::string out, res;
 	time_t cooldown;
-	size_t sp;
-	bool cd, resp;
 
 	OptionParser op(c->fullCmd, "c:");
 	int opt;
@@ -58,35 +60,49 @@ std::string CommandHandler::editcom(struct cmdinfo *c)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
 	out = "@" + c->nick + ", ";
-	args = c->fullCmd.substr(op.optind());
+	if (!edit(m_customCmds, c->fullCmd.substr(op.optind()), cooldown,
+			&m_cooldowns, res))
+		return CMDNAME + ": " + res;
+	return out + res;
+}
+
+/* edit: edit a custom command */
+static bool edit(CustomCommandHandler *cch, const std::string &args,
+		time_t cooldown, TimerManager *tm, std::string &res)
+{
+	bool cd, resp;
+	size_t sp;
+	std::string cmd, response;
 
 	/* determine which parts are being changed */
 	cd = cooldown != -1;
 	resp = (sp = args.find(' ')) != std::string::npos;
 	cmd = resp ? args.substr(0, sp) : args;
 
-	std::string response = resp
-		? args.substr(sp + 1) : "";
+	response = resp ? args.substr(sp + 1) : "";
+
 	/* don't allow reponse to activate a twitch command */
 	if (response[0] == '/')
 		response = " " + response;
-	if (!m_customCmds->editCom(cmd, response, cooldown)) {
-		return c->cmd + ": invalid command: $" + cmd;
+	if (!cch->editCom(cmd, response, cooldown)) {
+		res = "invalid command: $" + cmd;
+		return false;
 	} else if (!cd && !resp) {
-		out += "command $" + cmd + " was unchanged";
+		res = "command $" + cmd + " was unchanged";
+		return true;
 	} else {
 		/* build an out string detailing changes */
-		out += "command $" + cmd + " has been changed to ";
+		res += "command $" + cmd + " has been changed to ";
 		if (resp)
-			out += "\"" + response + "\""
+			res += "\"" + response + "\""
 				+ (cd ? ", with " : ".");
 		if (cd) {
 			/* reset cooldown in TimerManager */
-			m_cooldowns.remove(cmd);
-			m_cooldowns.add(cmd, cooldown);
-			out += "a " + std::to_string(cooldown)
+			tm->remove(cmd);
+			tm->add(cmd, cooldown);
+			res += "a " + std::to_string(cooldown)
 				+ "s cooldown.";
 		}
+		return true;
 	}
-	return out;
 }
