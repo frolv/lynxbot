@@ -310,9 +310,11 @@ bool Giveaway::readSettings()
 		valid = false;
 	}
 #ifdef _WIN32
-	std::cout << "Image-based giveaways are not available on "
-		"Windows systems" << std::endl;
-	m_images = false;
+	if (m_images) {
+		std::cout << "Image-based giveaways are not available on "
+			"Windows systems" << std::endl;
+		m_images = false;
+	}
 #endif
 	if (!utils::parseBool(m_type[1], m_cfgr->get("follower_giveaway"), err)) {
 		std::cerr << m_cfgr->path() << ": follower_giveaway: " << err

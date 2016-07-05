@@ -68,7 +68,7 @@ std::string EventManager::messageList() const
 			+ message(i, 35)
 			+ (i == m_messages.size() - 1 ? "" : ", ");
 	}
-	if (output.empty())
+	if (m_messages.empty())
 		output += "No recurring messages exist.";
 	return output;
 }
