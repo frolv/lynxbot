@@ -38,7 +38,7 @@
         <p>level - look up players' levels</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$level [-n] SKILL RSN</code></pre>
+        <pre><code>$level [-inu] SKILL RSN</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>level</strong> looks up the player specified by <strong>RSN
@@ -55,10 +55,15 @@
         <dl compact="">
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
+          <dt><b>-i, --ironman</b></dt>
+          <dd>search the ironman hiscores instead of the regular ones</dd>
           <dt><b>-n, --nick</b></dt>
           <dd>search using a Twitch nick rather than a RSN. When set, the
           argument <strong>RSN</strong> is interpreted as a Twitch username
           and its corresponding RSN is looked up.</dd>
+          <dt><b>-u, --ultimate</b></dt>
+          <dd>search the ultimate ironman hiscores instead of the
+	  regular ones</dd>
         </dl>
 
         <h3>EXAMPLES</h3>
