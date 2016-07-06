@@ -38,13 +38,13 @@
         <p>editcom - modify a custom command</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$editcom [-c CD] COMMAND [RESPONSE]</code></pre>
+        <pre><code>$editcom [-c CD] CMD [RESPONSE]</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>editcom</strong> changes the cooldown or response of a
         custom command.
 
-        <p><strong>COMMAND</strong> is the keyword that activates the command,
+        <p><strong>CMD</strong> is the keyword that activates the command,
         <u>without</u> the leading dollar sign <strong>$</strong>.</p>
 
         <p>At least one of <strong>CD</strong> or <strong>RESPONSE</strong>
@@ -54,6 +54,8 @@
         <dl compact="">
           <dt><b>-c, --cooldown=CD</b></dt>
           <dd>set the cooldown of the command to <strong>CD</strong> seconds</dd>
+          <dt><b>--help</b></dt>
+          <dd>print brief description and usage information</dd>
         </dl>
 
         <h3>EXAMPLES</h3>

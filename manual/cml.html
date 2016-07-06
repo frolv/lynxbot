@@ -38,7 +38,7 @@
         <p>cml - interact with crystalmathlabs trackers</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$cml [-nu] [RSN]</code></pre>
+        <pre><code>$cml [-s] [-nu] [RSN]</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>cml</strong> is used to interact with players'
@@ -58,10 +58,14 @@
 
         <h3>OPTIONS</h3>
         <dl compact="">
+          <dt><b>--help</b></dt>
+          <dd>print brief description and usage information</dd>
           <dt><b>-n, --nick</b></dt>
           <dd>search using a Twitch nick rather than a RSN. When set, the
           argument <strong>RSN</strong> is interpreted as a Twitch username
           and its corresponding RSN is looked up.</dd>
+          <dt><b>-s, --suppliescalc</b></dt>
+          <dd>link to the CML supplies calc</dd>
           <dt><b>-u, --update</b></dt>
           <dd>update the CML tracker of the player <strong>RSN</strong></dd>
         </dl>

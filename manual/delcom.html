@@ -35,15 +35,23 @@
         <h2>delcom(2) - LynxBot manual</h2>
 
         <h3>NAME</h3>
-        <p>delcom - delete a custom command</p>
+        <p>delcom - delete custom commands</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$delcom COMMAND</code></pre>
+        <pre><code>$delcom CMD...</code></pre>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>delcom</strong> deletes a the custom command with keyword
-        <strong>COMMAND</strong>, given <u>without</u> the leading dollar
-        sign <strong>$</strong>.
+        <p><strong>delcom</strong> deletes all commands <strong>CMD</strong>
+        that it is given.</p>
+
+        <p>All commands are given <u>without</u> their leading dollar
+        sign <strong>$</strong>.<p>
+
+        <h3>OPTIONS</h3>
+        <dl compact="">
+          <dt><b>--help</b></dt>
+          <dd>print brief description and usage information</dd>
+        </dl>
 
         <h3>EXAMPLES</h3>
         <p>Deletes the custom command $hi:</p>

@@ -38,7 +38,7 @@
         <p>setgiv - change giveaway settings</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$setgiv [-fit] [-n AMOUNT] COMMAND</code></pre>
+        <pre><code>$setgiv [-fit] [-n LIM] COMMAND</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>setgiv</strong> changes the status of a LynxBot giveaway
@@ -55,12 +55,14 @@
         <dl compact="">
           <dt><b>-f, --followers</b></dt>
           <dd>change the follower giveaway setting</dd>
+          <dt><b>--help</b></dt>
+          <dd>print brief description and usage information</dd>
           <dt><b>-i, --image</b></dt>
           <dd>change the image-based giveaway setting (GNU/Linux
           systems only)</dd>
-          <dt><b>-n, --amount=AMT</b></dt>
+          <dt><b>-n, --amount=LIM</b></dt>
           <dd>with <strong>-f</strong> or <strong>-t</strong>: change the
-          giveaway limit to the value of <strong>AMT</strong></dd>
+          giveaway limit to the value of <strong>LIM</strong></dd>
           <dt><b>-t, --timed</b></dt>
           <dd>change the timed giveaway setting</dd>
         </dl>

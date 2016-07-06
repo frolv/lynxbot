@@ -38,7 +38,7 @@
         <p>ge - look up item prices</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$ge ITEM</code></pre>
+        <pre><code>$ge [-n AMT] ITEM</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>ge</strong> looks up the item specified by <strong>ITEM
@@ -49,12 +49,29 @@
         delimiters for multiple word items. Abbreviations can be used for some
         of the more common items (e.g. Saradomin godsword - sgs).</p>
 
+        <p>If the <strong>-n</strong> option is given, the number
+        <strong>AMT</strong> can end in <strong>k</strong>, <strong>m</strong>
+        or <strong>b</strong>, specifiying thousands, millions or billions,
+        respectively.</p>
+
+        <h3>OPTIONS</h3>
+        <dl compact="">
+          <dt><b>-n, --amount=AMT</b></dt>
+          <dd>calculate the price of <strong>AMT</strong> of
+          <strong>ITEM</strong></dd>
+          <dt><b>--help</b></dt>
+          <dd>print brief description and usage information</dd>
+        </dl>
+
         <h3>EXAMPLES</h3>
         <p>Looks up the item Dragon bones:</p>
         <pre><code>$ge dragon bones</code></pre>
 
         <p>Looks up the item Bandos chestplate, using shorthand:</p>
         <pre><code>$ge bcp</code></pre>
+
+        <p>Looks up the price of 500 feathers:</p>
+        <pre><code>$ge -n 500 feather</code></pre>
 
         <h3>SEE ALSO</h3>
         <p><a href="itemids.html">itemids.json(4)</a></p>

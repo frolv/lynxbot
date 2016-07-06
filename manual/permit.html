@@ -38,15 +38,21 @@
         <p>permit - grant user permission to post a url</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$permit NICK</code></pre>
+        <pre><code>$permit USER</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>permit</strong> grants a user permission to post a single
         URL in the chat without being timed out. The permission expires after
         the user has posted a URL that is not on the bot's whitelist.</p>
 
-        <p><strong>NICK</strong> is the Twitch username of the user being
+        <p><strong>USER</strong> is the Twitch username of the user being
         permitted.</p>
+
+        <h3>OPTIONS</h3>
+        <dl compact="">
+          <dt><b>--help</b></dt>
+          <dd>print brief description and usage information</dd>
+        </dl>
 
         <h3>EXAMPLES</h3>
         <p>Permits the user 00rsn to post a link:</p>

@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>listrec(2) - LynxBot</title>
+    <title>showrec(2) - LynxBot</title>
   </head>
 
   <body>
@@ -32,21 +32,30 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>listrec(2) - LynxBot manual</h2>
+        <h2>showrec(2) - LynxBot manual</h2>
 
         <h3>NAME</h3>
-        <p>listrec - show all recurring messages</p>
+        <p>showrec - show recurring messages</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$listrec</code></pre>
+        <pre><code>$showrec [ID]</code></pre>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>listrec</strong> prints a list of all active recurring
-        messages with their IDs and intervals.</p>
+        <p><strong>showrec</strong> prints the specified recurring message(s)
+        with their intervals.</p>
+
+        <h3>OPTIONS</h3>
+        <dl compact="">
+          <dt><b>--help</b></dt>
+          <dd>print brief description and usage information</dd>
+        </dl>
 
         <h3>EXAMPLES</h3>
         <p>Shows all recurring messages:</p>
-        <pre><code>$listrec</code></pre>
+        <pre><code>$showrec</code></pre>
+
+        <p>Shows the second recurring message:</p>
+        <pre><code>$showrec 2</code></pre>
 
         <h3>SEE ALSO</h3>
         <p><a href="addrec">addrec(2)</a>,
