@@ -11,7 +11,7 @@ CMDNAME("status");
 /* description of the command */
 CMDDESCR("set channel status");
 /* command usage synopsis */
-CMDUSAGE("status [-a] STATUS");
+CMDUSAGE("status [-a] [STATUS]");
 
 static const std::string TWITCH_API = "https://api.twitch.tv/kraken/channels/";
 
