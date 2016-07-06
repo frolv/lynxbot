@@ -112,7 +112,7 @@ static std::string info(Json::Value *cmd)
 		if (creator)
 			out << " by " + (*cmd)["creator"].asString();
 		if (crtime) {
-			out << " at " << std::put_time(&ctm, "%R %a %d/%m/%Y");
+			out << " at " << std::put_time(&ctm, "%R %Z %d/%m/%Y");
 			out << " (" << utils::conv_time(time(nullptr) - ct)
 				<< " ago)";
 		}
@@ -121,7 +121,7 @@ static std::string info(Json::Value *cmd)
 	if (mtime) {
 		if ((!mod && ct != mt) || mod) {
 			out << " Last modified at "
-				<< std::put_time(&mtm, "%R %a %d/%m/%Y");
+				<< std::put_time(&mtm, "%R %Z %d/%m/%Y");
 			out << " (" << utils::conv_time(time(nullptr) - mt)
 				<< " ago).";
 		}
@@ -129,7 +129,7 @@ static std::string info(Json::Value *cmd)
 	if (atime) {
 		if (at) {
 			out << " Last used at "
-				<< std::put_time(&atm, "%R %a %d/%m/%Y");
+				<< std::put_time(&atm, "%R %Z %d/%m/%Y");
 			out << " (" << utils::conv_time(time(nullptr) - at)
 				<< " ago).";
 		} else if (mod) {
