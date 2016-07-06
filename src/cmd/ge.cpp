@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cstring>
 #include <cpr/cpr.h>
 #include <utils.h>
 #include "command.h"
@@ -16,7 +15,6 @@ CMDUSAGE("$ge [-n AMT] ITEM");
 static const std::string EXCHANGE_API =
 	"https://api.rsbuddy.com/grandExchange?a=guidePrice&i=";
 
-static bool getamt(char *num, int64_t *amt);
 static int64_t extract_price(const std::string &resp);
 
 /* ge: look up item prices */
@@ -44,7 +42,7 @@ std::string CommandHandler::ge(struct cmdinfo *c)
 		case 'h':
 			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
 		case 'n':
-			if (!getamt(op.optarg(), &amt))
+			if (!utils::readnum(op.optarg(), &amt))
 				return CMDNAME + ": invalid number -- '"
 					+ std::string(op.optarg()) + "'";
 			break;
@@ -78,39 +76,6 @@ std::string CommandHandler::ge(struct cmdinfo *c)
 	output += utils::formatInteger(std::to_string(amt * price)) + " gp";
 
 	return output;
-}
-
-/* getamt: read number from string num into amt */
-static bool getamt(char *num, int64_t *amt)
-{
-	size_t last;
-	int64_t n, mult;
-
-	last = strlen(num) - 1;
-	mult = 1;
-	if (num[last] == 'k' || num[last] == 'm' || num[last] == 'b') {
-		switch (num[last]) {
-		case 'k':
-			mult = 1000;
-			break;
-		case 'm':
-			mult = 1000000;
-			break;
-		case 'b':
-			mult = 1000000000;
-			break;
-		}
-		num[last] = '\0';
-	}
-
-	n = 0;
-	for (; *num; ++num) {
-		if (*num < '0' || *num > '9')
-			return false;
-		n = 10 * n + (*num - '0');
-	}
-	*amt = n * mult;
-	return true;
 }
 
 /* extract_price: return the price of the json data in resp */

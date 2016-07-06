@@ -28,4 +28,6 @@ namespace utils {
 	bool parseInt(uint32_t &i, const std::string &s, std::string &err);
 	/* conv_time: convert t to hours, minutes and seconds */
 	std::string conv_time(time_t t);
+	/* readnum: read number from string num into amt */
+	bool readnum(char *num, int64_t *amt);
 }

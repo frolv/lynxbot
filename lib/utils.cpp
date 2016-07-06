@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -185,4 +186,37 @@ std::string utils::conv_time(time_t t)
 			+ " and ";
 	out += std::to_string(t) + " second" + (t == 1 ? "" : "s");
 	return out;
+}
+
+/* getamt: read number from string num into amt */
+bool utils::readnum(char *num, int64_t *amt)
+{
+	size_t last;
+	int64_t n, mult;
+
+	last = strlen(num) - 1;
+	mult = 1;
+	if (num[last] == 'k' || num[last] == 'm' || num[last] == 'b') {
+		switch (num[last]) {
+		case 'k':
+			mult = 1000;
+			break;
+		case 'm':
+			mult = 1000000;
+			break;
+		case 'b':
+			mult = 1000000000;
+			break;
+		}
+		num[last] = '\0';
+	}
+
+	n = 0;
+	for (; *num; ++num) {
+		if (*num < '0' || *num > '9')
+			return false;
+		n = 10 * n + (*num - '0');
+	}
+	*amt = n * mult;
+	return true;
 }
