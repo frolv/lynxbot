@@ -44,7 +44,8 @@ std::string CommandHandler::whitelist(struct cmdinfo *c)
 
 	if (m_parsep->parse(website)) {
 		/* extract domain and add to whitelist */
-		website = m_parsep->getLast()->domain;
+		website = m_parsep->getLast()->subdomain
+			+ m_parsep->getLast()->domain;
 		if (m_modp->whitelist(website))
 			return "@" + c->nick + ", " + website
 				+ " has been whitelisted.";

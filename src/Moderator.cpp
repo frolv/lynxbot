@@ -149,8 +149,16 @@ std::string Moderator::getFormattedWhitelist() const
 
 bool Moderator::checkWhitelist() const
 {
-	return std::find(m_whitelist.begin(), m_whitelist.end(),
-			m_parsep->getLast()->domain) == m_whitelist.end();
+	std::string domain, sub;
+
+	domain = m_parsep->getLast()->domain;
+	sub = m_parsep->getLast()->subdomain + domain;
+
+	std::cout << domain << std::endl << sub << std::endl;
+
+	return std::find(m_whitelist.begin(), m_whitelist.end(), domain)
+		== m_whitelist.end() && std::find(m_whitelist.begin(),
+		m_whitelist.end(), sub) == m_whitelist.end();
 }
 
 bool Moderator::checkSpam(const std::string &msg) const
