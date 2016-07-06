@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="LynxBot : A Twitch.tv IRC bot for Old School Runescape">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
+
+    <title>xp(1) - LynxBot</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+      <header class="inner">
+        <a id="forkme_banner" href="https://github.com/frolv/lynxbot">View on GitHub</a>
+
+        <h1 id="project_title"><a class="title-link" href="../index.html">LynxBot</a></h1>
+        <h2 id="project_tagline">A Twitch.tv IRC bot for Old School Runescape</h2>
+
+        <section id="downloads">
+          <a class="zip_download_link" href="https://github.com/frolv/lynxbot/zipball/master">Download this project as a .zip file</a>
+          <a class="tar_download_link" href="https://github.com/frolv/lynxbot/tarball/master">Download this project as a tar.gz file</a>
+        </section>
+      </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+        <h2>xp(1) - LynxBot manual</h2>
+
+        <h3>NAME</h3>
+        <p>xp - query experience informat</p>
+
+        <h3>SYNOPSIS</h3>
+        <pre><code>$xp [-i] NUM</code></pre>
+
+        <h3>DESCRIPTION</h3>
+        <p>The <strong>xp</strong> command converts levels to experience and
+        vice-versa.</p>
+
+        <p>By default <strong>NUM</strong> is interpreted as a level, and the
+        xp required for it is printed. The <strong>-i</strong> flag inverts this
+        behaviour and interprets <strong>NUM</strong> as an amount of
+        experience.</p>
+
+        <h3>OPTIONS</h3>
+        <dl compact="">
+          <dt><b>--help</b></dt>
+          <dd>print brief description and usage information</dd>
+          <dt><b>-i, --invert</b></dt>
+          <dd>interpret <strong>NUM</strong> as an amount of xp and print
+          the corresponding level</dd>
+        </dl>
+
+        <h3>EXAMPLES</h3>
+        <p>Prints the experience required for level 83:</p>
+        <pre><code>$xp 83</code></pre>
+
+        <p>Prints the level attained at 354,824 experience points:</p>
+        <pre><code>$xp -i 354824</code></pre>
+
+        <h3>SEE ALSO</h3>
+        <p><a href="cmdinfo.html">cmdinfo(1)</a></p>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">LynxBot maintained by <a href="https://github.com/frolv">frolv</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+  </body>
+</html>
