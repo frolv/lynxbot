@@ -38,7 +38,7 @@
         <p>cgrep - find commands matching a pattern</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$cgrep [-i] PATTERN</code></pre>
+        <pre><code>$cgrep [-cdi] PATTERN</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>cgrep</strong> searches through default and custom bot
@@ -48,6 +48,10 @@
 
         <h3>OPTIONS</h3>
         <dl compact="">
+          <dt><b>-c, --custom</b></dt>
+	  <dd>only search through custom commands</dd>
+          <dt><b>-d, --default</b></dt>
+	  <dd>only search through default commands</dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
           <dt><b>-i, --ignore-case</b></dt>
