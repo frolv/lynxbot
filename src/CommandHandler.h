@@ -97,36 +97,38 @@ class CommandHandler {
 		};
 
 		/* default bot commands */
-		std::string ehp(struct cmdinfo *c);
-		std::string level(struct cmdinfo *c);
-		std::string ge(struct cmdinfo *c);
-		std::string calc(struct cmdinfo *c);
-		std::string cml(struct cmdinfo *c);
-		std::string wheel(struct cmdinfo *c);
-		std::string eightball(struct cmdinfo *c);
-		std::string active(struct cmdinfo *c);
-		std::string manual(struct cmdinfo *c);
-		std::string help(struct cmdinfo *c);
 		std::string about(struct cmdinfo *c);
-		std::string uptime(struct cmdinfo *c);
+		std::string active(struct cmdinfo *c);
+		std::string calc(struct cmdinfo *c);
+		std::string cgrep(struct cmdinfo *c);
+		std::string cmdinf(struct cmdinfo *c);
+		std::string cml(struct cmdinfo *c);
+		std::string duck(struct cmdinfo *c);
+		std::string ehp(struct cmdinfo *c);
+		std::string eightball(struct cmdinfo *c);
+		std::string ge(struct cmdinfo *c);
+		std::string help(struct cmdinfo *c);
+		std::string level(struct cmdinfo *c);
+		std::string manual(struct cmdinfo *c);
 		std::string rsn(struct cmdinfo *c);
 		std::string submit(struct cmdinfo *c);
-		std::string duck(struct cmdinfo *c);
+		std::string uptime(struct cmdinfo *c);
+		std::string wheel(struct cmdinfo *c);
 
 		/* moderator only commands */
-		std::string strawpoll(struct cmdinfo *c);
-		std::string count(struct cmdinfo *c);
-		std::string whitelist(struct cmdinfo *c);
-		std::string permit(struct cmdinfo *c);
 		std::string addcom(struct cmdinfo *c);
-		std::string editcom(struct cmdinfo *c);
-		std::string delcom(struct cmdinfo *c);
 		std::string addrec(struct cmdinfo *c);
+		std::string count(struct cmdinfo *c);
+		std::string delcom(struct cmdinfo *c);
 		std::string delrec(struct cmdinfo *c);
-		std::string showrec(struct cmdinfo *c);
-		std::string setrec(struct cmdinfo *c);
+		std::string editcom(struct cmdinfo *c);
+		std::string permit(struct cmdinfo *c);
 		std::string setgiv(struct cmdinfo *c);
+		std::string setrec(struct cmdinfo *c);
+		std::string showrec(struct cmdinfo *c);
 		std::string status(struct cmdinfo *c);
+		std::string strawpoll(struct cmdinfo *c);
+		std::string whitelist(struct cmdinfo *c);
 
 		/* helpers */
 		uint8_t source(const std::string &cmd);
@@ -152,6 +154,7 @@ class CustomCommandHandler {
 		bool editCom(const std::string &cmd,
 				const std::string &newResp = "", time_t newcd = -1);
 		Json::Value *getCom(const std::string &cmd);
+		const Json::Value *commands();
 		bool validName(const std::string &cmd, bool loading = false);
 		void write();
 

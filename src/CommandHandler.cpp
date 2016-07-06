@@ -191,39 +191,41 @@ std::string CommandHandler::getRSN(const std::string &text,
 void CommandHandler::populateCmds()
 {
 	/* regular commands */
+	m_defaultCmds["8ball"] = &CommandHandler::eightball;
+	m_defaultCmds["about"] = &CommandHandler::about;
+	m_defaultCmds["active"] = &CommandHandler::active;
+	m_defaultCmds["calc"] = &CommandHandler::calc;
+	m_defaultCmds["cgrep"] = &CommandHandler::cgrep;
+	m_defaultCmds["cmdinfo"] = &CommandHandler::cmdinf;
+	m_defaultCmds["cml"] = &CommandHandler::cml;
+	m_defaultCmds["commands"] = &CommandHandler::manual;
+	m_defaultCmds["duck"] = &CommandHandler::duck;
 	m_defaultCmds["ehp"] = &CommandHandler::ehp;
+	m_defaultCmds["ge"] = &CommandHandler::ge;
+	m_defaultCmds["help"] = &CommandHandler::help;
 	m_defaultCmds["level"] = &CommandHandler::level;
 	m_defaultCmds["lvl"] = &CommandHandler::level;
-	m_defaultCmds["ge"] = &CommandHandler::ge;
-	m_defaultCmds["calc"] = &CommandHandler::calc;
-	m_defaultCmds["cml"] = &CommandHandler::cml;
-	m_defaultCmds["8ball"] = &CommandHandler::eightball;
-	m_defaultCmds["active"] = &CommandHandler::active;
-	m_defaultCmds["uptime"] = &CommandHandler::uptime;
-	m_defaultCmds["rsn"] = &CommandHandler::rsn;
 	m_defaultCmds["manual"] = &CommandHandler::manual;
-	m_defaultCmds["commands"] = &CommandHandler::manual;
-	m_defaultCmds["help"] = &CommandHandler::help;
-	m_defaultCmds["about"] = &CommandHandler::about;
+	m_defaultCmds["rsn"] = &CommandHandler::rsn;
 	m_defaultCmds["submit"] = &CommandHandler::submit;
-	m_defaultCmds["duck"] = &CommandHandler::duck;
+	m_defaultCmds["uptime"] = &CommandHandler::uptime;
 	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheel;
 
 	/* moderator commands */
-	m_defaultCmds["sp"] = &CommandHandler::strawpoll;
-	m_defaultCmds["strawpoll"] = &CommandHandler::strawpoll;
-	m_defaultCmds["count"] = &CommandHandler::count;
-	m_defaultCmds["whitelist"] = &CommandHandler::whitelist;
-	m_defaultCmds["permit"] = &CommandHandler::permit;
 	m_defaultCmds["addcom"] = &CommandHandler::addcom;
-	m_defaultCmds["editcom"] = &CommandHandler::editcom;
-	m_defaultCmds["delcom"] = &CommandHandler::delcom;
 	m_defaultCmds["addrec"] = &CommandHandler::addrec;
+	m_defaultCmds["count"] = &CommandHandler::count;
+	m_defaultCmds["delcom"] = &CommandHandler::delcom;
 	m_defaultCmds["delrec"] = &CommandHandler::delrec;
-	m_defaultCmds["showrec"] = &CommandHandler::showrec;
-	m_defaultCmds["setrec"] = &CommandHandler::setrec;
+	m_defaultCmds["editcom"] = &CommandHandler::editcom;
+	m_defaultCmds["permit"] = &CommandHandler::permit;
 	m_defaultCmds["setgiv"] = &CommandHandler::setgiv;
+	m_defaultCmds["setrec"] = &CommandHandler::setrec;
+	m_defaultCmds["showrec"] = &CommandHandler::showrec;
+	m_defaultCmds["sp"] = &CommandHandler::strawpoll;
 	m_defaultCmds["status"] = &CommandHandler::status;
+	m_defaultCmds["strawpoll"] = &CommandHandler::strawpoll;
+	m_defaultCmds["whitelist"] = &CommandHandler::whitelist;
 }
 
 /* populateHelp: fill m_help with manual page names */

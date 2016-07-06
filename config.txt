@@ -31,10 +31,10 @@ ban_urls = true
 # Maximum permitted length of a message (in characters)
 max_message_len = 300
 
-# Maximum amount of times a pattern can be repeated in a message
+# Maximum amount of times a pattern can be consecutively repeated in a message
 max_pattern = 6
 
-# Maximum amount a single character can be repeated in a message
+# Maximum amount a single character can be consecutively repeated in a message
 max_char = 15
 
 # Minimum message length at which capital letters start getting moderated

@@ -146,6 +146,11 @@ Json::Value *CustomCommandHandler::getCom(const std::string &cmd)
 	return &m_emptyVal;
 }
 
+const Json::Value *CustomCommandHandler::commands()
+{
+	return &m_commands;
+}
+
 void CustomCommandHandler::write()
 {
 	utils::writeJSON("customcmds.json", m_commands);

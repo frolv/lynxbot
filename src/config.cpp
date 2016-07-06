@@ -24,9 +24,9 @@ static struct setting settings[] = {
 	{ "max_message_len", STRING, "Maximum permitted length of a message "
 		"(in characters)", true },
 	{ "max_pattern", STRING, "Maximum amount of times a pattern can be "
-		"repeated in a message", true },
+		"consecutively repeated in a message", true },
 	{ "max_char", STRING, "Maximum amount a single character can be "
-		"repeated in a message", true },
+		"consecutively repeated in a message", true },
 	{ "cap_len", STRING, "Minimum message length at which capital letters "
 		"start getting moderated", true },
 	{ "cap_ratio", STRING, "Maximum percentage of capital letters allowed "
