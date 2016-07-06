@@ -117,6 +117,7 @@ class CommandHandler {
 		std::string submit(struct cmdinfo *c);
 		std::string uptime(struct cmdinfo *c);
 		std::string wheel(struct cmdinfo *c);
+		std::string xp(struct cmdinfo *c);
 
 		/* moderator only commands */
 		std::string addcom(struct cmdinfo *c);

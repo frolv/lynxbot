@@ -206,6 +206,7 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["rsn"] = &CommandHandler::rsn;
 	m_defaultCmds["submit"] = &CommandHandler::submit;
 	m_defaultCmds["uptime"] = &CommandHandler::uptime;
+	m_defaultCmds["xp"] = &CommandHandler::xp;
 	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheel;
 
 	/* moderator commands */
