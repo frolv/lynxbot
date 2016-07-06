@@ -4,15 +4,20 @@
 #include "../CommandHandler.h"
 #include "../OptionParser.h"
 
+#define ALL	0
+#define DEFAULT	1
+#define CUSTOM	2
+
 /* full name of the command */
 CMDNAME("cgrep");
 /* description of the command */
 CMDDESCR("find commands matching a pattern");
 /* command usage synopsis */
-CMDUSAGE("$cgrep [-i] PATTERN");
+CMDUSAGE("$cgrep [-cdi] PATTERN");
 
 static std::string findcmds(const CommandHandler::commandMap *cmdmap,
-		const Json::Value *customs, const std::string &pat, bool ign);
+		const Json::Value *customs, const std::string &pat,
+		int type, bool ign);
 static std::string format(std::vector<std::string> def,
 		std::vector<std::string> cus);
 
@@ -22,17 +27,26 @@ std::string CommandHandler::cgrep(struct cmdinfo *c)
 	std::string pattern;
 	bool ign;
 
-	int opt;
-	OptionParser op(c->fullCmd, "i");
+	int opt, type;
+	OptionParser op(c->fullCmd, "cdi");
 	static struct OptionParser::option long_opts[] = {
+		{ "custom", NO_ARG, 'c' },
+		{ "default", NO_ARG, 'd' },
 		{ "help", NO_ARG, 'h' },
 		{ "ignore-case", NO_ARG, 'i' },
 		{ 0, 0, 0 }
 	};
 
 	ign = false;
+	type = ALL;
 	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
+		case 'c':
+			type = CUSTOM;
+			break;
+		case 'd':
+			type = DEFAULT;
+			break;
 		case 'h':
 			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
 		case 'i':
@@ -50,12 +64,14 @@ std::string CommandHandler::cgrep(struct cmdinfo *c)
 			!= std::string::npos)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
-	return findcmds(&m_defaultCmds, m_customCmds->commands(), pattern, ign);
+	return findcmds(&m_defaultCmds, m_customCmds->commands(),
+			pattern, type, ign);
 }
 
 /* findcmds: find any bot commands that match pat */
 static std::string findcmds(const CommandHandler::commandMap *cmdmap,
-		const Json::Value *customs, const std::string &pat, bool ign)
+		const Json::Value *customs, const std::string &pat,
+		int type, bool ign)
 {
 	std::string out;
 	std::vector<std::string> def, cus;
@@ -74,19 +90,24 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 	}
 
 	/* search default commands */
-	for (const auto &p : *cmdmap) {
-		if (std::regex_search(p.first.begin(), p.first.end(),
-					match, reg)) {
-			++nmatch;
-			def.emplace_back(p.first);
+	if (type == ALL || type == DEFAULT) {
+		for (const auto &p : *cmdmap) {
+			if (std::regex_search(p.first.begin(), p.first.end(),
+						match, reg)) {
+				++nmatch;
+				def.emplace_back(p.first);
+			}
 		}
 	}
 	/* search custom commands */
-	for (const auto &val : (*customs)["commands"]) {
-		const std::string cmd = val["cmd"].asString();
-		if (std::regex_search(cmd.begin(), cmd.end(), match, reg)) {
-			++nmatch;
-			cus.emplace_back(cmd);
+	if (type == ALL || type == CUSTOM) {
+		for (const auto &val : (*customs)["commands"]) {
+			const std::string cmd = val["cmd"].asString();
+			if (std::regex_search(cmd.begin(), cmd.end(),
+						match, reg)) {
+				++nmatch;
+				cus.emplace_back(cmd);
+			}
 		}
 	}
 
