@@ -63,11 +63,15 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 	std::regex reg;
 	std::smatch match;
 
-	if (ign)
-		reg = std::regex(pat, std::regex::icase);
-	else
-		reg = std::regex(pat);
-	nmatch = 0;
+	try {
+		if (ign)
+			reg = std::regex(pat, std::regex::icase);
+		else
+			reg = std::regex(pat);
+		nmatch = 0;
+	} catch (std::regex_error) {
+		return CMDNAME + ": invalid regular expression";
+	}
 
 	/* search default commands */
 	for (const auto &p : *cmdmap) {
