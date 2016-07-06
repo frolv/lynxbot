@@ -14,6 +14,9 @@
 #include "config.h"
 #include "permissions.h"
 
+#define DEFAULT 1
+#define CUSTOM  2
+
 class Moderator;
 class CustomCommandHandler;
 class GEReader;

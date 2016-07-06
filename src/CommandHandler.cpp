@@ -7,9 +7,6 @@
 #include "CommandHandler.h"
 #include "OptionParser.h"
 
-#define DEFAULT 1
-#define CUSTOM 2
-
 CommandHandler::CommandHandler(const std::string &name,
 		const std::string &channel, const std::string &token,
 		Moderator *mod, URLParser *urlp, EventManager *evtp,
