@@ -52,6 +52,9 @@ whitelist = {
 	gyazo.com,
 	imgur.com,
 	twitch.tv,
+	github.com,
+	github.io,
+	runescape.com,
 	ptpb.pw
 }
 
