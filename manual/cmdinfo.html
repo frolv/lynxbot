@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>cgrep(1) - LynxBot</title>
+    <title>cmdinfo(1) - LynxBot</title>
   </head>
 
   <body>
@@ -32,41 +32,56 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>cgrep(1) - LynxBot manual</h2>
+        <h2>cmdinfo(1) - LynxBot manual</h2>
 
         <h3>NAME</h3>
-        <p>cgrep - find commands matching a pattern</p>
+        <p>cmdinfo - show information about a custom command</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$cgrep [-i] PATTERN</code></pre>
+        <pre><code>$cmdinfo [-acCmu] CMD</code></pre>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>cgrep</strong> searches through default and custom bot
-        commands for those matching a the given <strong>PATTERN</strong>.</p>
+        <p><strong>cmdinfo</strong> prints various information about the custom
+        command <strong>CMD</strong>.</p>
 
-        <p>The <strong>PATTERN</strong> is a valid regular expression.</p>
+        <p>The information shown includes the creation time, creator, most
+        recent modification time, most recent access time and number of uses.</p>
+
+        <p>By default, when no options are specified, <strong>cmdinfo</strong>
+        will print all the information about the command. If, however, any of
+        the options are given, only those pieces of data will be printed.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
+          <dt><b>-a, --atime</b></dt>
+          <dd>print most recent access time</dd>
+          <dt><b>-c, --ctime</b></dt>
+          <dd>print the creation time</dd>
+          <dt><b>-C, --creator</b></dt>
+          <dd>print the name of the person who created the command</dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
-          <dt><b>-i, --ignore-case</b></dt>
-          <dd>ignore case distinctions in the <strong>PATTERN</strong> and
-          commands</dd>
+          <dt><b>-m, --mtime</b></dt>
+          <dd>print the most recent modification time</dd>
+          <dt><b>-u, --uses</b></dt>
+          <dd>print the number of uses</dd>
         </dl>
 
         <h3>EXAMPLES</h3>
-        <p>Finds all commands containing the string 'com'</p>
-        <pre><code>$cgrep com</code></pre>
+        <p>Prints all information about the custom command 'ahk'</p>
+        <pre><code>$cmdinfo ahk</code></pre>
 
-        <p>Finds all commands starting with 's'</p>
-        <pre><code>$cgrep ^s</code></pre>
-
-        <p>Finds all commands containing 'hello' (case-insensitive)</p>
-        <pre><code>$cgrep -i hello</code></pre>
+        <p>Prints the creator, most recent access time and number of uses
+        of the custom command 'hexis'</p>
+        <pre><code>$cmdinfo -Cau hexis</code></pre>
 
         <h3>SEE ALSO</h3>
-        <p><a href="cmdinfo.html">cmdinfo(1)</a></p>
+        <p><a href="cgrep.html">cgrep(1)</a>,
+        <a href="addcom.html">addcom(2)</a>,
+        <a href="delcom.html">delcom(2)</a>,
+        <a href="editcom.html">editcom(2)</a>,
+        <a href="custom-commands.html">Custom Commands(3)</a>,
+        <a href="customcmds.html">customcmds.json(4)</a></p>
 
       </section>
     </div>
