@@ -47,7 +47,7 @@
         <p><strong>CMD</strong> is the keyword that activates the command,
         <u>without</u> the leading dollar sign <strong>$</strong>.</p>
 
-        <p>At least one of <strong>CD</strong> or <strong>RESPONSE</strong>
+        <p>At least one of <strong>CD</strong>, <strong>RESPONSE</strong>
         or the <strong>-a</strong> option must be given.</p>
 
         <h3>OPTIONS</h3>
@@ -70,6 +70,9 @@
         <p>Changes the response of the command $hi to "hey wassup hello" and
         the cooldown to 60 seconds:</p>
         <pre><code>$editcom -c 60 hi hey wassup hello</code></pre>
+
+        <p>Deactivates the command $hi:</p>
+        <pre><code>$editcom -a off hi</code></pre>
 
         <h3>SEE ALSO</h3>
         <p><a href="addcom.html">addcom(2)</a>,
