@@ -84,15 +84,21 @@ std::string CommandHandler::processCommand(const std::string &nick,
 		break;
 	case CUSTOM:
 		ccmd = m_customCmds->getCom(cmd);
-		if (P_ALSUB(p) || m_cooldowns.ready((*ccmd)["cmd"].asString())) {
+		if ((*ccmd)["active"].asBool() &&
+				(P_ALSUB(p) ||
+				m_cooldowns.ready((*ccmd)["cmd"].asString()))) {
 			output += (*ccmd)["response"].asString();
 			(*ccmd)["atime"] = (Json::Int64)time(nullptr);
 			(*ccmd)["uses"] = (*ccmd)["uses"].asInt() + 1;
 			m_cooldowns.setUsed((*ccmd)["cmd"].asString());
 			m_customCmds->write();
 		} else {
-			output += "/w " + nick + " command is on cooldown: "
-				+ cmd;
+			if (!(*ccmd)["active"].asBool())
+				output += "/w " + nick + " command is "
+					"currently inactive: " + cmd;
+			else
+				output += "/w " + nick + " command is on "
+					"cooldown: " + cmd;
 		}
 		break;
 	default:

@@ -44,6 +44,10 @@ CustomCommandHandler::CustomCommandHandler(commandMap *defaultCmds,
 			val["uses"] = 0;
 			added = true;
 		}
+		if (!val.isMember("active")) {
+			val["active"] = true;
+			added = true;
+		}
 		if (added)
 			write();
 		if (!(val.isMember("cmd") && val.isMember("response")
@@ -131,6 +135,28 @@ bool CustomCommandHandler::editCom(const std::string &cmd,
 	if (newcd != -1)
 		(*com)["cooldown"] = (Json::Int64)newcd;
 	(*com)["mtime"] = (Json::Int64)time(nullptr);
+	write();
+	return true;
+}
+
+bool CustomCommandHandler::activate(const std::string &cmd)
+{
+	Json::Value *com;
+
+	if ((com = getCom(cmd))->empty())
+		return false;
+	(*com)["active"] = true;
+	write();
+	return true;
+}
+
+bool CustomCommandHandler::deactivate(const std::string &cmd)
+{
+	Json::Value *com;
+
+	if ((com = getCom(cmd))->empty())
+		return false;
+	(*com)["active"] = false;
 	write();
 	return true;
 }

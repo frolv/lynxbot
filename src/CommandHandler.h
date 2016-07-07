@@ -157,6 +157,8 @@ class CustomCommandHandler {
 		bool delCom(const std::string &cmd);
 		bool editCom(const std::string &cmd,
 				const std::string &newResp = "", time_t newcd = -1);
+		bool activate(const std::string &cmd);
+		bool deactivate(const std::string &cmd);
 		Json::Value *getCom(const std::string &cmd);
 		const Json::Value *commands();
 		bool validName(const std::string &cmd, bool loading = false);
