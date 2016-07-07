@@ -38,11 +38,11 @@
         <p>editcom - modify a custom command</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$editcom [-c CD] CMD [RESPONSE]</code></pre>
+        <pre><code>$editcom [-a on|off] [-c CD] CMD [RESPONSE]</code></pre>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>editcom</strong> changes the cooldown or response of a
-        custom command.
+        <p><strong>editcom</strong> is used to modify custom LynxBot
+        commands.</p>
 
         <p><strong>CMD</strong> is the keyword that activates the command,
         <u>without</u> the leading dollar sign <strong>$</strong>.</p>
@@ -52,6 +52,8 @@
 
         <h3>OPTIONS</h3>
         <dl compact="">
+          <dt><b>-a, --active={on,off}</b></dt>
+          <dd>enable or disable the command</dd>
           <dt><b>-c, --cooldown=CD</b></dt>
           <dd>set the cooldown of the command to <strong>CD</strong> seconds</dd>
           <dt><b>--help</b></dt>
