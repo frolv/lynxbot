@@ -94,7 +94,7 @@ static bool edit(CustomCommandHandler *cch, const std::string &args,
 	if (response[0] == '/')
 		response = " " + response;
 	if (!cch->editCom(cmd, response, cooldown)) {
-		res = "invalid command: $" + cmd;
+		res = cch->error();
 		return false;
 	} else if (!cd && !resp && !act) {
 		res = "command $" + cmd + " was unchanged";
@@ -104,8 +104,9 @@ static bool edit(CustomCommandHandler *cch, const std::string &args,
 		res += "command $" + cmd + " has been";
 		if (act) {
 			if (set == "on") {
-				if (!cch->activate(cmd, res)) {
-					res = cmd + ": " + res + " in response";
+				if (!cch->activate(cmd)) {
+					res = cch->error();
+					res += ". Command not activated.";
 					return false;
 				}
 				res += " activated";

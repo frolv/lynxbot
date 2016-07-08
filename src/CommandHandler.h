@@ -157,12 +157,13 @@ class CustomCommandHandler {
 		bool delCom(const std::string &cmd);
 		bool editCom(const std::string &cmd,
 				const std::string &newResp = "", time_t newcd = -1);
-		bool activate(const std::string &cmd, std::string &err);
+		bool activate(const std::string &cmd);
 		bool deactivate(const std::string &cmd);
 		Json::Value *getCom(const std::string &cmd);
 		const Json::Value *commands();
 		bool validName(const std::string &cmd, bool loading = false);
 		void write();
+		std::string error() const;
 
 	private:
 		bool m_active;
@@ -171,6 +172,7 @@ class CustomCommandHandler {
 		const std::string m_wheelCmd;
 		Json::Value m_commands;
 		Json::Value m_emptyVal;
+		std::string m_error;
 		bool cmdcheck();
 
 };

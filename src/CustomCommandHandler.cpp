@@ -42,7 +42,10 @@ bool CustomCommandHandler::addCom(const std::string &cmd,
 
 	if (!validName(cmd))
 		return false;
+	if (!valid_resp(response, m_error))
+		return false;
 	Json::Value command;
+	command["active"] = true;
 	command["cmd"] = cmd;
 	command["response"] = response;
 	command["cooldown"] = (Json::Int64)cooldown;
@@ -80,7 +83,11 @@ bool CustomCommandHandler::editCom(const std::string &cmd,
 		const std::string &newResp, time_t newcd)
 {
 	auto *com = getCom(cmd);
-	if (com->empty())
+	if (com->empty()) {
+		m_error = "invalid command: $" + cmd;
+		return false;
+	}
+	if (!valid_resp(newResp, m_error))
 		return false;
 	if (!newResp.empty())
 		(*com)["response"] = newResp;
@@ -91,13 +98,13 @@ bool CustomCommandHandler::editCom(const std::string &cmd,
 	return true;
 }
 
-bool CustomCommandHandler::activate(const std::string &cmd, std::string &err)
+bool CustomCommandHandler::activate(const std::string &cmd)
 {
 	Json::Value *com;
 
 	if ((com = getCom(cmd))->empty())
 		return false;
-	if (!valid_resp((*com)["response"].asString(), err))
+	if (!valid_resp((*com)["response"].asString(), m_error))
 		return false;
 	(*com)["active"] = true;
 	write();
@@ -144,11 +151,15 @@ bool CustomCommandHandler::validName(const std::string &cmd, bool loading)
 		&& cmd.length() < 20 && (loading ? true : getCom(cmd)->empty());
 }
 
+std::string CustomCommandHandler::error() const
+{
+	return m_error;
+}
+
 bool CustomCommandHandler::cmdcheck()
 {
 	time_t t;
 	bool added;
-	std::string err;
 
 	t = time(nullptr);
 	added = false;
@@ -195,9 +206,9 @@ bool CustomCommandHandler::cmdcheck()
 			return false;
 		}
 		/* check validity of response */
-		if (!valid_resp(val["response"].asString(), err)) {
+		if (!valid_resp(val["response"].asString(), m_error)) {
 			std::cerr << "Custom command " << val["cmd"].asString()
-				<< ": " << err << std::endl;
+				<< ": " << m_error << std::endl;
 			val["active"] = false;
 			added = true;
 		}
@@ -218,14 +229,14 @@ static bool valid_resp(const std::string &resp, std::string &err)
 	ind = -1;
 	while ((ind = resp.find('%', ind + 1)) != std::string::npos) {
 		if (ind == resp.length() - 1) {
-			err = "unexpected end of line after '%'";
+			err = "unexpected end of line after '%' in response";
 			return false;
 		}
 		c = resp[ind + 1];
 		if (fmt_c.find(c) == std::string::npos) {
 			err = "invalid format sequence '%";
 			err += (char)c;
-			err += "'";
+			err += "' in response";
 			return false;
 		}
 		if (c == '%')
