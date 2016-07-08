@@ -85,7 +85,7 @@ static bool create(CustomCommandHandler *cch, const std::string &args,
 	if (response[0] == '/')
 		response = " " + response;
 	if (!cch->addCom(cmd, response, nick, cooldown)) {
-		res = "invalid command name: $" + cmd;
+		res = cch->error();
 		return false;
 	}
 	res = "command $" + cmd + " has been added with a "

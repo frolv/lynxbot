@@ -40,8 +40,10 @@ bool CustomCommandHandler::addCom(const std::string &cmd,
 {
 	time_t t;
 
-	if (!validName(cmd))
+	if (!validName(cmd)) {
+		m_error = "invalid command name: $" + cmd;
 		return false;
+	}
 	if (!valid_resp(response, m_error))
 		return false;
 	Json::Value command;
@@ -84,7 +86,7 @@ bool CustomCommandHandler::editCom(const std::string &cmd,
 {
 	auto *com = getCom(cmd);
 	if (com->empty()) {
-		m_error = "invalid command: $" + cmd;
+		m_error = "not a command: $" + cmd;
 		return false;
 	}
 	if (!valid_resp(newResp, m_error))
@@ -102,8 +104,10 @@ bool CustomCommandHandler::activate(const std::string &cmd)
 {
 	Json::Value *com;
 
-	if ((com = getCom(cmd))->empty())
+	if ((com = getCom(cmd))->empty()) {
+		m_error = "not a command: $" + cmd;
 		return false;
+	}
 	if (!valid_resp((*com)["response"].asString(), m_error))
 		return false;
 	(*com)["active"] = true;
