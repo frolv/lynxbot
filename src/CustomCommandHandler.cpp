@@ -5,13 +5,12 @@
 #include <utils.h>
 #include "CommandHandler.h"
 
+static bool valid_resp(const std::string &resp, std::string &err);
+
 CustomCommandHandler::CustomCommandHandler(commandMap *defaultCmds,
 		TimerManager *tm, const std::string &wheelCmd)
 	: m_cmp(defaultCmds), m_tmp(tm), m_wheelCmd(wheelCmd)
 {
-	time_t t;
-	bool added;
-
 	if (!(m_active = utils::readJSON("customcmds.json", m_commands))) {
 		std::cerr << "Could not read customcmds.json.";
 		return;
@@ -24,55 +23,8 @@ CustomCommandHandler::CustomCommandHandler(commandMap *defaultCmds,
 		return;
 	}
 
-	t = time(nullptr);
-	added = false;
-	for (Json::Value &val : m_commands["commands"]) {
-		/* add new values to old commands */
-		if (!val.isMember("ctime")) {
-			val["ctime"] = (Json::Int64)t;
-			added = true;
-		}
-		if (!val.isMember("mtime")) {
-			val["mtime"] = (Json::Int64)t;
-			added = true;
-		}
-		if (!val.isMember("creator")) {
-			val["creator"] = "unknown";
-			added = true;
-		}
-		if (!val.isMember("uses")) {
-			val["uses"] = 0;
-			added = true;
-		}
-		if (!val.isMember("active")) {
-			val["active"] = true;
-			added = true;
-		}
-		if (added)
-			write();
-		if (!(val.isMember("cmd") && val.isMember("response")
-					&& val.isMember("cooldown"))) {
-			m_active = false;
-			std::cerr << "customcmds.json is improperly configured";
-			return;
-		}
-		if (!validName(val["cmd"].asString(), true)) {
-			m_active = false;
-			std::cerr << val["cmd"].asString()
-				<< " is an invalid command name - change "
-				"or remove it";
-			return;
-		}
-		if (val["cooldown"].asInt() < 0) {
-			m_active = false;
-			std::cerr << "command \"" << val["cmd"].asString()
-				<< "\" has a negative cooldown - change "
-				"or remove it";
-			return;
-		}
-
-		m_tmp->add(val["cmd"].asString(), val["cooldown"].asInt());
-	}
+	if (!cmdcheck())
+		std::cerr << "\nCustom commands disabled." << std::endl;
 }
 
 CustomCommandHandler::~CustomCommandHandler() {}
@@ -139,11 +91,13 @@ bool CustomCommandHandler::editCom(const std::string &cmd,
 	return true;
 }
 
-bool CustomCommandHandler::activate(const std::string &cmd)
+bool CustomCommandHandler::activate(const std::string &cmd, std::string &err)
 {
 	Json::Value *com;
 
 	if ((com = getCom(cmd))->empty())
+		return false;
+	if (!valid_resp((*com)["response"].asString(), err))
 		return false;
 	(*com)["active"] = true;
 	write();
@@ -188,4 +142,94 @@ bool CustomCommandHandler::validName(const std::string &cmd, bool loading)
 	/* it doesn't need to check against its stored commands */
 	return m_cmp->find(cmd) == m_cmp->end() && cmd != m_wheelCmd
 		&& cmd.length() < 20 && (loading ? true : getCom(cmd)->empty());
+}
+
+bool CustomCommandHandler::cmdcheck()
+{
+	time_t t;
+	bool added;
+	std::string err;
+
+	t = time(nullptr);
+	added = false;
+	for (Json::Value &val : m_commands["commands"]) {
+		/* add new values to old commands */
+		if (!val.isMember("ctime")) {
+			val["ctime"] = (Json::Int64)t;
+			added = true;
+		}
+		if (!val.isMember("mtime")) {
+			val["mtime"] = (Json::Int64)t;
+			added = true;
+		}
+		if (!val.isMember("creator")) {
+			val["creator"] = "unknown";
+			added = true;
+		}
+		if (!val.isMember("uses")) {
+			val["uses"] = 0;
+			added = true;
+		}
+		if (!val.isMember("active")) {
+			val["active"] = true;
+			added = true;
+		}
+		if (!(val.isMember("cmd") && val.isMember("response")
+					&& val.isMember("cooldown"))) {
+			m_active = false;
+			std::cerr << "customcmds.json is improperly configured";
+			return false;
+		}
+		if (!validName(val["cmd"].asString(), true)) {
+			m_active = false;
+			std::cerr << val["cmd"].asString()
+				<< " is an invalid command name - change "
+				"or remove it";
+			return false;
+		}
+		if (val["cooldown"].asInt() < 0) {
+			m_active = false;
+			std::cerr << "command \"" << val["cmd"].asString()
+				<< "\" has a negative cooldown - change "
+				"or remove it";
+			return false;
+		}
+		/* check validity of response */
+		if (!valid_resp(val["response"].asString(), err)) {
+			std::cerr << "Custom command " << val["cmd"].asString()
+				<< ": " << err << std::endl;
+			val["active"] = false;
+			added = true;
+		}
+		if (added)
+			write();
+		m_tmp->add(val["cmd"].asString(), val["cooldown"].asInt());
+	}
+	return true;
+}
+
+/* valid_resp: check if a response has valid format characters */
+static bool valid_resp(const std::string &resp, std::string &err)
+{
+	static const std::string fmt_c = "%Nbcnu";
+	size_t ind;
+	int c;
+
+	ind = -1;
+	while ((ind = resp.find('%', ind + 1)) != std::string::npos) {
+		if (ind == resp.length() - 1) {
+			err = "unexpected end of line after '%'";
+			return false;
+		}
+		c = resp[ind + 1];
+		if (fmt_c.find(c) == std::string::npos) {
+			err = "invalid format sequence '%";
+			err += (char)c;
+			err += "'";
+			return false;
+		}
+		if (c == '%')
+			++ind;
+	}
+	return true;
 }

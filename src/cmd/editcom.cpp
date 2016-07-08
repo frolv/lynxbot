@@ -104,7 +104,10 @@ static bool edit(CustomCommandHandler *cch, const std::string &args,
 		res += "command $" + cmd + " has been";
 		if (act) {
 			if (set == "on") {
-				cch->activate(cmd);
+				if (!cch->activate(cmd, res)) {
+					res = cmd + ": " + res + " in response";
+					return false;
+				}
 				res += " activated";
 			} else {
 				cch->deactivate(cmd);
