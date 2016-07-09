@@ -8,8 +8,10 @@
 static bool valid_resp(const std::string &resp, std::string &err);
 
 CustomCommandHandler::CustomCommandHandler(commandMap *defaultCmds,
-		TimerManager *tm, const std::string &wheelCmd)
-	: m_cmp(defaultCmds), m_tmp(tm), m_wheelCmd(wheelCmd)
+		TimerManager *tm, const std::string &wheelCmd,
+		const std::string &name, const std::string &channel)
+	: m_cmp(defaultCmds), m_tmp(tm), m_wheelCmd(wheelCmd),
+	m_name(name), m_channel(channel)
 {
 	if (!(m_active = utils::readJSON("customcmds.json", m_commands))) {
 		std::cerr << "Could not read customcmds.json.";
@@ -189,6 +191,47 @@ bool CustomCommandHandler::validName(const std::string &cmd, bool loading)
 std::string CustomCommandHandler::error() const
 {
 	return m_error;
+}
+
+/* format: format a response for cmd */
+std::string CustomCommandHandler::format(const Json::Value *cmd,
+		const std::string &nick) const
+{
+	size_t ind;
+	std::string out, ins;
+	char c;
+
+	ind = 0;
+	out = (*cmd)["response"].asString();
+	while ((ind = out.find('%', ind)) != std::string::npos) {
+		c = out[ind + 1];
+		out.erase(ind, 2);
+		switch (c) {
+		case '%':
+			ins = "%";
+			break;
+		case 'N':
+			ins = "@" + nick + ",";
+			break;
+		case 'b':
+			ins = m_name;
+			break;
+		case 'c':
+			ins = m_channel;
+			break;
+		case 'n':
+			ins = nick;
+			break;
+		case 'u':
+			ins = utils::formatInteger((*cmd)["uses"].asString());
+			break;
+		default:
+			break;
+		}
+		out.insert(ind, ins);
+		ind += ins.length();
+	}
+	return out;
 }
 
 /* cmdcheck: check the validity of a command and add missing fields */

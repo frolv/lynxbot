@@ -18,7 +18,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	populateCmds();
 
 	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
-			m_wheel.cmd());
+			m_wheel.cmd(), name, channel);
 	if (!m_customCmds->isActive()) {
 		std::cerr << "Custom commands will be disabled "
 			"for this session." << std::endl;
@@ -87,9 +87,9 @@ std::string CommandHandler::processCommand(const std::string &nick,
 		if ((*ccmd)["active"].asBool() &&
 				(P_ALSUB(p) ||
 				m_cooldowns.ready((*ccmd)["cmd"].asString()))) {
-			output += (*ccmd)["response"].asString();
 			(*ccmd)["atime"] = (Json::Int64)time(nullptr);
 			(*ccmd)["uses"] = (*ccmd)["uses"].asInt() + 1;
+			output += m_customCmds->format(ccmd, nick);
 			m_cooldowns.setUsed((*ccmd)["cmd"].asString());
 			m_customCmds->write();
 		} else {

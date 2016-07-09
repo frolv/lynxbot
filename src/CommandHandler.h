@@ -149,7 +149,9 @@ class CustomCommandHandler {
 		typedef std::unordered_map<std::string,
 			std::string(CommandHandler::*)(CommandHandler::cmdinfo *)> commandMap;
 		CustomCommandHandler(commandMap *defaultCmds, TimerManager *tm,
-				const std::string &wheelCmd);
+				const std::string &wheelCmd,
+				const std::string &name,
+				const std::string &channel);
 		~CustomCommandHandler();
 		bool isActive();
 		bool addcom(const std::string &cmd, const std::string &response,
@@ -166,12 +168,16 @@ class CustomCommandHandler {
 		bool validName(const std::string &cmd, bool loading = false);
 		void write();
 		std::string error() const;
+		std::string format(const Json::Value *cmd,
+				const std::string &nick) const;
 
 	private:
 		bool m_active;
 		commandMap *m_cmp;
 		TimerManager *m_tmp;
 		const std::string m_wheelCmd;
+		const std::string m_name;
+		const std::string m_channel;
 		Json::Value m_commands;
 		Json::Value m_emptyVal;
 		std::string m_error;
