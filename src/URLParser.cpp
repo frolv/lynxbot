@@ -10,7 +10,7 @@ URLParser::URLParser() :m_modified(false)
 bool URLParser::parse(const std::string &url)
 {
 	std::regex urlRegex("(?:https?://)?(?:www\\.)?([a-zA-Z0-9]+\\.)*"
-		"([a-zA-Z0-9\\-]+)((?:\\.[a-zA-Z]{2,4}){1,4})(/.+)?\\b");
+		"([a-zA-Z0-9\\-]+)((?:\\.[a-zA-Z]{2,3}){1,4})(/.+)?\\b");
 	std::smatch match;
 	if ((m_modified = std::regex_search(url.begin(), url.end(),
 					match, urlRegex))) {
