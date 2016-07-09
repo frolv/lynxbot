@@ -84,7 +84,7 @@ static bool create(CustomCommandHandler *cch, const std::string &args,
 	/* don't allow reponse to activate a twitch command */
 	if (response[0] == '/')
 		response = " " + response;
-	if (!cch->addCom(cmd, response, nick, cooldown)) {
+	if (!cch->addcom(cmd, response, nick, cooldown)) {
 		res = cch->error();
 		return false;
 	}

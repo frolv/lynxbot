@@ -46,7 +46,7 @@ std::string CommandHandler::help(struct cmdinfo *c)
 	if (m_defaultCmds.find(cmd) != m_defaultCmds.end())
 		return "[HELP] " + path + cmd + ".html";
 
-	if (!(ccmd = m_customCmds->getCom(cmd))->empty())
+	if (!(ccmd = m_customCmds->getcom(cmd))->empty())
 		return "[HELP] " + cmd + " is a custom command";
 
 	return CMDNAME + ": not a bot command: " + cmd;

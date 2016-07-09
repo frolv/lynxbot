@@ -74,7 +74,7 @@ std::string CommandHandler::cmdinf(struct cmdinfo *c)
 	case DEFAULT:
 		return "[CMDINFO] " + cmd + " is a default command";
 	case CUSTOM:
-		return "[CMDINFO] " + info(m_customCmds->getCom(cmd));
+		return "[CMDINFO] " + info(m_customCmds->getcom(cmd));
 	default:
 		return CMDNAME + ": command not found: " + cmd;
 	}

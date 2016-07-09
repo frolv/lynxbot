@@ -8,10 +8,15 @@ CMDNAME("editcom");
 /* description of the command */
 CMDDESCR("modify a custom command");
 /* command usage synopsis */
-CMDUSAGE("$editcom [-a on|off] [-c CD] CMD [RESPONSE]");
+CMDUSAGE("$editcom [-a on|off] [-c CD] [-r] CMD [RESPONSE]");
+
+/* rename flag usage */
+static const std::string RUSAGE = "$editcom -r OLD NEW";
 
 static bool edit(CustomCommandHandler *cch, const std::string &args,
 		const std::string &set, time_t cooldown, TimerManager *tm,
+		std::string &res);
+static bool rename(CustomCommandHandler *cch, const std::string &args,
 		std::string &res);
 
 /* editcom: modify a custom command */
@@ -25,17 +30,20 @@ std::string CommandHandler::editcom(struct cmdinfo *c)
 
 	std::string out, res, set, cmd;
 	time_t cooldown;
+	bool ren;
 
-	OptionParser op(c->fullCmd, "a:c:");
+	OptionParser op(c->fullCmd, "a:c:r");
 	int opt;
 	static struct OptionParser::option long_opts[] = {
 		{ "active", REQ_ARG, 'a'},
 		{ "cooldown", REQ_ARG, 'c'},
 		{ "help", NO_ARG, 'h' },
+		{ "rename", NO_ARG, 'r' },
 		{ 0, 0, 0 }
 	};
 
 	cooldown = -1;
+	ren = false;
 	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -56,6 +64,9 @@ std::string CommandHandler::editcom(struct cmdinfo *c)
 			break;
 		case 'h':
 			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+		case 'r':
+			ren = true;
+			break;
 		case '?':
 			return std::string(op.opterr());
 		default:
@@ -67,6 +78,18 @@ std::string CommandHandler::editcom(struct cmdinfo *c)
 			return USAGEMSG(CMDNAME, CMDUSAGE);
 
 	out = "@" + c->nick + ", ";
+	if (ren) {
+		if (cooldown != -1 || !set.empty())
+			return CMDNAME + ": cannot use other flags with -r";
+		if (!rename(m_customCmds, c->fullCmd.substr(op.optind()), res)) {
+			if (res.empty())
+				return USAGEMSG(CMDNAME, RUSAGE);
+			else
+				return CMDNAME + ": " + res;
+		}
+		return out + res;
+	}
+
 	if (!edit(m_customCmds, c->fullCmd.substr(op.optind()), set,
 				cooldown, &m_cooldowns, res))
 		return CMDNAME + ": " + res;
@@ -93,7 +116,7 @@ static bool edit(CustomCommandHandler *cch, const std::string &args,
 	/* don't allow reponse to activate a twitch command */
 	if (response[0] == '/')
 		response = " " + response;
-	if (!cch->editCom(cmd, response, cooldown)) {
+	if (!cch->editcom(cmd, response, cooldown)) {
 		res = cch->error();
 		return false;
 	} else if (!cd && !resp && !act) {
@@ -132,4 +155,26 @@ static bool edit(CustomCommandHandler *cch, const std::string &args,
 		res += ".";
 		return true;
 	}
+}
+
+/* rename: rename a custom command */
+static bool rename(CustomCommandHandler *cch, const std::string &args,
+		std::string &res)
+{
+	std::string cmd, newcmd;
+	size_t t;
+
+	if ((t = args.find(' ')) == std::string::npos)
+		return false;
+	cmd = args.substr(0, t);
+
+	if ((newcmd = args.substr(t + 1)).find(' ') != std::string::npos)
+		return false;
+
+	if (!cch->rename(cmd, newcmd)) {
+		res = cch->error();
+		return false;
+	}
+	res = "command $" + cmd + " has been renamed to $" + newcmd;
+	return true;
 }

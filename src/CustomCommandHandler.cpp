@@ -34,7 +34,8 @@ bool CustomCommandHandler::isActive()
 	return m_active;
 }
 
-bool CustomCommandHandler::addCom(const std::string &cmd,
+/* addCom: add a new custom command cmd with response and cooldown */
+bool CustomCommandHandler::addcom(const std::string &cmd,
 		const std::string &response, const std::string &nick,
 		time_t cooldown)
 {
@@ -62,7 +63,8 @@ bool CustomCommandHandler::addCom(const std::string &cmd,
 	return true;
 }
 
-bool CustomCommandHandler::delCom(const std::string &cmd)
+/* delCom: delete command cmd if it exists */
+bool CustomCommandHandler::delcom(const std::string &cmd)
 {
 	Json::ArrayIndex ind = 0;
 	Json::Value def, rem;
@@ -81,10 +83,11 @@ bool CustomCommandHandler::delCom(const std::string &cmd)
 	return true;
 }
 
-bool CustomCommandHandler::editCom(const std::string &cmd,
+/* editCom: modify the command cmd with newResp and newcd */
+bool CustomCommandHandler::editcom(const std::string &cmd,
 		const std::string &newResp, time_t newcd)
 {
-	auto *com = getCom(cmd);
+	auto *com = getcom(cmd);
 	if (com->empty()) {
 		m_error = "not a command: $" + cmd;
 		return false;
@@ -93,18 +96,22 @@ bool CustomCommandHandler::editCom(const std::string &cmd,
 		return false;
 	if (!newResp.empty())
 		(*com)["response"] = newResp;
-	if (newcd != -1)
+	if (newcd != -1) {
 		(*com)["cooldown"] = (Json::Int64)newcd;
+		m_tmp->remove(cmd);
+		m_tmp->add(cmd, newcd);
+	}
 	(*com)["mtime"] = (Json::Int64)time(nullptr);
 	write();
 	return true;
 }
 
+/* activate: activate the command cmd */
 bool CustomCommandHandler::activate(const std::string &cmd)
 {
 	Json::Value *com;
 
-	if ((com = getCom(cmd))->empty()) {
+	if ((com = getcom(cmd))->empty()) {
 		m_error = "not a command: $" + cmd;
 		return false;
 	}
@@ -115,18 +122,40 @@ bool CustomCommandHandler::activate(const std::string &cmd)
 	return true;
 }
 
+/* deactivate: deactivate the command cmd */
 bool CustomCommandHandler::deactivate(const std::string &cmd)
 {
 	Json::Value *com;
 
-	if ((com = getCom(cmd))->empty())
+	if ((com = getcom(cmd))->empty()) {
+		m_error = "not a command: $" + cmd;
 		return false;
+	}
 	(*com)["active"] = false;
 	write();
 	return true;
 }
 
-Json::Value *CustomCommandHandler::getCom(const std::string &cmd)
+/* rename: rename custom command cmd to newcmd */
+bool CustomCommandHandler::rename(const std::string &cmd,
+		const std::string &newcmd)
+{
+	Json::Value *com;
+
+	if ((com = getcom(cmd))->empty()) {
+		m_error = "not a command: $" + cmd;
+		return false;
+	}
+	(*com)["cmd"] = newcmd;
+	(*com)["mtime"] = (Json::Int64)time(nullptr);
+	m_tmp->remove(cmd);
+	m_tmp->add(newcmd, (*com)["cooldown"].asInt64());
+	write();
+	return true;
+}
+
+/* getcom: return command value if it exists, empty value otherwise */
+Json::Value *CustomCommandHandler::getcom(const std::string &cmd)
 {
 	for (auto &val : m_commands["commands"]) {
 		if (val["cmd"] == cmd)
@@ -142,17 +171,19 @@ const Json::Value *CustomCommandHandler::commands()
 	return &m_commands;
 }
 
+/* write: write all commands to file */
 void CustomCommandHandler::write()
 {
 	utils::writeJSON("customcmds.json", m_commands);
 }
 
+/* validName: check if cmd is a valid command name */
 bool CustomCommandHandler::validName(const std::string &cmd, bool loading)
 {
 	/* if CCH is loading commands from file (in constructor) */
 	/* it doesn't need to check against its stored commands */
 	return m_cmp->find(cmd) == m_cmp->end() && cmd != m_wheelCmd
-		&& cmd.length() < 20 && (loading ? true : getCom(cmd)->empty());
+		&& cmd.length() < 20 && (loading ? true : getcom(cmd)->empty());
 }
 
 std::string CustomCommandHandler::error() const
@@ -160,6 +191,7 @@ std::string CustomCommandHandler::error() const
 	return m_error;
 }
 
+/* cmdcheck: check the validity of a command and add missing fields */
 bool CustomCommandHandler::cmdcheck()
 {
 	time_t t;
@@ -218,7 +250,7 @@ bool CustomCommandHandler::cmdcheck()
 		}
 		if (added)
 			write();
-		m_tmp->add(val["cmd"].asString(), val["cooldown"].asInt());
+		m_tmp->add(val["cmd"].asString(), val["cooldown"].asInt64());
 	}
 	return true;
 }

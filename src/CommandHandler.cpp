@@ -41,7 +41,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	/* set all command cooldowns */
 	for (auto &p : m_defaultCmds)
 		m_cooldowns.add(p.first);
-	m_cooldowns.add(m_wheel.name(), 10);
+	m_cooldowns.add(m_wheel.name());
 
 	/* read extra 8ball responses */
 	utils::split(m_cfgr->get("extra8ballresponses"), '\n', m_eightball);
@@ -83,7 +83,7 @@ std::string CommandHandler::processCommand(const std::string &nick,
 		}
 		break;
 	case CUSTOM:
-		ccmd = m_customCmds->getCom(cmd);
+		ccmd = m_customCmds->getcom(cmd);
 		if ((*ccmd)["active"].asBool() &&
 				(P_ALSUB(p) ||
 				m_cooldowns.ready((*ccmd)["cmd"].asString()))) {
@@ -164,7 +164,7 @@ uint8_t CommandHandler::source(const std::string &cmd)
 		return DEFAULT;
 	if (m_customCmds->isActive()) {
 		Json::Value *c;
-		if (!(c = m_customCmds->getCom(cmd))->empty())
+		if (!(c = m_customCmds->getcom(cmd))->empty())
 			return CUSTOM;
 	}
 	return 0;

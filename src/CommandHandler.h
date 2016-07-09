@@ -152,14 +152,16 @@ class CustomCommandHandler {
 				const std::string &wheelCmd);
 		~CustomCommandHandler();
 		bool isActive();
-		bool addCom(const std::string &cmd, const std::string &response,
+		bool addcom(const std::string &cmd, const std::string &response,
 				const std::string &nick, time_t cooldown);
-		bool delCom(const std::string &cmd);
-		bool editCom(const std::string &cmd,
-				const std::string &newResp = "", time_t newcd = -1);
+		bool delcom(const std::string &cmd);
+		bool editcom(const std::string &cmd,
+				const std::string &newResp = "",
+				time_t newcd = -1);
 		bool activate(const std::string &cmd);
 		bool deactivate(const std::string &cmd);
-		Json::Value *getCom(const std::string &cmd);
+		bool rename(const std::string &cmd, const std::string &newcmd);
+		Json::Value *getcom(const std::string &cmd);
 		const Json::Value *commands();
 		bool validName(const std::string &cmd, bool loading = false);
 		void write();

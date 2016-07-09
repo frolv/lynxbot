@@ -60,7 +60,7 @@ std::string CommandHandler::delcom(struct cmdinfo *c)
 static void deletecom(CustomCommandHandler *ccmd, const std::string &cmd,
 		std::vector<std::string> &del, std::vector<std::string> &inv)
 {
-	if (ccmd->delCom(cmd))
+	if (ccmd->delcom(cmd))
 		del.push_back(cmd);
 	else
 		inv.push_back(cmd);

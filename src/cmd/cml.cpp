@@ -80,7 +80,7 @@ std::string CommandHandler::cml(struct cmdinfo *c)
 
 	if (update) {
 		if (updatecml(rsn, err) == 1)
-			return output + rsn + "'s CML has been updated";
+			return output + rsn + "'s CML tracker has been updated";
 		else
 			return CMDNAME + ": " + err;
 	} else {
