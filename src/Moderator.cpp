@@ -80,13 +80,10 @@ bool Moderator::isValidMsg(const std::string &msg,
 		valid = false;
 	}
 	if (valid && m_ban_urls && m_parsep->wasModified() && checkWhitelist()) {
-		if (std::find(m_permitted.begin(), m_permitted.end(), nick)
-				!= m_permitted.end()) {
-			/* if user is permitted, allow the message */
-			/* and remove them from permitted list */
-			m_permitted.erase(std::remove(m_permitted.begin(),
-						m_permitted.end(), nick),
-					m_permitted.end());
+		if (m_perm.find(nick) != m_perm.end() && m_perm[nick] != 0) {
+			/* -1 indicates session long permission */
+			if (m_perm[nick] != -1)
+				m_perm[nick]--;
 		} else {
 			reason = "no posting links!";
 			valid = false;
@@ -129,12 +126,10 @@ bool Moderator::whitelist(const std::string &site)
 	return true;
 }
 
-void Moderator::permit(std::string &nick)
+void Moderator::permit(std::string &nick, int amt)
 {
 	std::transform(nick.begin(), nick.end(), nick.begin(), tolower);
-	if (std::find(m_permitted.begin(), m_permitted.end(), nick)
-			== m_permitted.end())
-		m_permitted.push_back(nick);
+	m_perm[nick] = amt;
 }
 
 std::string Moderator::getFormattedWhitelist() const
@@ -153,8 +148,6 @@ bool Moderator::checkWhitelist() const
 
 	domain = m_parsep->getLast()->domain;
 	sub = m_parsep->getLast()->subdomain + domain;
-
-	std::cout << domain << std::endl << sub << std::endl;
 
 	return std::find(m_whitelist.begin(), m_whitelist.end(), domain)
 		== m_whitelist.end() && std::find(m_whitelist.begin(),

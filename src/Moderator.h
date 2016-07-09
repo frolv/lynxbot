@@ -17,14 +17,14 @@ class Moderator {
 				const std::string &nick, std::string &reason);
 		uint8_t getOffenses(const std::string &nick) const;
 		bool whitelist(const std::string &site);
-		void permit(std::string &nick);
+		void permit(std::string &nick, int amt);
 		std::string getFormattedWhitelist() const;
 	private:
 		URLParser *m_parsep;
 		ConfigReader *m_cfgr;
 		std::unordered_map<std::string, uint8_t> m_offenses;
 		std::vector<std::string> m_whitelist;
-		std::vector<std::string> m_permitted;
+		std::unordered_map<std::string, int> m_perm;
 		bool m_active;
 		bool m_ban_urls;
 		uint32_t m_max_message_len;
