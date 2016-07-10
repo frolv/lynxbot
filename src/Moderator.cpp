@@ -57,7 +57,7 @@ Moderator::Moderator(URLParser *urlp, ConfigReader *cfgr)
 		m_cap_ratio = 0.8;
 		invalid = true;
 	} else {
-		m_cap_ratio = (double)cap_ratio / 100;
+		m_cap_ratio = (double)cap_ratio / 100.0;
 	}
 	if (invalid)
 		std::cin.get();
@@ -70,6 +70,7 @@ bool Moderator::active() const
 	return m_active;
 }
 
+/* isValidMsg: check if msg is valid according to moderation settings */
 bool Moderator::isValidMsg(const std::string &msg,
 	const std::string &nick, std::string &reason)
 {
@@ -107,31 +108,56 @@ bool Moderator::isValidMsg(const std::string &msg,
 	return valid;
 }
 
+/* getOffenses: return how many offenses nick has committed */
 uint8_t Moderator::getOffenses(const std::string &nick) const
 {
 	auto it = m_offenses.find(nick);
 	return it == m_offenses.end() ? 0 : it->second;
 }
 
+/* whitelist: add site to whitelist */
 bool Moderator::whitelist(const std::string &site)
 {
+	std::string wl;
+
 	if (std::find(m_whitelist.begin(), m_whitelist.end(), site)
 			!= m_whitelist.end())
 		return false;
 	m_whitelist.push_back(site);
-	std::string wl = m_cfgr->get("whitelist");
+	wl = m_cfgr->get("whitelist");
 	wl += '\n' + site;
 	m_cfgr->set("whitelist", wl);
 	m_cfgr->write();
 	return true;
 }
 
+/* delurl: remove site from whitelist */
+bool Moderator::delurl(const std::string &site)
+{
+	std::string wl;
+	size_t i;
+
+	wl = m_cfgr->get("whitelist");
+	if ((i = wl.find(site)) == std::string::npos)
+		return false;
+
+	/* remove the newline too */
+	wl.erase(i, site.length() + 1);
+	m_whitelist.erase(std::remove(m_whitelist.begin(), m_whitelist.end(),
+				site), m_whitelist.end());
+	m_cfgr->set("whitelist", wl);
+	m_cfgr->write();
+	return true;
+}
+
+/* permit: permit nick to post amt links */
 void Moderator::permit(std::string &nick, int amt)
 {
 	std::transform(nick.begin(), nick.end(), nick.begin(), tolower);
 	m_perm[nick] = amt;
 }
 
+/* getFormattedWhitelist: return a formatted string of all whitelisted sites */
 std::string Moderator::getFormattedWhitelist() const
 {
 	std::string output = "Whitelisted sites: ";
@@ -142,6 +168,7 @@ std::string Moderator::getFormattedWhitelist() const
 	return output;
 }
 
+/* checkWhitelist: check if last parsed URL is whitelisted */
 bool Moderator::checkWhitelist() const
 {
 	std::string domain, sub;
@@ -154,6 +181,7 @@ bool Moderator::checkWhitelist() const
 		m_whitelist.end(), sub) == m_whitelist.end();
 }
 
+/* checkSpam: check if msg contains word spam */
 bool Moderator::checkSpam(const std::string &msg) const
 {
 	std::regex spamRegex("(.{2,}\\b)\\1{"
@@ -162,6 +190,7 @@ bool Moderator::checkSpam(const std::string &msg) const
 	return std::regex_search(msg.begin(), msg.end(), match, spamRegex);
 }
 
+/* checkString: check if msg contains excess caps or character spam */
 bool Moderator::checkString(const std::string &msg, std::string &reason) const
 {
 	uint16_t caps = 0, repeated = 0;
