@@ -109,6 +109,7 @@ class CommandHandler {
 		std::string duck(struct cmdinfo *c);
 		std::string ehp(struct cmdinfo *c);
 		std::string eightball(struct cmdinfo *c);
+		std::string followage(struct cmdinfo *c);
 		std::string ge(struct cmdinfo *c);
 		std::string help(struct cmdinfo *c);
 		std::string level(struct cmdinfo *c);

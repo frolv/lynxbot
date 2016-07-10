@@ -204,6 +204,7 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["commands"] = &CommandHandler::manual;
 	m_defaultCmds["duck"] = &CommandHandler::duck;
 	m_defaultCmds["ehp"] = &CommandHandler::ehp;
+	m_defaultCmds["followage"] = &CommandHandler::followage;
 	m_defaultCmds["ge"] = &CommandHandler::ge;
 	m_defaultCmds["help"] = &CommandHandler::help;
 	m_defaultCmds["level"] = &CommandHandler::level;
