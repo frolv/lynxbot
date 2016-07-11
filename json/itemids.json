@@ -3,7 +3,7 @@
     {
       "id": 2,
       "name": "Cannonball",
-      "nick": ["C balls", "Cballs", "Cannonballs"]
+      "nick": ["C balls", "C ball", "Cball", "Cballs", "Cannonballs"]
     },
     {
       "id": 6,
@@ -387,7 +387,8 @@
     },
     {
       "id": 223,
-      "name": "Red spiders\u0027 eggs"
+      "name": "Red spiders\u0027 eggs",
+      "nick": ["Red spiders eggs"]
     },
     {
       "id": 225,
@@ -769,19 +770,23 @@
     },
     {
       "id": 538,
-      "name": "Druid\u0027s robe"
+      "name": "Druid\u0027s robe",
+      "nick": ["Druids robe"]
     },
     {
       "id": 540,
-      "name": "Druid\u0027s robe top"
+      "name": "Druid\u0027s robe top",
+      "nick": ["Druids robe top"]
     },
     {
       "id": 542,
-      "name": "Monk\u0027s robe"
+      "name": "Monk\u0027s robe",
+      "nick": ["Monks robe"]
     },
     {
       "id": 544,
-      "name": "Monk\u0027s robe top"
+      "name": "Monk\u0027s robe top",
+      "nick": ["Monks robe top"]
     },
     {
       "id": 546,
@@ -1521,7 +1526,8 @@
     },
     {
       "id": 1065,
-      "name": "Green d\u0027hide vamb"
+      "name": "Green d\u0027hide vamb",
+      "nick": ["Green dhide vamb"]
     },
     {
       "id": 1067,
@@ -1589,7 +1595,8 @@
     },
     {
       "id": 1099,
-      "name": "Green d\u0027hide chaps"
+      "name": "Green d\u0027hide chaps",
+      "nick": ["Green dhide chaps"]
     },
     {
       "id": 1101,
@@ -1661,7 +1668,8 @@
     },
     {
       "id": 1135,
-      "name": "Green d\u0027hide body"
+      "name": "Green d\u0027hide body",
+      "nick": ["Green dhide body"]
     },
     {
       "id": 1137,
@@ -2154,19 +2162,23 @@
     },
     {
       "id": 1381,
-      "name": "Staff of air"
+      "name": "Staff of air",
+      "nick": ["Air staff"]
     },
     {
       "id": 1383,
-      "name": "Staff of water"
+      "name": "Staff of water",
+      "nick": ["Water staff"]
     },
     {
       "id": 1385,
-      "name": "Staff of earth"
+      "name": "Staff of earth",
+      "nick": ["Earth staff"]
     },
     {
       "id": 1387,
-      "name": "Staff of fire"
+      "name": "Staff of fire",
+      "nick": ["Fire staff"]
     },
     {
       "id": 1389,
@@ -2812,11 +2824,13 @@
     },
     {
       "id": 1907,
-      "name": "Wizard\u0027s mind bomb"
+      "name": "Wizard\u0027s mind bomb",
+      "nick": ["Wizards mind bomb"]
     },
     {
       "id": 1909,
-      "name": "Greenman\u0027s ale"
+      "name": "Greenman\u0027s ale",
+      "nick": ["Greenmans ale"]
     },
     {
       "id": 1911,
@@ -2896,7 +2910,8 @@
     },
     {
       "id": 1949,
-      "name": "Chef\u0027s hat"
+      "name": "Chef\u0027s hat",
+      "nick": ["Chefs hat"]
     },
     {
       "id": 1951,
@@ -2972,7 +2987,8 @@
     },
     {
       "id": 1993,
-      "name": "Jug of wine"
+      "name": "Jug of wine",
+      "nick": ["Wine"]
     },
     {
       "id": 2003,
@@ -3016,23 +3032,28 @@
     },
     {
       "id": 2028,
-      "name": "Premade blurb\u0027 sp."
+      "name": "Premade blurb\u0027 sp.",
+      "nick": ["Premade blurb sp."]
     },
     {
       "id": 2030,
-      "name": "Premade choc s\u0027dy"
+      "name": "Premade choc s\u0027dy",
+      "nick": ["Premade choc sdy"]
     },
     {
       "id": 2032,
-      "name": "Premade dr\u0027 dragon"
+      "name": "Premade dr\u0027 dragon",
+      "nick": ["Premade dr dragon"]
     },
     {
       "id": 2034,
-      "name": "Premade fr\u0027 blast"
+      "name": "Premade fr\u0027 blast",
+      "nick": ["Premade fr blast"]
     },
     {
       "id": 2036,
-      "name": "Premade p\u0027 punch"
+      "name": "Premade p\u0027 punch",
+      "nick": ["Premade p punch"]
     },
     {
       "id": 2038,
@@ -3040,7 +3061,8 @@
     },
     {
       "id": 2040,
-      "name": "Premade wiz blz\u0027d"
+      "name": "Premade wiz blz\u0027d",
+      "nick": ["Premade wiz blzd"]
     },
     {
       "id": 2048,
@@ -3160,7 +3182,8 @@
     },
     {
       "id": 2152,
-      "name": "Toad\u0027s legs"
+      "name": "Toad\u0027s legs",
+      "nick": ["Toads legs"]
     },
     {
       "id": 2162,
@@ -3180,7 +3203,8 @@
     },
     {
       "id": 2167,
-      "name": "Gianne\u0027s cook book"
+      "name": "Gianne\u0027s cook book",
+      "nick": ["Giannes cook book"]
     },
     {
       "id": 2169,
@@ -3196,7 +3220,8 @@
     },
     {
       "id": 2187,
-      "name": "Tangled toad\u0027s legs"
+      "name": "Tangled toad\u0027s legs",
+      "nick": ["Tangled toads legs"]
     },
     {
       "id": 2191,
@@ -3228,11 +3253,13 @@
     },
     {
       "id": 2219,
-      "name": "Premade w\u0027m batta"
+      "name": "Premade w\u0027m batta",
+      "nick": ["Premade wm batta"]
     },
     {
       "id": 2221,
-      "name": "Premade t\u0027d batta"
+      "name": "Premade t\u0027d batta",
+      "nick": ["Premade td batta"]
     },
     {
       "id": 2223,
@@ -3240,7 +3267,8 @@
     },
     {
       "id": 2225,
-      "name": "Premade fr\u0027t batta"
+      "name": "Premade fr\u0027t batta",
+      "nick": ["Premade frt batta"]
     },
     {
       "id": 2227,
@@ -3264,19 +3292,23 @@
     },
     {
       "id": 2237,
-      "name": "Premade w\u0027m crun\u0027"
+      "name": "Premade w\u0027m crun\u0027",
+      "nick": ["Premade wm crun"]
     },
     {
       "id": 2239,
-      "name": "Premade ch\u0027 crunch"
+      "name": "Premade ch\u0027 crunch",
+      "nick": ["Premade ch crunch"]
     },
     {
       "id": 2241,
-      "name": "Premade s\u0027y crunch"
+      "name": "Premade s\u0027y crunch",
+      "nick": ["Premade sy crunch"]
     },
     {
       "id": 2243,
-      "name": "Premade t\u0027d crunch"
+      "name": "Premade t\u0027d crunch",
+      "nick": ["Premade td crunch"]
     },
     {
       "id": 2253,
@@ -3543,39 +3575,48 @@
     },
     {
       "id": 2487,
-      "name": "Blue d\u0027hide vamb"
+      "name": "Blue d\u0027hide vamb",
+      "nick": ["Blue dhide vamb"]
     },
     {
       "id": 2489,
-      "name": "Red d\u0027hide vamb"
+      "name": "Red d\u0027hide vamb",
+      "nick": ["Red dhide vamb"]
     },
     {
       "id": 2491,
-      "name": "Black d\u0027hide vamb"
+      "name": "Black d\u0027hide vamb",
+      "nick": ["Black dhide vamb"]
     },
     {
       "id": 2493,
-      "name": "Blue d\u0027hide chaps"
+      "name": "Blue d\u0027hide chaps",
+      "nick": ["Blue dhide chaps"]
     },
     {
       "id": 2495,
-      "name": "Red d\u0027hide chaps"
+      "name": "Red d\u0027hide chaps",
+      "nick": ["Red dhide chaps"]
     },
     {
       "id": 2497,
-      "name": "Black d\u0027hide chaps"
+      "name": "Black d\u0027hide chaps",
+      "nick": ["Black dhide chaps"]
     },
     {
       "id": 2499,
-      "name": "Blue d\u0027hide body"
+      "name": "Blue d\u0027hide body",
+      "nick": ["Blue dhide body"]
     },
     {
       "id": 2501,
-      "name": "Red d\u0027hide body"
+      "name": "Red d\u0027hide body",
+      "nick": ["Red dhide body"]
     },
     {
       "id": 2503,
-      "name": "Black d\u0027hide body"
+      "name": "Black d\u0027hide body",
+      "nick": ["Black dhide body"]
     },
     {
       "id": 2505,
@@ -3611,7 +3652,8 @@
     },
     {
       "id": 2552,
-      "name": "Ring of dueling(8)"
+      "name": "Ring of dueling(8)",
+      "nick": ["Duel ring"]
     },
     {
       "id": 2568,
@@ -3619,7 +3661,8 @@
     },
     {
       "id": 2570,
-      "name": "Ring of life"
+      "name": "Ring of life",
+      "nick": ["Life"]
     },
     {
       "id": 2572,
@@ -3775,7 +3818,8 @@
     },
     {
       "id": 2651,
-      "name": "Pirate\u0027s hat"
+      "name": "Pirate\u0027s hat",
+      "nick": ["Pirates hat"]
     },
     {
       "id": 2653,
@@ -3987,7 +4031,8 @@
     },
     {
       "id": 2997,
-      "name": "Pirate\u0027s hook"
+      "name": "Pirate\u0027s hook",
+      "nick": ["Pirates hook"]
     },
     {
       "id": 2998,
@@ -4165,7 +4210,8 @@
     },
     {
       "id": 3140,
-      "name": "Dragon chainbody"
+      "name": "Dragon chainbody",
+      "nick": ["D chain"]
     },
     {
       "id": 3142,
@@ -4173,7 +4219,8 @@
     },
     {
       "id": 3144,
-      "name": "Cooked karambwan"
+      "name": "Cooked karambwan",
+      "nick": ["Karambwan", "Karam"]
     },
     {
       "id": 3157,
@@ -4257,7 +4304,8 @@
     },
     {
       "id": 3329,
-      "name": "Blood\u0027n\u0027tar snelm"
+      "name": "Blood\u0027n\u0027tar snelm",
+      "nick": ["Bloodntar snelm"]
     },
     {
       "id": 3331,
@@ -4277,7 +4325,8 @@
     },
     {
       "id": 3339,
-      "name": "Blood\u0027n\u0027tar snelm"
+      "name": "Blood\u0027n\u0027tar snelm",
+      "nick": ["Bloodn7tar snelm"]
     },
     {
       "id": 3341,
@@ -4697,7 +4746,8 @@
     },
     {
       "id": 3853,
-      "name": "Games necklace(8)"
+      "name": "Games necklace(8)",
+      "nick": ["Games neck"]
     },
     {
       "id": 4012,
@@ -4714,7 +4764,8 @@
     },
     {
       "id": 4087,
-      "name": "Dragon platelegs"
+      "name": "Dragon platelegs",
+      "nick": ["D legs"]
     },
     {
       "id": 4089,
@@ -4840,7 +4891,8 @@
     },
     {
       "id": 4170,
-      "name": "Slayer\u0027s staff"
+      "name": "Slayer\u0027s staff",
+      "nick": ["Slayers staff"]
     },
     {
       "id": 4207,
@@ -5216,7 +5268,8 @@
     },
     {
       "id": 4627,
-      "name": "Bandit\u0027s brew"
+      "name": "Bandit\u0027s brew",
+      "nick": ["Bandits brew"]
     },
     {
       "id": 4668,
@@ -5264,67 +5317,83 @@
     },
     {
       "id": 4708,
-      "name": "Ahrim\u0027s hood"
+      "name": "Ahrim\u0027s hood",
+      "nick": ["Ahrims hood"]
     },
     {
       "id": 4710,
-      "name": "Ahrim\u0027s staff"
+      "name": "Ahrim\u0027s staff",
+      "nick": ["Ahrims staff"]
     },
     {
       "id": 4712,
-      "name": "Ahrim\u0027s robetop"
+      "name": "Ahrim\u0027s robetop",
+      "nick": ["Ahrims robetop"]
     },
     {
       "id": 4714,
-      "name": "Ahrim\u0027s robeskirt"
+      "name": "Ahrim\u0027s robeskirt",
+      "nick": ["Ahrims robeskirt"]
     },
     {
       "id": 4716,
-      "name": "Dharok\u0027s helm"
+      "name": "Dharok\u0027s helm",
+      "nick": ["Dharoks helm"]
     },
     {
       "id": 4718,
-      "name": "Dharok\u0027s greataxe"
+      "name": "Dharok\u0027s greataxe",
+      "nick": ["Dharoks greataxe"]
     },
     {
       "id": 4720,
-      "name": "Dharok\u0027s platebody"
+      "name": "Dharok\u0027s platebody",
+      "nick": ["Dharoks platebody"]
     },
     {
       "id": 4722,
-      "name": "Dharok\u0027s platelegs"
+      "name": "Dharok\u0027s platelegs",
+      "nick": ["Dharoks platelegs"]
     },
     {
       "id": 4724,
-      "name": "Guthan\u0027s helm"
+      "name": "Guthan\u0027s helm",
+      "nick": ["Guthans helm"]
     },
     {
       "id": 4726,
-      "name": "Guthan\u0027s warspear"
+      "name": "Guthan\u0027s warspear",
+      "nick": ["Guthans warspear"]
     },
     {
       "id": 4728,
-      "name": "Guthan\u0027s platebody"
+      "name": "Guthan\u0027s platebody",
+      "nick": ["Guthans platebody"]
     },
     {
       "id": 4730,
-      "name": "Guthan\u0027s chainskirt"
+      "name": "Guthan\u0027s chainskirt",
+      "nick": ["Guthans chainskirt"]
     },
     {
       "id": 4732,
-      "name": "Karil\u0027s coif"
+      "name": "Karil\u0027s coif",
+      "nick": ["Karils coif"]
     },
     {
       "id": 4734,
-      "name": "Karil\u0027s crossbow"
+      "name": "Karil\u0027s crossbow",
+      "nick": ["Karils crossbow"]
     },
     {
       "id": 4736,
-      "name": "Karil\u0027s leathertop"
+      "name": "Karil\u0027s leathertop",
+      "nick": ["Karils leathertop"]
     },
     {
       "id": 4738,
-      "name": "Karil\u0027s leatherskirt"
+      "name": "Karil\u0027s leatherskirt",
+      "nick": ["Karils leatherskirt"]
     },
     {
       "id": 4740,
@@ -5332,35 +5401,43 @@
     },
     {
       "id": 4745,
-      "name": "Torag\u0027s helm"
+      "name": "Torag\u0027s helm",
+      "nick": ["Torags helm"]
     },
     {
       "id": 4747,
-      "name": "Torag\u0027s hammers"
+      "name": "Torag\u0027s hammers",
+      "nick": ["Torags hammers"]
     },
     {
       "id": 4749,
-      "name": "Torag\u0027s platebody"
+      "name": "Torag\u0027s platebody",
+      "nick": ["Torags platebody"]
     },
     {
       "id": 4751,
-      "name": "Torag\u0027s platelegs"
+      "name": "Torag\u0027s platelegs",
+      "nick": ["Torags platelegs"]
     },
     {
       "id": 4753,
-      "name": "Verac\u0027s helm"
+      "name": "Verac\u0027s helm",
+      "nick": ["Veracs helm"]
     },
     {
       "id": 4755,
-      "name": "Verac\u0027s flail"
+      "name": "Verac\u0027s flail",
+      "nick": ["Veracs flail"]
     },
     {
       "id": 4757,
-      "name": "Verac\u0027s brassard"
+      "name": "Verac\u0027s brassard",
+      "nick": ["Veracs brassard"]
     },
     {
       "id": 4759,
-      "name": "Verac\u0027s plateskirt"
+      "name": "Verac\u0027s plateskirt",
+      "nick": ["Veracs plateskirt"]
     },
     {
       "id": 4773,
@@ -5440,19 +5517,23 @@
     },
     {
       "id": 4842,
-      "name": "Relicym\u0027s balm(4)"
+      "name": "Relicym\u0027s balm(4)",
+      "nick": ["Relicyms balm(4)"]
     },
     {
       "id": 4844,
-      "name": "Relicym\u0027s balm(3)"
+      "name": "Relicym\u0027s balm(3)",
+      "nick": ["Relicyms balm(3)"]
     },
     {
       "id": 4846,
-      "name": "Relicym\u0027s balm(2)"
+      "name": "Relicym\u0027s balm(2)",
+      "nick": ["Relicyms balm(2)"]
     },
     {
       "id": 4848,
-      "name": "Relicym\u0027s balm(1)"
+      "name": "Relicym\u0027s balm(1)",
+      "nick": ["Relicyms balm(1)"]
     },
     {
       "id": 4850,
@@ -5460,99 +5541,123 @@
     },
     {
       "id": 4860,
-      "name": "Ahrim\u0027s hood 0"
+      "name": "Ahrim\u0027s hood 0",
+      "nick": ["Ahrims hood 0"]
     },
     {
       "id": 4866,
-      "name": "Ahrim\u0027s staff 0"
+      "name": "Ahrim\u0027s staff 0",
+      "nick": ["Ahrims staff 0"]
     },
     {
       "id": 4872,
-      "name": "Ahrim\u0027s robetop 0"
+      "name": "Ahrim\u0027s robetop 0",
+      "nick": ["Ahrims robetop 0"]
     },
     {
       "id": 4878,
-      "name": "Ahrim\u0027s robeskirt 0"
+      "name": "Ahrim\u0027s robeskirt 0",
+      "nick": ["Ahrims robeskirt 0"]
     },
     {
       "id": 4884,
-      "name": "Dharok\u0027s helm 0"
+      "name": "Dharok\u0027s helm 0",
+      "nick": ["Dharoks helm 0"]
     },
     {
       "id": 4890,
-      "name": "Dharok\u0027s greataxe 0"
+      "name": "Dharok\u0027s greataxe 0",
+      "nick": ["Dharoks greataxe 0"]
     },
     {
       "id": 4896,
-      "name": "Dharok\u0027s platebody 0"
+      "name": "Dharok\u0027s platebody 0",
+      "nick": ["Dharoks platebody 0"]
     },
     {
       "id": 4902,
-      "name": "Dharok\u0027s platelegs 0"
+      "name": "Dharok\u0027s platelegs 0",
+      "nick": ["Dharoks platelegs 0"]
     },
     {
       "id": 4908,
-      "name": "Guthan\u0027s helm 0"
+      "name": "Guthan\u0027s helm 0",
+      "nick": ["Guthans helm 0"]
     },
     {
       "id": 4914,
-      "name": "Guthan\u0027s warspear 0"
+      "name": "Guthan\u0027s warspear 0",
+      "nick": ["Guthans warspear 0"]
     },
     {
       "id": 4920,
-      "name": "Guthan\u0027s platebody 0"
+      "name": "Guthan\u0027s platebody 0",
+      "nick": ["Guthans platebody 0"]
     },
     {
       "id": 4926,
-      "name": "Guthan\u0027s chainskirt 0"
+      "name": "Guthan\u0027s chainskirt 0",
+      "nick": ["Guthans chainskirt 0"]
     },
     {
       "id": 4932,
-      "name": "Karil\u0027s coif 0"
+      "name": "Karil\u0027s coif 0",
+      "nick": ["Karils coif 0"]
     },
     {
       "id": 4938,
-      "name": "Karil\u0027s crossbow 0"
+      "name": "Karil\u0027s crossbow 0",
+      "nick": ["Karils crossbow 0"]
     },
     {
       "id": 4944,
-      "name": "Karil\u0027s leathertop 0"
+      "name": "Karil\u0027s leathertop 0",
+      "nick": ["Karils leathertop 0"]
     },
     {
       "id": 4950,
-      "name": "Karil\u0027s leatherskirt 0"
+      "name": "Karil\u0027s leatherskirt 0",
+      "nick": ["Karils leatherskirt 0"]
     },
     {
       "id": 4956,
-      "name": "Torag\u0027s helm 0"
+      "name": "Torag\u0027s helm 0",
+      "nick": ["Torags helm 0"]
     },
     {
       "id": 4962,
-      "name": "Torag\u0027s hammers 0"
+      "name": "Torag\u0027s hammers 0",
+      "nick": ["Torags hammers 0"]
     },
     {
       "id": 4968,
-      "name": "Torag\u0027s platebody 0"
+      "name": "Torag\u0027s platebody 0",
+      "nick": ["Torags platebody 0"]
     },
     {
       "id": 4974,
-      "name": "Torag\u0027s platelegs 0"
+      "name": "Torag\u0027s platelegs 0",
+      "nick": ["Torags platelegs 0"]
     },
     {
       "id": 4980,
-      "name": "Verac\u0027s helm 0"
+      "name": "Verac\u0027s helm 0",
+      "nick": ["Veracs helm 0"]
     },
     {
       "id": 4986,
-      "name": "Verac\u0027s flail 0"
+      "name": "Verac\u0027s flail 0",
+      "nick": ["Veracs flail 0"]
     },
     {
       "id": 4992,
-      "name": "Verac\u0027s brassard 0"
+      "name": "Verac\u0027s brassard 0",
+      "nick": ["Veracs brassard 0"]
     },
     {
       "id": 4998,
-      "name": "Verac\u0027s plateskirt 0"
+      "name": "Verac\u0027s plateskirt 0",
+      "nick": ["Veracs plateskirt 0"]
     },
     {
       "id": 5001,
@@ -6399,7 +6504,8 @@
     },
     {
       "id": 5743,
-      "name": "Greenman\u0027s ale(m)"
+      "name": "Greenman\u0027s ale(m)",
+      "nick": ["Greenmans ale(m)", "Greenmans ale (m)"]
     },
     {
       "id": 5745,
@@ -6415,27 +6521,33 @@
     },
     {
       "id": 5751,
-      "name": "Axeman\u0027s folly"
+      "name": "Axeman\u0027s folly",
+      "nick": ["Axemans folly"]
     },
     {
       "id": 5753,
-      "name": "Axeman\u0027s folly(m)"
+      "name": "Axeman\u0027s folly(m)",
+      "nick": ["Axemans folly(m)"]
     },
     {
       "id": 5755,
-      "name": "Chef\u0027s delight"
+      "name": "Chef\u0027s delight",
+      "nick": ["Chefs delight"]
     },
     {
       "id": 5757,
-      "name": "Chef\u0027s delight(m)"
+      "name": "Chef\u0027s delight(m)",
+      "nick": ["Chefs delight(m)"]
     },
     {
       "id": 5759,
-      "name": "Slayer\u0027s respite"
+      "name": "Slayer\u0027s respite",
+      "nick": ["Slayers respite"]
     },
     {
       "id": 5761,
-      "name": "Slayer\u0027s respite(m)"
+      "name": "Slayer\u0027s respite(m)",
+      "nick": ["Slayers respite(m)"]
     },
     {
       "id": 5763,
@@ -6479,15 +6591,18 @@
     },
     {
       "id": 5825,
-      "name": "Axeman\u0027s folly(4)"
+      "name": "Axeman\u0027s folly(4)",
+      "nick": ["Axemans folly(4)"]
     },
     {
       "id": 5833,
-      "name": "Chef\u0027s delight(4)"
+      "name": "Chef\u0027s delight(4)",
+      "nick": ["Chefs delight(4)"]
     },
     {
       "id": 5841,
-      "name": "Slayer\u0027s respite(4)"
+      "name": "Slayer\u0027s respite(4)",
+      "nick": ["Slayers respite(4)"]
     },
     {
       "id": 5849,
@@ -6519,11 +6634,13 @@
     },
     {
       "id": 5905,
-      "name": "Axeman\u0027s folly(m4)"
+      "name": "Axeman\u0027s folly(m4)",
+      "nick": ["Axemans folly(m4)"]
     },
     {
       "id": 5913,
-      "name": "Chef\u0027s delight(m4)"
+      "name": "Chef\u0027s delight(m4)",
+      "nick": ["Chefs delight(m4)"]
     },
     {
       "id": 5921,
@@ -7416,7 +7533,8 @@
     },
     {
       "id": 6889,
-      "name": "Mage\u0027s book"
+      "name": "Mage\u0027s book",
+      "nick": ["Mages book"]
     },
     {
       "id": 6891,
@@ -7804,35 +7922,43 @@
     },
     {
       "id": 7370,
-      "name": "Green d\u0027hide body (g)"
+      "name": "Green d\u0027hide body (g)",
+      "nick": ["Green dhide body (g)"]
     },
     {
       "id": 7372,
-      "name": "Green d\u0027hide body (t)"
+      "name": "Green d\u0027hide body (t)",
+      "nick": ["Green dhide body (t)"]
     },
     {
       "id": 7374,
-      "name": "Blue d\u0027hide body (g)"
+      "name": "Blue d\u0027hide body (g)",
+      "nick": ["Blue dhide body (g)"]
     },
     {
       "id": 7376,
-      "name": "Blue d\u0027hide body (t)"
+      "name": "Blue d\u0027hide body (t)",
+      "nick": ["Blue dhide body (t)"]
     },
     {
       "id": 7378,
-      "name": "Green d\u0027hide chaps (g)"
+      "name": "Green d\u0027hide chaps (g)",
+      "nick": ["Green dhide chaps (g)"]
     },
     {
       "id": 7380,
-      "name": "Green d\u0027hide chaps (t)"
+      "name": "Green d\u0027hide chaps (t)",
+      "nick": ["Green dhide chaps (t)"]
     },
     {
       "id": 7382,
-      "name": "Blue d\u0027hide chaps (g)"
+      "name": "Blue d\u0027hide chaps (g)",
+      "nick": ["Blue dhide chaps (g)"]
     },
     {
       "id": 7384,
-      "name": "Blue d\u0027hide chaps (t)"
+      "name": "Blue d\u0027hide chaps (t)",
+      "nick": ["Blue dhide chaps (t)"]
     },
     {
       "id": 7386,
@@ -8223,7 +8349,8 @@
     },
     {
       "id": 8522,
-      "name": "Greenman\u0027s ale"
+      "name": "Greenman\u0027s ale",
+      "nick": ["Greenmans ale"]
     },
     {
       "id": 8524,
@@ -8231,7 +8358,8 @@
     },
     {
       "id": 8526,
-      "name": "Chef\u0027s delight"
+      "name": "Chef\u0027s delight",
+      "nick": ["Chefs delight"]
     },
     {
       "id": 8528,
@@ -8487,7 +8615,8 @@
     },
     {
       "id": 8782,
-      "name": "Mahogany plank"
+      "name": "Mahogany plank",
+      "nick": ["Mahog plank"]
     },
     {
       "id": 8784,
@@ -8615,11 +8744,13 @@
     },
     {
       "id": 9044,
-      "name": "Pharaoh\u0027s sceptre (3)"
+      "name": "Pharaoh\u0027s sceptre (3)",
+      "nick": ["Pharaohs sceptre (3)"]
     },
     {
       "id": 9050,
-      "name": "Pharaoh\u0027s sceptre"
+      "name": "Pharaoh\u0027s sceptre",
+      "nick": ["Pharaohs sceptre"]
     },
     {
       "id": 9052,
@@ -9526,7 +9657,8 @@
     },
     {
       "id": 10156,
-      "name": "Hunters\u0027 crossbow"
+      "name": "Hunters\u0027 crossbow",
+      "nick": ["Hunters crossbow"]
     },
     {
       "id": 10158,
@@ -9610,23 +9742,28 @@
     },
     {
       "id": 10316,
-      "name": "Bob\u0027s red shirt"
+      "name": "Bob\u0027s red shirt",
+      "nick": ["Bobs red shirt"]
     },
     {
       "id": 10318,
-      "name": "Bob\u0027s blue shirt"
+      "name": "Bob\u0027s blue shirt",
+      "nick": ["Bobs blue shirt"]
     },
     {
       "id": 10320,
-      "name": "Bob\u0027s green shirt"
+      "name": "Bob\u0027s green shirt",
+      "nick": ["Bobs green shirt"]
     },
     {
       "id": 10322,
-      "name": "Bob\u0027s black shirt"
+      "name": "Bob\u0027s black shirt",
+      "nick": ["Bobs black shirt"]
     },
     {
       "id": 10324,
-      "name": "Bob\u0027s purple shirt"
+      "name": "Bob\u0027s purple shirt",
+      "nick": ["Bobs purple shirt"]
     },
     {
       "id": 10326,
@@ -9638,51 +9775,63 @@
     },
     {
       "id": 10330,
-      "name": "3rd age range top"
+      "name": "3rd age range top",
+      "nick": ["3a range top"]
     },
     {
       "id": 10332,
-      "name": "3rd age range legs"
+      "name": "3rd age range legs",
+      "nick": ["3a range legs"]
     },
     {
       "id": 10334,
-      "name": "3rd age range coif"
+      "name": "3rd age range coif",
+      "nick": ["3a range coif"]
     },
     {
       "id": 10336,
-      "name": "3rd age vambraces"
+      "name": "3rd age vambraces",
+      "nick": ["3a vambraces", "3a vambs"]
     },
     {
       "id": 10338,
-      "name": "3rd age robe top"
+      "name": "3rd age robe top",
+      "nick": ["3a robe top"]
     },
     {
       "id": 10340,
-      "name": "3rd age robe"
+      "name": "3rd age robe",
+      "nick": ["3a robe"]
     },
     {
       "id": 10342,
-      "name": "3rd age mage hat"
+      "name": "3rd age mage hat",
+      "nick": ["3a mage hat"]
     },
     {
       "id": 10344,
-      "name": "3rd age amulet"
+      "name": "3rd age amulet",
+      "nick": ["3a amulet", "3a ammy"]
     },
     {
       "id": 10346,
-      "name": "3rd age platelegs"
+      "name": "3rd age platelegs",
+      "nick": ["3a platelegs", "3a legs"]
     },
     {
       "id": 10348,
-      "name": "3rd age platebody"
+      "name": "3rd age platebody",
+      "nick": ["3a platebody", "3a plate"]
     },
     {
       "id": 10350,
-      "name": "3rd age full helmet"
+      "name": "3rd age full helmet",
+      "nick": ["3a full helmet", "3a full helm"]
     },
     {
       "id": 10352,
-      "name": "3rd age kiteshield"
+      "name": "3rd age kiteshield",
+      "nick": ["3a kiteshield", "3a kite"]
     },
     {
       "id": 10354,
@@ -9706,7 +9855,8 @@
     },
     {
       "id": 10370,
-      "name": "Zamorak d\u0027hide"
+      "name": "Zamorak d\u0027hide",
+      "nick": ["Zamorak dhide"]
     },
     {
       "id": 10372,
@@ -9738,7 +9888,8 @@
     },
     {
       "id": 10386,
-      "name": "Saradomin d\u0027hide"
+      "name": "Saradomin d\u0027hide",
+      "nick": ["Saradomin dhide"]
     },
     {
       "id": 10388,
@@ -10369,11 +10520,13 @@
     },
     {
       "id": 11437,
-      "name": "Relicym\u0027s mix(2)"
+      "name": "Relicym\u0027s mix(2)",
+      "nick": ["Relicyms mix(2)"]
     },
     {
       "id": 11439,
-      "name": "Relicym\u0027s mix(1)"
+      "name": "Relicym\u0027s mix(1)",
+      "nick": ["Relicyms mix(1)"]
     },
     {
       "id": 11441,
@@ -11094,19 +11247,23 @@
     },
     {
       "id": 12327,
-      "name": "Red d\u0027hide body (g)"
+      "name": "Red d\u0027hide body (g)",
+      "nick": ["Red dhide body (g)"]
     },
     {
       "id": 12329,
-      "name": "Red d\u0027hide chaps (g)"
+      "name": "Red d\u0027hide chaps (g)",
+      "nick": ["Red dhide chaps (g)"]
     },
     {
       "id": 12331,
-      "name": "Red d\u0027hide body (t)"
+      "name": "Red d\u0027hide body (t)",
+      "nick": ["Red dhide body (t)"]
     },
     {
       "id": 12333,
-      "name": "Red d\u0027hide chaps (t)"
+      "name": "Red d\u0027hide chaps (t)",
+      "nick": ["Red dhide chaps (t)"]
     },
     {
       "id": 12335,
@@ -11202,19 +11359,23 @@
     },
     {
       "id": 12381,
-      "name": "Black d\u0027hide body (g)"
+      "name": "Black d\u0027hide body (g)",
+      "nick": ["Black dhide body (g)"]
     },
     {
       "id": 12383,
-      "name": "Black d\u0027hide chaps (g)"
+      "name": "Black d\u0027hide chaps (g)",
+      "nick": ["Black dhide chaps (g)"]
     },
     {
       "id": 12385,
-      "name": "Black d\u0027hide body (t)"
+      "name": "Black d\u0027hide body (t)",
+      "nick": ["Black dhide body (t)"]
     },
     {
       "id": 12387,
-      "name": "Black d\u0027hide chaps (t)"
+      "name": "Black d\u0027hide chaps (t)",
+      "nick": ["Black dhide chaps (t)"]
     },
     {
       "id": 12389,
@@ -11258,7 +11419,8 @@
     },
     {
       "id": 12406,
-      "name": "Mort\u0027ton teleport"
+      "name": "Mort\u0027ton teleport",
+      "nick": ["Mortton teleport"]
     },
     {
       "id": 12407,
@@ -11278,7 +11440,8 @@
     },
     {
       "id": 12411,
-      "name": "Mos le\u0027harmless teleport"
+      "name": "Mos le\u0027harmless teleport",
+      "nick": ["Mos leharmless teleport"]
     },
     {
       "id": 12412,
@@ -11286,15 +11449,18 @@
     },
     {
       "id": 12422,
-      "name": "3rd age wand"
+      "name": "3rd age wand",
+      "nick": ["3a wand"]
     },
     {
       "id": 12424,
-      "name": "3rd age bow"
+      "name": "3rd age bow",
+      "nick": ["3a bow"]
     },
     {
       "id": 12426,
-      "name": "3rd age longsword"
+      "name": "3rd age longsword",
+      "nick": ["3a longsword", "3a long"]
     },
     {
       "id": 12428,
@@ -11314,7 +11480,8 @@
     },
     {
       "id": 12437,
-      "name": "3rd age cloak"
+      "name": "3rd age cloak",
+      "nick": ["3a cloak"]
     },
     {
       "id": 12439,
@@ -11418,7 +11585,8 @@
     },
     {
       "id": 12492,
-      "name": "Ancient d\u0027hide"
+      "name": "Ancient d\u0027hide",
+      "nick": ["Ancient dhide"]
     },
     {
       "id": 12494,
@@ -11434,7 +11602,8 @@
     },
     {
       "id": 12500,
-      "name": "Bandos d\u0027hide"
+      "name": "Bandos d\u0027hide",
+      "nick": ["Bandos dhide"]
     },
     {
       "id": 12502,
@@ -11450,7 +11619,8 @@
     },
     {
       "id": 12508,
-      "name": "Armadyl d\u0027hide"
+      "name": "Armadyl d\u0027hide",
+      "nick": ["Armadyl dhide"]
     },
     {
       "id": 12510,
@@ -11518,7 +11688,8 @@
     },
     {
       "id": 12596,
-      "name": "Rangers\u0027 tunic"
+      "name": "Rangers\u0027 tunic",
+      "nick": ["Rangers tunic"]
     },
     {
       "id": 12598,
@@ -11717,7 +11888,8 @@
     },
     {
       "id": 12804,
-      "name": "Saradomin\u0027s tear"
+      "name": "Saradomin\u0027s tear",
+      "nick": ["Saradomins tear"]
     },
     {
       "id": 12817,
@@ -11889,7 +12061,8 @@
     },
     {
       "id": 12934,
-      "name": "Zulrah\u0027s scales"
+      "name": "Zulrah\u0027s scales",
+      "nick": ["Zulrahs scales"]
     },
     {
       "id": 12936,
@@ -12464,7 +12637,8 @@
     },
     {
       "id": 19553,
-      "name": "Amulet of torture"
+      "name": "Amulet of torture",
+      "nick": ["Torture", "Torture ammy"]
     },
     {
       "id": 19570,
@@ -12552,7 +12726,8 @@
     },
     {
       "id": 19621,
-      "name": "Fenkenstrain\u0027s castle teleport"
+      "name": "Fenkenstrain\u0027s castle teleport",
+      "nick": ["Fenkenstrains castle teleport"]
     },
     {
       "id": 19623,
@@ -12598,6 +12773,517 @@
     {
       "id": 19672,
       "name": "Redwood pyre logs"
+    },
+    {
+      "id": 19701,
+      "name": "Jar of darkness"
+    },
+    {
+      "id": 19707,
+      "name": "Amulet of eternal glory",
+      "nick": ["Eternal glory"]
+    },
+    {
+      "id": 19724,
+      "name": "Left eye patch"
+    },
+    {
+      "id": 19727,
+      "name": "Double eye patch"
+    },
+    {
+      "id": 19912,
+      "name": "Zombie head"
+    },
+    {
+      "id": 19915,
+      "name": "Cyclops head"
+    },
+    {
+      "id": 19918,
+      "name": "Nunchaku"
+    },
+    {
+      "id": 19921,
+      "name": "Ancient d'hide boots"
+    },
+    {
+      "id": 19924,
+      "name": "Bandos d'hide boots"
+    },
+    {
+      "id": 19927,
+      "name": "Guthix d'hide boots"
+    },
+    {
+      "id": 19930,
+      "name": "Armadyl d'hide boots"
+    },
+    {
+      "id": 19933,
+      "name": "Saradomin d'hide boots"
+    },
+    {
+      "id": 19936,
+      "name": "Zamorak d'hide boots"
+    },
+    {
+      "id": 19943,
+      "name": "Arceuus house scarf"
+    },
+    {
+      "id": 19946,
+      "name": "Hosidius house scarf"
+    },
+    {
+      "id": 19949,
+      "name": "Lovakengj house scarf"
+    },
+    {
+      "id": 19952,
+      "name": "Piscarilius house scarf"
+    },
+    {
+      "id": 19955,
+      "name": "Shayzien house scarf"
+    },
+    {
+      "id": 19958,
+      "name": "Dark tuxedo jacket"
+    },
+    {
+      "id": 19961,
+      "name": "Dark tuxedo cuffs"
+    },
+    {
+      "id": 19964,
+      "name": "Dark trousers"
+    },
+    {
+      "id": 19967,
+      "name": "Dark tuxedo shoes"
+    },
+    {
+      "id": 19970,
+      "name": "Dark bow tie"
+    },
+    {
+      "id": 19973,
+      "name": "Light tuxedo jacket"
+    },
+    {
+      "id": 19976,
+      "name": "Light tuxedo cuffs"
+    },
+    {
+      "id": 19979,
+      "name": "Light trousers"
+    },
+    {
+      "id": 19982,
+      "name": "Light tuxedo shoes"
+    },
+    {
+      "id": 19985,
+      "name": "Light bow tie"
+    },
+    {
+      "id": 19988,
+      "name": "Blacksmith's helm"
+    },
+    {
+      "id": 19991,
+      "name": "Bucket helm"
+    },
+    {
+      "id": 19994,
+      "name": "Ranger gloves"
+    },
+    {
+      "id": 19997,
+      "name": "Holy wraps"
+    },
+    {
+      "id": 20002,
+      "name": "Dragon scimitar ornament kit"
+    },
+    {
+      "id": 20005,
+      "name": "Ring of nature"
+    },
+    {
+      "id": 20008,
+      "name": "Fancy tiara"
+    },
+    {
+      "id": 20011,
+      "name": "3rd age axe",
+      "nick": ["3a axe"]
+    },
+    {
+      "id": 20014,
+      "name": "3rd age pickaxe",
+      "nick": ["3a pick"]
+    },
+    {
+      "id": 20017,
+      "name": "Ring of coins"
+    },
+    {
+      "id": 20020,
+      "name": "Lesser demon mask"
+    },
+    {
+      "id": 20023,
+      "name": "Greater demon mask"
+    },
+    {
+      "id": 20026,
+      "name": "Black demon mask"
+    },
+    {
+      "id": 20029,
+      "name": "Old demon mask"
+    },
+    {
+      "id": 20032,
+      "name": "Jungle demon mask"
+    },
+    {
+      "id": 20035,
+      "name": "Samurai kasa"
+    },
+    {
+      "id": 20038,
+      "name": "Samurai shirt"
+    },
+    {
+      "id": 20041,
+      "name": "Samurai gloves"
+    },
+    {
+      "id": 20044,
+      "name": "Samurai greaves"
+    },
+    {
+      "id": 20047,
+      "name": "Samurai boots"
+    },
+    {
+      "id": 20050,
+      "name": "Obsidian cape (r)"
+    },
+    {
+      "id": 20053,
+      "name": "Half moon spectacles"
+    },
+    {
+      "id": 20056,
+      "name": "Ale of the gods"
+    },
+    {
+      "id": 20059,
+      "name": "Bucket helm (g)"
+    },
+    {
+      "id": 20062,
+      "name": "Torture ornament kit"
+    },
+    {
+      "id": 20065,
+      "name": "Occult ornament kit"
+    },
+    {
+      "id": 20068,
+      "name": "Armadyl godsword ornament kit"
+    },
+    {
+      "id": 20071,
+      "name": "Bandos godsword ornament kit"
+    },
+    {
+      "id": 20074,
+      "name": "Saradomin godsword ornament kit"
+    },
+    {
+      "id": 20077,
+      "name": "Zamorak godsword ornament kit"
+    },
+    {
+      "id": 20080,
+      "name": "Mummy's head"
+    },
+    {
+      "id": 20083,
+      "name": "Mummy's body"
+    },
+    {
+      "id": 20086,
+      "name": "Mummy's hands"
+    },
+    {
+      "id": 20089,
+      "name": "Mummy's legs"
+    },
+    {
+      "id": 20092,
+      "name": "Mummy's feet"
+    },
+    {
+      "id": 20095,
+      "name": "Ankou mask"
+    },
+    {
+      "id": 20098,
+      "name": "Ankou top"
+    },
+    {
+      "id": 20101,
+      "name": "Ankou gloves"
+    },
+    {
+      "id": 20104,
+      "name": "Ankou's leggings"
+    },
+    {
+      "id": 20107,
+      "name": "Ankou socks"
+    },
+    {
+      "id": 20110,
+      "name": "Bowl wig"
+    },
+    {
+      "id": 20113,
+      "name": "Arceuus house hood"
+    },
+    {
+      "id": 20116,
+      "name": "Hosidius house hood"
+    },
+    {
+      "id": 20119,
+      "name": "Lovakengj house hood"
+    },
+    {
+      "id": 20122,
+      "name": "Piscarilius house hood"
+    },
+    {
+      "id": 20125,
+      "name": "Shayzien house hood"
+    },
+    {
+      "id": 20128,
+      "name": "Hood of darkness"
+    },
+    {
+      "id": 20131,
+      "name": "Robe top of darkness"
+    },
+    {
+      "id": 20134,
+      "name": "Gloves of darkness"
+    },
+    {
+      "id": 20137,
+      "name": "Robe bottom of darkness"
+    },
+    {
+      "id": 20140,
+      "name": "Boots of darkness"
+    },
+    {
+      "id": 20143,
+      "name": "Dragon defender ornament kit"
+    },
+    {
+      "id": 20146,
+      "name": "Gilded med helm"
+    },
+    {
+      "id": 20149,
+      "name": "Gilded chainbody"
+    },
+    {
+      "id": 20152,
+      "name": "Gilded sq shield"
+    },
+    {
+      "id": 20155,
+      "name": "Gilded 2h sword"
+    },
+    {
+      "id": 20158,
+      "name": "Gilded spear"
+    },
+    {
+      "id": 20161,
+      "name": "Gilded hasta"
+    },
+    {
+      "id": 20166,
+      "name": "Wooden shield (g)"
+    },
+    {
+      "id": 20169,
+      "name": "Steel platebody (g)"
+    },
+    {
+      "id": 20172,
+      "name": "Steel platelegs (g)"
+    },
+    {
+      "id": 20175,
+      "name": "Steel plateskirt (g)"
+    },
+    {
+      "id": 20178,
+      "name": "Steel full helm (g)"
+    },
+    {
+      "id": 20181,
+      "name": "Steel kiteshield (g)"
+    },
+    {
+      "id": 20184,
+      "name": "Steel platebody (t)"
+    },
+    {
+      "id": 20187,
+      "name": "Steel platelegs (t)"
+    },
+    {
+      "id": 20190,
+      "name": "Steel plateskirt (t)"
+    },
+    {
+      "id": 20193,
+      "name": "Steel full helm (t)"
+    },
+    {
+      "id": 20196,
+      "name": "Steel kiteshield (t)"
+    },
+    {
+      "id": 20199,
+      "name": "Monk's robe top (g)"
+    },
+    {
+      "id": 20202,
+      "name": "Monk's robe (g)"
+    },
+    {
+      "id": 20205,
+      "name": "Golden chef's hat"
+    },
+    {
+      "id": 20208,
+      "name": "Golden apron"
+    },
+    {
+      "id": 20211,
+      "name": "Team cape zero"
+    },
+    {
+      "id": 20214,
+      "name": "Team cape x"
+    },
+    {
+      "id": 20217,
+      "name": "Team cape i"
+    },
+    {
+      "id": 20220,
+      "name": "Holy blessing"
+    },
+    {
+      "id": 20223,
+      "name": "Unholy blessing"
+    },
+    {
+      "id": 20226,
+      "name": "Peaceful blessing"
+    },
+    {
+      "id": 20229,
+      "name": "Honourable blessing"
+    },
+    {
+      "id": 20232,
+      "name": "War blessing"
+    },
+    {
+      "id": 20235,
+      "name": "Ancient blessing"
+    },
+    {
+      "id": 20238,
+      "name": "Charge dragonstone jewellery scroll"
+    },
+    {
+      "id": 20240,
+      "name": "Crier coat"
+    },
+    {
+      "id": 20243,
+      "name": "Crier bell"
+    },
+    {
+      "id": 20246,
+      "name": "Black leprechaun hat"
+    },
+    {
+      "id": 20251,
+      "name": "Arceuus banner"
+    },
+    {
+      "id": 20254,
+      "name": "Hosidius banner"
+    },
+    {
+      "id": 20257,
+      "name": "Lovakengj banner"
+    },
+    {
+      "id": 20260,
+      "name": "Piscarilius banner"
+    },
+    {
+      "id": 20263,
+      "name": "Shayzien banner"
+    },
+    {
+      "id": 20266,
+      "name": "Black unicorn mask"
+    },
+    {
+      "id": 20269,
+      "name": "White unicorn mask"
+    },
+    {
+      "id": 20272,
+      "name": "Cabbage round shield"
+    },
+    {
+      "id": 20275,
+      "name": "Gnomish firelighter"
+    },
+    {
+      "id": 20376,
+      "name": "Steel trimmed set (lg)"
+    },
+    {
+      "id": 20379,
+      "name": "Steel trimmed set (sk)"
+    },
+    {
+      "id": 20382,
+      "name": "Steel gold-trimmed set (lg)"
+    },
+    {
+      "id": 20385,
+      "name": "Steel gold-trimmed set (sk)"
     }
   ]
 }
