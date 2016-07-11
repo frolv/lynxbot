@@ -22,6 +22,8 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 	m_event(cfgr), m_giveaway(channel.substr(1), time(nullptr), cfgr),
 	m_mod(&m_parser, cfgr)
 {
+	std::string err;
+
 	if ((m_connected = m_client.cconnect())) {
 		/* send required IRC data: PASS, NICK, USER */
 		sendData("PASS " + password);
@@ -42,6 +44,14 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 		/* read the subscriber messages */
 		parseSubMsg(m_subMsg, "submessage");
 		parseSubMsg(m_resubMsg, "resubmessage");
+
+		if (!utils::parseBool(m_urltitles, m_cfgr->get("url_titles"),
+					err)) {
+			std::cerr << m_cfgr->path() << ": url_titles: "
+				<< err << " (defaulting to true)" << std::endl;
+			m_urltitles = true;
+			std::cin.get();
+		}
 	}
 }
 
@@ -137,6 +147,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 			":(.+) (?:just subscribed!|subscribed for (\\d+) "
 			"months)");
 	std::smatch match;
+	cpr::Response resp;
 
 	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
 			match, privmsgRegex)) {
@@ -196,15 +207,18 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 				return false;
 			}
 			/* get the title of the url otherwise */
-			cpr::Response resp = cpr::Get(cpr::Url(url->full),
+			if (m_urltitles) {
+				resp = cpr::Get(cpr::Url(url->full),
 					cpr::Header{{ "Connection", "close" }});
-			std::string title;
-			std::string s = url->subdomain + url->domain;
-			if (!(title = urltitle(resp.text)).empty()) {
-				sendMsg("[URL] " + title + " (at " + s + ")");
-				return true;
+				std::string title;
+				std::string s = url->subdomain + url->domain;
+				if (!(title = urltitle(resp.text)).empty()) {
+					sendMsg("[URL] " + title
+							+ " (at " + s + ")");
+					return true;
+				}
+				return false;
 			}
-			return false;
 		}
 
 		/* check for responses */

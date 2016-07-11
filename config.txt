@@ -96,6 +96,9 @@ recurring = {
 
 #### Other settings ####
 
+# Whether to post webpage titles when URLs are posted in chat
+url_titles = true
+
 # Messages posted in chat when someone subscribes or resubscribes, respectively
 # The following format sequences are accepted:
 # 	%c - channel name

@@ -50,6 +50,7 @@ class TwitchBot {
 		std::string m_subMsg;
 		std::string m_resubMsg;
 		std::thread m_tick;
+		bool m_urltitles;
 
 		bool sendData(const std::string &data);
 		bool sendMsg(const std::string &msg);

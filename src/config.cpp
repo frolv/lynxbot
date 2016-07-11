@@ -49,6 +49,8 @@ static struct setting settings[] = {
 	{ "recurring", OLIST, "each recurring message has a period in mins and "
 		"a message\nperiod must be multiple of 5 and less than 60\n"
 		"maximum of 5 recurring messages", true },
+	{ "url_titles", STRING, "Whether to post webpage titles when URLs are "
+		"posted in chat", true },
 	{ "submessage", STRING, "Message posted in chat when someone subscribes"
 		" or resubscribes, respectively\nThe following format sequences"
 		" are accepted:\n\t%c - channel name\n\t%m - number of months "
