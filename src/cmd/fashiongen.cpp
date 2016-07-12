@@ -1,4 +1,5 @@
 #include <cpr/cpr.h>
+#include <tw/oauth.h>
 #include "command.h"
 #include "../CommandHandler.h"
 #include "../OptionParser.h"
@@ -60,7 +61,7 @@ static std::string gen_fashion(const Json::Value &items)
 	for (const std::string &cat : categories) {
 		ind = rand() % items[cat].size();
 		out += (char)toupper(cat[0]) + cat.substr(1) + ":\t";
-		out += items[cat][ind].asString();
+		out += tw::pencode(items[cat][ind].asString());
 		out += "\n";
 	}
 	return out;
