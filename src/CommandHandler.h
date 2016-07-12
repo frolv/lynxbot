@@ -72,6 +72,7 @@ class CommandHandler {
 		ConfigReader *m_cfgr;
 		tw::Authenticator *m_auth;
 		Json::Value m_responses;
+		Json::Value m_fashion;
 		bool m_responding;
 		bool m_counting;
 		std::vector<std::string> m_usersCounted;
@@ -112,6 +113,7 @@ class CommandHandler {
 		std::string duck(struct cmdinfo *c);
 		std::string ehp(struct cmdinfo *c);
 		std::string eightball(struct cmdinfo *c);
+		std::string fashiongen(struct cmdinfo *c);
 		std::string followage(struct cmdinfo *c);
 		std::string ge(struct cmdinfo *c);
 		std::string help(struct cmdinfo *c);

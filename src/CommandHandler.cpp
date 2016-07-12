@@ -46,6 +46,10 @@ CommandHandler::CommandHandler(const std::string &name,
 	/* read extra 8ball responses */
 	utils::split(m_cfgr->get("extra8ballresponses"), '\n', m_eightball);
 
+	/* read fashion.json */
+	if (!utils::readJSON("fashion.json", m_fashion))
+		std::cerr << "Could not read fashion.json" << std::endl;
+
 	populateHelp();
 }
 
@@ -204,6 +208,7 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["commands"] = &CommandHandler::manual;
 	m_defaultCmds["duck"] = &CommandHandler::duck;
 	m_defaultCmds["ehp"] = &CommandHandler::ehp;
+	m_defaultCmds["fashiongen"] = &CommandHandler::fashiongen;
 	m_defaultCmds["followage"] = &CommandHandler::followage;
 	m_defaultCmds["ge"] = &CommandHandler::ge;
 	m_defaultCmds["help"] = &CommandHandler::help;
