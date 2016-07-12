@@ -39,6 +39,7 @@
 
         <h3>SYNOPSIS</h3>
         <pre><code>$editcom [-a on|off] [-c CD] CMD [RESPONSE]</code></pre>
+        <pre><code>$editcom -r OLD NEW</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>editcom</strong> is used to modify custom LynxBot
@@ -56,6 +57,9 @@
           <dd>enable or disable the command</dd>
           <dt><b>-c, --cooldown=CD</b></dt>
           <dd>set the cooldown of the command to <strong>CD</strong> seconds</dd>
+          <dt><b>-r, --rename</b></dt>
+          <dd>change the keyword of command <strong>OLD</strong> to
+          <strong>NEW</strong></dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
         </dl>
@@ -73,6 +77,9 @@
 
         <p>Deactivates the command $hi:</p>
         <pre><code>$editcom -a off hi</code></pre>
+
+        <p>Renames the command $hi to $hello:</p>
+        <pre><code>$editcom -r hi hello</code></pre>
 
         <h3>SEE ALSO</h3>
         <p><a href="addcom.html">addcom(2)</a>,

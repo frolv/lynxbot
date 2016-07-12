@@ -45,12 +45,28 @@
         identical to any default command or other custom command.</p>
 
         <p>Each custom command can also have a cooldown during which no regular
-        users can use them. Chat moderators are exempt from cooldowns. The
-        default cooldown for custom commands is 15 seconds.<p>
+        users can use them. Chat subscribers and moderators are exempt from
+        cooldowns. The default cooldown for custom commands is 15 seconds.<p>
+
+        <p>The reponse of a custom command can accept several different format
+        sequences - placeholders in which data is inserted. These are as
+        follows:</p>
+
+        <ul>
+          <li><strong>%b</strong> - the Twitch username of the bot</li>
+          <li><strong>%c</strong> - the name of the Twitch channel</li>
+          <li><strong>%n</strong> - Twitch username of the person that
+          activated the command</li>
+          <li><strong>%N</strong> - equivalent to "@<strong>%n</strong>,"
+          i.e. "@NICK,"</li>
+          <li><strong>%u</strong> - number of times that the command has
+          been used</li>
+          <li><strong>%%</strong> - a literal '%'</li>
+        </ul>
 
         <h3>USAGE</h3>
         <p>Custom commands can be added, modified and deleted through the
-        <strong>addcom</strong>, <strong>editcom</strong> and 
+        <strong>addcom</strong>, <strong>editcom</strong> and
         <strong>delcom</strong> commands, respectively.</p>
 
         <p>Alternatively, they can be modified directly in the file

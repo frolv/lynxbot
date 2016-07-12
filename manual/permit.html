@@ -35,10 +35,10 @@
         <h2>permit(2) - LynxBot manual</h2>
 
         <h3>NAME</h3>
-        <p>permit - grant user permission to post a url</p>
+        <p>permit - grant user permission to post urls</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$permit USER</code></pre>
+        <pre><code>$permit [-n AMT] [-s] USER</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>permit</strong> grants a user permission to post a single
@@ -52,11 +52,18 @@
         <dl compact="">
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
+          <dt><b>-n, --amount=AMT</b></dt>
+          <dd>grant user permission to post <strong>AMT</strong>links</dd>
+          <dt><b>-s, --session</b></dt>
+          <dd>grant user permission to post URLs for duration of session</dd>
         </dl>
 
         <h3>EXAMPLES</h3>
         <p>Permits the user 00rsn to post a link:</p>
         <pre><code>$permit 00rsn</code></pre>
+
+        <p>Permits the user osrs_airport to post 3 links:</p>
+        <pre><code>$permit -n 3 osrs_airport</code></pre>
 
         <h3>SEE ALSO</h3>
         <p><a href="whitelist.html">whitelist(2)</a>,
