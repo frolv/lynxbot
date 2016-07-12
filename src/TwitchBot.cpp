@@ -18,7 +18,7 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 	: m_connected(false), m_nick(nick), m_channelName(channel),
 	m_token(token), m_client(TWITCH_SERV, TWITCH_PORT),
 	m_cmdHandler(nick, channel.substr(1), token, &m_mod, &m_parser,
-			&m_event, &m_giveaway, cfgr), m_cfgr(cfgr),
+			&m_event, &m_giveaway, cfgr, &m_auth), m_cfgr(cfgr),
 	m_event(cfgr), m_giveaway(channel.substr(1), time(nullptr), cfgr),
 	m_mod(&m_parser, cfgr)
 {
@@ -199,7 +199,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 			/* print info about twitter statuses */
 			if (url->twitter && !url->tweetID.empty()) {
 				tw::Reader twr(&m_auth);
-				if (twr.read(url->tweetID)) {
+				if (twr.read_tweet(url->tweetID)) {
 					sendMsg(twr.result());
 					return true;
 				}
@@ -258,10 +258,10 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 	std::string reason;
 	if (!m_mod.isValidMsg(msg, nick, reason)) {
 		uint8_t offenses = m_mod.getOffenses(nick);
-		static const std::string warnings[5] = { "first", "second",
-			"third", "fourth", "FINAL" };
+		static const std::string warnings[3] = { "first", "second",
+			"FINAL" };
 		std::string warning;
-		if (offenses < 6) {
+		if (offenses < 4) {
 			/* timeout for 2^(offenses - 1) minutes */
 			uint16_t t = 60 * (uint16_t)pow(2, offenses - 1);
 			sendMsg("/timeout " + nick + " " + std::to_string(t));

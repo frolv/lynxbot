@@ -11,14 +11,20 @@ class Authenticator;
 class Reader {
 	public:
 		Reader(Authenticator *auth);
-		bool read(const std::string &tweetID);
+		bool read_tweet(const std::string &tweetID);
+		bool read_user(const std::string &user);
+		bool read_recent();
 		std::string result();
 	private:
-		const std::string API =
+		const std::string TWEET_API =
 			"https://api.twitter.com/1.1/statuses/show.json";
+		const std::string USER_API =
+			"https://api.twitter.com/1.1/users/show.json";
 		Authenticator *m_auth;
 		Json::Value m_response;
-		std::string authenticate(const std::string &tweetID);
+		int m_type;
+		std::string authenticate(const std::string &api,
+				Authenticator::param_vec hparams);
 };
 
 }

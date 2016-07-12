@@ -80,7 +80,6 @@ void tw::Authenticator::siggen(const std::string &method, const std::string &URL
 	HMAC(EVP_sha1(), signing_key.c_str(), signing_key.length(),
 			(unsigned char *)base_str.c_str(), base_str.length(),
 			digest, &digest_len);
-	std::cout << std::endl;
 
 	m_data.sig = base64_enc((char *)digest, digest_len);
 }

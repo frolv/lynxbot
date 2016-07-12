@@ -10,10 +10,10 @@
 CommandHandler::CommandHandler(const std::string &name,
 		const std::string &channel, const std::string &token,
 		Moderator *mod, URLParser *urlp, EventManager *evtp,
-		Giveaway *givp, ConfigReader *cfgr)
+		Giveaway *givp, ConfigReader *cfgr, tw::Authenticator *auth)
 	: m_name(name), m_channel(channel), m_token(token), m_modp(mod),
 	m_parsep(urlp), m_customCmds(NULL), m_evtp(evtp), m_givp(givp),
-	m_cfgr(cfgr), m_counting(false), m_gen(m_rd())
+	m_cfgr(cfgr), m_auth(auth), m_counting(false), m_gen(m_rd())
 {
 	populateCmds();
 
@@ -212,6 +212,7 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["manual"] = &CommandHandler::manual;
 	m_defaultCmds["rsn"] = &CommandHandler::rsn;
 	m_defaultCmds["submit"] = &CommandHandler::submit;
+	m_defaultCmds["twitter"] = &CommandHandler::twitter;
 	m_defaultCmds["uptime"] = &CommandHandler::uptime;
 	m_defaultCmds["xp"] = &CommandHandler::xp;
 	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheel;

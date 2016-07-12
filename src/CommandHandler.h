@@ -1,8 +1,9 @@
 #pragma once
 
 #include <unordered_map>
-#include <string>
 #include <random>
+#include <string>
+#include <tw/authenticator.h>
 #include "Moderator.h"
 #include "GEReader.h"
 #include "TimerManager.h"
@@ -44,7 +45,8 @@ class CommandHandler {
 		CommandHandler(const std::string &name, const std::string &channel,
 				const std::string &token, Moderator *mod,
 				URLParser *urlp, EventManager *evtp,
-				Giveaway *givp, ConfigReader *cfgr);
+				Giveaway *givp, ConfigReader *cfgr,
+				tw::Authenticator *auth);
 		~CommandHandler();
 
 		std::string processCommand(const std::string &nick,
@@ -68,6 +70,7 @@ class CommandHandler {
 		Giveaway *m_givp;
 		RSNList m_rsns;
 		ConfigReader *m_cfgr;
+		tw::Authenticator *m_auth;
 		Json::Value m_responses;
 		bool m_responding;
 		bool m_counting;
@@ -116,6 +119,7 @@ class CommandHandler {
 		std::string manual(struct cmdinfo *c);
 		std::string rsn(struct cmdinfo *c);
 		std::string submit(struct cmdinfo *c);
+		std::string twitter(struct cmdinfo *c);
 		std::string uptime(struct cmdinfo *c);
 		std::string wheel(struct cmdinfo *c);
 		std::string xp(struct cmdinfo *c);
