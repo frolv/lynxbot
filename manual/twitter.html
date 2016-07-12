@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>whitelist(2) - LynxBot</title>
+    <title>twitter(1) - LynxBot</title>
   </head>
 
   <body>
@@ -32,40 +32,38 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>whitelist(2) - LynxBot manual</h2>
+        <h2>twitter(1) - LynxBot manual</h2>
 
         <h3>NAME</h3>
-        <p>whitelist - exempt websites from moderation</p>
+        <p>twitter - get information about a twitter user</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$whitelist [-d] [SITE]</code></pre>
+        <pre><code>$twitter [-r] USER</code></pre>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>whitelist</strong> adds a website to the bot's whitelist,
-        preventing people from getting timed out when posting links to it.</p>
+        <p><strong>twitter</strong> looks up <strong>USER</strong> on
+        Twitter and posts information about their profile.</p>
 
-        <p><strong>SITE</strong> must be a valid URL.</p>
+        <p>With the <strong>-r</strong> flag, posts <strong>USER</strong>'s
+        most recent Tweet.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
-          <dt><b>-d, --delete</b></dt>
-          <dd>deletes <strong>SITE</strong> from whitelist</dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
+          <dt><b>-r, --recent-tweet</b></dt>
+          <dd>posts <strong>USER</strong>'s most recent Tweet</dd>
         </dl>
 
         <h3>EXAMPLES</h3>
-        <p>Adds the website reddit.com to the whitelist:</p>
-        <pre><code>$whitelist reddit.com</code></pre>
+        <p>Posts information about Twitter user randaliciousrs:</p>
+        <pre><code>$twitter randaliciousrs</code></pre>
 
-        <p>Deletes the website youtube.com from the whitelist:</p>
-        <pre><code>$whitelist -d youtube.com</code></pre>
+        <p>Posts zoydberg's most recent Tweet:</p>
+        <pre><code>$twitter -r zoydberg</code></pre>
 
         <h3>SEE ALSO</h3>
-        <p><a href="permit.html">permit(2)</a>,
-        <a href="moderation.html">Moderation(3)</a>,
-        <a href="config.html">config(4)</a>,
-        <a href="config-wl.html">whitelist(4)</a></p>
+        <p><a href="tweet-reader.html">Tweet Reader(3)</a></p>
 
       </section>
     </div>

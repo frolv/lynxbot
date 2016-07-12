@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>whitelist(2) - LynxBot</title>
+    <title>fashiongen(1) - LynxBot</title>
   </head>
 
   <body>
@@ -32,40 +32,34 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>whitelist(2) - LynxBot manual</h2>
+        <h2>fashiongen(1) - LynxBot manual</h2>
 
         <h3>NAME</h3>
-        <p>whitelist - exempt websites from moderation</p>
+        <p>fashiongen - generate an outfit</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$whitelist [-d] [SITE]</code></pre>
+        <pre><code>$fashiongen</code></pre>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>whitelist</strong> adds a website to the bot's whitelist,
-        preventing people from getting timed out when posting links to it.</p>
+        <p><strong>fashiongen</strong> generates a complete outfit of Old School
+        Runescape items.</p>
 
-        <p><strong>SITE</strong> must be a valid URL.</p>
+        <p>One item for each visible slot is selected from an item database and
+        the resulting outfit is uploaded to
+        <a href="https://ptpb.pw">ptpb.pw</a>.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
-          <dt><b>-d, --delete</b></dt>
-          <dd>deletes <strong>SITE</strong> from whitelist</dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
         </dl>
 
         <h3>EXAMPLES</h3>
-        <p>Adds the website reddit.com to the whitelist:</p>
-        <pre><code>$whitelist reddit.com</code></pre>
-
-        <p>Deletes the website youtube.com from the whitelist:</p>
-        <pre><code>$whitelist -d youtube.com</code></pre>
+        <p>Generates an outfit:</p>
+        <pre><code>$fashiongen</code></pre>
 
         <h3>SEE ALSO</h3>
-        <p><a href="permit.html">permit(2)</a>,
-        <a href="moderation.html">Moderation(3)</a>,
-        <a href="config.html">config(4)</a>,
-        <a href="config-wl.html">whitelist(4)</a></p>
+        <p><a href="fashion.html">fashion.json(4)</a></p>
 
       </section>
     </div>
