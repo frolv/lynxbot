@@ -44,6 +44,8 @@ std::string CommandHandler::addcom(struct cmdinfo *c)
 			} catch (std::invalid_argument) {
 				return CMDNAME  + ": invalid number -- '"
 					+ std::string(op.optarg()) + "'";
+			} catch (std::out_of_range) {
+				return CMDNAME + ": number too large";
 			}
 			break;
 		case 'h':

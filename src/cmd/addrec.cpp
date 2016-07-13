@@ -34,6 +34,8 @@ std::string CommandHandler::addrec(struct cmdinfo *c)
 			} catch (std::invalid_argument) {
 				return CMDNAME + ": invalid number -- '"
 					+ op.optarg() + "'";
+			} catch (std::out_of_range) {
+				return CMDNAME + ": number too large";
 			}
 			break;
 		case 'h':
