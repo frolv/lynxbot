@@ -54,9 +54,9 @@ std::string CommandHandler::xp(struct cmdinfo *c)
 		if ((x = std::stoi(lvl)) < 0)
 			return CMDNAME + ": number cannot be negative";
 	} catch (std::invalid_argument) {
-			return CMDNAME + ": invalid number -- '" + lvl + "'";
+		return CMDNAME + ": invalid number -- '" + lvl + "'";
 	} catch (std::out_of_range) {
-			return CMDNAME + ": number too large";
+		return CMDNAME + ": number too large";
 	}
 
 
