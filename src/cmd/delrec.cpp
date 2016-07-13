@@ -45,6 +45,8 @@ std::string CommandHandler::delrec(struct cmdinfo *c)
 		id = std::stoi(argv[1]);
 	} catch (std::invalid_argument) {
 		return c->cmd + ": invalid number -- '" + argv[1] + "'";
+	} catch (std::out_of_range) {
+		return CMDNAME + ": number too large";
 	}
 
 	if (!m_evtp->delMessage(id))

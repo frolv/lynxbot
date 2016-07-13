@@ -50,6 +50,8 @@ std::string CommandHandler::showrec(struct cmdinfo *c)
 				+ std::to_string(id) + " doesn't exist";
 	} catch (std::invalid_argument) {
 		return CMDNAME + ": invalid number -- '" + num + "'";
+	} catch (std::out_of_range) {
+		return CMDNAME + ": number too large";
 	}
 
 	return m_evtp->message(id - 1);
