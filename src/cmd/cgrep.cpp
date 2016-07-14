@@ -19,10 +19,10 @@ CMDUSAGE("$cgrep [-cdi] PATTERN");
 static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 		const Json::Value *customs, const std::string &pat,
 		int type, bool ign);
-static std::string format(std::vector<std::string> def,
-		std::vector<std::string> cus);
-static std::string format_ul(std::vector<std::string> def,
-		std::vector<std::string> cus);
+static std::string format(const std::vector<std::string> &def,
+		const std::vector<std::string> &cus);
+static std::string format_ul(const std::vector<std::string> &def,
+		const std::vector<std::string> &cus);
 
 /* cgrep: find commands matching a pattern */
 std::string CommandHandler::cgrep(struct cmdinfo *c)
@@ -126,7 +126,7 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 		+ " found for '" + pat + "':";
 
 	/* check if message is too long for twitch and upload */
-	if (cmdlen > 300) {
+	if (cmdlen > 260) {
 		out += "\n" + format_ul(def, cus);
 		return "[CGREP] " + utils::upload(out);
 	} else {
@@ -135,8 +135,8 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 }
 
 /* format: return a formatted string of all found commands */
-static std::string format(std::vector<std::string> def,
-		std::vector<std::string> cus)
+static std::string format(const std::vector<std::string> &def,
+		const std::vector<std::string> &cus)
 {
 	std::string out;
 	size_t i;
@@ -162,8 +162,8 @@ static std::string format(std::vector<std::string> def,
 }
 
 /* format_ul: format commands for upload to ptpb */
-static std::string format_ul(std::vector<std::string> def,
-		std::vector<std::string> cus)
+static std::string format_ul(const std::vector<std::string> &def,
+		const std::vector<std::string> &cus)
 {
 	std::string out;
 	size_t i;
