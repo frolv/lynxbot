@@ -78,7 +78,7 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 {
 	std::string out;
 	std::vector<std::string> def, cus;
-	int nmatch;
+	int nmatch, cmdlen;
 	std::regex reg;
 	std::smatch match;
 
@@ -87,11 +87,11 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 			reg = std::regex(pat, std::regex::icase);
 		else
 			reg = std::regex(pat);
-		nmatch = 0;
 	} catch (std::regex_error) {
 		return CMDNAME + ": invalid regular expression";
 	}
 
+	nmatch = cmdlen = 0;
 	/* search default commands */
 	if (type == ALL || type == DEFAULT) {
 		for (const auto &p : *cmdmap) {
@@ -99,6 +99,7 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 						match, reg)) {
 				++nmatch;
 				def.emplace_back(p.first);
+				cmdlen += p.first.length();
 			}
 		}
 	}
@@ -110,6 +111,7 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 						match, reg)) {
 				++nmatch;
 				cus.emplace_back(cmd);
+				cmdlen += cmd.length();
 			}
 		}
 	}
@@ -123,12 +125,12 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 	out += std::to_string(nmatch) + " command" + ((nmatch == 1) ? "" : "s")
 		+ " found for '" + pat + "':";
 
-	/* anything above 35 commands will be too long for a twitch message */
-	if (nmatch > 35) {
+	/* check if message is too long for twitch and upload */
+	if (cmdlen > 300) {
 		out += "\n" + format_ul(def, cus);
 		return "[CGREP] " + utils::upload(out);
 	} else {
-		return "[CGREP] " + format(def, cus);
+		return "[CGREP] " + out + format(def, cus);
 	}
 }
 

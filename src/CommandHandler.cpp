@@ -224,11 +224,16 @@ void CommandHandler::populateCmds()
 	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheel;
 
 	/* moderator commands */
+	m_defaultCmds["ac"] = &CommandHandler::addcom;
 	m_defaultCmds["addcom"] = &CommandHandler::addcom;
 	m_defaultCmds["addrec"] = &CommandHandler::addrec;
+	m_defaultCmds["ar"] = &CommandHandler::addrec;
 	m_defaultCmds["count"] = &CommandHandler::count;
+	m_defaultCmds["dc"] = &CommandHandler::delcom;
 	m_defaultCmds["delcom"] = &CommandHandler::delcom;
 	m_defaultCmds["delrec"] = &CommandHandler::delrec;
+	m_defaultCmds["dr"] = &CommandHandler::delrec;
+	m_defaultCmds["ec"] = &CommandHandler::editcom;
 	m_defaultCmds["editcom"] = &CommandHandler::editcom;
 	m_defaultCmds["permit"] = &CommandHandler::permit;
 	m_defaultCmds["setgiv"] = &CommandHandler::setgiv;
@@ -245,6 +250,11 @@ void CommandHandler::populateHelp()
 {
 	m_help[m_wheel.cmd()] = "selection-wheel";
 	m_help["wheel"] = "selection-wheel";
+	m_help["ac"] = "addcom";
+	m_help["dc"] = "delcom";
+	m_help["ec"] = "editcom";
+	m_help["ar"] = "addrec";
+	m_help["dr"] = "delrec";
 	m_help["lvl"] = "level";
 	m_help["sp"] = "strawpoll";
 	m_help["automated-responses"] = "automated-responses";
