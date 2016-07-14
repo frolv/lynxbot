@@ -64,6 +64,7 @@ std::string CommandHandler::followage(struct cmdinfo *c)
 		+ parse_time(response["created_at"].asString()) + ".";
 }
 
+#include <iostream>
 /* parse_time: extract time and date from ftime */
 static std::string parse_time(const std::string &ftime)
 {
@@ -72,7 +73,12 @@ static std::string parse_time(const std::string &ftime)
 	std::ostringstream out;
 	std::istringstream ss(ftime);
 
+#ifdef __linux__
 	ss.imbue(std::locale("en_US.utf-8"));
+#endif
+#ifdef _WIN32
+	ss.imbue(std::locale("en-US"));
+#endif
 	ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
 	t = std::mktime(&tm);
 
