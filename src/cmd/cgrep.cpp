@@ -21,6 +21,8 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 		int type, bool ign);
 static std::string format(std::vector<std::string> def,
 		std::vector<std::string> cus);
+static std::string format_ul(std::vector<std::string> def,
+		std::vector<std::string> cus);
 
 /* cgrep: find commands matching a pattern */
 std::string CommandHandler::cgrep(struct cmdinfo *c)
@@ -115,13 +117,19 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 	if (!nmatch)
 		return "[CGREP] no matches found for '" + pat + "'";
 
+	std::sort(def.begin(), def.end());
+	std::sort(cus.begin(), cus.end());
+
 	out += std::to_string(nmatch) + " command" + ((nmatch == 1) ? "" : "s")
 		+ " found for '" + pat + "':";
-	out += format(def, cus);
 
-	if (out.length() > 390)
+	/* anything above 35 commands will be too long for a twitch message */
+	if (nmatch > 35) {
+		out += "\n" + format_ul(def, cus);
 		return "[CGREP] " + utils::upload(out);
-	return "[CGREP] " + out;
+	} else {
+		return "[CGREP] " + format(def, cus);
+	}
 }
 
 /* format: return a formatted string of all found commands */
@@ -130,9 +138,6 @@ static std::string format(std::vector<std::string> def,
 {
 	std::string out;
 	size_t i;
-
-	std::sort(def.begin(), def.end());
-	std::sort(cus.begin(), cus.end());
 
 	if (!def.empty())
 		out += " (DEFAULT)";
@@ -151,5 +156,26 @@ static std::string format(std::vector<std::string> def,
 		if (i != cus.size() - 1)
 			out += ",";
 	}
+	return out;
+}
+
+/* format_ul: format commands for upload to ptpb */
+static std::string format_ul(std::vector<std::string> def,
+		std::vector<std::string> cus)
+{
+	std::string out;
+	size_t i;
+
+	if (!def.empty())
+		out += "\nDEFAULT:\n\n";
+	for (i = 0; i < def.size(); ++i)
+		out += "\"" + def[i] + "\"\n";
+	if (!cus.empty()) {
+		if (!def.empty())
+			out += "\n================\n";
+		out += "\nCUSTOM:\n\n";
+	}
+	for (i = 0; i < cus.size(); ++i)
+		out += "\"" + cus[i] + "\"\n";
 	return out;
 }
