@@ -64,7 +64,6 @@ std::string CommandHandler::followage(struct cmdinfo *c)
 		+ parse_time(response["created_at"].asString()) + ".";
 }
 
-#include <iostream>
 /* parse_time: extract time and date from ftime */
 static std::string parse_time(const std::string &ftime)
 {

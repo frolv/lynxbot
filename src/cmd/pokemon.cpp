@@ -17,10 +17,9 @@ CMDUSAGE("pokemon [-t] ARG");
 
 static const std::string API = "http://pokeapi.co/api/v2";
 
-static int gen;
+static int gen;		/* the generation to look up */
 
 static std::string typeinfo(const std::string &type);
-#include <iostream>
 
 /* pokemon: look up pokemon information */
 std::string CommandHandler::pokemon(struct cmdinfo *c)
@@ -136,7 +135,7 @@ static std::string typeinfo(const std::string &type)
 			out += ",";
 	}
 
-	if (!dmg[ODE].empty()) {
+	if (!dmg[DDE].empty()) {
 		out += ". Not affected by";
 		for (i = 0; i < dmg[DDE].size(); ++i) {
 			out += " " + dmg[DDE][(int)i]["name"].asString();
