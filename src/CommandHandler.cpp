@@ -215,6 +215,7 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["level"] = &CommandHandler::level;
 	m_defaultCmds["lvl"] = &CommandHandler::level;
 	m_defaultCmds["manual"] = &CommandHandler::manual;
+	m_defaultCmds["pokemon"] = &CommandHandler::pokemon;
 	m_defaultCmds["rsn"] = &CommandHandler::rsn;
 	m_defaultCmds["submit"] = &CommandHandler::submit;
 	m_defaultCmds["twitter"] = &CommandHandler::twitter;

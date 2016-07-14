@@ -119,6 +119,7 @@ class CommandHandler {
 		std::string help(struct cmdinfo *c);
 		std::string level(struct cmdinfo *c);
 		std::string manual(struct cmdinfo *c);
+		std::string pokemon(struct cmdinfo *c);
 		std::string rsn(struct cmdinfo *c);
 		std::string submit(struct cmdinfo *c);
 		std::string twitter(struct cmdinfo *c);
