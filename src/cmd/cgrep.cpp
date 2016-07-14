@@ -1,5 +1,6 @@
 #include <json/json.h>
 #include <regex>
+#include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
 #include "../OptionParser.h"
@@ -114,10 +115,13 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 	if (!nmatch)
 		return "[CGREP] no matches found for '" + pat + "'";
 
-	out = "[CGREP] ";
 	out += std::to_string(nmatch) + " command" + ((nmatch == 1) ? "" : "s")
 		+ " found for '" + pat + "':";
-	return out + format(def, cus);
+	out += format(def, cus);
+
+	if (out.length() > 390)
+		return "[CGREP] " + utils::upload(out);
+	return "[CGREP] " + out;
 }
 
 /* format: return a formatted string of all found commands */

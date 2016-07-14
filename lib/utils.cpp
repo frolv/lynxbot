@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstring>
+#include <cpr/cpr.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -24,6 +25,8 @@ static std::unordered_map<std::string, std::string> configs = {
 	{ "config", "/config" },
 	{ "submit", "/submitted" },
 };
+
+static const std::string PB = "https://ptpb.pw/";
 
 bool utils::startsWith(const std::string &str, const std::string &prefix)
 {
@@ -219,4 +222,23 @@ bool utils::readnum(char *num, int64_t *amt)
 	}
 	*amt = n * mult;
 	return true;
+}
+
+/* upload: upload s to ptpb.pw */
+std::string utils::upload(const std::string &s)
+{
+	cpr::Response resp;
+	size_t i;
+	std::string url;
+
+	resp = cpr::Post(cpr::Url(PB), cpr::Body("c=" + s));
+
+	if ((i = resp.text.find("url:")) == std::string::npos)
+		return "failed to upload";
+
+	url = resp.text.substr(i + 5);
+	if ((i = url.find('\n')) != std::string::npos)
+		url = url.substr(0, i);
+
+	return url;
 }

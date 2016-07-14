@@ -7,18 +7,20 @@
 #define POKEMON	0
 #define ITEM	1
 #define TYPE	2
+#define NATURE	3
 
 /* full name of the command */
 CMDNAME("pokemon");
 /* description of the command */
 CMDDESCR("look up pokemon information");
 /* command usage synopsis */
-CMDUSAGE("pokemon [-t] ARG");
+CMDUSAGE("pokemon [-nt] ARG");
 
 static const std::string API = "http://pokeapi.co/api/v2";
 
 static int gen;		/* the generation to look up */
 
+static std::string natureinfo(const std::string &nature);
 static std::string typeinfo(const std::string &type);
 
 /* pokemon: look up pokemon information */
@@ -28,9 +30,10 @@ std::string CommandHandler::pokemon(struct cmdinfo *c)
 	std::string arg;
 
 	int opt;
-	OptionParser op(c->fullCmd, "t");
+	OptionParser op(c->fullCmd, "nt");
 	static struct OptionParser::option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
+		{ "nature", NO_ARG, 'n' },
 		{ "type", NO_ARG, 't' },
 		{ 0, 0, 0 }
 	};
@@ -40,6 +43,9 @@ std::string CommandHandler::pokemon(struct cmdinfo *c)
 		switch (opt) {
 		case 'h':
 			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+		case 'n':
+			action = NATURE;
+			break;
 		case 't':
 			action = TYPE;
 			break;
@@ -56,12 +62,37 @@ std::string CommandHandler::pokemon(struct cmdinfo *c)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
 	switch (action) {
+	case NATURE:
+		return natureinfo(arg);
 	case TYPE:
 		return typeinfo(arg);
 	case NONE:
 		return CMDNAME + ": must provide an action";
 	}
 	return "";
+}
+
+/* natureinfo: get information about a nature */
+static std::string natureinfo(const std::string &nature)
+{
+	cpr::Response resp;
+	Json::Value val;
+	Json::Reader reader;
+	std::string out;
+
+	resp = cpr::Get(cpr::Url(API + "/nature/" + nature),
+			cpr::Header {{ "Connection", "close" }});
+	if (!reader.parse(resp.text, val))
+		return CMDNAME + ": could not parse response";
+
+	if (val.isMember("detail"))
+		return CMDNAME + ": not a nature: " + nature;
+
+	out += "[NATURE] " + nature + ": ";
+	out += "increased " + val["increased_stat"]["name"].asString() + ", ";
+	out += "decreased " + val["decreased_stat"]["name"].asString() + ".";
+
+	return out;
 }
 
 /* typeinfo: get information about a type */

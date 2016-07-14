@@ -30,4 +30,6 @@ namespace utils {
 	std::string conv_time(time_t t);
 	/* readnum: read number from string num into amt */
 	bool readnum(char *num, int64_t *amt);
+	/* upload: upload s to ptpb.pw */
+	std::string upload(const std::string &s);
 }
