@@ -14,7 +14,7 @@ CMDNAME("pokemon");
 /* description of the command */
 CMDDESCR("look up pokemon information");
 /* command usage synopsis */
-CMDUSAGE("pokemon [-nt] ARG");
+CMDUSAGE("pokemon [-g GEN] [-nt] ARG");
 
 static const std::string API = "http://pokeapi.co/api/v2";
 
@@ -30,9 +30,10 @@ std::string CommandHandler::pokemon(struct cmdinfo *c)
 	std::string arg;
 
 	int opt;
-	OptionParser op(c->fullCmd, "nt");
+	OptionParser op(c->fullCmd, "g:nt");
 	static struct OptionParser::option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
+		{ "gen", REQ_ARG, 'g' },
 		{ "nature", NO_ARG, 'n' },
 		{ "type", NO_ARG, 't' },
 		{ 0, 0, 0 }
@@ -43,6 +44,19 @@ std::string CommandHandler::pokemon(struct cmdinfo *c)
 		switch (opt) {
 		case 'h':
 			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+		case 'g':
+			try {
+				if ((gen = std::stoi(op.optarg())) < 1
+						|| gen > 6)
+					return CMDNAME + ": generation must be "
+						"between 1 and 6";
+			} catch (std::invalid_argument) {
+				return CMDNAME + ": invalid number -- '"
+					+ std::string(op.optarg()) + "'";
+			} catch (std::out_of_range) {
+				return CMDNAME + ": number too large";
+			}
+			break;
 		case 'n':
 			action = NATURE;
 			break;

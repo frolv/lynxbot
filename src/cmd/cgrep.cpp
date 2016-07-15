@@ -122,7 +122,7 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 	std::sort(def.begin(), def.end());
 	std::sort(cus.begin(), cus.end());
 
-	out += std::to_string(nmatch) + " command" + ((nmatch == 1) ? "" : "s")
+	out += std::to_string(nmatch) + " command" + (nmatch == 1 ? "" : "s")
 		+ " found for '" + pat + "':";
 
 	/* check if message is too long for twitch and upload */
