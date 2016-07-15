@@ -14,11 +14,12 @@ CMDNAME("pokemon");
 /* description of the command */
 CMDDESCR("look up pokemon information");
 /* command usage synopsis */
-CMDUSAGE("pokemon [-g GEN] [-nt] ARG");
+CMDUSAGE("pokemon [-g GEN] [-NT] ARG");
 
 static const std::string API = "http://pokeapi.co/api/v2";
 
-static int gen;		/* the generation to look up */
+/* the generation to look up */
+static int gen;
 
 static std::string natureinfo(const std::string &nature);
 static std::string typeinfo(const std::string &type);
@@ -30,12 +31,12 @@ std::string CommandHandler::pokemon(struct cmdinfo *c)
 	std::string arg;
 
 	int opt;
-	OptionParser op(c->fullCmd, "g:nt");
+	OptionParser op(c->fullCmd, "NTg:");
 	static struct OptionParser::option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "gen", REQ_ARG, 'g' },
-		{ "nature", NO_ARG, 'n' },
-		{ "type", NO_ARG, 't' },
+		{ "nature", NO_ARG, 'N' },
+		{ "type", NO_ARG, 'T' },
 		{ 0, 0, 0 }
 	};
 
@@ -57,10 +58,16 @@ std::string CommandHandler::pokemon(struct cmdinfo *c)
 				return CMDNAME + ": number too large";
 			}
 			break;
-		case 'n':
+		case 'N':
+			if (action != NONE)
+				return CMDNAME + ": only one operation can be "
+					"used at a time";
 			action = NATURE;
 			break;
-		case 't':
+		case 'T':
+			if (action != NONE)
+				return CMDNAME + ": only one operation can be "
+					"used at a time";
 			action = TYPE;
 			break;
 		case '?':

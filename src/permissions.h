@@ -1,5 +1,5 @@
 #ifndef _PERMISSIONS_H
-#define _PERMISSIONS_H 1
+#define _PERMISSIONS_H
 
 /* permission bits */
 #define _REG 0x0

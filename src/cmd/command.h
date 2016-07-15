@@ -1,3 +1,6 @@
+#ifndef _COMMAND_H
+#define _COMMAND_H
+
 /* command.h: macros to standardize command definitions */
 
 #include <string>
@@ -13,3 +16,5 @@
 			+ ".html")))
 #define USAGEMSG(NAME,USAGE) (std::string(NAME + ": invalid syntax. usage: "\
 			+ USAGE))
+
+#endif
