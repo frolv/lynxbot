@@ -52,7 +52,7 @@ std::string CommandHandler::xp(struct cmdinfo *c)
 
 	if (range) {
 		if (inv)
-			return CMDNAME + ": cannot combine -r with -i";
+			return CMDNAME + ": cannot use -i with -r";
 		return xprange(c->fullCmd.substr(op.optind()));
 	}
 

@@ -82,7 +82,7 @@ static std::string parse_time(const std::string &ftime)
 	t = std::mktime(&tm);
 
 	out << utils::conv_time(time(NULL) - t);
-	out << " (since " << std::put_time(&tm, "%H:%M:%S, %d %b %Y") << ")";
+	out << " (since " << std::put_time(&tm, "%H:%M:%S UTC, %d %b %Y") << ")";
 
 	return out.str();
 }
