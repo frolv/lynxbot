@@ -8,29 +8,31 @@ CMDNAME("xp");
 /* description of the command */
 CMDDESCR("query experience information");
 /* command usage synopsis */
-CMDUSAGE("$xp [-i] NUM");
+CMDUSAGE("$xp [-i] [-r] NUM");
 
 #define MAX_XP 0xBEBC200
 
-static std::string xptolvl(int x);
-static std::string lvltoxp(int x);
+static int xptolvl(int x);
+static int lvltoxp(int x);
+static std::string xprange(const std::string &args);
 
 /* xp: query experience information */
 std::string CommandHandler::xp(struct cmdinfo *c)
 {
-	bool inv;
+	bool inv, range;
 	int x;
 	std::string lvl;
 
 	int opt;
-	OptionParser op(c->fullCmd, "i");
+	OptionParser op(c->fullCmd, "ir");
 	static struct OptionParser::option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "inverse", NO_ARG, 'i' },
+		{ "range", NO_ARG, 'r' },
 		{ 0, 0, 0 }
 	};
 
-	inv = false;
+	inv = range = false;
 	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
@@ -38,11 +40,20 @@ std::string CommandHandler::xp(struct cmdinfo *c)
 		case 'i':
 			inv = true;
 			break;
+		case 'r':
+			range = true;
+			break;
 		case '?':
 			return std::string(op.opterr());
 		default:
 			return "";
 		}
+	}
+
+	if (range) {
+		if (inv)
+			return CMDNAME + ": cannot combine -r with -i";
+		return xprange(c->fullCmd.substr(op.optind()));
 	}
 
 	if (op.optind() == c->fullCmd.length()
@@ -64,16 +75,17 @@ std::string CommandHandler::xp(struct cmdinfo *c)
 		if (x > MAX_XP)
 			return CMDNAME + ": xp cannot exceed 200m";
 		return "[XP] " + utils::formatInteger(std::to_string(x))
-			+ " xp: level " + xptolvl(x);
+			+ " xp: level " + std::to_string(xptolvl(x));
 	}
 
 	if (x < 1 || x > 126)
 		return CMDNAME + ": level must be between 1-126";
-	return "[XP] level " + std::to_string(x) + ": " + lvltoxp(x) + " xp";
+	return "[XP] level " + std::to_string(x) + ": "
+		+ utils::formatInteger(std::to_string(lvltoxp(x))) + " xp";
 }
 
 /* xptolvl: calculate the level at x xp */
-static std::string xptolvl(int x)
+static int xptolvl(int x)
 {
 	int n;
 
@@ -85,11 +97,11 @@ static std::string xptolvl(int x)
 		++n;
 	}
 
-	return std::to_string(n - 1);
+	return n - 1;
 }
 
 /* lvltoxp: return xp required for level x */
-static std::string lvltoxp(int x)
+static int lvltoxp(int x)
 {
 	int n, res;
 
@@ -98,5 +110,52 @@ static std::string lvltoxp(int x)
 		res += floor(n + 300 * pow(2, n / 7.0));
 	res = floor(0.25 * res);
 
-	return utils::formatInteger(std::to_string(res));
+	return res;
+}
+
+/* xprange: calcuate the amount of xp between the levels in args */
+static std::string xprange(const std::string &args)
+{
+	std::string a, b;
+	size_t i;
+	int x, y;
+
+	i = 0;
+	/* read the first level */
+	while (i < args.length() && !isspace(args[i]) && args[i] != '-')
+		a += args[i++];
+	if (i == args.length())
+		return CMDNAME + ": must provide two levels";
+
+	++i;
+	/* read the second level */
+	while (i < args.length() && !isspace(args[i]))
+		b += args[i++];
+	if (i != args.length())
+		return CMDNAME + ": must provide two levels";
+
+	try {
+		if ((x = std::stoi(a)) < 1 || x > 126)
+			return CMDNAME + ": level must be between 1-126";
+	} catch (std::invalid_argument) {
+		return CMDNAME + ": invalid number -- '" + a + "'";
+	} catch (std::out_of_range) {
+		return CMDNAME + ": number too large";
+	}
+	try {
+		if ((y = std::stoi(b)) < 1 || y > 126)
+			return CMDNAME + ": level must be between 1-126";
+	} catch (std::invalid_argument) {
+		return CMDNAME + ": invalid number -- '" + b + "'";
+	} catch (std::out_of_range) {
+		return CMDNAME + ": number too large";
+	}
+
+	if (x > y)
+		return CMDNAME + ": invalid range";
+	x = lvltoxp(x);
+	y = lvltoxp(y);
+
+	return "[XP] level " + a + "-" + b + ": "
+		+ utils::formatInteger(std::to_string(y - x)) + " xp";
 }
