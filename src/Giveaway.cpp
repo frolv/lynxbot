@@ -45,6 +45,7 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime,
 
 Giveaway::~Giveaway() {}
 
+/* init: read giveaways settings and initialize giveaway variables */
 bool Giveaway::init(time_t initTime, bool first)
 {
 	if (!readSettings())
@@ -73,6 +74,7 @@ bool Giveaway::active() const
 	return m_active;
 }
 
+/* activate: enable giveaways */
 bool Giveaway::activate(time_t initTime, std::string &reason)
 {
 	if (m_active) {
@@ -91,12 +93,14 @@ bool Giveaway::activate(time_t initTime, std::string &reason)
 	return true;
 }
 
+/* deactivate: disable giveaways */
 void Giveaway::deactivate()
 {
 	m_active = false;
 	writeSettings();
 }
 
+/* setFollowers: change giveaway follower settings */
 void Giveaway::setFollowers(bool setting, uint32_t amt)
 {
 	m_type[1] = setting;
@@ -105,6 +109,7 @@ void Giveaway::setFollowers(bool setting, uint32_t amt)
 	writeSettings();
 }
 
+/* setTimer: change giveaway timer settings */
 void Giveaway::setTimer(bool setting, time_t interval)
 {
 	m_type[2] = setting;
@@ -113,6 +118,7 @@ void Giveaway::setTimer(bool setting, time_t interval)
 	writeSettings();
 }
 
+/* setImages: turn images on or off */
 void Giveaway::setImages(bool setting)
 {
 	m_images = setting;
@@ -133,6 +139,7 @@ bool Giveaway::checkSubs()
 }
 */
 
+/* checkConditions: check if giveaway conditions are satisfied */
 bool Giveaway::checkConditions(time_t curr)
 {
 	if (m_items.empty()) {
@@ -170,6 +177,7 @@ bool Giveaway::checkConditions(time_t curr)
 	return false;
 }
 
+/* giveaway: give away an item */
 std::string Giveaway::giveaway()
 {
 	std::string output = "[GIVEAWAY: ";

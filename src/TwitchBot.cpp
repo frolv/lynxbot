@@ -230,7 +230,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 
 	} else if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
 			match, subRegex)) {
-
+		/* send sub/resub messages */
 		std::string nick, fmt, len;
 
 		nick = match[2].str();
@@ -317,8 +317,9 @@ void TwitchBot::parseSubMsg(std::string &tgt, const std::string &which)
 		}
 		c = fmt[ind + 1];
 		if (fmt_c.find(c) == std::string::npos) {
-			err = "invalid format character -- ";
+			err = "invalid format character -- '";
 			err += c;
+			err += "'";
 			break;
 		}
 		if (c == '%')
