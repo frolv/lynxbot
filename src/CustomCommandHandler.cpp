@@ -148,6 +148,10 @@ bool CustomCommandHandler::rename(const std::string &cmd,
 		m_error = "not a command: $" + cmd;
 		return false;
 	}
+	if (!validName(newcmd)) {
+		m_error = "invalid command name: $" + newcmd;
+		return false;
+	}
 	(*com)["cmd"] = newcmd;
 	(*com)["mtime"] = (Json::Int64)time(nullptr);
 	m_tmp->remove(cmd);
