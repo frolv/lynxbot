@@ -193,9 +193,15 @@ bool Moderator::checkSpam(const std::string &msg) const
 /* checkString: check if msg contains excess caps or character spam */
 bool Moderator::checkString(const std::string &msg, std::string &reason) const
 {
-	uint16_t caps = 0, repeated = 0;
-	char last = '\0';
+	int caps, repeated, len;
+	char last;
+
+	caps = repeated = len = 0;
+	last = '\0';
 	for (auto &c : msg) {
+		/* only count non-whitespace chars */
+		if (!isspace(c))
+			++len;
 		if (c == last) {
 			++repeated;
 		} else {
@@ -209,8 +215,7 @@ bool Moderator::checkString(const std::string &msg, std::string &reason) const
 		caps += (c >= 'A' && c <= 'Z') ? 1 : 0;
 	}
 	/* messages longer than cap_len with over cap_ratio% caps are invalid */
-	if (msg.length() > m_cap_len &&
-			(caps / (double)msg.length() > m_cap_ratio)) {
+	if (msg.length() > m_cap_len && (caps / (double)len > m_cap_ratio)) {
 		reason = "turn off your caps lock!";
 		return true;
 	}

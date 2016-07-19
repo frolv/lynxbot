@@ -130,45 +130,47 @@ static bool edit(CustomCommandHandler *cch, const std::string &args,
 		/* don't allow reponse to activate a twitch command */
 		response = " " + response;
 	}
+
 	if (!cch->editcom(cmd, response, cooldown)) {
 		res = cch->error();
 		return false;
-	} else if (!cd && !resp && !act) {
+	}
+	if (!cd && !resp && !act) {
 		res = "command $" + cmd + " was unchanged";
 		return true;
-	} else {
-		/* build an out string detailing changes */
-		res += "command $" + cmd + " has been";
-		if (act) {
-			if (set == "on") {
-				if (!cch->activate(cmd)) {
-					res = cch->error();
-					res += ". Command not activated.";
-					return false;
-				}
-				res += " activated";
-			} else {
-				cch->deactivate(cmd);
-				res += " deactivated";
-			}
-		}
-		if (resp || cd) {
-			res += (act) ? " and" : "";
-			res += " changed to ";
-			if (resp)
-				res += "\"" + response + "\""
-					+ (cd ? ", with " : "");
-			if (cd) {
-				/* reset cooldown in TimerManager */
-				tm->remove(cmd);
-				tm->add(cmd, cooldown);
-				res += "a " + std::to_string(cooldown)
-					+ "s cooldown";
-			}
-		}
-		res += ".";
-		return true;
 	}
+
+	/* build an output string detailing changes */
+	res += "command $" + cmd + " has been";
+	if (act) {
+		if (set == "on") {
+			if (!cch->activate(cmd)) {
+				res = cch->error();
+				res += ". Command not activated.";
+				return false;
+			}
+			res += " activated";
+		} else {
+			cch->deactivate(cmd);
+			res += " deactivated";
+		}
+	}
+	if (resp || cd) {
+		res += (act) ? " and" : "";
+		res += " changed to ";
+		if (resp)
+			res += "\"" + response + "\""
+				+ (cd ? ", with " : "");
+		if (cd) {
+			/* reset cooldown in TimerManager */
+			tm->remove(cmd);
+			tm->add(cmd, cooldown);
+			res += "a " + std::to_string(cooldown)
+				+ "s cooldown";
+		}
+	}
+	res += ".";
+	return true;
 }
 
 /* rename: rename a custom command */
