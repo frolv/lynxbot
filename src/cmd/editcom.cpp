@@ -8,14 +8,14 @@ CMDNAME("editcom");
 /* description of the command */
 CMDDESCR("modify a custom command");
 /* command usage synopsis */
-CMDUSAGE("$editcom [-a on|off] [-c CD] [-r] CMD [RESPONSE]");
+CMDUSAGE("$editcom [-A on|off] [-a] [-c CD] [-r] CMD [RESPONSE]");
 
 /* rename flag usage */
 static const std::string RUSAGE = "$editcom -r OLD NEW";
 
 static bool edit(CustomCommandHandler *cch, const std::string &args,
 		const std::string &set, time_t cooldown, TimerManager *tm,
-		std::string &res);
+		bool app, std::string &res);
 static bool rename(CustomCommandHandler *cch, const std::string &args,
 		std::string &res);
 
@@ -30,12 +30,13 @@ std::string CommandHandler::editcom(struct cmdinfo *c)
 
 	std::string out, res, set, cmd;
 	time_t cooldown;
-	bool ren;
+	bool ren, append;
 
-	OptionParser op(c->fullCmd, "a:c:r");
+	OptionParser op(c->fullCmd, "A:ac:r");
 	int opt;
 	static struct OptionParser::option long_opts[] = {
-		{ "active", REQ_ARG, 'a'},
+		{ "active", REQ_ARG, 'A'},
+		{ "append", NO_ARG, 'a'},
 		{ "cooldown", REQ_ARG, 'c'},
 		{ "help", NO_ARG, 'h' },
 		{ "rename", NO_ARG, 'r' },
@@ -43,13 +44,16 @@ std::string CommandHandler::editcom(struct cmdinfo *c)
 	};
 
 	cooldown = -1;
-	ren = false;
+	ren = append = false;
 	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
-		case 'a':
+		case 'A':
 			if ((set = std::string(op.optarg())) != "on"
 					&& set != "off")
-				return CMDNAME + ": -a setting must be on/off";
+				return CMDNAME + ": -A setting must be on/off";
+			break;
+		case 'a':
+			append = true;
 			break;
 		case 'c':
 			/* user provided a cooldown */
@@ -81,7 +85,7 @@ std::string CommandHandler::editcom(struct cmdinfo *c)
 
 	out = "@" + c->nick + ", ";
 	if (ren) {
-		if (cooldown != -1 || !set.empty())
+		if (append || cooldown != -1 || !set.empty())
 			return CMDNAME + ": cannot use other flags with -r";
 		if (!rename(m_customCmds, c->fullCmd.substr(op.optind()), res)) {
 			if (res.empty())
@@ -93,7 +97,7 @@ std::string CommandHandler::editcom(struct cmdinfo *c)
 	}
 
 	if (!edit(m_customCmds, c->fullCmd.substr(op.optind()), set,
-				cooldown, &m_cooldowns, res))
+				cooldown, &m_cooldowns, append, res))
 		return CMDNAME + ": " + res;
 	return out + res;
 }
@@ -101,11 +105,12 @@ std::string CommandHandler::editcom(struct cmdinfo *c)
 /* edit: edit a custom command */
 static bool edit(CustomCommandHandler *cch, const std::string &args,
 		const std::string &set, time_t cooldown, TimerManager *tm,
-		std::string &res)
+		bool app, std::string &res)
 {
 	bool cd, resp, act;
 	size_t sp;
 	std::string cmd, response;
+	Json::Value *com;
 
 	/* determine which parts are being changed */
 	cd = cooldown != -1;
@@ -115,9 +120,16 @@ static bool edit(CustomCommandHandler *cch, const std::string &args,
 
 	response = resp ? args.substr(sp + 1) : "";
 
-	/* don't allow reponse to activate a twitch command */
-	if (response[0] == '/')
+	if (app) {
+		if ((com = cch->getcom(cmd))->empty()) {
+			res = "not a command: $" + cmd;
+			return false;
+		}
+		response = (*com)["response"].asString() + " " + response;
+	} else if (response[0] == '/') {
+		/* don't allow reponse to activate a twitch command */
 		response = " " + response;
+	}
 	if (!cch->editcom(cmd, response, cooldown)) {
 		res = cch->error();
 		return false;
