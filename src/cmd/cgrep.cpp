@@ -14,11 +14,11 @@ CMDNAME("cgrep");
 /* description of the command */
 CMDDESCR("find commands matching a pattern");
 /* command usage synopsis */
-CMDUSAGE("$cgrep [-cdi] PATTERN");
+CMDUSAGE("$cgrep [-acdi] PATTERN");
 
 static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 		const Json::Value *customs, const std::string &pat,
-		int type, bool ign);
+		int type, bool active, bool ign);
 static std::string format(const std::vector<std::string> &def,
 		const std::vector<std::string> &cus);
 static std::string format_ul(const std::vector<std::string> &def,
@@ -28,11 +28,12 @@ static std::string format_ul(const std::vector<std::string> &def,
 std::string CommandHandler::cgrep(struct cmdinfo *c)
 {
 	std::string pattern;
-	bool ign;
+	bool active, ign;
 
 	int opt, type;
-	OptionParser op(c->fullCmd, "cdi");
+	OptionParser op(c->fullCmd, "acdi");
 	static struct OptionParser::option long_opts[] = {
+		{ "active", NO_ARG, 'a' },
 		{ "custom", NO_ARG, 'c' },
 		{ "default", NO_ARG, 'd' },
 		{ "help", NO_ARG, 'h' },
@@ -40,10 +41,13 @@ std::string CommandHandler::cgrep(struct cmdinfo *c)
 		{ 0, 0, 0 }
 	};
 
-	ign = false;
+	active = ign = false;
 	type = ALL;
 	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {
+		case 'a':
+			active = true;
+			break;
 		case 'c':
 			type = CUSTOM;
 			break;
@@ -68,13 +72,13 @@ std::string CommandHandler::cgrep(struct cmdinfo *c)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
 	return findcmds(&m_defaultCmds, m_customCmds->commands(),
-			pattern, type, ign);
+			pattern, type, active, ign);
 }
 
 /* findcmds: find any bot commands that match pat */
 static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 		const Json::Value *customs, const std::string &pat,
-		int type, bool ign)
+		int type, bool active, bool ign)
 {
 	std::string out;
 	std::vector<std::string> def, cus;
@@ -107,6 +111,9 @@ static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 	if (type == ALL || type == CUSTOM) {
 		for (const auto &val : (*customs)["commands"]) {
 			const std::string cmd = val["cmd"].asString();
+			/* skip inactive commands with -a flag */
+			if (active && !val["active"].asBool())
+				continue;
 			if (std::regex_search(cmd.begin(), cmd.end(),
 						match, reg)) {
 				++nmatch;
