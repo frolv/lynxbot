@@ -377,7 +377,7 @@ static std::unordered_map<std::string, char> encoded = {
 	{ "amp", '&' },
 	{ "gt", '>' },
 	{ "lt", '<' },
-	{ "quot", '"' }
+	{ "quot", '"' },
 };
 
 /* urltitle: extract webpage title from html */
