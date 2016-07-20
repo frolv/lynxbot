@@ -177,7 +177,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		if (P_ISREG(p) && m_mod.active() && moderate(nick, msg))
 			return true;
 
-		/* all chat commands start with $ */
+		/* all chat commands i with $ */
 		if (utils::startsWith(msg, "$") && msg.length() > 1) {
 			std::string output = m_cmdHandler.processCommand(
 					nick, msg.substr(1), p);
@@ -372,15 +372,31 @@ std::string TwitchBot::formatSubMsg(const std::string &format,
 	return out;
 }
 
+/* map of html encoded characters */
+static std::unordered_map<std::string, char> encoded = {
+	{ "amp", '&' },
+	{ "gt", '>' },
+	{ "lt", '<' },
+	{ "quot", '"' }
+};
+
 /* urltitle: extract webpage title from html */
 static std::string urltitle(const std::string &resp)
 {
-	size_t start;
-	std::string title;
+	size_t i;
+	std::string title, enc;
 
-	if ((start = resp.find("<title>")) != std::string::npos) {
-		for (start += 7; resp[start] != '<'; ++start)
-			title += resp[start] == '\n' ? ' ' : resp[start];
+	if ((i = resp.find("<title>")) != std::string::npos) {
+		for (i += 7; resp[i] != '<'; ++i) {
+			if (resp[i] == '&') {
+				enc.clear();
+				for (++i; resp[i] != ';'; ++i)
+					enc += resp[i];
+				title += encoded[enc];
+				++i;
+			}
+			title += resp[i] == '\n' ? ' ' : resp[i];
+		}
 		return title;
 	}
 	return "";

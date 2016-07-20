@@ -193,7 +193,7 @@ bool Moderator::checkSpam(const std::string &msg) const
 /* checkString: check if msg contains excess caps or character spam */
 bool Moderator::checkString(const std::string &msg, std::string &reason) const
 {
-	int caps, repeated, len;
+	unsigned int caps, repeated, len;
 	char last;
 
 	caps = repeated = len = 0;
