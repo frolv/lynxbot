@@ -72,7 +72,7 @@ bool Moderator::active() const
 
 /* isValidMsg: check if msg is valid according to moderation settings */
 bool Moderator::isValidMsg(const std::string &msg,
-	const std::string &nick, std::string &reason)
+		const std::string &nick, std::string &reason)
 {
 	bool valid = true;
 

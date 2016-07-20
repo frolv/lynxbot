@@ -376,8 +376,9 @@ std::string TwitchBot::formatSubMsg(const std::string &format,
 static std::string urltitle(const std::string &resp)
 {
 	size_t start;
+	std::string title;
+
 	if ((start = resp.find("<title>")) != std::string::npos) {
-		std::string title;
 		for (start += 7; resp[start] != '<'; ++start)
 			title += resp[start] == '\n' ? ' ' : resp[start];
 		return title;
