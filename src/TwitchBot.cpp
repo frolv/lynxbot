@@ -393,7 +393,7 @@ static std::string urltitle(const std::string &resp)
 				for (++i; resp[i] != ';'; ++i)
 					enc += resp[i];
 				title += encoded[enc];
-				++i;
+				continue;
 			}
 			title += resp[i] == '\n' ? ' ' : resp[i];
 		}
