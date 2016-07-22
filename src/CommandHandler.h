@@ -106,6 +106,7 @@ class CommandHandler {
 		/* default bot commands */
 		std::string about(struct cmdinfo *c);
 		std::string active(struct cmdinfo *c);
+		std::string age(struct cmdinfo *c);
 		std::string calc(struct cmdinfo *c);
 		std::string cgrep(struct cmdinfo *c);
 		std::string cmdinf(struct cmdinfo *c);
@@ -114,7 +115,6 @@ class CommandHandler {
 		std::string ehp(struct cmdinfo *c);
 		std::string eightball(struct cmdinfo *c);
 		std::string fashiongen(struct cmdinfo *c);
-		std::string followage(struct cmdinfo *c);
 		std::string ge(struct cmdinfo *c);
 		std::string help(struct cmdinfo *c);
 		std::string level(struct cmdinfo *c);

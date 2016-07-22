@@ -201,6 +201,7 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["8ball"] = &CommandHandler::eightball;
 	m_defaultCmds["about"] = &CommandHandler::about;
 	m_defaultCmds["active"] = &CommandHandler::active;
+	m_defaultCmds["age"] = &CommandHandler::age;
 	m_defaultCmds["calc"] = &CommandHandler::calc;
 	m_defaultCmds["cgrep"] = &CommandHandler::cgrep;
 	m_defaultCmds["cmdinfo"] = &CommandHandler::cmdinf;
@@ -209,7 +210,6 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["duck"] = &CommandHandler::duck;
 	m_defaultCmds["ehp"] = &CommandHandler::ehp;
 	m_defaultCmds["fashiongen"] = &CommandHandler::fashiongen;
-	m_defaultCmds["followage"] = &CommandHandler::followage;
 	m_defaultCmds["ge"] = &CommandHandler::ge;
 	m_defaultCmds["help"] = &CommandHandler::help;
 	m_defaultCmds["level"] = &CommandHandler::level;

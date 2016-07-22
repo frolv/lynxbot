@@ -50,11 +50,11 @@ _LBH=client.h CommandHandler.h config.h EventManager.h ExpressionParser.h\
      version.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
-_COMMANDS=about.o active.o addcom.o addrec.o calc.o cgrep.o cmdinfo.o cml.o\
-	  count.o delcom.o delrec.o duck.o editcom.o ehp.o eightball.o\
-	  fashiongen.o followage.o ge.o help.o level.o manual.o permit.o\
-	  pokemon.o rsn.o setgiv.o setrec.o showrec.o status.o strawpoll.o\
-	  submit.o twitter.o uptime.o wheel.o whitelist.o xp.o
+_COMMANDS=age.o about.o active.o addcom.o addrec.o calc.o cgrep.o cmdinfo.o\
+	  cml.o count.o delcom.o delrec.o duck.o editcom.o ehp.o eightball.o\
+	  fashiongen.o ge.o help.o level.o manual.o permit.o pokemon.o rsn.o\
+	  setgiv.o setrec.o showrec.o status.o strawpoll.o submit.o twitter.o\
+	  uptime.o wheel.o whitelist.o xp.o
 COMMANDS=$(patsubst %, $(OBJ)/cmd/%,$(_COMMANDS))
 _CMDH=command.h
 CMDH=$(patsubst %, $(SRC)/cmd/%,$(_CMDH))

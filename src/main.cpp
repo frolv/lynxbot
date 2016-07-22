@@ -25,7 +25,7 @@
 static const char *AUTH_URL = "https://api.twitch.tv/kraken/oauth2/"
 "authorize?response_type=token&client_id=kkjhmekkzbepq0pgn34g671y5nexap8&"
 "redirect_uri=https://frolv.github.io/lynxbot/twitchauthconfirm.html&"
-"scope=channel_editor+channel_subscriptions";
+"scope=channel_editor+channel_subscriptions+channel_check_subscription";
 
 /* github api for latest release */
 static const char *RELEASE_API =

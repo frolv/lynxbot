@@ -14,7 +14,7 @@ CMDNAME("pokemon");
 /* description of the command */
 CMDDESCR("look up pokemon information");
 /* command usage synopsis */
-CMDUSAGE("pokemon [-g GEN] [-NT] ARG");
+CMDUSAGE("pokemon [-g GEN] <-NT> ARG");
 
 static const std::string API = "http://pokeapi.co/api/v2";
 
