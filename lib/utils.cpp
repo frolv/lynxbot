@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <tw/oauth.h>
 #include <unordered_map>
 
 #ifdef __linux__
@@ -231,7 +232,7 @@ std::string utils::upload(const std::string &s)
 	size_t i;
 	std::string url;
 
-	resp = cpr::Post(cpr::Url(PB), cpr::Body("c=" + s));
+	resp = cpr::Post(cpr::Url(PB), cpr::Body("c=" + tw::pencode(s, "\n")));
 
 	if ((i = resp.text.find("url:")) == std::string::npos)
 		return "failed to upload";
