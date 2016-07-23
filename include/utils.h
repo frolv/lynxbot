@@ -32,4 +32,6 @@ namespace utils {
 	bool readnum(char *num, int64_t *amt);
 	/* upload: upload s to ptpb.pw */
 	std::string upload(const std::string &s);
+	/* decode: decode html encoded string */
+	std::string decode(const std::string &s);
 }

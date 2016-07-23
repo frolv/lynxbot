@@ -372,32 +372,16 @@ std::string TwitchBot::formatSubMsg(const std::string &format,
 	return out;
 }
 
-/* map of html encoded characters */
-static std::unordered_map<std::string, char> encoded = {
-	{ "amp", '&' },
-	{ "gt", '>' },
-	{ "lt", '<' },
-	{ "quot", '"' }
-};
-
 /* urltitle: extract webpage title from html */
 static std::string urltitle(const std::string &resp)
 {
 	size_t i;
-	std::string title, enc;
+	std::string title;
 
 	if ((i = resp.find("<title>")) != std::string::npos) {
-		for (i += 7; resp[i] != '<'; ++i) {
-			if (resp[i] == '&') {
-				enc.clear();
-				for (++i; resp[i] != ';'; ++i)
-					enc += resp[i];
-				title += encoded[enc];
-				continue;
-			}
-			title += resp[i] == '\n' ? ' ' : resp[i];
-		}
-		return title;
+		title = resp.substr(i + 7);
+		title = title.substr(0, title.find('<'));
+		return utils::decode(title);
 	}
 	return "";
 }

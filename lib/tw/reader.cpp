@@ -109,16 +109,10 @@ static std::string format_tweet(const Json::Value &resp)
 	time = time.substr(0, time.find('+') - 1);
 	retweets = resp["retweet_count"].asString();
 	likes = resp["favorite_count"].asString();
-
-	for (char c : resp["text"].asString()) {
-		if (c == '\n')
-			status += ' ';
-		else
-			status += c;
-	}
+	status = resp["text"].asString();
 
 	output += "@" + resp["user"]["screen_name"].asString() + ": \"";
-	output += status + "\" ";
+	output += utils::decode(status) + "\" ";
 	output += "on " + time + " (";
 	output += utils::formatInteger(retweets) + " RT"
 		+ (retweets == "1" ? "" : "s") + ", ";
@@ -137,7 +131,7 @@ static std::string format_user(const Json::Value &resp)
 	tweets = resp["statuses_count"].asString();
 	followers = resp["followers_count"].asString();
 
-	output += "@" + name + ": " + desc + " ";
+	output += "@" + name + ": " + utils::decode(desc) + " ";
 	output += "(" + utils::formatInteger(tweets) + " tweet"
 		+ (tweets == "1" ? "" : "s") + ", ";
 	output += utils::formatInteger(followers) + " follower"

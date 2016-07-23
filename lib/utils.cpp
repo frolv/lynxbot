@@ -243,3 +243,30 @@ std::string utils::upload(const std::string &s)
 
 	return url;
 }
+
+/* map of html encoded characters */
+static std::unordered_map<std::string, char> encoded = {
+	{ "amp", '&' },
+	{ "gt", '>' },
+	{ "lt", '<' },
+	{ "quot", '"' }
+};
+
+/* decode: decode html encoded string */
+std::string utils::decode(const std::string &s)
+{
+	size_t i;
+	std::string out, enc;
+
+	for (i = 0; i < s.length(); ++i) {
+		if (s[i] == '&') {
+			enc.clear();
+			for (++i; s[i] != ';'; ++i)
+				enc += s[i];
+			out += encoded[enc];
+			continue;
+		}
+		out += s[i] == '\n' ? ' ' : s[i];
+	}
+	return out;
+}
