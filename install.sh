@@ -8,10 +8,6 @@ install() {
 		mkdir -p $bin
 		echo "created $bin"
 	fi
-	if [[ -z $(echo $PATH | grep -o $bin) ]]; then
-		export PATH=${PATH}:$bin
-		echo "added $bin to PATH for this shell"
-	fi
 	cp lynxbot $bin
 	echo lynxbot copied to $bin
 }
