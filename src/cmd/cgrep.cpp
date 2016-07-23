@@ -14,7 +14,7 @@ CMDNAME("cgrep");
 /* description of the command */
 CMDDESCR("find commands matching a pattern");
 /* command usage synopsis */
-CMDUSAGE("$cgrep [-acdi] PATTERN");
+CMDUSAGE("$cgrep [-ai] [-c|-d] PATTERN");
 
 static std::string findcmds(const CommandHandler::commandMap *cmdmap,
 		const Json::Value *customs, const std::string &pat,

@@ -13,7 +13,7 @@ CMDNAME("setgiv");
 /* description of the command */
 CMDDESCR("change giveaway settings");
 /* command usage synopsis */
-CMDUSAGE("$setgiv [-fit] [-n LIM] on|off|check");
+CMDUSAGE("$setgiv [-f|-i|-t] [-n LIM] on|off|check");
 
 static std::string process(Giveaway *g, int8_t type, const std::string &set,
 		const std::string &nick, int amt);

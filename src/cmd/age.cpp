@@ -13,7 +13,7 @@ CMDNAME("age");
 /* description of the command */
 CMDDESCR("check length of channel releationships");
 /* command usage synopsis */
-CMDUSAGE("age <-fs>");
+CMDUSAGE("age <-f|-s>");
 
 static const std::string TWITCH_API = "https://api.twitch.tv/kraken";
 

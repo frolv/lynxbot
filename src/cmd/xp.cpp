@@ -8,7 +8,7 @@ CMDNAME("xp");
 /* description of the command */
 CMDDESCR("query experience information");
 /* command usage synopsis */
-CMDUSAGE("$xp [-i] [-r] NUM");
+CMDUSAGE("$xp [-i|-r] NUM");
 
 #define MAX_XP 0xBEBC200
 

@@ -15,7 +15,7 @@ CMDNAME("level");
 /* description of the command */
 CMDDESCR("look up players' levels");
 /* command usage synopsis */
-CMDUSAGE("$level [-inu] SKILL RSN");
+CMDUSAGE("$level [-i|-u] [-n] SKILL RSN");
 
 static const std::string HS_BASE =
 	"http://services.runescape.com/m=hiscore_oldschool";
