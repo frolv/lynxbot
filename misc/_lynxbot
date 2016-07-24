@@ -1,0 +1,9 @@
+#compdef lynxbot
+
+# lynxbot zsh completion
+# /usr/share/zsh/site-functions/_lynxbot
+
+_arguments -C \
+  '(-h --help)'{-h,--help}'[Print help information]' \
+  '(--no-check-update)--no-check-update[Do not check for updated version]' \
+  '(-v --version)'{-v,--version}'[Print version information and exit]'
