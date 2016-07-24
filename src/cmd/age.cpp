@@ -77,8 +77,8 @@ std::string CommandHandler::age(struct cmdinfo *c)
 /* parse_time: extract time and date from ftime */
 static std::string parse_time(const std::string &ftime)
 {
-	std::tm tm;
-	time_t t;
+	std::tm tm, curr;
+	time_t t, now;
 	std::ostringstream out;
 	std::istringstream ss(ftime);
 
@@ -91,7 +91,11 @@ static std::string parse_time(const std::string &ftime)
 	ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
 	t = std::mktime(&tm);
 
-	out << utils::conv_time(time(NULL) - t);
+	now = time(NULL);
+	curr = *std::gmtime(&now);
+	now = std::mktime(&curr);
+
+	out << utils::conv_time(now - t);
 	out << " (since " << std::put_time(&tm, "%H:%M:%S UTC, %d %b %Y") << ")";
 
 	return out.str();
