@@ -89,10 +89,12 @@ static std::string parse_time(const std::string &ftime)
 	ss.imbue(std::locale("en-US"));
 #endif
 	ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
+	tm.tm_isdst = 0;
 	t = std::mktime(&tm);
 
 	now = time(NULL);
 	curr = *std::gmtime(&now);
+	curr.tm_isdst = 0;
 	now = std::mktime(&curr);
 
 	out << utils::conv_time(now - t);
