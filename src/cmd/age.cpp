@@ -1,8 +1,5 @@
 #include <cpr/cpr.h>
 #include <json/json.h>
-#include <iomanip>
-#include <locale>
-#include <sstream>
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
@@ -16,8 +13,6 @@ CMDDESCR("check length of channel releationships");
 CMDUSAGE("age <-f|-s>");
 
 static const std::string TWITCH_API = "https://api.twitch.tv/kraken";
-
-static std::string parse_time(const std::string &ftime);
 
 /* followage: check how long you have been following a channel */
 std::string CommandHandler::age(struct cmdinfo *c)
@@ -71,34 +66,6 @@ std::string CommandHandler::age(struct cmdinfo *c)
 		return out + "you are not " + msg + " " + m_channel + ".";
 
 	return out + "you have been " + msg + " " + m_channel + " for "
-		+ parse_time(response["created_at"].asString()) + ".";
-}
-
-/* parse_time: extract time and date from ftime */
-static std::string parse_time(const std::string &ftime)
-{
-	std::tm tm, curr;
-	time_t t, now;
-	std::ostringstream out;
-	std::istringstream ss(ftime);
-
-#ifdef __linux__
-	ss.imbue(std::locale("en_US.utf-8"));
-#endif
-#ifdef _WIN32
-	ss.imbue(std::locale("en-US"));
-#endif
-	ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
-	tm.tm_isdst = 0;
-	t = std::mktime(&tm);
-
-	now = time(NULL);
-	curr = *std::gmtime(&now);
-	curr.tm_isdst = 0;
-	now = std::mktime(&curr);
-
-	out << utils::conv_time(now - t);
-	out << " (since " << std::put_time(&tm, "%H:%M:%S UTC, %d %b %Y") << ")";
-
-	return out.str();
+		+ utils::parse_time(response["created_at"].asString(), true)
+		+ ".";
 }

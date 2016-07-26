@@ -2,7 +2,9 @@
 #include <cstring>
 #include <cpr/cpr.h>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <locale>
 #include <sstream>
 #include <tw/oauth.h>
 #include <unordered_map>
@@ -269,4 +271,36 @@ std::string utils::decode(const std::string &s)
 		out += s[i] == '\n' ? ' ' : s[i];
 	}
 	return out;
+}
+
+/* parse_time: extract time and date from ftime */
+std::string utils::parse_time(const std::string &ftime, bool since)
+{
+	std::tm tm, curr;
+	time_t t, now;
+	std::ostringstream out;
+	std::istringstream ss(ftime);
+
+#ifdef __linux__
+	ss.imbue(std::locale("en_US.utf-8"));
+#endif
+#ifdef _WIN32
+	ss.imbue(std::locale("en-US"));
+#endif
+	ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
+	tm.tm_isdst = 0;
+	t = std::mktime(&tm);
+
+	now = time(NULL);
+	curr = *std::gmtime(&now);
+	curr.tm_isdst = 0;
+	now = std::mktime(&curr);
+
+	out << utils::conv_time(now - t);
+	if (since) {
+		out << " (since ";
+		out << std::put_time(&tm, "%H:%M:%S UTC, %d %b %Y") << ")";
+	}
+
+	return out.str();
 }

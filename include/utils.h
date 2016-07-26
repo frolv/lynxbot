@@ -34,4 +34,6 @@ namespace utils {
 	std::string upload(const std::string &s);
 	/* decode: decode html encoded string */
 	std::string decode(const std::string &s);
+	/* parse_time: extract time and date from ftime */
+	std::string parse_time(const std::string &ftime, bool since);
 }
