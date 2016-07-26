@@ -84,20 +84,22 @@ static bool lookup_player(const std::string &rsn, std::string &res)
 
 	resp = cpr::Get(cpr::Url("http://" + CML_HOST + EHP_API + rsn),
 			cpr::Header{{ "Connection", "close" }});
-	if (resp.text == "-4") {
+	if (resp.text == "-3" || resp.text == "-4") {
 		res = "could not reach CML API, try again";
 		return false;
 	}
 
 	utils::split(resp.text, ',', elems);
-	if (elems.size() == 4) {
+	if (elems.size() >= 3) {
 		std::string &ehp = elems[2];
 		if ((dot = ehp.find(".")) != std::string::npos) {
 			/* truncate to one decimal place */
 			ehp = ehp.substr(0, dot + 2);
 		}
 		res = "Name: " + elems[1] + ", Rank: " + elems[0] + ", EHP: "
-			+ ehp + " (+" + elems[3] + " this week)";
+			+ ehp + " (+";
+		res += elems.size() == 4 ? elems[3] : "0.00";
+		res += " this week)";
 		return true;
 	} else {
 		res = "player '" + rsn + "' does not exist or has not been "
