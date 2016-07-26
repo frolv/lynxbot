@@ -62,7 +62,7 @@ std::string CommandHandler::cml(struct cmdinfo *c)
 			page = SC;
 			break;
 		case 't':
-			if (strcasecmp(op.optarg(), "ehp") == 0) {
+			if (std::string(op.optarg()) == "ehp") {
 				id = 99;
 				break;
 			}
