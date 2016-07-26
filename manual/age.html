@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>followage(1) - LynxBot</title>
+    <title>age(1) - LynxBot</title>
   </head>
 
   <body>
@@ -32,27 +32,33 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>followage(1) - LynxBot manual</h2>
+        <h2>age(1) - LynxBot manual</h2>
 
         <h3>NAME</h3>
-        <p>followage - check how long you have been following a channel</p>
+        <p>age - check length of channel relationships</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$followage</code></pre>
+        <pre><code>$age <-f|-s></code></pre>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>followage</strong> informs a user how long they have been
-        following the bot's channel.</p>
+        <p><strong>age</strong> checks how long a user has been following
+        or subscribed to the bot's channel.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
+          <dt><b>-f, --follow</b></dt>
+          <dd>check how long user has been follwing channel</dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
+          <dt><b>-s, --sub</b></dt>
+          <dd>check how long user has been subscribed to channel</dd>
         </dl>
 
         <h3>EXAMPLES</h3>
         <p>Shows how long you have been following the channel:</p>
-        <pre><code>$followage</code></pre>
+        <pre><code>$age -f</code></pre>
+        <p>Shows how long you have been subscribed to the channel:</p>
+        <pre><code>$age --sub</code></pre>
 
         <h3>SEE ALSO</h3>
         <p><a href="twitch-authorization">Twitch Authorization(3)</a></p>

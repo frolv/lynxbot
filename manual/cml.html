@@ -38,7 +38,7 @@
         <p>cml - interact with crystalmathlabs trackers</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$cml [-s] [-nu] [<u>RSN</u>]</code></pre>
+        <pre><code>$cml [-s|-v] [-nu] [-t <u>SKILL</u>] [<u>RSN</u>]</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>cml</strong> is used to interact with players'
@@ -53,6 +53,9 @@
         <p>The <strong>-u</strong> option makes <strong>cml</strong> update the
         given player's tracker.</p>
 
+        <p>The <strong>-t</strong> option looks up the weekly current top
+        players for a given skill.</p>
+
         <p>As with all commands taking a RSN, the period <strong>.</strong> and
         the <strong>-n</strong> option can be used to access stored RSNs.</p>
 
@@ -64,10 +67,14 @@
           <dd>search using a Twitch nick rather than a RSN. When set, the
           argument <u>RSN</u> is interpreted as a Twitch username
           and its corresponding RSN is looked up.</dd>
-          <dt><b>-s, --suppliescalc</b></dt>
+          <dt><b>-s, --supplies-calc</b></dt>
           <dd>link to the CML supplies calc</dd>
+          <dt><b>-t, --current-top=<u>SKILL</u></b></dt>
+          <dd>look up current top players in <u>SKILL</u></dd>
           <dt><b>-u, --update</b></dt>
           <dd>update the CML tracker of the player <u>RSN</u></dd>
+          <dt><b>-v, --virtual-hiscores</b></dt>
+          <dd>link to the CML supplies calc</dd>
         </dl>
 
         <h3>EXAMPLES</h3>
@@ -87,6 +94,9 @@
         <p>Updates the CML tracker of the account associated with the Twitch
         user randalicious:</p>
         <pre><code>$cml -nu randalicious</code></pre>
+
+        <p>Looks up current top players in Farming:</p>
+        <pre><code>$cml -t farming</code></pre>
 
         <h3>SEE ALSO</h3>
         <p><a href="ehp.html">ehp(1)</a>, <a href="rsn.html">rsn(1)</a>,
