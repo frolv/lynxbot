@@ -38,13 +38,13 @@
         <p>cgrep - find commands matching a pattern</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$cgrep [-cdi] PATTERN</code></pre>
+        <pre><code>$cgrep [-ai] [-c|-d] <u>PATTERN</u></code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>cgrep</strong> searches through default and custom bot
-        commands for those matching the given <strong>PATTERN</strong>.</p>
+        commands for those matching the given <u>PATTERN</u>.</p>
 
-        <p>The <strong>PATTERN</strong> is a valid regular expression.</p>
+        <p>The <u>PATTERN</u> is a valid regular expression.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
@@ -55,8 +55,7 @@
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
           <dt><b>-i, --ignore-case</b></dt>
-          <dd>ignore case distinctions in the <strong>PATTERN</strong> and
-          commands</dd>
+          <dd>ignore case distinctions in the <u>PATTERN</u> and commands</dd>
         </dl>
 
         <h3>EXAMPLES</h3>

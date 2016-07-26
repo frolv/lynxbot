@@ -38,24 +38,31 @@
         <p>xp - query experience informat</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$xp [-i] NUM</code></pre>
+        <pre><code>$xp [-i] <u>NUM</u></code></pre>
+        <pre><code>$xp -r <u>START</u>-<u>STOP</u></code></pre>
 
         <h3>DESCRIPTION</h3>
         <p>The <strong>xp</strong> command converts levels to experience and
         vice-versa.</p>
 
-        <p>By default <strong>NUM</strong> is interpreted as a level, and the
+        <p>By default <u>NUM</u> is interpreted as a level, and the
         xp required for it is printed. The <strong>-i</strong> flag inverts this
-        behaviour and interprets <strong>NUM</strong> as an amount of
+        behaviour and interprets <u>NUM</u> as an amount of
         experience.</p>
+
+        <p>Alternatively, with the <strong>-r</strong> option,
+        <strong>xp</strong> can be used to caculate the amount of experience
+        between levels <u>START</u> and <u>STOP</u>.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
           <dt><b>-i, --invert</b></dt>
-          <dd>interpret <strong>NUM</strong> as an amount of xp and print
-          the corresponding level</dd>
+          <dd>interpret <u>NUM</u> as an amount of xp and print
+          <dt><b>-r, --range</b></dt>
+          <dd>calculate the amount of xp between levels <u>START</u>
+          and <u>STOP</u></dd>
         </dl>
 
         <h3>EXAMPLES</h3>

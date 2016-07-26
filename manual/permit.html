@@ -38,22 +38,21 @@
         <p>permit - grant user permission to post urls</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$permit [-n AMT] [-s] USER</code></pre>
+        <pre><code>$permit [-n <u>AMT</u>] [-s] <u>USER</u></code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>permit</strong> grants a user permission to post a single
         URL in the chat without being timed out. The permission expires after
         the user has posted a URL that is not on the bot's whitelist.</p>
 
-        <p><strong>USER</strong> is the Twitch username of the user being
-        permitted.</p>
+        <p><u>USER</u> is the Twitch username of the user being permitted.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
-          <dt><b>-n, --amount=AMT</b></dt>
-          <dd>grant user permission to post <strong>AMT</strong>links</dd>
+          <dt><b>-n, --amount=<u>AMT</u></b></dt>
+          <dd>grant user permission to post <u>AMT</u> links</dd>
           <dt><b>-s, --session</b></dt>
           <dd>grant user permission to post URLs for duration of session</dd>
         </dl>

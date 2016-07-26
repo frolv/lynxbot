@@ -38,28 +38,27 @@
         <p>editcom - modify a custom command</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$editcom [-a on|off] [-c CD] CMD [RESPONSE]</code></pre>
-        <pre><code>$editcom -r OLD NEW</code></pre>
+        <pre><code>$editcom [-A on|off] [-a] [-c <u>CD</u>] <u>CMD</u> [<u>RESPONSE</u>]</code></pre>
+        <pre><code>$editcom -r <u>OLD</u> <u>NEW</u></code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>editcom</strong> is used to modify custom LynxBot
         commands.</p>
 
-        <p><strong>CMD</strong> is the keyword that activates the command,
+        <p><u>CMD</u> is the keyword that activates the command,
         <u>without</u> the leading dollar sign <strong>$</strong>.</p>
 
-        <p>At least one of <strong>CD</strong>, <strong>RESPONSE</strong>
-        or the <strong>-a</strong> option must be given.</p>
+        <p>At least one of <u>CD</u>, <u>RESPONSE</u> or the <strong>-A</strong>
+        option must be given.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
           <dt><b>-a, --active={on,off}</b></dt>
           <dd>enable or disable the command</dd>
-          <dt><b>-c, --cooldown=CD</b></dt>
-          <dd>set the cooldown of the command to <strong>CD</strong> seconds</dd>
+          <dt><b>-c, --cooldown=<u>CD</u></b></dt>
+          <dd>set the cooldown of the command to <u>CD</u> seconds</dd>
           <dt><b>-r, --rename</b></dt>
-          <dd>change the keyword of command <strong>OLD</strong> to
-          <strong>NEW</strong></dd>
+          <dd>change the keyword of command <u>OLD</u> to <u>NEW</u></dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
         </dl>
