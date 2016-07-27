@@ -13,8 +13,8 @@ class Client {
 		~Client();
 		bool cconnect();
 		void cdisconnect();
-		int32_t cwrite(const std::string &msg);
-		int32_t cread(std::string &msg);
+		int32_t cwrite(const char *msg);
+		int32_t cread(char *buf, size_t sz);
 	private:
 		const char *m_serv, *m_port;
 		bool m_connected;

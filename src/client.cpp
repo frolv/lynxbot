@@ -17,8 +17,6 @@
 
 #include "client.h"
 
-#define MAX_SIZE 2048
-
 Client::Client(const char *serv, const char *port)
 	:m_serv(serv), m_port(port)
 {
@@ -55,36 +53,33 @@ void Client::cdisconnect()
 	}
 }
 
-int32_t Client::cwrite(const std::string &msg)
+int32_t Client::cwrite(const char *msg)
 {
 	if (!m_connected)
 		return -1;
 #ifdef __linux__
-	return write(m_fd, msg.c_str(), msg.length());
+	return write(m_fd, msg, strlen(msg));
 #endif
 #ifdef _WIN32
-	return send(m_socket, msg.c_str(), msg.length(), NULL);
+	return send(m_socket, msg, strlen(msg), NULL);
 #endif
 }
 
-int32_t Client::cread(std::string &msg)
+int32_t Client::cread(char *buf, size_t sz)
 {
 	int32_t bytes;
-	char buf[MAX_SIZE];
 
 	if (!m_connected)
 		return -1;
 
 #ifdef __linux__
-	bytes = read(m_fd, buf, MAX_SIZE - 1);
+	bytes = read(m_fd, buf, sz - 1);
 #endif
 #ifdef _WIN32
-	bytes = recv(m_socket, buf, MAX_SIZE - 1, 0);
+	bytes = recv(m_socket, buf, sz - 1, 0);
 #endif
-	if (bytes > 0) {
+	if (bytes >= 0)
 		buf[bytes] = '\0';
-		msg = std::string(buf);
-	}
 	return bytes;
 }
 

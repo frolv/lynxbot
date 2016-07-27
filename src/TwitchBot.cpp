@@ -1,4 +1,5 @@
 #include <cpr/cpr.h>
+#include <cstdio>
 #include <fstream>
 #include <regex>
 #include <tw/reader.h>
@@ -6,6 +7,8 @@
 #include "permissions.h"
 #include "TwitchBot.h"
 #include "version.h"
+
+#define MAX_LEN 1024
 
 static const char *TWITCH_SERV = "irc.twitch.tv";
 static const char *TWITCH_PORT = "80";
@@ -76,16 +79,17 @@ void TwitchBot::disconnect()
 /* serverLoop: continously receive and process data */
 void TwitchBot::serverLoop()
 {
-	std::string msg;
+	char buf[MAX_LEN];
+
 	/* continously receive data from server */
 	while (true) {
-		if (m_client.cread(msg) <= 0) {
-			std::cerr << "No data received. Exiting." << std::endl;
+		if (m_client.cread(buf, MAX_LEN) <= 0) {
+			fprintf(stderr, "No data received. Exiting.\n");
 			disconnect();
 			break;
 		}
-		std::cout << "[RECV] " << msg << std::endl;
-		processData(msg);
+		printf("[RECV] %s\n", buf);
+		processData(std::string(buf));
 		if (!m_connected)
 			break;
 	}
@@ -98,9 +102,9 @@ bool TwitchBot::sendData(const std::string &data)
 	std::string formatted = data
 		+ (utils::endsWith(data, "\r\n") ? "" : "\r\n");
 	/* send formatted data */
-	int32_t bytes = m_client.cwrite(formatted);
-	std::cout << (bytes > 0 ? "[SENT] " : "Failed to send: ")
-		<< formatted << std::endl;
+	int32_t bytes = m_client.cwrite(formatted.c_str());
+	printf("%s %s\n", bytes > 0 ? "[SENT]" : "Failed to send:",
+			formatted.c_str());
 
 	/* return true iff data was sent succesfully */
 	return bytes > 0;
