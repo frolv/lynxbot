@@ -504,7 +504,7 @@ static int mergeimg(const char *conf)
 
 	s = strcpy(back, conf) + strlen(conf);
 	i = rand() % 5;
-	_sprintf(s, "/img/back%d.jpg", i);
+	_sprintf(s, MAX_PATH, "/img/back%d.jpg", i);
 
 	switch (fork()) {
 	case -1:

@@ -212,30 +212,33 @@ void OptionParser::puterr(int type)
 {
 	switch (type) {
 	case UNREC_TOK:
-		_sprintf(m_opterr, "%s: char %lu: unexpected token -- '%c'",
-				m_cmd, m_optind + 1, m_cmdstr[m_optind]);
+		_sprintf(m_opterr, ERR_SIZE, "%s: char %lu: unexpected "
+				"token -- '%c'", m_cmd, m_optind + 1,
+				m_cmdstr[m_optind]);
 		break;
 	case INVAL_OPT:
-		_sprintf(m_opterr, "%s: invalid option -- '%c'", m_cmd, m_optopt);
-		break;
-	case NOPRV_ARG:
-		_sprintf(m_opterr, "%s: option requires an argument -- '%c'",
+		_sprintf(m_opterr, ERR_SIZE, "%s: invalid option -- '%c'",
 				m_cmd, m_optopt);
 		break;
+	case NOPRV_ARG:
+		_sprintf(m_opterr, ERR_SIZE, "%s: option requires an "
+				"argument -- '%c'", m_cmd, m_optopt);
+		break;
 	case UNREC_LNG:
-		_sprintf(m_opterr, "%s: unrecognized option '--%s'", m_cmd,
-				m_longopt);
+		_sprintf(m_opterr, ERR_SIZE, "%s: unrecognized option "
+				"'--%s'", m_cmd, m_longopt);
 		break;
 	case INVAL_ARG:
-		_sprintf(m_opterr, "%s: option '--%s' doesn't allow an argument",
-				m_cmd, m_longopt);
+		_sprintf(m_opterr, ERR_SIZE, "%s: option '--%s' doesn't "
+				"allow an argument", m_cmd, m_longopt);
 		break;
 	case NOARG_LNG:
-		_sprintf(m_opterr, "%s: option '--%s' requires an argument",
-				m_cmd, m_longopt);
+		_sprintf(m_opterr, ERR_SIZE, "%s: option '--%s' requires "
+				"an argument", m_cmd, m_longopt);
 		break;
 	default:
-		_sprintf(m_opterr, "%s: could not parse options", m_cmd);
+		_sprintf(m_opterr, ERR_SIZE, "%s: could not parse options",
+				m_cmd);
 		break;
 	}
 }
