@@ -27,13 +27,15 @@ class TwitchBot {
 			const std::string &password, const std::string &token,
 			ConfigReader *cfgr);
 		~TwitchBot();
-		bool isConnected() const;
+		bool connected() const;
+		bool connect();
 		void disconnect();
 		void server_loop();
 
 	private:
 		bool m_connected;
 		/* twitch.tv information */
+		const char *m_password;
 		const std::string m_nick;
 		const std::string m_channel;
 		const std::string m_token;

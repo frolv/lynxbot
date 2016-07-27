@@ -144,7 +144,7 @@ void launchBot(struct botset *b, ConfigReader *cfgr)
 {
 	TwitchBot bot(b->name, b->channel, b->pass, b->access_token, cfgr);
 
-	if (bot.isConnected())
+	if (bot.connect())
 		bot.server_loop();
 }
 

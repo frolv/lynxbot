@@ -18,49 +18,28 @@ static std::string urltitle(const std::string &resp);
 TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 		const std::string &password, const std::string &token,
 		ConfigReader *cfgr)
-	: m_connected(false), m_nick(nick), m_channel(channel),
-	m_token(token), m_client(TWITCH_SERV, TWITCH_PORT),
+	: m_connected(false), m_password(password.c_str()), m_nick(nick),
+	m_channel(channel), m_token(token), m_client(TWITCH_SERV, TWITCH_PORT),
 	m_cmdHandler(nick, channel.substr(1), token, &m_mod, &m_parser,
 			&m_event, &m_giveaway, cfgr, &m_auth), m_cfgr(cfgr),
 	m_event(cfgr), m_giveaway(channel.substr(1), time(nullptr), cfgr),
 	m_mod(&m_parser, cfgr)
 {
 	std::string err;
-	char buf[MAX_LEN];
 
-	if ((m_connected = m_client.cconnect())) {
-		/* send required IRC data: PASS, NICK, USER */
-		_sprintf(buf, MAX_LEN, "PASS %s", password.c_str());
-		send_raw(buf);
-		_sprintf(buf, MAX_LEN, "NICK %s", nick.c_str());
-		send_raw(buf);
-		_sprintf(buf, MAX_LEN, "USER %s", nick.c_str());
-		send_raw(buf);
+	/* create giveaway checking event */
+	m_event.add("checkgiveaway", 10, time(nullptr));
 
-		/* enable tags in PRIVMSGs */
-		_sprintf(buf, MAX_LEN, "CAP REQ :twitch.tv/tags");
-		send_raw(buf);
+	/* read the subscriber messages */
+	parseSubMsg(m_subMsg, "submessage");
+	parseSubMsg(m_resubMsg, "resubmessage");
 
-		/* join channel */
-		_sprintf(buf, MAX_LEN, "JOIN %s", channel.c_str());
-		send_raw(buf);
-
-		m_tick = std::thread(&TwitchBot::tick, this);
-
-		/* create giveaway checking event */
-		m_event.add("checkgiveaway", 10, time(nullptr));
-
-		/* read the subscriber messages */
-		parseSubMsg(m_subMsg, "submessage");
-		parseSubMsg(m_resubMsg, "resubmessage");
-
-		if (!utils::parseBool(m_urltitles, m_cfgr->get("url_titles"),
-					err)) {
-			std::cerr << m_cfgr->path() << ": url_titles: "
-				<< err << " (defaulting to true)" << std::endl;
-			m_urltitles = true;
-			std::cin.get();
-		}
+	if (!utils::parseBool(m_urltitles, m_cfgr->get("url_titles"),
+				err)) {
+		std::cerr << m_cfgr->path() << ": url_titles: "
+			<< err << " (defaulting to true)" << std::endl;
+		m_urltitles = true;
+		std::cin.get();
 	}
 }
 
@@ -69,9 +48,37 @@ TwitchBot::~TwitchBot()
 	m_client.cdisconnect();
 }
 
-bool TwitchBot::isConnected() const
+bool TwitchBot::connected() const
 {
 	return m_connected;
+}
+
+/* connect: connect to IRC */
+bool TwitchBot::connect()
+{
+	char buf[MAX_LEN];
+
+	if (!(m_connected = m_client.cconnect()))
+		return false;
+
+	/* send required IRC data: PASS, NICK, USER */
+	_sprintf(buf, MAX_LEN, "PASS %s", m_password);
+	send_raw(buf);
+	_sprintf(buf, MAX_LEN, "NICK %s", m_nick.c_str());
+	send_raw(buf);
+	_sprintf(buf, MAX_LEN, "USER %s", m_nick.c_str());
+	send_raw(buf);
+
+	/* enable tags in PRIVMSGs */
+	_sprintf(buf, MAX_LEN, "CAP REQ :twitch.tv/tags");
+	send_raw(buf);
+
+	/* join channel */
+	_sprintf(buf, MAX_LEN, "JOIN %s", m_channel.c_str());
+	send_raw(buf);
+
+	m_tick = std::thread(&TwitchBot::tick, this);
+	return true;
 }
 
 /* disconnect: disconnect from Twitch server */
@@ -170,7 +177,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 	cpr::Response resp;
 
 	if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
-			match, privmsgRegex)) {
+				match, privmsgRegex)) {
 
 		const std::string nick = match[3].str();
 		const std::string channel = match[4].str();
@@ -229,7 +236,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 			/* get the title of the url otherwise */
 			if (m_urltitles) {
 				resp = cpr::Get(cpr::Url(url->full),
-					cpr::Header{{ "Connection", "close" }});
+						cpr::Header{{ "Connection", "close" }});
 				std::string title;
 				std::string s = url->subdomain + url->domain;
 				if (!(title = urltitle(resp.text)).empty()) {
@@ -249,7 +256,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		return true;
 
 	} else if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(),
-			match, subRegex)) {
+				match, subRegex)) {
 		/* send sub/resub messages */
 		std::string nick, fmt, len;
 
