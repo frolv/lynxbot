@@ -4,14 +4,14 @@
 #include "../OptionParser.h"
 
 /* full name of the command */
-CMDNAME("help");
+CMDNAME("man");
 /* description of the command */
 CMDDESCR("view command reference manuals");
 /* command usage synopsis */
-CMDUSAGE("$help CMD");
+CMDUSAGE("$man CMD");
 
-/* help: view command reference manuals */
-std::string CommandHandler::help(struct cmdinfo *c)
+/* man: view command reference manuals */
+std::string CommandHandler::man(struct cmdinfo *c)
 {
 	std::string cmd, path;
 	Json::Value *ccmd;
@@ -41,13 +41,13 @@ std::string CommandHandler::help(struct cmdinfo *c)
 
 	path = std::string(BOT_WEBSITE) + "/manual/";
 	if (m_help.find(cmd) != m_help.end())
-		return "[HELP] " + path + m_help[cmd] + ".html";
+		return "[MAN] " + path + m_help[cmd] + ".html";
 
 	if (m_defaultCmds.find(cmd) != m_defaultCmds.end())
-		return "[HELP] " + path + cmd + ".html";
+		return "[MAN] " + path + cmd + ".html";
 
 	if (!(ccmd = m_customCmds->getcom(cmd))->empty())
-		return "[HELP] " + cmd + " is a custom command";
+		return "[MAN] " + cmd + " is a custom command";
 
-	return CMDNAME + ": not a bot command: " + cmd;
+	return CMDNAME + ": no manual entry for '" + cmd + "'";
 }

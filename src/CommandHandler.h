@@ -116,8 +116,8 @@ class CommandHandler {
 		std::string eightball(struct cmdinfo *c);
 		std::string fashiongen(struct cmdinfo *c);
 		std::string ge(struct cmdinfo *c);
-		std::string help(struct cmdinfo *c);
 		std::string level(struct cmdinfo *c);
+		std::string man(struct cmdinfo *c);
 		std::string manual(struct cmdinfo *c);
 		std::string pokemon(struct cmdinfo *c);
 		std::string rsn(struct cmdinfo *c);

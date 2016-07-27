@@ -211,9 +211,10 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["ehp"] = &CommandHandler::ehp;
 	m_defaultCmds["fashiongen"] = &CommandHandler::fashiongen;
 	m_defaultCmds["ge"] = &CommandHandler::ge;
-	m_defaultCmds["help"] = &CommandHandler::help;
+	m_defaultCmds["help"] = &CommandHandler::man;
 	m_defaultCmds["level"] = &CommandHandler::level;
 	m_defaultCmds["lvl"] = &CommandHandler::level;
+	m_defaultCmds["man"] = &CommandHandler::man;
 	m_defaultCmds["manual"] = &CommandHandler::manual;
 	m_defaultCmds["pokemon"] = &CommandHandler::pokemon;
 	m_defaultCmds["rsn"] = &CommandHandler::rsn;
