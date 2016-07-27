@@ -233,7 +233,6 @@ std::string utils::upload(const std::string &s)
 	cpr::Response resp;
 	size_t i;
 	std::string url;
-	std::cout << s << std::endl;
 
 	resp = cpr::Post(cpr::Url(PB), cpr::Body("c=" + tw::pencode(s, "\t\n")));
 
