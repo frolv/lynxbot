@@ -25,7 +25,7 @@ static std::string natureinfo(const std::string &nature);
 static std::string typeinfo(const std::string &type);
 
 /* pokemon: look up pokemon information */
-std::string CommandHandler::pokemon(struct cmdinfo *c)
+std::string CommandHandler::pokemon(struct command *c)
 {
 	int action;
 	std::string arg;

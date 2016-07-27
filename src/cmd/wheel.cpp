@@ -10,7 +10,7 @@ CMDDESCR("select items from various categories");
 CMDUSAGE("$WHEELCMD CATEGORY");
 
 /* wheel: select items from various categories */
-std::string CommandHandler::wheel(struct cmdinfo *c)
+std::string CommandHandler::wheel(struct command *c)
 {
 	std::string cmd, out;
 

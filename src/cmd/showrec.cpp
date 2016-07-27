@@ -10,7 +10,7 @@ CMDDESCR("show recurring messages");
 CMDUSAGE("$showrec [ID]");
 
 /* listrec: show recurring messages */
-std::string CommandHandler::showrec(struct cmdinfo *c)
+std::string CommandHandler::showrec(struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);

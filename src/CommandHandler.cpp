@@ -7,6 +7,8 @@
 #include "CommandHandler.h"
 #include "OptionParser.h"
 
+static void parse_cmd(const char *cmdstr, struct command *c);
+
 CommandHandler::CommandHandler(const std::string &name,
 		const std::string &channel, const std::string &token,
 		Moderator *mod, URLParser *urlp, EventManager *evtp,
@@ -67,7 +69,7 @@ std::string CommandHandler::processCommand(const std::string &nick,
 	/* the command is the first part of the string up to the first space */
 	std::string cmd = fullCmd.substr(0, fullCmd.find(' '));
 
-	struct cmdinfo c;
+	struct command c;
 	c.nick = nick;
 	c.cmd = cmd;
 	c.fullCmd = fullCmd;
@@ -204,7 +206,7 @@ void CommandHandler::populateCmds()
 	m_defaultCmds["age"] = &CommandHandler::age;
 	m_defaultCmds["calc"] = &CommandHandler::calc;
 	m_defaultCmds["cgrep"] = &CommandHandler::cgrep;
-	m_defaultCmds["cmdinfo"] = &CommandHandler::cmdinf;
+	m_defaultCmds["cmdinfo"] = &CommandHandler::cmdinfo;
 	m_defaultCmds["cml"] = &CommandHandler::cml;
 	m_defaultCmds["commands"] = &CommandHandler::manual;
 	m_defaultCmds["duck"] = &CommandHandler::duck;

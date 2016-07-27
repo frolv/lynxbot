@@ -11,7 +11,7 @@ CMDDESCR("view command reference manuals");
 CMDUSAGE("$man CMD");
 
 /* man: view command reference manuals */
-std::string CommandHandler::man(struct cmdinfo *c)
+std::string CommandHandler::man(struct command *c)
 {
 	std::string cmd, path;
 	Json::Value *ccmd;

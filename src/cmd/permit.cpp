@@ -11,7 +11,7 @@ CMDDESCR("grant user permission to post urls");
 CMDUSAGE("$permit [-n AMT] [-s] USER");
 
 /* permit: grant user permission to post a url */
-std::string CommandHandler::permit(struct cmdinfo *c)
+std::string CommandHandler::permit(struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);

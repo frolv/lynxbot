@@ -19,7 +19,7 @@ static const std::string RELEASE =
 	"https://github.com/frolv/lynxbot/releases/latest";
 
 /* about: print bot information */
-std::string CommandHandler::about(struct cmdinfo *c)
+std::string CommandHandler::about(struct command *c)
 {
 	int opt, type;
 	OptionParser op(c->fullCmd, "rs");

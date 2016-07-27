@@ -11,7 +11,7 @@ CMDDESCR("get information about a twitter user");
 CMDUSAGE("$twitter [-r] USER");
 
 /* twitter: get information about a twitter user */
-std::string CommandHandler::twitter(struct cmdinfo *c)
+std::string CommandHandler::twitter(struct command *c)
 {
 	std::string user;
 	bool recent;

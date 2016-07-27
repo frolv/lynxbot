@@ -8,7 +8,7 @@
 #include "../OptionParser.h"
 
 /* full name of the command */
-CMDNAME("cmdinfo");
+CMDNAME("command");
 /* description of the command */
 CMDDESCR("show information about a custom command");
 /* command usage synopsis */
@@ -20,7 +20,7 @@ static bool atime, crtime, creator, mtime, uses;
 static std::string info(Json::Value *cmd);
 
 /* cmdinfo: show information about a custom command */
-std::string CommandHandler::cmdinf(struct cmdinfo *c)
+std::string CommandHandler::cmdinfo(struct command *c)
 {
 	std::string cmd;
 

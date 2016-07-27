@@ -29,7 +29,7 @@ static int updatecml(const std::string &rsn, std::string &err);
 static std::string current_top(int id);
 
 /* cml: interact with crystalmathlabs trackers */
-std::string CommandHandler::cml(struct cmdinfo *c)
+std::string CommandHandler::cml(struct command *c)
 {
 	std::string output = "@" + c->nick + ", ";
 	std::string rsn, err;

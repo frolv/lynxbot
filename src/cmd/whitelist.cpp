@@ -10,7 +10,7 @@ CMDDESCR("exempt websites from moderation");
 CMDUSAGE("$whitelist [-d] [SITE]");
 
 /* whitelist: exempt websites from moderation */
-std::string CommandHandler::whitelist(struct cmdinfo *c)
+std::string CommandHandler::whitelist(struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);

@@ -32,15 +32,17 @@ class ConfigReader;
 class CommandHandler {
 
 	public:
-		struct cmdinfo {
+		struct command {
 			std::string nick;
+			int argc;
+			char **argv;
 			std::string cmd;
 			std::string fullCmd;
 			perm_t privileges;
 		};
 
 		typedef std::unordered_map<std::string,
-			std::string(CommandHandler::*)(CommandHandler::cmdinfo *)> commandMap;
+			std::string(CommandHandler::*)(CommandHandler::command *)> commandMap;
 
 		CommandHandler(const std::string &name, const std::string &channel,
 				const std::string &token, Moderator *mod,
@@ -104,43 +106,43 @@ class CommandHandler {
 		};
 
 		/* default bot commands */
-		std::string about(struct cmdinfo *c);
-		std::string active(struct cmdinfo *c);
-		std::string age(struct cmdinfo *c);
-		std::string calc(struct cmdinfo *c);
-		std::string cgrep(struct cmdinfo *c);
-		std::string cmdinf(struct cmdinfo *c);
-		std::string cml(struct cmdinfo *c);
-		std::string duck(struct cmdinfo *c);
-		std::string ehp(struct cmdinfo *c);
-		std::string eightball(struct cmdinfo *c);
-		std::string fashiongen(struct cmdinfo *c);
-		std::string ge(struct cmdinfo *c);
-		std::string level(struct cmdinfo *c);
-		std::string man(struct cmdinfo *c);
-		std::string manual(struct cmdinfo *c);
-		std::string pokemon(struct cmdinfo *c);
-		std::string rsn(struct cmdinfo *c);
-		std::string submit(struct cmdinfo *c);
-		std::string twitter(struct cmdinfo *c);
-		std::string uptime(struct cmdinfo *c);
-		std::string wheel(struct cmdinfo *c);
-		std::string xp(struct cmdinfo *c);
+		std::string about(struct command *c);
+		std::string active(struct command *c);
+		std::string age(struct command *c);
+		std::string calc(struct command *c);
+		std::string cgrep(struct command *c);
+		std::string cmdinfo(struct command *c);
+		std::string cml(struct command *c);
+		std::string duck(struct command *c);
+		std::string ehp(struct command *c);
+		std::string eightball(struct command *c);
+		std::string fashiongen(struct command *c);
+		std::string ge(struct command *c);
+		std::string level(struct command *c);
+		std::string man(struct command *c);
+		std::string manual(struct command *c);
+		std::string pokemon(struct command *c);
+		std::string rsn(struct command *c);
+		std::string submit(struct command *c);
+		std::string twitter(struct command *c);
+		std::string uptime(struct command *c);
+		std::string wheel(struct command *c);
+		std::string xp(struct command *c);
 
 		/* moderator only commands */
-		std::string addcom(struct cmdinfo *c);
-		std::string addrec(struct cmdinfo *c);
-		std::string count(struct cmdinfo *c);
-		std::string delcom(struct cmdinfo *c);
-		std::string delrec(struct cmdinfo *c);
-		std::string editcom(struct cmdinfo *c);
-		std::string permit(struct cmdinfo *c);
-		std::string setgiv(struct cmdinfo *c);
-		std::string setrec(struct cmdinfo *c);
-		std::string showrec(struct cmdinfo *c);
-		std::string status(struct cmdinfo *c);
-		std::string strawpoll(struct cmdinfo *c);
-		std::string whitelist(struct cmdinfo *c);
+		std::string addcom(struct command *c);
+		std::string addrec(struct command *c);
+		std::string count(struct command *c);
+		std::string delcom(struct command *c);
+		std::string delrec(struct command *c);
+		std::string editcom(struct command *c);
+		std::string permit(struct command *c);
+		std::string setgiv(struct command *c);
+		std::string setrec(struct command *c);
+		std::string showrec(struct command *c);
+		std::string status(struct command *c);
+		std::string strawpoll(struct command *c);
+		std::string whitelist(struct command *c);
 
 		/* helpers */
 		uint8_t source(const std::string &cmd);
@@ -155,7 +157,7 @@ class CustomCommandHandler {
 
 	public:
 		typedef std::unordered_map<std::string,
-			std::string(CommandHandler::*)(CommandHandler::cmdinfo *)> commandMap;
+			std::string(CommandHandler::*)(CommandHandler::command *)> commandMap;
 		CustomCommandHandler(commandMap *defaultCmds, TimerManager *tm,
 				const std::string &wheelCmd,
 				const std::string &name,

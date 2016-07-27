@@ -17,7 +17,7 @@ static int lvltoxp(int x);
 static std::string xprange(const std::string &args);
 
 /* xp: query experience information */
-std::string CommandHandler::xp(struct cmdinfo *c)
+std::string CommandHandler::xp(struct command *c)
 {
 	bool inv, range;
 	int x;

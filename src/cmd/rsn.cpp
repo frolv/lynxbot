@@ -17,7 +17,7 @@ static std::string rsn_action(RSNList *rsns, const std::string user,
 		const std::vector<std::string> &argv);
 
 /* rsn: view and manage stored rsns */
-std::string CommandHandler::rsn(struct cmdinfo *c)
+std::string CommandHandler::rsn(struct command *c)
 {
 	std::vector<std::string> argv;
 

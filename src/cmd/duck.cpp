@@ -13,7 +13,7 @@ CMDUSAGE("$duck QUERY");
 static const std::string DDG_QUERY = "https://duckduckgo.com/?q=";
 
 /* duck: search duckduckgo with a query string */
-std::string CommandHandler::duck(struct cmdinfo *c)
+std::string CommandHandler::duck(struct command *c)
 {
 	int opt;
 	OptionParser op(c->fullCmd, "");

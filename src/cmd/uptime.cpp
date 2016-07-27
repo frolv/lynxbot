@@ -18,7 +18,7 @@ static const std::string UPTIME_API = "https://api.twitch.tv/kraken/streams/";
 static std::string channel_uptime(const std::string &channel);
 
 /* uptime: check how long channel has been live */
-std::string CommandHandler::uptime(struct cmdinfo *c)
+std::string CommandHandler::uptime(struct command *c)
 {
 	std::string out;
 	bool bot;

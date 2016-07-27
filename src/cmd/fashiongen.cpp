@@ -14,7 +14,7 @@ CMDUSAGE("$fashiongen");
 static std::string gen_fashion(const Json::Value &items);
 
 /* fashiongen: generate an outfit */
-std::string CommandHandler::fashiongen(struct cmdinfo *c)
+std::string CommandHandler::fashiongen(struct command *c)
 {
 	int opt;
 	OptionParser op(c->fullCmd, "");

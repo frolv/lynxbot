@@ -12,7 +12,7 @@ CMDDESCR("perform basic calculations");
 CMDUSAGE("$calc EXPR");
 
 /* calc: perform basic calculations */
-std::string CommandHandler::calc(struct cmdinfo *c)
+std::string CommandHandler::calc(struct command *c)
 {
 	std::string expr;
 	std::ostringstream result;

@@ -25,7 +25,7 @@ static const std::string EHP_DESC = "[EHP] EHP stands for efficient hours "
 static bool lookup_player(const std::string &rsn, std::string &res);
 
 /* ehp: view players' ehp */
-std::string CommandHandler::ehp(struct cmdinfo *c)
+std::string CommandHandler::ehp(struct command *c)
 {
 	std::string output = "@" + c->nick + ", ";
 	std::string rsn, err, res;

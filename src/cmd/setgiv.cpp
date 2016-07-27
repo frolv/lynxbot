@@ -19,7 +19,7 @@ static std::string process(Giveaway *g, int8_t type, const std::string &set,
 		const std::string &nick, int amt);
 
 /* setgiv: change giveaway settings */
-std::string CommandHandler::setgiv(struct cmdinfo *c)
+std::string CommandHandler::setgiv(struct command *c)
 {
 	std::string set;
 	bool setfollowers, settimer, setimages;

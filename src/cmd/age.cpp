@@ -15,7 +15,7 @@ CMDUSAGE("age <-f|-s>");
 static const std::string TWITCH_API = "https://api.twitch.tv/kraken";
 
 /* followage: check how long you have been following a channel */
-std::string CommandHandler::age(struct cmdinfo *c)
+std::string CommandHandler::age(struct command *c)
 {
 	static cpr::Header head{{ "Accept","application/vnd.twitchtv.v3+json" },
 		{ "Authorization", "OAuth " + m_token }};

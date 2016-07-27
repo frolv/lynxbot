@@ -22,7 +22,7 @@ static std::string set_status(const std::string &channel,
 		std::string &err);
 
 /* status: set channel status */
-std::string CommandHandler::status(struct cmdinfo *c)
+std::string CommandHandler::status(struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);

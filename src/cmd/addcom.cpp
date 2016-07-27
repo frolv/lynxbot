@@ -13,7 +13,7 @@ static bool create(CustomCommandHandler *cch, const std::string &args,
 		const std::string &nick, time_t cooldown, std::string &res);
 
 /* addcom: create a new custom command */
-std::string CommandHandler::addcom(struct cmdinfo *c)
+std::string CommandHandler::addcom(struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);

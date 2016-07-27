@@ -20,7 +20,7 @@ static bool rename(CustomCommandHandler *cch, const std::string &args,
 		std::string &res);
 
 /* editcom: modify a custom command */
-std::string CommandHandler::editcom(struct cmdinfo *c)
+std::string CommandHandler::editcom(struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);
