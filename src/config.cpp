@@ -4,7 +4,7 @@
 #include <iostream>
 #include <utils.h>
 #include "config.h"
-#include "version.h"
+#include "lynxbot.h"
 
 static void removeLeading(std::string &s);
 static bool blank(const std::string &s);

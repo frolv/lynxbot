@@ -45,14 +45,14 @@ _LYNXBOT=main.o config.o client.o TwitchBot.o Moderator.o\
 	EventManager.o Giveaway.o skills.o RSNList.o
 LYNXBOT=$(patsubst %,$(OBJ)/%,$(_LYNXBOT))
 _LBH=client.h CommandHandler.h config.h EventManager.h ExpressionParser.h\
-     GEReader.h Giveaway.h Moderator.h OpMap.h OptionParser.h RSNList.h\
-     SelectionWheel.h skills.h TimerManager.h TwitchBot.h URLParser.h\
-     version.h
+     GEReader.h Giveaway.h lynxbot.h Moderator.h OpMap.h OptionParser.h\
+     RSNList.h SelectionWheel.h skills.h TimerManager.h TwitchBot.h\
+     URLParser.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
 _COMMANDS=age.o about.o active.o addcom.o addrec.o calc.o cgrep.o cmdinfo.o\
 	  cml.o count.o delcom.o delrec.o duck.o editcom.o ehp.o eightball.o\
-	  fashiongen.o ge.o help.o level.o manual.o permit.o pokemon.o rsn.o\
+	  fashiongen.o ge.o level.o man.o manual.o permit.o pokemon.o rsn.o\
 	  setgiv.o setrec.o showrec.o status.o strawpoll.o submit.o twitter.o\
 	  uptime.o wheel.o whitelist.o xp.o
 COMMANDS=$(patsubst %, $(OBJ)/cmd/%,$(_COMMANDS))

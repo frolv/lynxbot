@@ -11,8 +11,8 @@
 #include <string>
 #include <utils.h>
 #include "config.h"
+#include "lynxbot.h"
 #include "TwitchBot.h"
-#include "version.h"
 
 #ifdef __linux__
 # include <getopt.h>
@@ -145,7 +145,7 @@ void launchBot(struct botset *b, ConfigReader *cfgr)
 	TwitchBot bot(b->name, b->channel, b->pass, b->access_token, cfgr);
 
 	if (bot.isConnected())
-		bot.serverLoop();
+		bot.server_loop();
 }
 
 /* twitchAuth: interactively authorize LynxBot with a Twitch account */

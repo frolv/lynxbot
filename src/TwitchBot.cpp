@@ -4,9 +4,9 @@
 #include <regex>
 #include <tw/reader.h>
 #include <utils.h>
+#include "lynxbot.h"
 #include "permissions.h"
 #include "TwitchBot.h"
-#include "version.h"
 
 #define MAX_LEN 1024
 
@@ -18,7 +18,7 @@ static std::string urltitle(const std::string &resp);
 TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 		const std::string &password, const std::string &token,
 		ConfigReader *cfgr)
-	: m_connected(false), m_nick(nick), m_channelName(channel),
+	: m_connected(false), m_nick(nick), m_channel(channel),
 	m_token(token), m_client(TWITCH_SERV, TWITCH_PORT),
 	m_cmdHandler(nick, channel.substr(1), token, &m_mod, &m_parser,
 			&m_event, &m_giveaway, cfgr, &m_auth), m_cfgr(cfgr),
@@ -26,18 +26,24 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 	m_mod(&m_parser, cfgr)
 {
 	std::string err;
+	char buf[MAX_LEN];
 
 	if ((m_connected = m_client.cconnect())) {
 		/* send required IRC data: PASS, NICK, USER */
-		sendData("PASS " + password);
-		sendData("NICK " + nick);
-		sendData("USER " + nick);
+		_sprintf(buf, MAX_LEN, "PASS %s", password.c_str());
+		send_raw(buf);
+		_sprintf(buf, MAX_LEN, "NICK %s", nick.c_str());
+		send_raw(buf);
+		_sprintf(buf, MAX_LEN, "USER %s", nick.c_str());
+		send_raw(buf);
 
 		/* enable tags in PRIVMSGs */
-		sendData("CAP REQ :twitch.tv/tags");
+		_sprintf(buf, MAX_LEN, "CAP REQ :twitch.tv/tags");
+		send_raw(buf);
 
 		/* join channel */
-		sendData("JOIN " + channel);
+		_sprintf(buf, MAX_LEN, "JOIN %s", channel.c_str());
+		send_raw(buf);
 
 		m_tick = std::thread(&TwitchBot::tick, this);
 
@@ -76,8 +82,8 @@ void TwitchBot::disconnect()
 	m_tick.join();
 }
 
-/* serverLoop: continously receive and process data */
-void TwitchBot::serverLoop()
+/* server_loop: continously receive and process data */
+void TwitchBot::server_loop()
 {
 	char buf[MAX_LEN];
 
@@ -89,55 +95,65 @@ void TwitchBot::serverLoop()
 			break;
 		}
 		printf("[RECV] %s\n", buf);
-		processData(std::string(buf));
+		process_data(buf);
 		if (!m_connected)
 			break;
 	}
 }
 
-/* sendData: format data and write to client */
-bool TwitchBot::sendData(const std::string &data)
+/* send_raw: format data and send to client */
+bool TwitchBot::send_raw(char *data)
 {
-	/* format string by adding CRLF */
-	std::string formatted = data
-		+ (utils::endsWith(data, "\r\n") ? "" : "\r\n");
+	size_t end;
+	int bytes;
+
+	if ((end = strlen(data)) > MAX_LEN - 3) {
+		fprintf(stderr, "Message too long: %s\n", data);
+		return false;
+	}
+
+	if (data[end - 1] != '\n' && data[end - 2] != '\r')
+		strcpy(data + end, "\r\n");
+
 	/* send formatted data */
-	int32_t bytes = m_client.cwrite(formatted.c_str());
-	printf("%s %s\n", bytes > 0 ? "[SENT]" : "Failed to send:",
-			formatted.c_str());
+	bytes = m_client.cwrite(data);
+	printf("%s %s\n", bytes > 0 ? "[SENT]" : "Failed to send:", data);
 
 	/* return true iff data was sent succesfully */
 	return bytes > 0;
 }
 
-/* sendMsg: send a PRIVMSG to the connected channel */
-bool TwitchBot::sendMsg(const std::string &msg)
+/* send_msg: send a PRIVMSG to the connected channel */
+bool TwitchBot::send_msg(const std::string &msg)
 {
-	return sendData("PRIVMSG " + m_channelName + " :" + msg);
+	char buf[MAX_LEN];
+
+	_sprintf(buf, MAX_LEN, "PRIVMSG %s :%s", m_channel.c_str(), msg.c_str());
+	return send_raw(buf);
 }
 
 /* sendPong: send an IRC PONG */
-bool TwitchBot::sendPong(const std::string &ping)
+bool TwitchBot::pong(char *ping)
 {
 	/* first six chars are "PING :", server name starts after */
-	return sendData("PONG " + ping.substr(6));
+	strcpy(++ping, "PONG");
+	ping[4] = ' ';
+	return send_raw(ping);
 }
 
 /* processData: send data to designated function */
-void TwitchBot::processData(const std::string &data)
+void TwitchBot::process_data(char *data)
 {
-	if (data.find("Error logging in") != std::string::npos
-			|| data.find("Login unsuccessful")
-			!= std::string::npos) {
+	if (strstr(data, "PRIVMSG")) {
+		processPRIVMSG(std::string(data));
+	} else if (strstr(data, "PING")) {
+		pong(data);
+	} else if (strstr(data, "Error log") || strstr(data, "Login unsuccess")) {
 		disconnect();
-		std::cerr << "\nCould not log in to Twitch IRC.\nMake sure "
-			<< utils::configdir() << utils::config("config")
-			<< " is configured correctly." << std::endl;
-		std::cin.get();
-	} else if (utils::startsWith(data, "PING")) {
-		sendPong(data);
-	} else if (data.find("PRIVMSG") != std::string::npos) {
-		processPRIVMSG(data);
+		fprintf(stderr, "\nCould not login to Twitch IRC.\nMake sure "
+				"%s is configured correctly\n",
+				utils::config("config").c_str());
+		WAIT_INPUT();
 	}
 }
 
@@ -161,7 +177,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		const std::string msg = match[5].str();
 
 		/* confirm message is from current channel */
-		if (channel != m_channelName)
+		if (channel != m_channel)
 			return false;
 
 		/* set user privileges */
@@ -186,7 +202,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 			std::string output = m_cmdHandler.processCommand(
 					nick, msg.substr(1), p);
 			if (!output.empty())
-				sendMsg(output);
+				send_msg(output);
 			return true;
 		}
 
@@ -204,7 +220,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 			if (url->twitter && !url->tweetID.empty()) {
 				tw::Reader twr(&m_auth);
 				if (twr.read_tweet(url->tweetID)) {
-					sendMsg(twr.result());
+					send_msg(twr.result());
 					return true;
 				}
 				std::cerr << "could not read tweet" << std::endl;
@@ -217,7 +233,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 				std::string title;
 				std::string s = url->subdomain + url->domain;
 				if (!(title = urltitle(resp.text)).empty()) {
-					sendMsg("[URL] " + title
+					send_msg("[URL] " + title
 							+ " (at " + s + ")");
 					return true;
 				}
@@ -228,7 +244,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 		/* check for responses */
 		std::string output = m_cmdHandler.processResponse(msg);
 		if (!output.empty())
-			sendMsg("@" + nick + ", " + output);
+			send_msg("@" + nick + ", " + output);
 
 		return true;
 
@@ -246,7 +262,7 @@ bool TwitchBot::processPRIVMSG(const std::string &PRIVMSG)
 			len = match[3].str();
 		}
 		if (!fmt.empty())
-			sendMsg(formatSubMsg(fmt, nick, len));
+			send_msg(formatSubMsg(fmt, nick, len));
 		return true;
 
 	} else {
@@ -268,13 +284,13 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 		if (offenses < 4) {
 			/* timeout for 2^(offenses - 1) minutes */
 			uint16_t t = 60 * (uint16_t)pow(2, offenses - 1);
-			sendMsg("/timeout " + nick + " " + std::to_string(t));
+			send_msg("/timeout " + nick + " " + std::to_string(t));
 			warning = warnings[offenses - 1] + " warning";
 		} else {
-			sendMsg("/ban " + nick);
+			send_msg("/ban " + nick);
 			warning = "Permanently banned";
 		}
-		sendMsg(nick + " - " + reason + " (" + warning + ")");
+		send_msg(nick + " - " + reason + " (" + warning + ")");
 		return true;
 	}
 
@@ -290,14 +306,14 @@ void TwitchBot::tick()
 				i < m_event.messages()->size(); ++i) {
 			if (m_event.ready("msg" + std::to_string(i))) {
 				if (m_event.messagesActive())
-					sendMsg(((*m_event.messages())[i]).first);
+					send_msg(((*m_event.messages())[i]).first);
 				m_event.setUsed("msg" + std::to_string(i));
 				break;
 			}
 		}
 		if (m_giveaway.active() && m_event.ready("checkgiveaway")) {
 			if (m_giveaway.checkConditions(time(nullptr)))
-				sendMsg(m_giveaway.giveaway());
+				send_msg(m_giveaway.giveaway());
 			m_event.setUsed("checkgiveaway");
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -359,7 +375,7 @@ std::string TwitchBot::formatSubMsg(const std::string &format,
 			ins = "@" + n + ",";
 			break;
 		case 'c':
-			ins = m_channelName.substr(1);
+			ins = m_channel.substr(1);
 			break;
 		case 'm':
 			ins = m;

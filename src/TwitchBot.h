@@ -29,13 +29,13 @@ class TwitchBot {
 		~TwitchBot();
 		bool isConnected() const;
 		void disconnect();
-		void serverLoop();
+		void server_loop();
 
 	private:
 		bool m_connected;
 		/* twitch.tv information */
 		const std::string m_nick;
-		const std::string m_channelName;
+		const std::string m_channel;
 		const std::string m_token;
 
 		tw::Authenticator m_auth;
@@ -52,10 +52,10 @@ class TwitchBot {
 		std::thread m_tick;
 		bool m_urltitles;
 
-		bool sendData(const std::string &data);
-		bool sendMsg(const std::string &msg);
-		bool sendPong(const std::string &ping);
-		void processData(const std::string &data);
+		bool send_raw(char *data);
+		bool send_msg(const std::string &msg);
+		bool pong(char *ping);
+		void process_data(char *data);
 		bool processPRIVMSG(const std::string &PRIVMSG);
 		bool moderate(const std::string &nick, const std::string &msg);
 		void tick();

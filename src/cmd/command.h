@@ -4,7 +4,7 @@
 /* command.h: macros to standardize command definitions */
 
 #include <string>
-#include "../version.h"
+#include "../lynxbot.h"
 
 #define CMDNAME(x) const static std::string CMDNAME = x
 #define CMDDESCR(x) const static std::string CMDDESCR = x

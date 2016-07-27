@@ -7,7 +7,7 @@
 #include "CommandHandler.h"
 #include "OptionParser.h"
 
-static void parse_cmd(const char *cmdstr, struct command *c);
+static void parse_cmd(const char *cmdstr, struct CommandHandler::command *c);
 
 CommandHandler::CommandHandler(const std::string &name,
 		const std::string &channel, const std::string &token,
@@ -74,6 +74,7 @@ std::string CommandHandler::processCommand(const std::string &nick,
 	c.cmd = cmd;
 	c.fullCmd = fullCmd;
 	c.privileges = p;
+	parse_cmd(fullCmd.c_str(), &c);
 
 	/* custom command */
 	Json::Value *ccmd;
@@ -282,4 +283,9 @@ void CommandHandler::populateHelp()
 	m_help["twitch-autorization"] = "twitch-authorization";
 	m_help["auth"] = "twitch-authorization";
 	m_help["authorization"] = "twitch-authorization";
+}
+
+/* parse_cmd: split cmdstr into argv of c */
+static void parse_cmd(const char *cmdstr, struct CommandHandler::command *c)
+{
 }

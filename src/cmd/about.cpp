@@ -1,7 +1,6 @@
 #include "command.h"
 #include "../CommandHandler.h"
 #include "../OptionParser.h"
-#include "../version.h"
 
 #define ABT 0
 #define REL 1
