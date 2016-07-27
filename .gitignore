@@ -10,7 +10,8 @@ bot.VC.opendb
 Release/
 obj/
 doc
-lynxbot*
+lynxbot
+lynxbot-d
 *.o
 *.swp
 itemgen
