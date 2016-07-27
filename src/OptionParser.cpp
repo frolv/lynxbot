@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstring>
+#include "lynxbot.h"
 #include "OptionParser.h"
 
 #define INV_OPT (-1)
@@ -211,30 +212,30 @@ void OptionParser::puterr(int type)
 {
 	switch (type) {
 	case UNREC_TOK:
-		sprintf(m_opterr, "%s: char %lu: unexpected token -- '%c'",
+		_sprintf(m_opterr, "%s: char %lu: unexpected token -- '%c'",
 				m_cmd, m_optind + 1, m_cmdstr[m_optind]);
 		break;
 	case INVAL_OPT:
-		sprintf(m_opterr, "%s: invalid option -- '%c'", m_cmd, m_optopt);
+		_sprintf(m_opterr, "%s: invalid option -- '%c'", m_cmd, m_optopt);
 		break;
 	case NOPRV_ARG:
-		sprintf(m_opterr, "%s: option requires an argument -- '%c'",
+		_sprintf(m_opterr, "%s: option requires an argument -- '%c'",
 				m_cmd, m_optopt);
 		break;
 	case UNREC_LNG:
-		sprintf(m_opterr, "%s: unrecognized option '--%s'", m_cmd,
+		_sprintf(m_opterr, "%s: unrecognized option '--%s'", m_cmd,
 				m_longopt);
 		break;
 	case INVAL_ARG:
-		sprintf(m_opterr, "%s: option '--%s' doesn't allow an argument",
+		_sprintf(m_opterr, "%s: option '--%s' doesn't allow an argument",
 				m_cmd, m_longopt);
 		break;
 	case NOARG_LNG:
-		sprintf(m_opterr, "%s: option '--%s' requires an argument",
+		_sprintf(m_opterr, "%s: option '--%s' requires an argument",
 				m_cmd, m_longopt);
 		break;
 	default:
-		sprintf(m_opterr, "%s: could not parse options", m_cmd);
+		_sprintf(m_opterr, "%s: could not parse options", m_cmd);
 		break;
 	}
 }

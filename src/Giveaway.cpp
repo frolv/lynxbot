@@ -7,6 +7,7 @@
 #include <random>
 #include <utils.h>
 #include "Giveaway.h"
+#include "lynxbot.h"
 
 #ifdef __linux__
 # include <stdio.h>
@@ -503,7 +504,7 @@ static int mergeimg(const char *conf)
 
 	s = strcpy(back, conf) + strlen(conf);
 	i = rand() % 5;
-	sprintf(s, "/img/back%d.jpg", i);
+	_sprintf(s, "/img/back%d.jpg", i);
 
 	switch (fork()) {
 	case -1:
