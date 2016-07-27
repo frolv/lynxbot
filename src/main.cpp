@@ -33,7 +33,7 @@ static const char *RELEASE_API =
 
 /* bot information */
 const char *BOT_NAME = "LynxBot";
-const char *BOT_VERSION = "v1.4.3";
+const char *BOT_VERSION = "v1.4.4-beta";
 const char *BOT_WEBSITE = "https://frolv.github.io/lynxbot";
 
 struct botset {
@@ -225,6 +225,9 @@ void checkupdates()
 	Json::Value js;
 	Json::Reader reader;
 	char c;
+
+	if (strstr(BOT_VERSION, "-beta"))
+		return;
 
 	cpr::Response resp = cpr::Get(cpr::Url(RELEASE_API),
 			cpr::Header{{ "Accept", accept }});
