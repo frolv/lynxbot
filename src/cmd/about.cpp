@@ -1,5 +1,6 @@
 #include "command.h"
 #include "../CommandHandler.h"
+#include "../option.h"
 #include "../OptionParser.h"
 
 #define ABT 0
@@ -31,6 +32,7 @@ std::string CommandHandler::about(char *out, struct command *c)
 		{ 0, 0, 0 }
 	};
 
+	opt_init();
 	type = ABT;
 	while ((opt = op.getopt_long(long_opts)) != EOF) {
 		switch (opt) {

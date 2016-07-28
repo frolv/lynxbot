@@ -17,10 +17,12 @@ CXXFLAGS=$(INC) -Wall -Wextra -c -std=c++14
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
 	CXXFLAGS+=-DDEBUG -g
+	CFLAGS+=-DDEBUG -g
 	OBJ:=$(OBJ)/debug
 	PROGNAME:=$(PROGNAME)-d
 else
 	CXXFLAGS+=-O2
+	CFLAGS+=-O2
 	OBJ:=$(OBJ)/release
 	OFLAGS=-s
 endif
@@ -39,16 +41,21 @@ _JSONH=json.h json-forwards.h
 JSONH=$(patsubst %,include/json/%,$(_JSONH))
 JSOND=$(LIBD)/json
 
-_LYNXBOT=main.o config.o client.o TwitchBot.o Moderator.o\
-	URLParser.o CommandHandler.o CustomCommandHandler.o TimerManager.o\
-	GEReader.o ExpressionParser.o OpMap.o OptionParser.o SelectionWheel.o\
-	EventManager.o Giveaway.o skills.o RSNList.o cmdparse.o
+_LYNXBOT=client.o cmdparse.o CommandHandler.o config.o CustomCommandHandler.o\
+	 EventManager.o ExpressionParser.o GEReader.o Giveaway.o main.o\
+	 Moderator.o OpMap.o OptionParser.o RSNList.o SelectionWheel.o\
+	 skills.o TimerManager.o TwitchBot.o URLParser.o
 LYNXBOT=$(patsubst %,$(OBJ)/%,$(_LYNXBOT))
 _LBH=client.h cmdparse.h CommandHandler.h config.h EventManager.h\
      ExpressionParser.h GEReader.h Giveaway.h lynxbot.h Moderator.h OpMap.h\
      OptionParser.h RSNList.h SelectionWheel.h skills.h TimerManager.h\
      TwitchBot.h URLParser.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
+
+_LYNXC=option.o
+LYNXC=$(patsubst %,$(OBJ)/%,$(_LYNXC))
+_LCH=option.h
+LCH=$(patsubst %,$(SRC)/%,$(_LCH))
 
 _COMMANDS=about.o active.o addcom.o addrec.o age.o calc.o cgrep.o cmdinfo.o\
 	  cml.o count.o delcom.o delrec.o duck.o editcom.o ehp.o eightball.o\
@@ -72,6 +79,9 @@ TWD=$(LIBD)/tw
 
 # lynxbot source
 $(OBJ)/%.o: $(SRC)/%.cpp $(LBH) $(LIBH)
+	$(CXX) $(CXXFLAGS) -o $@ $<
+# lynxc
+$(OBJ)/%.o: $(SRC)/%.c $(LCH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 $(OBJ)/%.o: $(LIBD)/%.cpp $(LIBH)
@@ -98,10 +108,10 @@ lynxbot: odir exec
 odir:
 	@mkdir -p $(OBJ)/cmd
 
-exec: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(COMMANDS) $(TW)
+exec: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(LYNXC) $(COMMANDS) $(TW)
 	$(CXX) ${OFLAGS} -o $(PROGNAME) $(LIB) $^
 
 .PHONY: clean
 
 clean:
-	rm -f $(PROGNAME) $(OBJ)/*.o
+	rm -f $(PROGNAME) $(OBJ)/*.o $(OBJ)/cmd/*.o
