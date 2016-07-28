@@ -29,6 +29,7 @@ int parse_cmd(char *cmdstr, struct CommandHandler::command *c)
 				return 0;
 			break;
 		case ' ':
+		case '\t':
 			c->argc++;
 			*s = '\0';
 			break;

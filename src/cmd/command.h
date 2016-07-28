@@ -25,12 +25,12 @@
 #define _CMDUSAGE(x) const static char *_CMDUSAGE = x
 
 /* print usage synposis, brief description and link to man page */
-#define _HELPMSG(buf,SZ,NAME,USAGE,DESC) _sprintf(buf, SZ, "usage: %s | "\
+#define _HELPMSG(buf,NAME,USAGE,DESC) _sprintf(buf, MAX_MSG, "usage: %s | "\
 		"%s - %s | read more: %s/manual/%s.html", USAGE, NAME, DESC,\
 		BOT_WEBSITE, NAME)
 
 /* print error with usage synopsis */
-#define _USAGEMSG(buf,SZ,NAME,USAGE) _sprintf(buf, SZ, "%s: invalid syntax. "\
+#define _USAGEMSG(buf,NAME,USAGE) _sprintf(buf, MAX_MSG, "%s: invalid syntax. "\
 		"usage: %s", NAME, USAGE)
 
 #endif
