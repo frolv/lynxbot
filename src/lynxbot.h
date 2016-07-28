@@ -3,7 +3,7 @@
 #ifndef _LYNXBOT_H
 #define _LYNXBOT_H
 
-#include <cstdio>
+#include <stdio.h>
 
 #define _BOT_NAME	"LynxBot"
 #define _BOT_VER_MAJOR	"1"
@@ -13,6 +13,9 @@
 
 #define BOT_VER "v" _BOT_VER_MAJOR "." _BOT_VER_MINOR "." _BOT_VER_PATCH
 
+/* maximum length of chat message */
+#define MAX_MSG 1024
+
 #ifdef __linux__
 # define _sprintf snprintf
 #endif
@@ -20,6 +23,7 @@
 # define _sprintf sprintf_s
 #endif
 
+/* wait for user to press return */
 #define WAIT_INPUT() while (getchar() != '\n');
 
 const extern char *BOT_NAME;

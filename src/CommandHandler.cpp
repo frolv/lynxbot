@@ -4,10 +4,10 @@
 #include <iostream>
 #include <regex>
 #include <utils.h>
+#include "cmdparse.h"
 #include "CommandHandler.h"
+#include "lynxbot.h"
 #include "OptionParser.h"
-
-static void parse_cmd(const char *cmdstr, struct CommandHandler::command *c);
 
 CommandHandler::CommandHandler(const std::string &name,
 		const std::string &channel, const std::string &token,
@@ -60,68 +60,71 @@ CommandHandler::~CommandHandler()
 	delete m_customCmds;
 }
 
-/* process_cmd: run message as a bot command and return output */
-std::string CommandHandler::process_cmd(char *nick, char *cmdstr, perm_t p)
+/* process_cmd: run message as a bot command and store output in out */
+void CommandHandler::process_cmd(char *out, char *nick, char *cmdstr, perm_t p)
 {
-	std::string output = "";
-	std::string fullCmd(cmdstr);
-
-	/* the command is the first part of the string up to the first space */
-	std::string cmd = fullCmd.substr(0, fullCmd.find(' '));
-
 	struct command c;
+	if (!parse_cmd(cmdstr, &c)) {
+		_sprintf(out, MAX_MSG, "%s", cmderr());
+		return;
+	}
 	c.nick = nick;
-	c.cmd = cmd;
-	c.fullCmd = fullCmd;
+	c.cmd = c.argv[0];
+	c.fullCmd = cmdstr;
 	c.privileges = p;
-	parse_cmd(fullCmd.c_str(), &c);
 
 	/* custom command */
 	Json::Value *ccmd;
 
-	switch (source(cmd)) {
+	switch (source(c.argv[0])) {
 	case DEFAULT:
-		if (P_ALSUB(p) || m_cooldowns.ready(cmd)) {
-			output += (this->*m_defaultCmds[cmd])(&c);
-			m_cooldowns.setUsed(cmd);
+		if (P_ALSUB(p) || m_cooldowns.ready(c.argv[0])) {
+			_sprintf(out, MAX_MSG, "%s",
+					(this->*m_defaultCmds[c.argv[0]])(&c).c_str());
+			m_cooldowns.setUsed(c.argv[0]);
 		} else {
-			output += "/w " + std::string(nick) + " command is on cooldown: "
-				+ cmd;
+			_sprintf(out, MAX_MSG, "/w %s command is on "
+					"cooldown: %s", nick, c.argv[0]);
 		}
 		break;
 	case CUSTOM:
-		ccmd = m_customCmds->getcom(cmd);
+		ccmd = m_customCmds->getcom(c.argv[0]);
 		if ((*ccmd)["active"].asBool() &&
 				(P_ALSUB(p) ||
 				m_cooldowns.ready((*ccmd)["cmd"].asString()))) {
 			(*ccmd)["atime"] = (Json::Int64)time(nullptr);
 			(*ccmd)["uses"] = (*ccmd)["uses"].asInt() + 1;
-			output += m_customCmds->format(ccmd, nick);
+			_sprintf(out, MAX_MSG, "%s",
+					m_customCmds->format(ccmd, nick).c_str());
 			m_cooldowns.setUsed((*ccmd)["cmd"].asString());
 			m_customCmds->write();
 		} else {
 			if (!(*ccmd)["active"].asBool())
-				output += "/w " + std::string(nick) + " command is "
-					"currently inactive: " + cmd;
+				_sprintf(out, MAX_MSG, "/w %s command is "
+						"currently inactive: %s",
+						nick, c.argv[0]);
 			else
-				output += "/w " + std::string(nick) + " command is on "
-					"cooldown: " + cmd;
+				_sprintf(out, MAX_MSG, "/w %s command is on "
+						"cooldown: %s", nick,
+						c.argv[0]);
 		}
 		break;
 	default:
-		output += "/w " + std::string(nick) + " not a bot command: " + cmd;
+		_sprintf(out, MAX_MSG, "/w %s not a bot command: %s",
+				nick, c.argv[0]);
 		break;
 	}
-
-	return output;
+	free_cmd(&c);
 }
 
 /* process_resp: test a message against auto response regexes */
-std::string CommandHandler::process_resp(const std::string &message)
+void CommandHandler::process_resp(char *out, char *msg)
 {
+	*out = '\0';
 	if (!m_responding)
-		return "";
+		return;
 
+	const std::string message(msg);
 	/* test the message against all response regexes */
 	for (auto &val : m_responses["responses"]) {
 		std::string name = '_' + val["name"].asString();
@@ -134,12 +137,11 @@ std::string CommandHandler::process_resp(const std::string &message)
 		if (std::regex_search(message.begin(), message.end(), match,
 				responseRegex) && m_cooldowns.ready(name)) {
 			m_cooldowns.setUsed(name);
-			return val["response"].asString();
+			_sprintf(out, MAX_MSG, "%s", val["response"].asCString());
+			return;
 		}
 
 	}
-	/* no match */
-	return "";
 }
 
 bool CommandHandler::isCounting() const
@@ -283,9 +285,4 @@ void CommandHandler::populateHelp()
 	m_help["twitch-autorization"] = "twitch-authorization";
 	m_help["auth"] = "twitch-authorization";
 	m_help["authorization"] = "twitch-authorization";
-}
-
-/* parse_cmd: split cmdstr into argv of c */
-static void parse_cmd(const char *cmdstr, struct CommandHandler::command *c)
-{
 }

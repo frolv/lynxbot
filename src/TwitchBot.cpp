@@ -7,8 +7,6 @@
 #include "lynxbot.h"
 #include "TwitchBot.h"
 
-#define MAX_LEN 1024
-
 static const char *TWITCH_SERV = "irc.twitch.tv";
 static const char *TWITCH_PORT = "80";
 
@@ -55,25 +53,25 @@ bool TwitchBot::connected() const
 /* connect: connect to IRC */
 bool TwitchBot::connect()
 {
-	char buf[MAX_LEN];
+	char buf[MAX_MSG];
 
 	if (!(m_connected = m_client.cconnect()))
 		return false;
 
 	/* send required IRC data: PASS, NICK, USER */
-	_sprintf(buf, MAX_LEN, "PASS %s", m_password);
+	_sprintf(buf, MAX_MSG, "PASS %s", m_password);
 	send_raw(buf);
-	_sprintf(buf, MAX_LEN, "NICK %s", m_nick.c_str());
+	_sprintf(buf, MAX_MSG, "NICK %s", m_nick.c_str());
 	send_raw(buf);
-	_sprintf(buf, MAX_LEN, "USER %s", m_nick.c_str());
+	_sprintf(buf, MAX_MSG, "USER %s", m_nick.c_str());
 	send_raw(buf);
 
 	/* enable tags in PRIVMSGs */
-	_sprintf(buf, MAX_LEN, "CAP REQ :twitch.tv/tags");
+	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/tags");
 	send_raw(buf);
 
 	/* join channel */
-	_sprintf(buf, MAX_LEN, "JOIN %s", m_channel.c_str());
+	_sprintf(buf, MAX_MSG, "JOIN %s", m_channel.c_str());
 	send_raw(buf);
 
 	m_tick = std::thread(&TwitchBot::tick, this);
@@ -91,11 +89,11 @@ void TwitchBot::disconnect()
 /* server_loop: continously receive and process data */
 void TwitchBot::server_loop()
 {
-	char buf[MAX_LEN];
+	char buf[MAX_MSG];
 
 	/* continously receive data from server */
 	while (true) {
-		if (m_client.cread(buf, MAX_LEN) <= 0) {
+		if (m_client.cread(buf, MAX_MSG) <= 0) {
 			fprintf(stderr, "No data received. Exiting.\n");
 			disconnect();
 			break;
@@ -113,7 +111,7 @@ bool TwitchBot::send_raw(char *data)
 	size_t end;
 	int bytes;
 
-	if ((end = strlen(data)) > MAX_LEN - 3) {
+	if ((end = strlen(data)) > MAX_MSG - 3) {
 		fprintf(stderr, "Message too long: %s\n", data);
 		return false;
 	}
@@ -132,9 +130,9 @@ bool TwitchBot::send_raw(char *data)
 /* send_msg: send a PRIVMSG to the connected channel */
 bool TwitchBot::send_msg(const std::string &msg)
 {
-	char buf[MAX_LEN];
+	char buf[MAX_MSG];
 
-	_sprintf(buf, MAX_LEN, "PRIVMSG %s :%s", m_channel.c_str(), msg.c_str());
+	_sprintf(buf, MAX_MSG, "PRIVMSG %s :%s", m_channel.c_str(), msg.c_str());
 	return send_raw(buf);
 }
 
@@ -168,7 +166,7 @@ bool TwitchBot::process_privmsg(char *privmsg)
 {
 	char *nick, *msg;
 	perm_t p;
-	char out[MAX_LEN];
+	char out[MAX_MSG];
 
 	if (strstr(privmsg, ":twitchnotify") == privmsg) {
 		/* parse_submsg(privmsg); */
@@ -187,11 +185,10 @@ bool TwitchBot::process_privmsg(char *privmsg)
 	if (P_ISREG(p) && m_mod.active() && moderate(nick, msg))
 		return true;
 
-	std::string output;
 	if (msg[0] == '$' && msg[1]) {
-		output = m_cmdhnd.process_cmd(nick, msg + 1, p);
-		if (!output.empty())
-			send_msg(output);
+		m_cmdhnd.process_cmd(out, nick, msg + 1, p);
+		if (*out)
+			send_msg(out);
 		return true;
 	}
 
@@ -212,9 +209,9 @@ bool TwitchBot::process_privmsg(char *privmsg)
 	}
 
 	/* check for responses */
-	output = m_cmdhnd.process_resp(msg);
-	if (!output.empty())
-		send_msg(output);
+	m_cmdhnd.process_resp(out, msg);
+	if (*out)
+		send_msg(out);
 
 	return true;
 }
@@ -225,14 +222,14 @@ bool TwitchBot::process_url(char *out)
 	URLParser::URL *url;
 	cpr::Response resp;
 	std::string title;
-	char buf[MAX_LEN];
+	char buf[MAX_MSG];
 
 	url = m_parser.getLast();
 	if (url->twitter && !url->tweetID.empty()) {
 		/* print info about twitter statuses */
 		tw::Reader twr(&m_auth);
 		if (twr.read_tweet(url->tweetID)) {
-			_sprintf(out, MAX_LEN, "%s", twr.result().c_str());
+			_sprintf(out, MAX_MSG, "%s", twr.result().c_str());
 			return true;
 		}
 		fprintf(stderr, "could not read tweet\n");
@@ -245,7 +242,7 @@ bool TwitchBot::process_url(char *out)
 		strcat(buf, url->subdomain.c_str());
 		strcat(buf, url->domain.c_str());
 		if (!(title = urltitle(resp.text)).empty()) {
-			_sprintf(out, MAX_LEN, "[URL] %s (at %s)",
+			_sprintf(out, MAX_MSG, "[URL] %s (at %s)",
 					title.c_str(), buf);
 			return true;
 		}
