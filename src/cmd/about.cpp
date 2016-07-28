@@ -8,13 +8,10 @@
 #define SRC 2
 
 /* full name of the command */
-CMDNAME("about");
 _CMDNAME("about");
 /* description of the command */
-CMDDESCR("print bot information");
 _CMDDESCR("print bot information");
 /* command usage synopsis */
-CMDUSAGE("$about [-s|-r]");
 _CMDUSAGE("$about [-s|-r]");
 
 static const char *SOURCE = "https://github.com/frolv/lynxbot";
