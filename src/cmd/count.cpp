@@ -14,7 +14,7 @@ CMDUSAGE("$count start|stop|display");
 static std::string getresults(std::unordered_map<std::string, uint16_t> *count);
 
 /* count: manage message counts */
-std::string CommandHandler::count(struct command *c)
+std::string CommandHandler::count(char *out, struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);

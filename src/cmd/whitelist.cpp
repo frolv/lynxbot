@@ -10,12 +10,12 @@ CMDDESCR("exempt websites from moderation");
 CMDUSAGE("$whitelist [-d] [SITE]");
 
 /* whitelist: exempt websites from moderation */
-std::string CommandHandler::whitelist(struct command *c)
+std::string CommandHandler::whitelist(char *out, struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);
 
-	std::string website, out;
+	std::string website, outp;
 	bool del;
 
 	int opt;
@@ -52,23 +52,23 @@ std::string CommandHandler::whitelist(struct command *c)
 				!= std::string::npos)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
-	out = "@" + std::string(c->nick) + ", ";
+	outp = "@" + std::string(c->nick) + ", ";
 	if (m_parsep->parse(website)) {
 		/* extract domain and add to whitelist */
 		website = m_parsep->getLast()->subdomain
 			+ m_parsep->getLast()->domain;
 		if (del) {
 			if (m_modp->delurl(website))
-				return out + website + " has been "
+				return outp + website + " has been "
 					"removed from the whitelist.";
 			else
-				return out + website + " is not on "
+				return outp + website + " is not on "
 					"the whitelist.";
 		}
 		if (m_modp->whitelist(website))
-			return out + website + " has been whitelisted.";
+			return outp + website + " has been whitelisted.";
 		else
-			return out + website + " is already on the whitelist.";
+			return outp + website + " is already on the whitelist.";
 	}
 
 	return CMDNAME + ": invalid URL: " + website;

@@ -11,7 +11,7 @@ CMDDESCR("delete a recurring message");
 CMDUSAGE("$delrec ID");
 
 /* delrec: delete a recurring message */
-std::string CommandHandler::delrec(struct command *c)
+std::string CommandHandler::delrec(char *out, struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);

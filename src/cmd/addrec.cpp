@@ -10,7 +10,7 @@ CMDDESCR("add a recurring message");
 CMDUSAGE("$addrec [-c INT] MSG");
 
 /* addrec: add a recurring message */
-std::string CommandHandler::addrec(struct command *c)
+std::string CommandHandler::addrec(char *out, struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);

@@ -10,7 +10,7 @@ CMDDESCR("view the lynxbot manual");
 CMDUSAGE("$manual");
 
 /* manual: view the lynxbot manual */
-std::string CommandHandler::manual(struct command *c)
+std::string CommandHandler::manual(char *out, struct command *c)
 {
 	int opt;
 	OptionParser op(c->fullCmd, "");

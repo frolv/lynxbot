@@ -15,14 +15,14 @@ CMDUSAGE("age <-f|-s>");
 static const std::string TWITCH_API = "https://api.twitch.tv/kraken";
 
 /* followage: check how long you have been following a channel */
-std::string CommandHandler::age(struct command *c)
+std::string CommandHandler::age(char *out, struct command *c)
 {
 	static cpr::Header head{{ "Accept","application/vnd.twitchtv.v3+json" },
 		{ "Authorization", "OAuth " + m_token }};
 	cpr::Response resp;
 	Json::Reader reader;
 	Json::Value response;
-	std::string msg, url, out;
+	std::string msg, url, outp;
 
 	int opt;
 	OptionParser op(c->fullCmd, "fs");
@@ -59,13 +59,13 @@ std::string CommandHandler::age(struct command *c)
 
 	resp = cpr::Get(cpr::Url(url), head);
 
-	out = "@" + std::string(c->nick) + ", ";
+	outp = "@" + std::string(c->nick) + ", ";
 	if (!reader.parse(resp.text, response))
 		return CMDNAME + ": could not parse response";
 	if (!response.isMember("created_at"))
-		return out + "you are not " + msg + " " + m_channel + ".";
+		return outp + "you are not " + msg + " " + m_channel + ".";
 
-	return out + "you have been " + msg + " " + m_channel + " for "
+	return outp + "you have been " + msg + " " + m_channel + " for "
 		+ utils::parse_time(response["created_at"].asString(), true)
 		+ ".";
 }

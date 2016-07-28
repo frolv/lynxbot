@@ -20,7 +20,7 @@ static bool atime, crtime, creator, mtime, uses;
 static std::string info(Json::Value *cmd);
 
 /* cmdinfo: show information about a custom command */
-std::string CommandHandler::cmdinfo(struct command *c)
+std::string CommandHandler::cmdinfo(char *out, struct command *c)
 {
 	std::string cmd;
 

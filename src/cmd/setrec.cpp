@@ -10,12 +10,12 @@ CMDDESCR("enable/disabe recurring messages");
 CMDUSAGE("$setrec on|off");
 
 /* setrec: enable and disable recurring messages */
-std::string CommandHandler::setrec(struct command *c)
+std::string CommandHandler::setrec(char *out, struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);
 
-	std::string out, set;
+	std::string outp, set;
 
 	int opt;
 	OptionParser op(c->fullCmd, "");
@@ -35,7 +35,7 @@ std::string CommandHandler::setrec(struct command *c)
 		}
 	}
 
-	out = "@" + std::string(c->nick) + ", ";
+	outp = "@" + std::string(c->nick) + ", ";
 	if (op.optind() == c->fullCmd.length()
 			|| ((set = c->fullCmd.substr(op.optind())) != "on"
 			&& set != "off"))
@@ -43,10 +43,10 @@ std::string CommandHandler::setrec(struct command *c)
 
 	if (set == "on") {
 		m_evtp->activateMessages();
-		out += "recurring messages enabled.";
+		outp += "recurring messages enabled.";
 	} else {
 		m_evtp->deactivateMessages();
-		out += "recurring messages disabled.";
+		outp += "recurring messages disabled.";
 	}
-	return out;
+	return outp;
 }

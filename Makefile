@@ -50,7 +50,7 @@ _LBH=client.h cmdparse.h CommandHandler.h config.h EventManager.h\
      TwitchBot.h URLParser.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
-_COMMANDS=age.o about.o active.o addcom.o addrec.o calc.o cgrep.o cmdinfo.o\
+_COMMANDS=about.o active.o addcom.o addrec.o age.o calc.o cgrep.o cmdinfo.o\
 	  cml.o count.o delcom.o delrec.o duck.o editcom.o ehp.o eightball.o\
 	  fashiongen.o ge.o level.o man.o manual.o permit.o pokemon.o rsn.o\
 	  setgiv.o setrec.o showrec.o status.o strawpoll.o submit.o twitter.o\

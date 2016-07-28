@@ -9,9 +9,11 @@
 #define _BOT_VER_MAJOR	"1"
 #define _BOT_VER_MINOR	"4"
 #define _BOT_VER_PATCH	"4"
+#define _BOT_VER_SUF	"-beta"
 #define _BOT_WEBSITE	"https://frolv.github.io/lynxbot"
 
-#define BOT_VER "v" _BOT_VER_MAJOR "." _BOT_VER_MINOR "." _BOT_VER_PATCH
+#define BOT_VER "v" _BOT_VER_MAJOR "." _BOT_VER_MINOR "."\
+	_BOT_VER_PATCH _BOT_VER_SUF
 
 /* maximum length of chat message */
 #define MAX_MSG 1024

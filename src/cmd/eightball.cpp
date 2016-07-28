@@ -10,7 +10,7 @@ CMDDESCR("respond to questions");
 CMDUSAGE("$8ball QUESTION");
 
 /* 8ball: respond to questions */
-std::string CommandHandler::eightball(struct command *c)
+std::string CommandHandler::eightball(char *out, struct command *c)
 {
 	int opt;
 	OptionParser op(c->fullCmd, "");

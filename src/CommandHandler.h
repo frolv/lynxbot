@@ -42,7 +42,8 @@ class CommandHandler {
 		};
 
 		typedef std::unordered_map<std::string,
-			std::string(CommandHandler::*)(CommandHandler::command *)> commandMap;
+			std::string(CommandHandler::*)(char *,
+			CommandHandler::command *)> commandMap;
 
 		CommandHandler(const std::string &name, const std::string &channel,
 				const std::string &token, Moderator *mod,
@@ -108,43 +109,43 @@ class CommandHandler {
 		void process_custom(char *out, struct command *c);
 
 		/* default bot commands */
-		std::string about(struct command *c);
-		std::string active(struct command *c);
-		std::string age(struct command *c);
-		std::string calc(struct command *c);
-		std::string cgrep(struct command *c);
-		std::string cmdinfo(struct command *c);
-		std::string cml(struct command *c);
-		std::string duck(struct command *c);
-		std::string ehp(struct command *c);
-		std::string eightball(struct command *c);
-		std::string fashiongen(struct command *c);
-		std::string ge(struct command *c);
-		std::string level(struct command *c);
-		std::string man(struct command *c);
-		std::string manual(struct command *c);
-		std::string pokemon(struct command *c);
-		std::string rsn(struct command *c);
-		std::string submit(struct command *c);
-		std::string twitter(struct command *c);
-		std::string uptime(struct command *c);
-		std::string wheel(struct command *c);
-		std::string xp(struct command *c);
+		std::string about(char *out, struct command *c);
+		std::string active(char *out, struct command *c);
+		std::string age(char *out, struct command *c);
+		std::string calc(char *out, struct command *c);
+		std::string cgrep(char *out, struct command *c);
+		std::string cmdinfo(char *out, struct command *c);
+		std::string cml(char *out, struct command *c);
+		std::string duck(char *out, struct command *c);
+		std::string ehp(char *out, struct command *c);
+		std::string eightball(char *out, struct command *c);
+		std::string fashiongen(char *out, struct command *c);
+		std::string ge(char *out, struct command *c);
+		std::string level(char *out, struct command *c);
+		std::string man(char *out, struct command *c);
+		std::string manual(char *out, struct command *c);
+		std::string pokemon(char *out, struct command *c);
+		std::string rsn(char *out, struct command *c);
+		std::string submit(char *out, struct command *c);
+		std::string twitter(char *out, struct command *c);
+		std::string uptime(char *out, struct command *c);
+		std::string wheel(char *out, struct command *c);
+		std::string xp(char *out, struct command *c);
 
 		/* moderator only commands */
-		std::string addcom(struct command *c);
-		std::string addrec(struct command *c);
-		std::string count(struct command *c);
-		std::string delcom(struct command *c);
-		std::string delrec(struct command *c);
-		std::string editcom(struct command *c);
-		std::string permit(struct command *c);
-		std::string setgiv(struct command *c);
-		std::string setrec(struct command *c);
-		std::string showrec(struct command *c);
-		std::string status(struct command *c);
-		std::string strawpoll(struct command *c);
-		std::string whitelist(struct command *c);
+		std::string addcom(char *out, struct command *c);
+		std::string addrec(char *out, struct command *c);
+		std::string count(char *out, struct command *c);
+		std::string delcom(char *out, struct command *c);
+		std::string delrec(char *out, struct command *c);
+		std::string editcom(char *out, struct command *c);
+		std::string permit(char *out, struct command *c);
+		std::string setgiv(char *out, struct command *c);
+		std::string setrec(char *out, struct command *c);
+		std::string showrec(char *out, struct command *c);
+		std::string status(char *out, struct command *c);
+		std::string strawpoll(char *out, struct command *c);
+		std::string whitelist(char *out, struct command *c);
 
 		/* helpers */
 		uint8_t source(const std::string &cmd);
@@ -159,7 +160,8 @@ class CustomCommandHandler {
 
 	public:
 		typedef std::unordered_map<std::string,
-			std::string(CommandHandler::*)(CommandHandler::command *)> commandMap;
+			std::string(CommandHandler::*)(char *,
+			CommandHandler::command *)> commandMap;
 		CustomCommandHandler(commandMap *defaultCmds, TimerManager *tm,
 				const std::string &wheelCmd,
 				const std::string &name,

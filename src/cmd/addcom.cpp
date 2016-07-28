@@ -13,7 +13,7 @@ static bool create(CustomCommandHandler *cch, const std::string &args,
 		const std::string &nick, time_t cooldown, std::string &res);
 
 /* addcom: create a new custom command */
-std::string CommandHandler::addcom(struct command *c)
+std::string CommandHandler::addcom(char *out, struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);
@@ -21,7 +21,7 @@ std::string CommandHandler::addcom(struct command *c)
 	if (!m_customCmds->isActive())
 		return CMDNAME + ": custom commands are currently disabled";
 
-	std::string out, res;
+	std::string outp, res;
 	time_t cooldown;
 
 	OptionParser op(c->fullCmd, "c:");
@@ -60,11 +60,11 @@ std::string CommandHandler::addcom(struct command *c)
 	if (op.optind() == c->fullCmd.length())
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
-	out = "@" + std::string(c->nick) + ", ";
+	outp = "@" + std::string(c->nick) + ", ";
 	if (!create(m_customCmds, c->fullCmd.substr(op.optind()),
 				c->nick, cooldown, res))
 		return CMDNAME + ": " + res;
-	return out + res;
+	return outp + res;
 }
 
 /* create: create a custom command */

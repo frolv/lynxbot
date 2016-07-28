@@ -12,7 +12,7 @@ CMDUSAGE("$active");
 static const std::string STRAWPOLL_HOST = "https://strawpoll.me";
 
 /* active: view current poll */
-std::string CommandHandler::active(struct command *c)
+std::string CommandHandler::active(char *out, struct command *c)
 {
 	int opt;
 	OptionParser op(c->fullCmd, "");

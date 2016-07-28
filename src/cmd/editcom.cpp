@@ -20,7 +20,7 @@ static bool rename(CustomCommandHandler *cch, const std::string &args,
 		std::string &res);
 
 /* editcom: modify a custom command */
-std::string CommandHandler::editcom(struct command *c)
+std::string CommandHandler::editcom(char *out, struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);
@@ -28,7 +28,7 @@ std::string CommandHandler::editcom(struct command *c)
 	if (!m_customCmds->isActive())
 		return CMDNAME + ": custom commands are currently disabled";
 
-	std::string out, res, set, cmd;
+	std::string outp, res, set, cmd;
 	time_t cooldown;
 	bool ren, append;
 
@@ -83,7 +83,7 @@ std::string CommandHandler::editcom(struct command *c)
 	if (op.optind() == c->fullCmd.length())
 			return USAGEMSG(CMDNAME, CMDUSAGE);
 
-	out = "@" + std::string(c->nick) + ", ";
+	outp = "@" + std::string(c->nick) + ", ";
 	if (ren) {
 		if (append || cooldown != -1 || !set.empty())
 			return CMDNAME + ": cannot use other flags with -r";
@@ -93,13 +93,13 @@ std::string CommandHandler::editcom(struct command *c)
 			else
 				return CMDNAME + ": " + res;
 		}
-		return out + res;
+		return outp + res;
 	}
 
 	if (!edit(m_customCmds, c->fullCmd.substr(op.optind()), set,
 				cooldown, &m_cooldowns, append, res))
 		return CMDNAME + ": " + res;
-	return out + res;
+	return outp + res;
 }
 
 /* edit: edit a custom command */

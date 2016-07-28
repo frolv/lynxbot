@@ -10,9 +10,9 @@ CMDDESCR("select items from various categories");
 CMDUSAGE("$WHEELCMD CATEGORY");
 
 /* wheel: select items from various categories */
-std::string CommandHandler::wheel(struct command *c)
+std::string CommandHandler::wheel(char *out, struct command *c)
 {
-	std::string cmd, out;
+	std::string cmd, outp;
 
 	int opt;
 	OptionParser op(c->fullCmd, "");
@@ -42,20 +42,20 @@ std::string CommandHandler::wheel(struct command *c)
 				&& cmd != "check")
 		return USAGEMSG(c->cmd, m_wheel.usage());
 
-	out = "@" + std::string(c->nick) + ", ";
+	outp = "@" + std::string(c->nick) + ", ";
 	if (cmd == "check") {
 		/* return the current selection */
-		out += m_wheel.ready(c->nick)
+		outp += m_wheel.ready(c->nick)
 			? "you are not currently assigned anything."
 			: "you are currently assigned "
 			+ m_wheel.selection(c->nick) + ".";
 	} else if (!m_wheel.ready(c->nick)) {
-		out += "you have already been assigned something!";
+		outp += "you have already been assigned something!";
 	} else {
 		/* make a new selection */
-		out += "your entertainment for tonight is "
+		outp += "your entertainment for tonight is "
 			+ m_wheel.choose(c->nick, cmd) + ".";
 	}
 
-	return out;
+	return outp;
 }

@@ -51,7 +51,7 @@ int parse_cmd(char *cmdstr, struct CommandHandler::command *c)
 	return 1;
 }
 
-int free_cmd(struct CommandHandler::command *c)
+void free_cmd(struct CommandHandler::command *c)
 {
 	free(c->argv);
 }

@@ -20,7 +20,7 @@ static std::string create_poll(const std::vector<std::string> &tokens,
 		std::string &err);
 
 /* strawpoll: create polls */
-std::string CommandHandler::strawpoll(struct command *c)
+std::string CommandHandler::strawpoll(char *out, struct command *c)
 {
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);

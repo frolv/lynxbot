@@ -143,10 +143,14 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 /* process_default: run a default command */
 void CommandHandler::process_default(char *out, struct command *c)
 {
+	/* while commands are converted to new format */
+	std::string tmp;
+
 	if (P_ALSUB(c->privileges) || m_cooldowns.ready(c->argv[0])) {
-		_sprintf(out, MAX_MSG, "%s",
-				(this->*m_defaultCmds[c->argv[0]])(c).c_str());
-		m_cooldowns.setUsed(c->argv[0]);
+		if (!(tmp = (this->*m_defaultCmds[c->argv[0]])(out, c)).empty()) {
+			_sprintf(out, MAX_MSG, "%s", tmp.c_str());
+			m_cooldowns.setUsed(c->argv[0]);
+		}
 		return;
 	}
 	_sprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",

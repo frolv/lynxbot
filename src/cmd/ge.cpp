@@ -18,7 +18,7 @@ static const std::string EXCHANGE_API =
 static int64_t extract_price(const std::string &resp);
 
 /* ge: look up item prices */
-std::string CommandHandler::ge(struct command *c)
+std::string CommandHandler::ge(char *out, struct command *c)
 {
 	if (!m_GEReader.active())
 		return CMDNAME + ": GE reader is inactive";

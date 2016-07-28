@@ -25,7 +25,7 @@ static std::string format_ul(const std::vector<std::string> &def,
 		const std::vector<std::string> &cus);
 
 /* cgrep: find commands matching a pattern */
-std::string CommandHandler::cgrep(struct command *c)
+std::string CommandHandler::cgrep(char *out, struct command *c)
 {
 	std::string pattern;
 	bool active, ign;
