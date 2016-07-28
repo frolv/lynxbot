@@ -60,7 +60,7 @@ std::string CommandHandler::addcom(struct command *c)
 	if (op.optind() == c->fullCmd.length())
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
-	out = "@" + c->nick + ", ";
+	out = "@" + std::string(c->nick) + ", ";
 	if (!create(m_customCmds, c->fullCmd.substr(op.optind()),
 				c->nick, cooldown, res))
 		return CMDNAME + ": " + res;

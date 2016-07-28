@@ -64,50 +64,22 @@ CommandHandler::~CommandHandler()
 void CommandHandler::process_cmd(char *out, char *nick, char *cmdstr, perm_t p)
 {
 	struct command c;
+
+	c.fullCmd = cmdstr;
 	if (!parse_cmd(cmdstr, &c)) {
 		_sprintf(out, MAX_MSG, "%s", cmderr());
 		return;
 	}
 	c.nick = nick;
 	c.cmd = c.argv[0];
-	c.fullCmd = cmdstr;
 	c.privileges = p;
-
-	/* custom command */
-	Json::Value *ccmd;
 
 	switch (source(c.argv[0])) {
 	case DEFAULT:
-		if (P_ALSUB(p) || m_cooldowns.ready(c.argv[0])) {
-			_sprintf(out, MAX_MSG, "%s",
-					(this->*m_defaultCmds[c.argv[0]])(&c).c_str());
-			m_cooldowns.setUsed(c.argv[0]);
-		} else {
-			_sprintf(out, MAX_MSG, "/w %s command is on "
-					"cooldown: %s", nick, c.argv[0]);
-		}
+		process_default(out, &c);
 		break;
 	case CUSTOM:
-		ccmd = m_customCmds->getcom(c.argv[0]);
-		if ((*ccmd)["active"].asBool() &&
-				(P_ALSUB(p) ||
-				m_cooldowns.ready((*ccmd)["cmd"].asString()))) {
-			(*ccmd)["atime"] = (Json::Int64)time(nullptr);
-			(*ccmd)["uses"] = (*ccmd)["uses"].asInt() + 1;
-			_sprintf(out, MAX_MSG, "%s",
-					m_customCmds->format(ccmd, nick).c_str());
-			m_cooldowns.setUsed((*ccmd)["cmd"].asString());
-			m_customCmds->write();
-		} else {
-			if (!(*ccmd)["active"].asBool())
-				_sprintf(out, MAX_MSG, "/w %s command is "
-						"currently inactive: %s",
-						nick, c.argv[0]);
-			else
-				_sprintf(out, MAX_MSG, "/w %s command is on "
-						"cooldown: %s", nick,
-						c.argv[0]);
-		}
+		process_custom(out, &c);
 		break;
 	default:
 		_sprintf(out, MAX_MSG, "/w %s not a bot command: %s",
@@ -118,26 +90,28 @@ void CommandHandler::process_cmd(char *out, char *nick, char *cmdstr, perm_t p)
 }
 
 /* process_resp: test a message against auto response regexes */
-void CommandHandler::process_resp(char *out, char *msg)
+void CommandHandler::process_resp(char *out, char *msg, char *nick)
 {
+	const std::string message(msg);
+	std::regex respreg;
+	std::smatch match;
+	std::string name, regex;
+
 	*out = '\0';
 	if (!m_responding)
 		return;
 
-	const std::string message(msg);
 	/* test the message against all response regexes */
 	for (auto &val : m_responses["responses"]) {
-		std::string name = '_' + val["name"].asString();
-		std::string regex = val["regex"].asString();
+		name = '_' + val["name"].asString();
+		regex = val["regex"].asString();
 
-		std::regex responseRegex(regex,
-				std::regex_constants::ECMAScript
-				| std::regex_constants::icase);
-		std::smatch match;
+		respreg = std::regex(regex, std::regex::icase);
 		if (std::regex_search(message.begin(), message.end(), match,
-				responseRegex) && m_cooldowns.ready(name)) {
+				respreg) && m_cooldowns.ready(name)) {
 			m_cooldowns.setUsed(name);
-			_sprintf(out, MAX_MSG, "%s", val["response"].asCString());
+			_sprintf(out, MAX_MSG, "@%s, %s", nick,
+					val["response"].asCString());
 			return;
 		}
 
@@ -164,6 +138,45 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 		else
 			m_messageCounts.find(msg)->second++;
 	}
+}
+
+/* process_default: run a default command */
+void CommandHandler::process_default(char *out, struct command *c)
+{
+	if (P_ALSUB(c->privileges) || m_cooldowns.ready(c->argv[0])) {
+		_sprintf(out, MAX_MSG, "%s",
+				(this->*m_defaultCmds[c->argv[0]])(c).c_str());
+		m_cooldowns.setUsed(c->argv[0]);
+		return;
+	}
+	_sprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
+			c->nick, c->argv[0]);
+}
+
+/* process_custom: run a custom command */
+void CommandHandler::process_custom(char *out, struct command *c)
+{
+	Json::Value *ccmd;
+
+	ccmd = m_customCmds->getcom(c->argv[0]);
+	if ((*ccmd)["active"].asBool() && (P_ALSUB(c->privileges) ||
+				m_cooldowns.ready((*ccmd)["cmd"].asString()))) {
+		/* set access time and increase uses */
+		(*ccmd)["atime"] = (Json::Int64)time(nullptr);
+		(*ccmd)["uses"] = (*ccmd)["uses"].asInt() + 1;
+		_sprintf(out, MAX_MSG, "%s",
+				m_customCmds->format(ccmd, c->nick).c_str());
+		m_cooldowns.setUsed((*ccmd)["cmd"].asString());
+		m_customCmds->write();
+		return;
+	}
+	if (!(*ccmd)["active"].asBool()) {
+		_sprintf(out, MAX_MSG, "/w %s command is currently inactive: %s",
+				c->nick, c->argv[0]);
+		return;
+	}
+	_sprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
+			c->nick, c->argv[0]);
 }
 
 /* source: determine whether cmd is a default or custom command */

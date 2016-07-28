@@ -15,7 +15,7 @@ CMDUSAGE("$submit MSG");
 /* submit: submit a message to the streamer */
 std::string CommandHandler::submit(struct command *c)
 {
-	std::string output = "@" + c->nick + ", ";
+	std::string output = "@" + std::string(c->nick) + ", ";
 	const std::string path = utils::configdir() + utils::config("submit");
 	std::ofstream writer(path, std::ios::app);
 	time_t t;

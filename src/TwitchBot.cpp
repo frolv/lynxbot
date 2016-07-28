@@ -209,7 +209,7 @@ bool TwitchBot::process_privmsg(char *privmsg)
 	}
 
 	/* check for responses */
-	m_cmdhnd.process_resp(out, msg);
+	m_cmdhnd.process_resp(out, msg, nick);
 	if (*out)
 		send_msg(out);
 

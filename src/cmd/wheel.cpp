@@ -42,7 +42,7 @@ std::string CommandHandler::wheel(struct command *c)
 				&& cmd != "check")
 		return USAGEMSG(c->cmd, m_wheel.usage());
 
-	out = "@" + c->nick + ", ";
+	out = "@" + std::string(c->nick) + ", ";
 	if (cmd == "check") {
 		/* return the current selection */
 		out += m_wheel.ready(c->nick)

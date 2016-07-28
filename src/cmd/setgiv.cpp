@@ -94,7 +94,7 @@ std::string CommandHandler::setgiv(struct command *c)
 		type = IMAGE;
 
 	if (set == "check")
-		return "@" + c->nick + ", " + m_givp->currentSettings(type);
+		return "@" + std::string(c->nick) + ", " + m_givp->currentSettings(type);
 
 	/* allow all users to check but only owner to set */
 	if (!P_ISOWN(c->privileges))

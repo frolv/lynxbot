@@ -52,7 +52,7 @@ std::string CommandHandler::whitelist(struct command *c)
 				!= std::string::npos)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
-	out = "@" + c->nick + ", ";
+	out = "@" + std::string(c->nick) + ", ";
 	if (m_parsep->parse(website)) {
 		/* extract domain and add to whitelist */
 		website = m_parsep->getLast()->subdomain

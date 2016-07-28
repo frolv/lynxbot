@@ -31,7 +31,7 @@ static std::string current_top(int id);
 /* cml: interact with crystalmathlabs trackers */
 std::string CommandHandler::cml(struct command *c)
 {
-	std::string output = "@" + c->nick + ", ";
+	std::string output = "@" + std::string(c->nick) + ", ";
 	std::string rsn, err;
 	bool usenick, update;
 	int page, id;

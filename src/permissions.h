@@ -24,7 +24,7 @@ typedef unsigned char perm_t;
 #define P_ALSUB(p) ((p) != _REG)
 #define P_ALMOD(p) (((p) >> 1) != _REG)
 
-#define NO_PERM(NAME,CMD) (std::string("/w " + NAME + " " + CMD\
+#define NO_PERM(NAME,CMD) (std::string("/w " + std::string(NAME) + " " + CMD\
 			+ ": permission denied"))
 
 #endif

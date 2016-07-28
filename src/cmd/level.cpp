@@ -29,7 +29,7 @@ static std::string get_hiscores(const std::string &rsn, int8_t id, int8_t type,
 /* level: look up players' levels */
 std::string CommandHandler::level(struct command *c)
 {
-	std::string output = "@" + c->nick + ", ";
+	std::string output = "@" + std::string(c->nick) + ", ";
 	std::string rsn, err, nick, res, which;
 	std::vector<std::string> argv;
 	bool usenick;

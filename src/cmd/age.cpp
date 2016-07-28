@@ -59,7 +59,7 @@ std::string CommandHandler::age(struct command *c)
 
 	resp = cpr::Get(cpr::Url(url), head);
 
-	out = "@" + c->nick + ", ";
+	out = "@" + std::string(c->nick) + ", ";
 	if (!reader.parse(resp.text, response))
 		return CMDNAME + ": could not parse response";
 	if (!response.isMember("created_at"))

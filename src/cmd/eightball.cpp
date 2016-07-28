@@ -37,5 +37,5 @@ std::string CommandHandler::eightball(struct command *c)
 		return "[8 BALL] Ask me a question.";
 
 	std::uniform_int_distribution<> dis(0, m_eightball.size());
-	return "[8 BALL] @" + c->nick + ", " + m_eightball[dis(m_gen)] + ".";
+	return "[8 BALL] @" + std::string(c->nick) + ", " + m_eightball[dis(m_gen)] + ".";
 }

@@ -33,12 +33,12 @@ class CommandHandler {
 
 	public:
 		struct command {
-			std::string nick;
-			int argc;
-			char **argv;
+			char *nick;		/* name of command user */
+			int argc;		/* number of arguments */
+			char **argv;		/* array of arguments */
+			perm_t privileges;	/* user privileges */
 			std::string cmd;
 			std::string fullCmd;
-			perm_t privileges;
 		};
 
 		typedef std::unordered_map<std::string,
@@ -52,7 +52,7 @@ class CommandHandler {
 		~CommandHandler();
 
 		void process_cmd(char *out, char *nick, char *cmdstr, perm_t p);
-		void process_resp(char *out, char *msg);
+		void process_resp(char *out, char *msg, char *nick);
 		bool isCounting() const;
 		void count(const std::string &nick, const std::string &message);
 
@@ -103,6 +103,9 @@ class CommandHandler {
 			"Outlook not so good",
 			"Very doubtful"
 		};
+
+		void process_default(char *out, struct command *c);
+		void process_custom(char *out, struct command *c);
 
 		/* default bot commands */
 		std::string about(struct command *c);

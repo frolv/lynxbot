@@ -16,7 +16,7 @@ std::string CommandHandler::delrec(struct command *c)
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);
 
-	std::string output = "@" + c->nick + ", ";
+	std::string output = "@" + std::string(c->nick) + ", ";
 	std::vector<std::string> argv;
 
 	int opt, id;

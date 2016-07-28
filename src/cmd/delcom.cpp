@@ -53,7 +53,7 @@ std::string CommandHandler::delcom(struct command *c)
 
 	for (std::string &cmd : argv)
 		deletecom(m_customCmds, cmd, del, inv);
-	return "@" + c->nick + ", " + formatoutput(del, inv);
+	return "@" + std::string(c->nick) + ", " + formatoutput(del, inv);
 }
 
 /* deletecom: delete a single command */

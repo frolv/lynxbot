@@ -35,7 +35,7 @@ std::string CommandHandler::setrec(struct command *c)
 		}
 	}
 
-	out = "@" + c->nick + ", ";
+	out = "@" + std::string(c->nick) + ", ";
 	if (op.optind() == c->fullCmd.length()
 			|| ((set = c->fullCmd.substr(op.optind())) != "on"
 			&& set != "off"))

@@ -15,7 +15,7 @@ std::string CommandHandler::addrec(struct command *c)
 	if (!P_ALMOD(c->privileges))
 		return NO_PERM(c->nick, c->cmd);
 
-	std::string output = "@" + c->nick + ", ";
+	std::string output = "@" + std::string(c->nick) + ", ";
 	time_t cooldown = 300;
 	int opt;
 	OptionParser op(c->fullCmd, "c:");

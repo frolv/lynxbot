@@ -83,7 +83,7 @@ std::string CommandHandler::editcom(struct command *c)
 	if (op.optind() == c->fullCmd.length())
 			return USAGEMSG(CMDNAME, CMDUSAGE);
 
-	out = "@" + c->nick + ", ";
+	out = "@" + std::string(c->nick) + ", ";
 	if (ren) {
 		if (append || cooldown != -1 || !set.empty())
 			return CMDNAME + ": cannot use other flags with -r";
