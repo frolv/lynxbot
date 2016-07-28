@@ -8,6 +8,7 @@
 static char err[ERR_LEN];
 
 static int escseq(char *s);
+static char *readquotes(char *s);
 
 /* parse_cmd: split cmdstr into argv of c */
 int parse_cmd(char *cmdstr, struct CommandHandler::command *c)
@@ -22,9 +23,11 @@ int parse_cmd(char *cmdstr, struct CommandHandler::command *c)
 			if (!escseq(s))
 				return 0;
 			break;
-		/* case '\'': */
-		/* case '"': */
-		/* 	break; */
+		case '\'':
+		case '"':
+			if (!(s = readquotes(s)))
+				return 0;
+			break;
 		case ' ':
 			c->argc++;
 			*s = '\0';
@@ -58,6 +61,13 @@ char *cmderr()
 	return err;
 }
 
+/* shift_l: move every char in s one to the left */
+static void shift_l(char *s)
+{
+	while ((s[0] = s[1]))
+		++s;
+}
+
 /* escseq: process an escape sequence in s */
 static int escseq(char *s)
 {
@@ -72,7 +82,25 @@ static int escseq(char *s)
 				"escape sequence \\%c", s[1]);
 		return 0;
 	}
-	while ((s[0] = s[1]))
-		++s;
+	shift_l(s);
 	return 1;
+}
+
+/* readquotes: process a quoted sequence in s */
+static char *readquotes(char *s)
+{
+	int quot;
+
+	quot = *s;
+	shift_l(s);
+	for (++s; *s && *s != quot; ++s) {
+		if (*s == '\\' && s[1] == quot)
+			shift_l(s);
+	}
+	if (!*s) {
+		_sprintf(err, ERR_LEN, "error: unterminated quote");
+		return NULL;
+	}
+	shift_l(s);
+	return s - 1;
 }
