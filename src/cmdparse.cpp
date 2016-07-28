@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include "cmdparse.h"
 #include "lynxbot.h"
@@ -5,33 +6,24 @@
 #define ERR_LEN 256
 
 static char err[ERR_LEN];
-static void shift_l(char *s);
+
+static int escseq(char *s);
 
 /* parse_cmd: split cmdstr into argv of c */
 int parse_cmd(char *cmdstr, struct CommandHandler::command *c)
 {
-	static const char *esc = " \\'\"";
-	int inquotes, type, i;
+	int i;
 	char *s;
 
-	c->argc = inquotes = 0;
+	c->argc = 0;
 	for (s = cmdstr; *s; ++s) {
 		switch (*s) {
 		case '\\':
-			if (!s[1]) {
-				_sprintf(err, ERR_LEN, "error: unexpected EOF");
+			if (!escseq(s))
 				return 0;
-			}
-			if (!strchr(esc, s[1])) {
-				_sprintf(err, ERR_LEN, "error: unrecognized "
-						"escape sequence \\%c", s[1]);
-				return 0;
-			}
-			shift_l(s);
 			break;
 		/* case '\'': */
 		/* case '"': */
-		/* 	type = *s; */
 		/* 	break; */
 		case ' ':
 			c->argc++;
@@ -66,22 +58,21 @@ char *cmderr()
 	return err;
 }
 
-/* swap: swap two chars */
-static void swap(char *a, char *b)
+/* escseq: process an escape sequence in s */
+static int escseq(char *s)
 {
-	char tmp;
+	static const char *esc = " \\'\"";
 
-	tmp = *a;
-	*a = *b;
-	*b = tmp;
-}
-
-/* shift_l: shift every char in s left by 1 */
-static void shift_l(char *s)
-{
-	while (s[1]) {
-		swap(s, s + 1);
-		++s;
+	if (!s[1]) {
+		_sprintf(err, ERR_LEN, "error: unexpected end of line");
+		return 0;
 	}
-	swap(s, s + 1);
+	if (!strchr(esc, s[1])) {
+		_sprintf(err, ERR_LEN, "error: unrecognized "
+				"escape sequence \\%c", s[1]);
+		return 0;
+	}
+	while ((s[0] = s[1]))
+		++s;
+	return 1;
 }
