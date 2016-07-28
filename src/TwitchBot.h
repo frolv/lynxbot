@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _TWITCHBOT_H
+#define _TWITCHBOT_H
 
 #include <string>
 #include <thread>
@@ -9,6 +10,7 @@
 #include "EventManager.h"
 #include "Giveaway.h"
 #include "Moderator.h"
+#include "permissions.h"
 #include "URLParser.h"
 
 class Authenticator;
@@ -58,7 +60,9 @@ class TwitchBot {
 		bool send_msg(const std::string &msg);
 		bool pong(char *ping);
 		void process_data(char *data);
-		bool processPRIVMSG(const std::string &PRIVMSG);
+		bool process_privmsg(char *privmsg);
+		bool parse_privmsg(char *privmsg, char **nick,
+				char **msg, perm_t *p);
 		bool moderate(const std::string &nick, const std::string &msg);
 		void tick();
 		void parseSubMsg(std::string &fmt, const std::string &which);
@@ -66,3 +70,5 @@ class TwitchBot {
 				const std::string &n, const std::string &m);
 
 };
+
+#endif
