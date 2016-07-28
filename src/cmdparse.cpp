@@ -5,13 +5,14 @@
 #define ERR_LEN 256
 
 static char err[ERR_LEN];
+static void shift_l(char *s);
 
 /* parse_cmd: split cmdstr into argv of c */
 int parse_cmd(char *cmdstr, struct CommandHandler::command *c)
 {
+	static const char *esc = " \\'\"";
 	int inquotes, type, i;
 	char *s;
-	static const char *esc = " \\'\"";
 
 	c->argc = inquotes = 0;
 	for (s = cmdstr; *s; ++s) {
@@ -26,11 +27,12 @@ int parse_cmd(char *cmdstr, struct CommandHandler::command *c)
 						"escape sequence \\%c", s[1]);
 				return 0;
 			}
+			shift_l(s);
 			break;
-		case '\'':
-		case '"':
-			type = *s;
-			break;
+		/* case '\'': */
+		/* case '"': */
+		/* 	type = *s; */
+		/* 	break; */
 		case ' ':
 			c->argc++;
 			*s = '\0';
@@ -62,4 +64,24 @@ int free_cmd(struct CommandHandler::command *c)
 char *cmderr()
 {
 	return err;
+}
+
+/* swap: swap two chars */
+static void swap(char *a, char *b)
+{
+	char tmp;
+
+	tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
+/* shift_l: shift every char in s left by 1 */
+static void shift_l(char *s)
+{
+	while (s[1]) {
+		swap(s, s + 1);
+		++s;
+	}
+	swap(s, s + 1);
 }
