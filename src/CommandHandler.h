@@ -51,9 +51,8 @@ class CommandHandler {
 				tw::Authenticator *auth);
 		~CommandHandler();
 
-		std::string processCommand(const std::string &nick,
-				const std::string &fullCmd, perm_t p);
-		std::string processResponse(const std::string &message);
+		std::string process_cmd(char *nick, char *cmdstr, perm_t p);
+		std::string process_resp(const std::string &message);
 		bool isCounting() const;
 		void count(const std::string &nick, const std::string &message);
 

@@ -60,11 +60,11 @@ CommandHandler::~CommandHandler()
 	delete m_customCmds;
 }
 
-/* processCommand: run message as a bot command and return output */
-std::string CommandHandler::processCommand(const std::string &nick,
-	const std::string &fullCmd, perm_t p)
+/* process_cmd: run message as a bot command and return output */
+std::string CommandHandler::process_cmd(char *nick, char *cmdstr, perm_t p)
 {
 	std::string output = "";
+	std::string fullCmd(cmdstr);
 
 	/* the command is the first part of the string up to the first space */
 	std::string cmd = fullCmd.substr(0, fullCmd.find(' '));
@@ -85,7 +85,7 @@ std::string CommandHandler::processCommand(const std::string &nick,
 			output += (this->*m_defaultCmds[cmd])(&c);
 			m_cooldowns.setUsed(cmd);
 		} else {
-			output += "/w " + nick + " command is on cooldown: "
+			output += "/w " + std::string(nick) + " command is on cooldown: "
 				+ cmd;
 		}
 		break;
@@ -101,23 +101,23 @@ std::string CommandHandler::processCommand(const std::string &nick,
 			m_customCmds->write();
 		} else {
 			if (!(*ccmd)["active"].asBool())
-				output += "/w " + nick + " command is "
+				output += "/w " + std::string(nick) + " command is "
 					"currently inactive: " + cmd;
 			else
-				output += "/w " + nick + " command is on "
+				output += "/w " + std::string(nick) + " command is on "
 					"cooldown: " + cmd;
 		}
 		break;
 	default:
-		output += "/w " + nick + " not a bot command: " + cmd;
+		output += "/w " + std::string(nick) + " not a bot command: " + cmd;
 		break;
 	}
 
 	return output;
 }
 
-/* processResponse: test a message against auto response regexes */
-std::string CommandHandler::processResponse(const std::string &message)
+/* process_resp: test a message against auto response regexes */
+std::string CommandHandler::process_resp(const std::string &message)
 {
 	if (!m_responding)
 		return "";

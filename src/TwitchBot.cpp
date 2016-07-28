@@ -19,7 +19,7 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 		ConfigReader *cfgr)
 	: m_connected(false), m_password(password.c_str()), m_nick(nick),
 	m_channel(channel), m_token(token), m_client(TWITCH_SERV, TWITCH_PORT),
-	m_cmdHandler(nick, channel.substr(1), token, &m_mod, &m_parser,
+	m_cmdhnd(nick, channel.substr(1), token, &m_mod, &m_parser,
 			&m_event, &m_giveaway, cfgr, &m_auth), m_cfgr(cfgr),
 	m_event(cfgr), m_giveaway(channel.substr(1), time(nullptr), cfgr),
 	m_mod(&m_parser, cfgr)
@@ -168,95 +168,91 @@ bool TwitchBot::process_privmsg(char *privmsg)
 {
 	char *nick, *msg;
 	perm_t p;
+	char out[MAX_LEN];
 
 	if (strstr(privmsg, ":twitchnotify") == privmsg) {
 		/* parse_submsg(privmsg); */
 		return true;
 	}
 
-	if (!parse_privmsg(privmsg, &nick, &msg, &p))
+	if (!parse_privmsg(privmsg, &nick, &msg, &p)) {
+		fprintf(stderr, "error: failed to extract data from message\n");
 		return false;
+	}
 
 	/* check if message contains a URL */
-	m_parser.parse(std::string(msg));
+	m_parser.parse(msg);
 
 	/* perform message moderation */
-	if (P_ISREG(p) && m_mod.active() && moderate(nick, std::string(msg)))
+	if (P_ISREG(p) && m_mod.active() && moderate(nick, msg))
 		return true;
 
+	std::string output;
 	if (msg[0] == '$' && msg[1]) {
-		std::string out = m_cmdHandler.processCommand(nick, msg + 1, p);
-		if (!out.empty())
-			send_msg(out);
+		output = m_cmdhnd.process_cmd(nick, msg + 1, p);
+		if (!output.empty())
+			send_msg(output);
 		return true;
 	}
 
+	/* count */
+	if (m_cmdhnd.isCounting() && msg[0] == '+' && msg[1]) {
+		m_cmdhnd.count(nick, msg + 1);
+		return true;
+	}
+
+	/* get URL information */
+	if (m_parser.wasModified()) {
+		if (!process_url(out))
+			return false;
+		if (*out) {
+			send_msg(out);
+			return true;
+		}
+	}
+
+	/* check for responses */
+	output = m_cmdhnd.process_resp(msg);
+	if (!output.empty())
+		send_msg(output);
+
 	return true;
+}
 
-	/* 	/1* count *1/ */
-	/* 	if (m_cmdHandler.isCounting() && utils::startsWith(msg, "+") */
-	/* 			&& msg.length() > 1) { */
-	/* 		m_cmdHandler.count(nick, msg.substr(1)); */
-	/* 		return true; */
-	/* 	} */
+/* process_url: extract url information and store in out */
+bool TwitchBot::process_url(char *out)
+{
+	URLParser::URL *url;
+	cpr::Response resp;
+	std::string title;
+	char buf[MAX_LEN];
 
-	/* 	/1* link information *1/ */
-	/* 	if (m_parser.wasModified()) { */
-	/* 		URLParser::URL *url = m_parser.getLast(); */
-	/* 		/1* print info about twitter statuses *1/ */
-	/* 		if (url->twitter && !url->tweetID.empty()) { */
-	/* 			tw::Reader twr(&m_auth); */
-	/* 			if (twr.read_tweet(url->tweetID)) { */
-	/* 				send_msg(twr.result()); */
-	/* 				return true; */
-	/* 			} */
-	/* 			std::cerr << "could not read tweet" << std::endl; */
-	/* 			return false; */
-	/* 		} */
-	/* 		/1* get the title of the url otherwise *1/ */
-	/* 		if (m_urltitles) { */
-	/* 			resp = cpr::Get(cpr::Url(url->full), */
-	/* 					cpr::Header{{ "Connection", "close" }}); */
-	/* 			std::string title; */
-	/* 			std::string s = url->subdomain + url->domain; */
-	/* 			if (!(title = urltitle(resp.text)).empty()) { */
-	/* 				send_msg("[URL] " + title */
-	/* 						+ " (at " + s + ")"); */
-	/* 				return true; */
-	/* 			} */
-	/* 			return false; */
-	/* 		} */
-	/* 	} */
-
-	/* 	/1* check for responses *1/ */
-	/* 	std::string output = m_cmdHandler.processResponse(msg); */
-	/* 	if (!output.empty()) */
-	/* 		send_msg("@" + nick + ", " + output); */
-
-	/* 	return true; */
-
-	/* } else if (std::regex_search(PRIVMSG.begin(), PRIVMSG.end(), */
-	/* 			match, subRegex)) { */
-	/* 	/1* send sub/resub messages *1/ */
-	/* 	std::string nick, fmt, len; */
-
-	/* 	nick = match[2].str(); */
-	/* 	if (match[3].str().empty()) { */
-	/* 		fmt = m_subMsg; */
-	/* 		len = "1"; */
-	/* 	} else { */
-	/* 		fmt = m_resubMsg; */
-	/* 		len = match[3].str(); */
-	/* 	} */
-	/* 	if (!fmt.empty()) */
-	/* 		send_msg(formatSubMsg(fmt, nick, len)); */
-	/* 	return true; */
-
-	/* } else { */
-	/* 	std::cerr << "Could not extract data" << std::endl; */
-	/* 	return false; */
-	/* } */
-	/* return false; */
+	url = m_parser.getLast();
+	if (url->twitter && !url->tweetID.empty()) {
+		/* print info about twitter statuses */
+		tw::Reader twr(&m_auth);
+		if (twr.read_tweet(url->tweetID)) {
+			_sprintf(out, MAX_LEN, "%s", twr.result().c_str());
+			return true;
+		}
+		fprintf(stderr, "could not read tweet\n");
+		return false;
+	}
+	/* get title of url if url_titles is active */
+	if (m_urltitles) {
+		resp = cpr::Get(cpr::Url(url->full),
+				cpr::Header{{ "Connection", "close" }});
+		strcat(buf, url->subdomain.c_str());
+		strcat(buf, url->domain.c_str());
+		if (!(title = urltitle(resp.text)).empty()) {
+			_sprintf(out, MAX_LEN, "[URL] %s (at %s)",
+					title.c_str(), buf);
+			return true;
+		}
+		return false;
+	}
+	*out = '\0';
+	return true;
 }
 
 /* parse_privmsg: parse twitch message to extract nick, msg and permissions */
@@ -264,9 +260,9 @@ bool TwitchBot::parse_privmsg(char *privmsg, char **nick, char **msg, perm_t *p)
 {
 	char *tok, *s;
 
-	if (!(*nick = strstr(privmsg, " :")))
+	if (*privmsg != '@' || !(tok = strstr(privmsg, " :")))
 		return false;
-	*nick += 2;
+	*nick = tok + 2;
 	if (!(s = strchr(*nick, '!')))
 		return false;
 	*s = '\0';

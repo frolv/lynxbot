@@ -44,7 +44,7 @@ class TwitchBot {
 
 		tw::Authenticator m_auth;
 		Client m_client;
-		CommandHandler m_cmdHandler;
+		CommandHandler m_cmdhnd;
 		ConfigReader *m_cfgr;
 		EventManager m_event;
 		Giveaway m_giveaway;
@@ -61,6 +61,7 @@ class TwitchBot {
 		bool pong(char *ping);
 		void process_data(char *data);
 		bool process_privmsg(char *privmsg);
+		bool process_url(char *out);
 		bool parse_privmsg(char *privmsg, char **nick,
 				char **msg, perm_t *p);
 		bool moderate(const std::string &nick, const std::string &msg);
