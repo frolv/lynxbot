@@ -52,9 +52,9 @@ _LBH=client.h cmdparse.h CommandHandler.h config.h EventManager.h\
      TwitchBot.h URLParser.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
-_LYNXC=option.o
+_LYNXC=option.o stringparse.o
 LYNXC=$(patsubst %,$(OBJ)/%,$(_LYNXC))
-_LCH=option.h
+_LCH=option.h stringparse.h
 LCH=$(patsubst %,$(SRC)/%,$(_LCH))
 
 _COMMANDS=about.o active.o addcom.o addrec.o age.o calc.o cgrep.o cmdinfo.o\
