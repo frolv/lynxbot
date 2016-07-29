@@ -19,7 +19,7 @@ int parsenum(const char *s, int64_t *num)
 		n = 10 * n + (*s - '0');
 	}
 
-	*num = neg ? n : -n;
+	*num = neg ? -n : n;
 	return 1;
 }
 
