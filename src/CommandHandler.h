@@ -31,21 +31,21 @@ class Giveaway;
 class RSNList;
 class ConfigReader;
 
+struct command {
+	char *nick;		/* name of command user */
+	int argc;		/* number of arguments */
+	char **argv;		/* array of arguments */
+	perm_t privileges;	/* user privileges */
+	std::string cmd;
+	std::string fullCmd;
+};
+
 class CommandHandler {
 
 	public:
-		struct command {
-			char *nick;		/* name of command user */
-			int argc;		/* number of arguments */
-			char **argv;		/* array of arguments */
-			perm_t privileges;	/* user privileges */
-			std::string cmd;
-			std::string fullCmd;
-		};
-
 		typedef std::unordered_map<std::string,
 			std::string(CommandHandler::*)(char *,
-			CommandHandler::command *)> commandMap;
+			struct command *)> commandMap;
 
 		CommandHandler(const std::string &name, const std::string &channel,
 				const std::string &token, Moderator *mod,
@@ -163,18 +163,19 @@ class CustomCommandHandler {
 	public:
 		typedef std::unordered_map<std::string,
 			std::string(CommandHandler::*)(char *,
-			CommandHandler::command *)> commandMap;
+			struct command *)> commandMap;
+
 		CustomCommandHandler(commandMap *defaultCmds, TimerManager *tm,
 				const std::string &wheelCmd,
 				const std::string &name,
 				const std::string &channel);
 		~CustomCommandHandler();
 		bool isActive();
-		bool addcom(const std::string &cmd, const std::string &response,
+		bool addcom(const std::string &cmd, std::string response,
 				const std::string &nick, time_t cooldown);
 		bool delcom(const std::string &cmd);
 		bool editcom(const std::string &cmd,
-				const std::string &newResp = "",
+				std::string newResp = "",
 				time_t newcd = -1);
 		bool activate(const std::string &cmd);
 		bool deactivate(const std::string &cmd);

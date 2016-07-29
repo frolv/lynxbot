@@ -12,8 +12,10 @@ CMDUSAGE("$permit [-n AMT] [-s] USER");
 /* permit: grant user permission to post a url */
 std::string CommandHandler::permit(char *out, struct command *c)
 {
-	if (!P_ALMOD(c->privileges))
-		return NO_PERM(c->nick, c->cmd);
+	if (!P_ALMOD(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return "";
+	}
 
 	std::string nick;
 	int opt, amt;

@@ -3,8 +3,8 @@
 
 #include "CommandHandler.h"
 
-int parse_cmd(char *cmdstr, struct CommandHandler::command *c);
-void free_cmd(struct CommandHandler::command *c);
+int parse_cmd(char *cmdstr, struct command *c);
+void free_cmd(struct command *c);
 char *cmderr();
 
 #endif

@@ -22,8 +22,10 @@ static std::string create_poll(const std::vector<std::string> &tokens,
 /* strawpoll: create polls */
 std::string CommandHandler::strawpoll(char *out, struct command *c)
 {
-	if (!P_ALMOD(c->privileges))
-		return NO_PERM(c->nick, c->cmd);
+	if (!P_ALMOD(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return "";
+	}
 
 	std::string err;
 	std::vector<std::string> tokens;

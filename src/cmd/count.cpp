@@ -16,8 +16,10 @@ static std::string getresults(std::unordered_map<std::string, uint16_t> *count);
 /* count: manage message counts */
 std::string CommandHandler::count(char *out, struct command *c)
 {
-	if (!P_ALMOD(c->privileges))
-		return NO_PERM(c->nick, c->cmd);
+	if (!P_ALMOD(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return "";
+	}
 
 	std::vector<std::string> argv;
 

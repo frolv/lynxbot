@@ -18,8 +18,10 @@ static std::string formatoutput(std::vector<std::string> &del,
 /* delcom: delete custom commands */
 std::string CommandHandler::delcom(char *out, struct command *c)
 {
-	if (!P_ALMOD(c->privileges))
-		return NO_PERM(c->nick, c->cmd);
+	if (!P_ALMOD(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return "";
+	}
 
 	std::string commands;
 	std::vector<std::string> argv, del, inv;

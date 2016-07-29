@@ -1,96 +1,103 @@
+#include <string.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+#include "../stringparse.h"
 
 /* full name of the command */
-CMDNAME("addcom");
+_CMDNAME("addcom");
 /* description of the command */
-CMDDESCR("create a new custom command");
+_CMDDESCR("create a new custom command");
 /* command usage synopsis */
-CMDUSAGE("$addcom [-c CD] CMD RESPONSE");
+_CMDUSAGE("$addcom [-c CD] CMD RESPONSE");
 
-static bool create(CustomCommandHandler *cch, const std::string &args,
-		const std::string &nick, time_t cooldown, std::string &res);
+static void create(char *out, CustomCommandHandler *cch,
+		struct command *c, time_t cooldown);
 
 /* addcom: create a new custom command */
 std::string CommandHandler::addcom(char *out, struct command *c)
 {
-	if (!P_ALMOD(c->privileges))
-		return NO_PERM(c->nick, c->cmd);
-
-	if (!m_customCmds->isActive())
-		return CMDNAME + ": custom commands are currently disabled";
-
-	std::string outp, res;
 	time_t cooldown;
-
-	OptionParser op(c->fullCmd, "c:");
 	int opt;
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "cooldown", REQ_ARG, 'c'},
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
+
+	if (!P_ALMOD(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return "";
+	}
+
+	if (!m_customCmds->isActive()) {
+		_sprintf(out, MAX_MSG, "%s: custom commands are "
+				"currently disabled", c->argv[0]);
+		return "";
+	}
+
 	cooldown = 15;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "c:", long_opts)) != EOF) {
 		switch (opt) {
 		case 'c':
 			/* user provided a cooldown */
-			try {
-				if ((cooldown = std::stoi(op.optarg())) < 0)
-					return CMDNAME + ": cooldown cannot be "
-						"negative";
-			} catch (std::invalid_argument) {
-				return CMDNAME  + ": invalid number -- '"
-					+ std::string(op.optarg()) + "'";
-			} catch (std::out_of_range) {
-				return CMDNAME + ": number too large";
+			if (!parsenum(optarg, &cooldown)) {
+				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+						c->argv[0], optarg);
+				return "";
+			}
+			if (cooldown < 0) {
+				_sprintf(out, MAX_MSG, "%s: cooldown cannot be "
+						"negative", c->argv[0]);
+				return "";
 			}
 			break;
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind == c->argc) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
+	if (optind == c->argc - 1) {
+		_sprintf(out, MAX_MSG, "%s: no response provided for "
+				"command $%s", c->argv[0], c->argv[optind]);
+		return "";
+	}
 
-	outp = "@" + std::string(c->nick) + ", ";
-	if (!create(m_customCmds, c->fullCmd.substr(op.optind()),
-				c->nick, cooldown, res))
-		return CMDNAME + ": " + res;
-	return outp + res;
+	create(out, m_customCmds, c, cooldown);
+	return "";
 }
 
 /* create: create a custom command */
-static bool create(CustomCommandHandler *cch, const std::string &args,
-		const std::string &nick, time_t cooldown, std::string &res)
+static void create(char *out, CustomCommandHandler *cch,
+		struct command *c, time_t cooldown)
 {
-	size_t sp;
-	std::string cmd, response;
+	char resp[MAX_MSG];
+	char *cmd;
 
-	if ((sp = args.find(' ')) == std::string::npos) {
-		res = "no response provided for command $" + args;
-		return false;
+	cmd = c->argv[optind];
+	resp[0] = '\0';
+	for (++optind; optind < c->argc; ++optind) {
+		strcat(resp, c->argv[optind]);
+		if (optind != c->argc - 1)
+			strcat(resp, " ");
 	}
-
-	/* first word is command, rest is response */
-	cmd = args.substr(0, sp);
-	response = args.substr(sp + 1);
-
-	/* don't allow reponse to activate a twitch command */
-	if (response[0] == '/')
-		response = " " + response;
-	if (!cch->addcom(cmd, response, nick, cooldown)) {
-		res = cch->error();
-		return false;
+	if (!cch->addcom(cmd, resp, c->nick, cooldown)) {
+		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+				cch->error().c_str());
+		return;
 	}
-	res = "command $" + cmd + " has been added with a "
-		+ std::to_string(cooldown) + "s cooldown.";
-	return true;
+	_sprintf(out, MAX_MSG, "@%s, command $%s has been added with a %ld"
+			"s cooldown", c->nick, cmd, cooldown);
 }

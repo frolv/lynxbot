@@ -11,7 +11,7 @@ static int escseq(char *s);
 static char *readquotes(char *s);
 
 /* parse_cmd: split cmdstr into argv of c */
-int parse_cmd(char *cmdstr, struct CommandHandler::command *c)
+int parse_cmd(char *cmdstr, struct command *c)
 {
 	int i;
 	char *s;
@@ -52,7 +52,7 @@ int parse_cmd(char *cmdstr, struct CommandHandler::command *c)
 	return 1;
 }
 
-void free_cmd(struct CommandHandler::command *c)
+void free_cmd(struct command *c)
 {
 	free(c->argv);
 }

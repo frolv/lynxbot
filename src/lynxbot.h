@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 
+/* general program information */
 #define _BOT_NAME	"LynxBot"
 #define _BOT_VER_MAJOR	"1"
 #define _BOT_VER_MINOR	"4"
@@ -12,6 +13,7 @@
 #define _BOT_VER_SUF	"-beta"
 #define _BOT_WEBSITE	"https://frolv.github.io/lynxbot"
 
+/* full version string */
 #define BOT_VER "v" _BOT_VER_MAJOR "." _BOT_VER_MINOR "."\
 	_BOT_VER_PATCH _BOT_VER_SUF
 

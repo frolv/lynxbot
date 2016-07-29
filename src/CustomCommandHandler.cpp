@@ -36,9 +36,9 @@ bool CustomCommandHandler::isActive()
 	return m_active;
 }
 
-/* addCom: add a new custom command cmd with response and cooldown */
+/* addcom: add a new custom command cmd with response and cooldown */
 bool CustomCommandHandler::addcom(const std::string &cmd,
-		const std::string &response, const std::string &nick,
+		std::string response, const std::string &nick,
 		time_t cooldown)
 {
 	time_t t;
@@ -49,6 +49,8 @@ bool CustomCommandHandler::addcom(const std::string &cmd,
 	}
 	if (!valid_resp(response, m_error))
 		return false;
+	if (response[0] == '/')
+		response = " " + response;
 	Json::Value command;
 	command["active"] = true;
 	command["cmd"] = cmd;
@@ -87,7 +89,7 @@ bool CustomCommandHandler::delcom(const std::string &cmd)
 
 /* editCom: modify the command cmd with newResp and newcd */
 bool CustomCommandHandler::editcom(const std::string &cmd,
-		const std::string &newResp, time_t newcd)
+		std::string newResp, time_t newcd)
 {
 	auto *com = getcom(cmd);
 	if (com->empty()) {
@@ -96,8 +98,11 @@ bool CustomCommandHandler::editcom(const std::string &cmd,
 	}
 	if (!valid_resp(newResp, m_error))
 		return false;
-	if (!newResp.empty())
+	if (!newResp.empty()) {
+		if (newResp[0] == '/')
+			newResp = " " + newResp;
 		(*com)["response"] = newResp;
+	}
 	if (newcd != -1) {
 		(*com)["cooldown"] = (Json::Int64)newcd;
 		m_tmp->remove(cmd);

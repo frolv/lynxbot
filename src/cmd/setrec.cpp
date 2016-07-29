@@ -12,8 +12,10 @@ CMDUSAGE("$setrec on|off");
 /* setrec: enable and disable recurring messages */
 std::string CommandHandler::setrec(char *out, struct command *c)
 {
-	if (!P_ALMOD(c->privileges))
-		return NO_PERM(c->nick, c->cmd);
+	if (!P_ALMOD(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return "";
+	}
 
 	std::string outp, set;
 

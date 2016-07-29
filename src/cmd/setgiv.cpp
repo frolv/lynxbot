@@ -97,8 +97,10 @@ std::string CommandHandler::setgiv(char *out, struct command *c)
 		return "@" + std::string(c->nick) + ", " + m_givp->currentSettings(type);
 
 	/* allow all users to check but only owner to set */
-	if (!P_ISOWN(c->privileges))
-		return NO_PERM(c->nick, c->cmd);
+	if (!P_ISOWN(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return "";
+	}
 
 	return process(m_givp, type, set, c->nick, amt);
 }
