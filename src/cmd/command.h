@@ -1,15 +1,18 @@
-/* command.h: macros to standardize command definitions */
+/*
+ * command.h: macros to standardize command definitions
+ */
 
 #ifndef _COMMAND_H
 #define _COMMAND_H
 
-#include <string>
 #include "../lynxbot.h"
 
-/* old formats */
-#define CMDNAME(x) const static std::string CMDNAME = x
-#define CMDDESCR(x) const static std::string CMDDESCR = x
-#define CMDUSAGE(x) const static std::string CMDUSAGE = x
+/* old macros */
+#include <string>
+
+#define CMDNAME(x) static const std::string CMDNAME = x
+#define CMDDESCR(x) static const std::string CMDDESCR = x
+#define CMDUSAGE(x) static const std::string CMDUSAGE = x
 
 #define HELPMSG(NAME,USAGE,DESC) (std::string("usage: " + USAGE + " | "\
 			+ NAME + " - " + DESC + " | read more: "\
@@ -20,9 +23,9 @@
 			+ USAGE))
 /* ----------- */
 
-#define _CMDNAME(x) const static char *_CMDNAME = x
-#define _CMDDESCR(x) const static char *_CMDDESCR = x
-#define _CMDUSAGE(x) const static char *_CMDUSAGE = x
+#define _CMDNAME(x) static const char *_CMDNAME = x
+#define _CMDDESCR(x) static const char *_CMDDESCR = x
+#define _CMDUSAGE(x) static const char *_CMDUSAGE = x
 
 /* print usage synposis, brief description and link to man page */
 #define _HELPMSG(buf,NAME,USAGE,DESC) _sprintf(buf, MAX_MSG, "usage: %s | "\
@@ -32,5 +35,9 @@
 /* print error with usage synopsis */
 #define _USAGEMSG(buf,NAME,USAGE) _sprintf(buf, MAX_MSG, "%s: invalid syntax. "\
 		"usage: %s", NAME, USAGE)
+
+/* send user permission denied message */
+#define PERM_DENIED(buf,NAME,CMD) _sprintf(buf, MAX_MSG, "/w %s %s: "\
+		"permission denied", NAME, CMD)
 
 #endif
