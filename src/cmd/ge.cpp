@@ -4,6 +4,7 @@
 #include "command.h"
 #include "../CommandHandler.h"
 #include "../OptionParser.h"
+#include "../stringparse.h"
 
 /* full name of the command */
 CMDNAME("ge");
@@ -42,7 +43,7 @@ std::string CommandHandler::ge(char *out, struct command *c)
 		case 'h':
 			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
 		case 'n':
-			if (!utils::readnum(op.optarg(), &amt))
+			if (!parsenum_mult(op.optarg(), &amt))
 				return CMDNAME + ": invalid number -- '"
 					+ std::string(op.optarg()) + "'";
 			break;
