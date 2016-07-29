@@ -1,3 +1,7 @@
+/*
+ * option.h: command option parsing functions
+ */
+
 #ifndef _OPTION_H
 #define _OPTION_H
 

@@ -69,9 +69,13 @@ std::string CommandHandler::strawpoll(char *out, struct command *c)
 		return c->cmd + ": poll must have a question and at least "
 			"two answers";
 
-	if ((m_activePoll = create_poll(tokens, err)).empty())
+	std::string poll;
+	if ((poll = create_poll(tokens, err)).empty()) {
+		m_poll[0] = '\0';
 		return c->cmd + ": " + err;
-	return "[STRAWPOLL] " + STRAWPOLL_HOST + "/" + m_activePoll;
+	}
+	strcpy(m_poll, poll.c_str());
+	return "[STRAWPOLL] " + STRAWPOLL_HOST + "/" + poll;
 }
 
 /* create_poll: create a strawpoll, return id */

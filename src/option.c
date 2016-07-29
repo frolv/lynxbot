@@ -3,7 +3,6 @@
 #include "option.h"
 
 #define INV_OPT 0
-
 #define ERR_SIZE 256
 
 int optind;

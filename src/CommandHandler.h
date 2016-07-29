@@ -18,6 +18,8 @@
 #define DEFAULT 1
 #define CUSTOM  2
 
+#define MAX_LEN 1024
+
 class Moderator;
 class CustomCommandHandler;
 class GEReader;
@@ -82,7 +84,7 @@ class CommandHandler {
 		std::unordered_map<std::string, std::string> m_help;
 		std::random_device m_rd;
 		std::mt19937 m_gen;
-		std::string m_activePoll;
+		char m_poll[MAX_LEN];
 		std::vector<std::string> m_eightball = {
 			"It is certain",
 			"It is decidedly so",

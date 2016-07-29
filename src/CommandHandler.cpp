@@ -18,6 +18,7 @@ CommandHandler::CommandHandler(const std::string &name,
 	m_cfgr(cfgr), m_auth(auth), m_counting(false), m_gen(m_rd())
 {
 	populateCmds();
+	m_poll[0] = '\0';
 
 	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd(), name, channel);

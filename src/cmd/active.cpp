@@ -1,40 +1,47 @@
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
 
 /* full name of the command */
-CMDNAME("active");
+_CMDNAME("active");
 /* description of the command */
-CMDDESCR("view current poll");
+_CMDDESCR("view current poll");
 /* command usage synopsis */
-CMDUSAGE("$active");
+_CMDUSAGE("$active");
 
-static const std::string STRAWPOLL_HOST = "https://strawpoll.me";
+static const char *SP_HOST = "https://strawpoll.me";
 
 /* active: view current poll */
 std::string CommandHandler::active(char *out, struct command *c)
 {
 	int opt;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() != c->fullCmd.length())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind != c->argc) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
 
-	return "[ACTIVE] " + (m_activePoll.empty() ? "no poll has been created"
-			: (STRAWPOLL_HOST + "/" + m_activePoll));
+	if (!*m_poll)
+		_sprintf(out, MAX_MSG, "[ACTIVE] no poll has been created");
+	else
+		_sprintf(out, MAX_MSG, "[ACTIVE] %s/%s", SP_HOST, m_poll);
+	return "";
 }
