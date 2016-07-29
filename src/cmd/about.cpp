@@ -29,7 +29,7 @@ std::string CommandHandler::about(char *out, struct command *c)
 
 	opt_init();
 	type = ABT;
-	while ((opt = getopt(c->argc, c->argv, "rs")) != EOF) {
+	while ((opt = getopt_long(c->argc, c->argv, "rs", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
