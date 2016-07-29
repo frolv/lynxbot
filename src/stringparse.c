@@ -1,3 +1,4 @@
+#include <string.h>
 #include "stringparse.h"
 
 /* parsenum: read number from s into num */
@@ -18,7 +19,7 @@ int parsenum(const char *s, int64_t *num)
 		n = 10 * n + (*s - '0');
 	}
 
-	*amt = n;
+	*num = n;
 	return 1;
 }
 
@@ -28,7 +29,7 @@ int parsenum(const char *s, int64_t *num)
  */
 int parsenum_mult(const char *s, int64_t *num)
 {
-	char *last;
+	const char *last;
 	int64_t n, mult;
 
 	last = s + strlen(s) - 1;
@@ -60,6 +61,6 @@ int parsenum_mult(const char *s, int64_t *num)
 		n = 10 * n + (*s - '0');
 	}
 
-	*amt = n * mult;
+	*num = n * mult;
 	return 1;
 }
