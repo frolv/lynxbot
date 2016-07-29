@@ -70,6 +70,12 @@ bool TwitchBot::connect()
 	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/tags");
 	send_raw(buf);
 
+	if (strlen(m_channel.c_str()) > 32) {
+		fprintf(stderr, "error: channel name too long\n");
+		disconnect();
+		return false;
+	}
+
 	/* join channel */
 	_sprintf(buf, MAX_MSG, "JOIN %s", m_channel.c_str());
 	send_raw(buf);
@@ -130,9 +136,10 @@ bool TwitchBot::send_raw(char *data)
 /* send_msg: send a PRIVMSG to the connected channel */
 bool TwitchBot::send_msg(const std::string &msg)
 {
-	char buf[MAX_MSG];
+	char buf[MAX_MSG + 64];
 
-	_sprintf(buf, MAX_MSG, "PRIVMSG %s :%s", m_channel.c_str(), msg.c_str());
+	_sprintf(buf, MAX_MSG + 64, "PRIVMSG %s :%s",
+			m_channel.c_str(), msg.c_str());
 	return send_raw(buf);
 }
 
