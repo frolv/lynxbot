@@ -32,7 +32,7 @@ std::string CommandHandler::status(char *out, struct command *c)
 	std::string output, status, err;
 	bool append;
 	cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
-		{ "Authorization", "OAuth " + m_token }};
+		{ "Authorization", "OAuth " + std::string(m_token) }};
 
 	int opt;
 	OptionParser op(c->fullCmd, "a");
@@ -66,8 +66,8 @@ std::string CommandHandler::status(char *out, struct command *c)
 	if (op.optind() == c->fullCmd.length()) {
 		if (append)
 			return c->cmd + ": no text to append";
-		return "[STATUS] Current status for " + m_channel + " is \""
-			+ status + "\".";
+		return "[STATUS] Current status for " + std::string(m_channel)
+			+ " is \"" + status + "\".";
 	}
 	if (append)
 		status += " ";

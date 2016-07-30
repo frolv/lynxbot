@@ -48,7 +48,7 @@ std::string CommandHandler::uptime(char *out, struct command *c)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
 	if (bot)
-		return m_name + " has been running for "
+		return std::string(m_name) + " has been running for "
 			+ utils::conv_time((time(NULL) - m_evtp->init())) + ".";
 
 	return "[UPTIME] " + channel_uptime(m_channel);

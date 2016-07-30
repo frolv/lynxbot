@@ -18,7 +18,7 @@
 #define DEFAULT 1
 #define CUSTOM  2
 
-#define MAX_LEN 1024
+#define MAX_LEN 128
 
 class Moderator;
 class CustomCommandHandler;
@@ -47,8 +47,8 @@ class CommandHandler {
 			std::string(CommandHandler::*)(char *,
 			struct command *)> commandMap;
 
-		CommandHandler(const std::string &name, const std::string &channel,
-				const std::string &token, Moderator *mod,
+		CommandHandler(const char *name, const char *channel,
+				const char *token, Moderator *mod,
 				URLParser *urlp, EventManager *evtp,
 				Giveaway *givp, ConfigReader *cfgr,
 				tw::Authenticator *auth);
@@ -60,9 +60,9 @@ class CommandHandler {
 		void count(const std::string &nick, const std::string &message);
 
 	private:
-		const std::string m_name;
-		const std::string m_channel;
-		const std::string m_token;
+		const char *m_name;
+		const char *m_channel;
+		const char *m_token;
 		Moderator *m_modp;
 		URLParser *m_parsep;
 		commandMap m_defaultCmds;

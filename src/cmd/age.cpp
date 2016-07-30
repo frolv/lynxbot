@@ -3,69 +3,77 @@
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
 
 /* full name of the command */
-CMDNAME("age");
+_CMDNAME("age");
 /* description of the command */
-CMDDESCR("check length of channel releationships");
+_CMDDESCR("check length of channel relationships");
 /* command usage synopsis */
-CMDUSAGE("age <-f|-s>");
+_CMDUSAGE("age <-f|-s>");
 
-static const std::string TWITCH_API = "https://api.twitch.tv/kraken";
+static const char *TWITCH_API = "https://api.twitch.tv/kraken";
 
 /* followage: check how long you have been following a channel */
 std::string CommandHandler::age(char *out, struct command *c)
 {
 	static cpr::Header head{{ "Accept","application/vnd.twitchtv.v3+json" },
-		{ "Authorization", "OAuth " + m_token }};
+		{ "Authorization", "OAuth " + std::string(m_token) }};
 	cpr::Response resp;
 	Json::Reader reader;
 	Json::Value response;
-	std::string msg, url, outp;
+	char url[MAX_MSG];
+	const char *msg;
 
 	int opt;
-	OptionParser op(c->fullCmd, "fs");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "follow", NO_ARG, 'f' },
 		{ "help", NO_ARG, 'h' },
 		{ "sub", NO_ARG, 's' },
 		{ 0, 0, 0 }
 	};
 
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	url[0] = '\0';
+	while ((opt = getopt_long(c->argc, c->argv, "fs", long_opts)) != EOF) {
 		switch (opt) {
 		case 'f':
-			url = TWITCH_API + "/users/" + c->nick
-				+ "/follows/channels/" + m_channel;
+			_sprintf(url, MAX_MSG, "%s/users/%s/follows/channels/%s",
+					TWITCH_API, c->nick, m_channel);
 			msg = "following";
 			break;
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case 's':
-			url = TWITCH_API + "/channels/" + m_channel
-				+ "/subscriptions/" + c->nick;
+			_sprintf(url, MAX_MSG, "%s/channels/%s/subscriptions/%s",
+					TWITCH_API, m_channel, c->nick);
 			msg = "subscribed to";
 			break;
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() != c->fullCmd.length() || url.empty())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind != c->argc || !url[0]) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
 
 	resp = cpr::Get(cpr::Url(url), head);
 
-	outp = "@" + std::string(c->nick) + ", ";
 	if (!reader.parse(resp.text, response))
-		return CMDNAME + ": could not parse response";
-	if (!response.isMember("created_at"))
-		return outp + "you are not " + msg + " " + m_channel + ".";
-
-	return outp + "you have been " + msg + " " + m_channel + " for "
-		+ utils::parse_time(response["created_at"].asString(), true)
-		+ ".";
+		_sprintf(out, MAX_MSG, "%s: could not parse response", _CMDNAME);
+	else if (!response.isMember("created_at"))
+		_sprintf(out, MAX_MSG, "@%s, you are not %s %s.",
+				c->nick, msg, m_channel);
+	else
+		_sprintf(out, MAX_MSG, "@%s, you have been %s %s for %s.",
+				c->nick, msg, m_channel,
+				utils::parse_time(response["created_at"]
+					.asString(), true).c_str());
+	return "";
 }

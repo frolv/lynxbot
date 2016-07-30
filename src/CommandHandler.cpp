@@ -9,10 +9,10 @@
 #include "lynxbot.h"
 #include "OptionParser.h"
 
-CommandHandler::CommandHandler(const std::string &name,
-		const std::string &channel, const std::string &token,
-		Moderator *mod, URLParser *urlp, EventManager *evtp,
-		Giveaway *givp, ConfigReader *cfgr, tw::Authenticator *auth)
+CommandHandler::CommandHandler(const char *name, const char *channel,
+		const char *token, Moderator *mod, URLParser *urlp,
+		EventManager *evtp, Giveaway *givp, ConfigReader *cfgr,
+		tw::Authenticator *auth)
 	: m_name(name), m_channel(channel), m_token(token), m_modp(mod),
 	m_parsep(urlp), m_customCmds(NULL), m_evtp(evtp), m_givp(givp),
 	m_cfgr(cfgr), m_auth(auth), m_counting(false), m_gen(m_rd())

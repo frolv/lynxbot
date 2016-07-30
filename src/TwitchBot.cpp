@@ -17,9 +17,10 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 		ConfigReader *cfgr)
 	: m_connected(false), m_password(password.c_str()), m_nick(nick),
 	m_channel(channel), m_token(token), m_client(TWITCH_SERV, TWITCH_PORT),
-	m_cmdhnd(nick, channel.substr(1), token, &m_mod, &m_parser,
-			&m_event, &m_giveaway, cfgr, &m_auth), m_cfgr(cfgr),
-	m_event(cfgr), m_giveaway(channel.substr(1), time(nullptr), cfgr),
+	m_cmdhnd(nick.c_str(), channel.substr(1).c_str(), token.c_str(), &m_mod,
+			&m_parser, &m_event, &m_giveaway, cfgr, &m_auth),
+	m_cfgr(cfgr), m_event(cfgr),
+	m_giveaway(channel.substr(1), time(nullptr), cfgr),
 	m_mod(&m_parser, cfgr)
 {
 	std::string err;

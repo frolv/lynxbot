@@ -60,8 +60,8 @@ std::string CommandHandler::about(char *out, struct command *c)
 				type == REL ? RELEASE : SOURCE);
 		break;
 	default:
-		_sprintf(out, MAX_MSG, "[ABOUT] %s is running %s %s. Find out "
-				"more at %s", m_name.c_str(), _BOT_NAME,
+		_sprintf(out, MAX_MSG, "[ABOUT] %s is running %s %s. "
+				"Find out more at %s", m_name, _BOT_NAME,
 				BOT_VER, _BOT_WEBSITE);
 		break;
 	}
