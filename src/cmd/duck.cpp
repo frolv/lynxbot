@@ -41,6 +41,7 @@ std::string CommandHandler::duck(char *out, struct command *c)
 		return "";
 	}
 
-	std::string search = c->fullCmd.substr(optind);
-	return DDG_QUERY + tw::pencode(search);
+	argvcat(query, c->argc, c->argv, optind, 1);
+	_sprintf(out, MAX_MSG, "%s%s", DDG_QUERY, tw::pencode(query).c_str());
+	return "";
 }
