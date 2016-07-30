@@ -1,92 +1,99 @@
-#include <ctime>
 #include <json/json.h>
-#include <iomanip>
-#include <sstream>
+#include <string.h>
+#include <time.h>
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+
+#define MAX_PRINT 128
 
 /* full name of the command */
-CMDNAME("command");
+_CMDNAME("command");
 /* description of the command */
-CMDDESCR("show information about a custom command");
+_CMDDESCR("show information about a custom command");
 /* command usage synopsis */
-CMDUSAGE("$cmdinfo [-acCmu] CMD");
+_CMDUSAGE("$cmdinfo [-aCcmu] CMD");
 
-static bool mod;
-static bool atime, crtime, creator, mtime, uses;
+static int mod;
+static int atime, crtime, creator, mtime, uses;
 
-static std::string info(Json::Value *cmd);
+static void putinfo(char *out, Json::Value *cmd);
 
 /* cmdinfo: show information about a custom command */
 std::string CommandHandler::cmdinfo(char *out, struct command *c)
 {
-	std::string cmd;
-
 	int opt;
-	OptionParser op(c->fullCmd, "acCmu");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "atime", NO_ARG, 'a' },
-		{ "ctime", NO_ARG, 'c' },
 		{ "creator", NO_ARG, 'C' },
+		{ "ctime", NO_ARG, 'c' },
 		{ "help", NO_ARG, 'h' },
 		{ "mtime", NO_ARG, 'm' },
 		{ "uses", NO_ARG, 'u' },
 		{ 0, 0, 0 }
 	};
 
-	atime = crtime = creator = mtime = uses = mod = false;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	atime = crtime = creator = mtime = uses = mod = 0;
+	while ((opt = getopt_long(c->argc, c->argv, "aCcmu", long_opts))
+			!= EOF) {
 		switch (opt) {
 		case 'a':
-			mod = atime = true;
-			break;
-		case 'c':
-			mod = crtime = true;
+			mod = atime = 1;
 			break;
 		case 'C':
-			mod = creator = true;
+			mod = creator = 1;
+			break;
+		case 'c':
+			mod = crtime = 1;
 			break;
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case 'm':
-			mod = mtime = true;
+			mod = mtime = 1;
 			break;
 		case 'u':
-			mod = uses = true;
+			mod = uses = 1;
 			break;
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 	if (!mod)
-		atime = crtime = creator = mtime = uses = true;
+		atime = crtime = creator = mtime = uses = 1;
 
-	if (op.optind() == c->fullCmd.length()
-			|| (cmd = c->fullCmd.substr(op.optind())).find(' ')
-			!= std::string::npos)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
-
-	switch (source(cmd)) {
-	case DEFAULT:
-		return "[CMDINFO] " + cmd + " is a default command";
-	case CUSTOM:
-		return "[CMDINFO] " + info(m_customCmds->getcom(cmd));
-	default:
-		return CMDNAME + ": command not found: " + cmd;
+	if (optind != c->argc - 1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
 	}
 
+	switch (source(c->argv[optind])) {
+	case DEFAULT:
+		_sprintf(out, MAX_MSG, "[CMDINFO] %s is a default command",
+				c->argv[optind]);
+		break;
+	case CUSTOM:
+		putinfo(out, m_customCmds->getcom(c->argv[optind]));
+		break;
+	default:
+		_sprintf(out, MAX_MSG, "%s: command not found: %s",
+				c->argv[0], c->argv[optind]);
+		break;
+	}
+	return "";
 }
 
 /* info: return requested information about cmd */
-static std::string info(Json::Value *cmd)
+static void putinfo(char *out, Json::Value *cmd)
 {
-	std::ostringstream out;
+	char *end;
 	time_t at, ct, mt;
-	std::tm atm, ctm, mtm;
+	struct tm atm, ctm, mtm;
 
 	if (cmd->isMember("atime"))
 		at = (time_t)(*cmd)["atime"].asInt64();
@@ -106,39 +113,57 @@ static std::string info(Json::Value *cmd)
 	localtime_s(&mtm, &mt);
 #endif
 
-	out << (*cmd)["cmd"].asString() + ": ";
+	_sprintf(out, MAX_MSG, "[CMDINFO] %s: ", (*cmd)["cmd"].asCString());
+	end = out + strlen(out);
 	if (crtime || creator) {
-		out << " Created";
-		if (creator)
-			out << " by " + (*cmd)["creator"].asString();
-		if (crtime) {
-			out << " at " << std::put_time(&ctm, "%R %Z %d/%m/%Y");
-			out << " (" << utils::conv_time(time(nullptr) - ct)
-				<< " ago)";
+		strcat(end, " Created");
+		end = strchr(end, '\0');
+		if (creator) {
+			_sprintf(end, MAX_PRINT, " by %s",
+					(*cmd)["creator"].asCString());
+			end = strchr(end, '\0');
 		}
-		out << ".";
+		if (crtime) {
+			strcat(end, " at ");
+			end = strchr(end, '\0');
+			strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &ctm);
+			end = strchr(end, '\0');
+			_sprintf(end, MAX_PRINT, " (%s ago)",
+					utils::conv_time(time(nullptr) - ct)
+					.c_str());
+		}
+		strcat(end, ".");
+		end = strchr(end, '\0');
 	}
 	if (mtime) {
 		if ((!mod && ct != mt) || mod) {
-			out << " Last modified at "
-				<< std::put_time(&mtm, "%R %Z %d/%m/%Y");
-			out << " (" << utils::conv_time(time(nullptr) - mt)
-				<< " ago).";
+			strcat(end, " Last modified at ");
+			end = strchr(end, '\0');
+			strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &mtm);
+			end = strchr(end, '\0');
+			_sprintf(end, MAX_PRINT, " (%s ago).",
+					utils::conv_time(time(nullptr) - mt)
+					.c_str());
+			end = strchr(end, '\0');
 		}
 	}
 	if (atime) {
 		if (at) {
-			out << " Last used at "
-				<< std::put_time(&atm, "%R %Z %d/%m/%Y");
-			out << " (" << utils::conv_time(time(nullptr) - at)
-				<< " ago).";
+			strcat(end, " Last used at ");
+			end = strchr(end, '\0');
+			strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &atm);
+			end = strchr(end, '\0');
+			_sprintf(end, MAX_PRINT, " (%s ago).",
+					utils::conv_time(time(nullptr) - at)
+					.c_str());
+			end = strchr(end, '\0');
 		} else if (mod) {
-			out << " Never used.";
+			strcat(end, " Never used.");
+			end = strchr(end, '\0');
 		}
 	}
 	if (uses)
-		out << " Used " << (*cmd)["uses"].asInt() << " time"
-			<< ((*cmd)["uses"].asInt() == 1 ? "" : "s") << ".";
-
-	return out.str();
+		_sprintf(end, MAX_PRINT, " Used %d time%s.",
+				(*cmd)["uses"].asInt(),
+				(*cmd)["uses"].asInt() == 1 ? "" : "s");
 }
