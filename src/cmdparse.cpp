@@ -2,6 +2,7 @@
 #include <string.h>
 #include "cmdparse.h"
 #include "lynxbot.h"
+#include "stringparse.h"
 
 #define ERR_LEN 256
 
@@ -60,13 +61,6 @@ void free_cmd(struct command *c)
 char *cmderr()
 {
 	return err;
-}
-
-/* shift_l: move every char in s one to the left */
-static void shift_l(char *s)
-{
-	while ((s[0] = s[1]))
-		++s;
 }
 
 /* escseq: process an escape sequence in s */

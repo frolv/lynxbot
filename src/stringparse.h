@@ -1,11 +1,14 @@
 /*
- * stringparse.h: functions to parse various data types from C strings
+ * stringparse.h: functions to manipulate and parse data from C strings
  */
 
 #ifndef _STRINGPARSE_H
 #define _STRINGPARSE_H
 
 #include <stdint.h>
+
+/* shift_l: move every char in s one to the left */
+void shift_l(char *s);
 
 /* parsenum: read number from s into num */
 int parsenum(const char *s, int64_t *res);

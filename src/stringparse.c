@@ -1,6 +1,13 @@
 #include <string.h>
 #include "stringparse.h"
 
+/* shift_l: move every char in s one to the left */
+void shift_l(char *s)
+{
+	while ((s[0] = s[1]))
+		++s;
+}
+
 /* parsenum: read number from s into num */
 int parsenum(const char *s, int64_t *num)
 {
