@@ -44,11 +44,8 @@ std::string CommandHandler::calc(char *out, struct command *c)
 		return "";
 	}
 
-	expr[0] = '\0';
+	argvcat(expr, c->argc, c->argv, optind, 0);
 	s = expr;
-	for (; optind < c->argc; ++optind)
-		strcat(expr, c->argv[optind]);
-	/* remove whitespace */
 	while ((s = strchr(s, ' ')))
 		shift_l(s);
 

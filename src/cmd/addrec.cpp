@@ -31,7 +31,7 @@ std::string CommandHandler::addrec(char *out, struct command *c)
 	}
 
 	opt_init();
-	cooldown = 300;
+	cooldown = 600;
 	while ((opt = getopt_long(c->argc, c->argv, "c:", long_opts)) != EOF) {
 		switch (opt) {
 		case 'c':
@@ -74,14 +74,7 @@ std::string CommandHandler::addrec(char *out, struct command *c)
 		return "";
 	}
 
-	/* build the message */
-	msg[0] = '\0';
-	for (; optind < c->argc; ++optind) {
-		strcat(msg, c->argv[optind]);
-		if (optind != c->argc - 1)
-			strcat(msg, " ");
-	}
-
+	argvcat(msg, c->argc, c->argv, optind, 1);
 	if (!m_evtp->addMessage(msg, cooldown))
 		_sprintf(out, MAX_MSG, "%s: limit of 5 recurring "
 				"messages reached", c->argv[0]);

@@ -83,16 +83,11 @@ std::string CommandHandler::addcom(char *out, struct command *c)
 static void create(char *out, CustomCommandHandler *cch,
 		struct command *c, time_t cooldown)
 {
-	char resp[MAX_MSG];
 	char *cmd;
+	char resp[MAX_MSG];
 
 	cmd = c->argv[optind];
-	resp[0] = '\0';
-	for (++optind; optind < c->argc; ++optind) {
-		strcat(resp, c->argv[optind]);
-		if (optind != c->argc - 1)
-			strcat(resp, " ");
-	}
+	argvcat(resp, c->argc, c->argv, ++optind, 1);
 	if (!cch->addcom(cmd, resp, c->nick, cooldown)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());

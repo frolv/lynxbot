@@ -1,5 +1,6 @@
 /*
  * command.h: macros to standardize command definitions
+ * and command processing helper functions
  */
 
 #ifndef _COMMAND_H
@@ -39,5 +40,8 @@
 /* send user permission denied message */
 #define PERM_DENIED(buf,NAME,CMD) _sprintf(buf, MAX_MSG, "/w %s %s: "\
 		"permission denied", NAME, CMD)
+
+/* argvcat: concatenate argv from optind to argc into buf */
+void argvcat(char *buf, int argc, char **argv, int optind, int space);
 
 #endif

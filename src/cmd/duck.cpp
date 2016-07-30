@@ -1,41 +1,46 @@
 #include <tw/oauth.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
 
 /* full name of the command */
-CMDNAME("duck");
+_CMDNAME("duck");
 /* description of the command */
-CMDDESCR("search duckduckgo with a query string");
+_CMDDESCR("search duckduckgo with a query string");
 /* command usage synopsis */
-CMDUSAGE("$duck QUERY");
+_CMDUSAGE("$duck QUERY");
 
-static const std::string DDG_QUERY = "https://duckduckgo.com/?q=";
+static const char *DDG_QUERY = "https://duckduckgo.com/?q=";
 
 /* duck: search duckduckgo with a query string */
 std::string CommandHandler::duck(char *out, struct command *c)
 {
+	char query[MAX_MSG];
 	int opt;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind == c->argc) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
 
-	std::string search = c->fullCmd.substr(op.optind());
+	std::string search = c->fullCmd.substr(optind);
 	return DDG_QUERY + tw::pencode(search);
 }

@@ -58,8 +58,8 @@ _LCH=option.h stringparse.h
 LCH=$(patsubst %,$(SRC)/%,$(_LCH))
 
 _COMMANDS=about.o active.o addcom.o addrec.o age.o calc.o cgrep.o cmdinfo.o\
-	  cml.o count.o delcom.o delrec.o duck.o editcom.o ehp.o eightball.o\
-	  fashiongen.o ge.o level.o man.o manual.o permit.o pokemon.o rsn.o\
+	  cml.o command.o count.o delcom.o delrec.o duck.o editcom.o ehp.o\
+	  eightball.o fashiongen.o ge.o level.o man.o manual.o permit.o pokemon.o rsn.o\
 	  setgiv.o setrec.o showrec.o status.o strawpoll.o submit.o twitter.o\
 	  uptime.o wheel.o whitelist.o xp.o
 COMMANDS=$(patsubst %, $(OBJ)/cmd/%,$(_COMMANDS))
@@ -87,7 +87,11 @@ $(OBJ)/%.o: $(SRC)/%.c $(LCH)
 $(OBJ)/%.o: $(LIBD)/%.cpp $(LIBH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
+# commands
 $(OBJ)/cmd/%.o: $(SRC)/cmd/%.cpp $(LBH) $(CMDH)
+	$(CXX) $(CXXFLAGS) -o $@ $<
+
+$(OBJ)/cmd/%.o: $(SRC)/cmd/%.c $(LCH) $(CMDH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 # jsoncpp source
