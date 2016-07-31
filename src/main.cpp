@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 	path = utils::configdir() + utils::config("config");
 	ConfigReader cfgr(path);
 	if (!cfgr.read()) {
-		std::cin.get();
+		WAIT_INPUT();
 		return 1;
 	}
 
@@ -175,7 +175,7 @@ void twitchAuth(struct botset *b)
 		std::cerr << "Could not open web browser" << std::endl;
 		std::cout << "Please navigate to the following URL manually:"
 			<< std::endl << AUTH_URL << std::endl;
-		std::cin.get();
+		WAIT_INPUT();
 	}
 
 	std::cout << "The authorization URL has been opened in your "
@@ -197,7 +197,7 @@ void twitchAuth(struct botset *b)
 		std::cout << "Invalid token. Authorization failed."
 			<< std::endl;
 	}
-	std::cin.get();
+	WAIT_INPUT();
 }
 
 /* authtest: test access token validity */
