@@ -2,44 +2,41 @@
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
 #include "../skills.h"
+#include "../strfmt.h"
 
 #define NP 0
 #define SC 1
 #define VH 2
+#define MAX_URL 128
 
 /* full name of the command */
-CMDNAME("cml");
+_CMDNAME("cml");
 /* description of the command */
-CMDDESCR("interact with crystalmathlabs trackers");
+_CMDDESCR("interact with crystalmathlabs trackers");
 /* command usage synopsis */
-CMDUSAGE("$cml [-s|-v] [-nu] [-t SKILL] [RSN]");
+_CMDUSAGE("$cml [-s|-v] [-nu] [-t SKILL] [RSN]");
 
-static const std::string CML_HOST = "https://crystalmathlabs.com";
-static const std::string CML_USER = "/tracker/track.php?player=";
-static const std::string CML_SCALC = "/tracker/suppliescalc.php";
-static const std::string CML_VHS =
-	"/tracker/virtualhiscores.php?page=timeplayed";
-static const std::string CML_UPDATE = "/tracker/api.php?type=update&player=";
-static const std::string CML_CTOP =
-	"/tracker/api.php?type=currenttop&count=5&skill=";
+static const char *CML_HOST = "https://crystalmathlabs.com";
+static const char *CML_USER = "/tracker/track.php?player=";
+static const char *CML_SCALC = "/tracker/suppliescalc.php";
+static const char *CML_VHS = "/tracker/virtualhiscores.php?page=timeplayed";
+static const char *CML_UPDATE = "/tracker/api.php?type=update&player=";
+static const char *CML_CTOP = "/tracker/api.php?type=currenttop&count=5&skill=";
 
-static int updatecml(const std::string &rsn, std::string &err);
-static std::string current_top(int id);
+static int updatecml(char *rsn, char *err);
+static void read_current_top(char *out, int id);
 
 /* cml: interact with crystalmathlabs trackers */
 std::string CommandHandler::cml(char *out, struct command *c)
 {
-	std::string output = "@" + std::string(c->nick) + ", ";
-	std::string err;
-	bool usenick, update;
-	int page, id;
+	int usenick, update, page, id;
 	char buf[RSN_BUF];
+	char err[RSN_BUF];
 
-	OptionParser op(c->fullCmd, "nst:uv");
 	int opt;
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "nick", NO_ARG, 'n' },
 		{ "supplies-calc", NO_ARG, 's' },
@@ -49,140 +46,176 @@ std::string CommandHandler::cml(char *out, struct command *c)
 		{ 0, 0, 0 }
 	};
 
-	usenick = update = false;
+	opt_init();
+	usenick = update = 0;
 	page = NP;
 	id = -1;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	while ((opt = getopt_long(c->argc, c->argv, "nst:uv", long_opts))
+			!= EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case 'n':
-			usenick = true;
+			usenick = 1;
 			break;
 		case 's':
 			page = SC;
 			break;
 		case 't':
-			if (std::string(op.optarg()) == "ehp") {
+			if (strcmp(optarg, "ehp") == 0) {
 				id = 99;
 				break;
 			}
-			if ((id = skill_id(op.optarg())) == -1)
-				return c->cmd + ": invalid skill name: "
-					+ op.optarg();
+			if ((id = skill_id(optarg)) == -1) {
+				_sprintf(out, MAX_MSG, "%s: invalid skill "
+						"name: %s", c->argv[0], optarg);
+				return "";
+			}
 			break;
 		case 'u':
-			update = true;
+			update = 1;
 			break;
 		case 'v':
 			page = VH;
 			break;
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length()) {
+	if (optind == c->argc) {
 		if (page) {
 			if (update || usenick || id != -1)
-				return CMDNAME + ": cannot use other options "
-					"with " + (page == SC ? "-s" : "-v");
-			return "[CML] " + CML_HOST + (page == SC
-					? CML_SCALC : CML_VHS);
+				_sprintf(out, MAX_MSG, "%s: cannot use other "
+						"options with %s", c->argv[0],
+						page == SC ? "-s" : "-v");
+			else
+				_sprintf(out, MAX_MSG, "[CML] %s%s", CML_HOST,
+						page == SC ? CML_SCALC : CML_VHS);
 		}
-		if (id != -1)
-			return current_top(id);
-		if (update)
-			return CMDNAME + ": must provide RSN to update";
-		if (usenick)
-			return CMDNAME + ": no Twitch nick given";
-		return "[CML] " + CML_HOST;
-	} else if (page || id != -1) {
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+		else if (id != -1)
+			read_current_top(out, id);
+		else if (update)
+			_sprintf(out, MAX_MSG, "%s: must provide RSN to update",
+					c->argv[0]);
+		else if (usenick)
+			_sprintf(out, MAX_MSG, "%s: no Twitch nick given",
+					c->argv[0]);
+		else
+			_sprintf(out, MAX_MSG, "[CML] %s", CML_HOST);
+		return "";
+	} else if (optind != c->argc - 1 || page || id != -1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
 	}
 
 	/* get the rsn of the queried player */
-	if (!getrsn(buf, RSN_BUF, c->fullCmd.substr(op.optind()).c_str(),
-				c->nick, usenick))
-		return CMDNAME + ": " + std::string(buf);
-	if (std::string(buf).find(' ') != std::string::npos)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (!getrsn(buf, RSN_BUF, c->argv[optind], c->nick, usenick)) {
+		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
+		return "";
+	}
 
 	if (update) {
-		if (updatecml(std::string(buf), err) == 1)
-			return output + std::string(buf) + "'s CML tracker has been updated";
+		if (updatecml(buf, err) == 1)
+			_sprintf(out, MAX_MSG, "@%s, %s's CML tracker has "
+					"been updated", c->nick, buf);
 		else
-			return CMDNAME + ": " + err;
+			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], err);
 	} else {
-		return "[CML] " + CML_HOST + CML_USER + std::string(buf);
+		_sprintf(out, MAX_MSG, "[CML] %s%s%s", CML_HOST, CML_USER, buf);
 	}
+	return "";
 }
 
 /* updatecml: update the cml tracker of player rsn */
-static int updatecml(const std::string &rsn, std::string &err)
+static int updatecml(char *rsn, char *err)
 {
 	int i;
+	char url[MAX_URL];
 	cpr::Response resp;
 
-	resp = cpr::Get(cpr::Url(CML_HOST + CML_UPDATE + rsn),
-			cpr::Header{{ "Connection", "close" }});
-	i = std::stoi(resp.text);
-	switch (i) {
+	_sprintf(url, MAX_URL, "%s%s%s", CML_HOST, CML_UPDATE, rsn);
+	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
+
+	switch ((i = atoi(resp.text.c_str()))) {
 	case 1:
 		/* success */
 		break;
 	case 2:
-		err = "'" + rsn + "' could not be found on the hiscores";
+		_sprintf(err, RSN_BUF, "'%s' could not be found "
+				"on the hiscores", rsn);
 		break;
 	case 3:
-		err = "'" + rsn + "' has had a negative XP gain";
+		_sprintf(err, RSN_BUF, "'%s' has had a negative "
+				"XP gain", rsn);
 		break;
 	case 4:
-		err = "unknown error, try again";
+		_sprintf(err, RSN_BUF, "unknown error, try again");
 		break;
 	case 5:
-		err = "'" + rsn + "' has been updated within the last 30s";
+		_sprintf(err, RSN_BUF, "'%s' has been updated within "
+				"the last 30s", rsn);
 		break;
 	case 6:
-		err = "'" + rsn + "' is an invalid RSN";
+		_sprintf(err, RSN_BUF, "'%s' is an invalid RSN", rsn);
 		break;
 	default:
-		err = "could not reach CML API, try again";
+		_sprintf(err, RSN_BUF, "could not reach CML API, try again");
 		break;
 	}
 	return i;
 }
 
 /* current_top: get 5 current top players for skill id */
-static std::string current_top(int id)
+static void read_current_top(char *out, int id)
 {
 	cpr::Response resp;
-	std::vector<std::string> tokens;
-	size_t i, com;
-	std::string out, nick, score;
+	int i;
+	char *nick, *score, *s, *orig;
+	char url[MAX_URL];
+	char text[MAX_URL];
 
-	resp = cpr::Get(cpr::Url(CML_HOST + CML_CTOP + std::to_string(id)),
-			cpr::Header{{ "Connection", "close" }});
-	if (resp.text == "-3" || resp.text == "-4")
-		return CMDNAME + ": could not reach CML API, try again";
+	_sprintf(url, MAX_URL, "%s%s%d", CML_HOST, CML_CTOP, id);
+	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
+	strcpy(text, resp.text.c_str());
 
-	utils::split(resp.text, '\n', tokens);
-	if (tokens.size() != 5)
-		return CMDNAME + ": could not read current top";
-
-	out += "Current top players in " + (id == 99 ? "EHP" : skill_name(id))
-		+ ": ";
-	for (i = 0; i < tokens.size(); ++i) {
-		com = tokens[i].find(',');
-		nick = tokens[i].substr(0, com);
-		score = tokens[i].substr(com + 1);
-		out += std::to_string(i + 1) + ". " + nick + " (+";
-		out += id == 99 ? score : utils::formatInteger(score);
-		out += id != 99 ? " xp)" : ")";
-		if (i != tokens.size() - 1)
-			out += ", ";
+	if (strcmp(text, "-3") == 0 || strcmp(text, "-4") == 0) {
+		_sprintf(out, MAX_MSG, "%s: could not reach CML API, try again",
+				_CMDNAME);
+		return;
 	}
-	return "[CML] " + out;
+
+	i = 0;
+	nick = text;
+	orig = out;
+	_sprintf(out, MAX_MSG, "[CML] Current top players in %s: ",
+			id == 99 ? "EHP" : skill_name(id).c_str());
+	out += strlen(out);
+	while ((score = strchr(nick, ','))) {
+		++i;
+		*score++ = '\0';
+		if ((s = strchr(score, '\n')))
+			*s = '\0';
+		_sprintf(out, MAX_MSG - 50 * i, "%d. %s (+", i, nick);
+		out += strlen(out);
+		if (id == 99) {
+			strcat(out, score);
+		} else {
+			fmtnum(out, 24, score);
+			strcat(out, " xp");
+		}
+		strcat(out, ")");
+		if (i != 5) {
+			nick = s + 1;
+			strcat(out, ", ");
+		}
+		out += strlen(out);
+	}
+
+	if (i != 5)
+		_sprintf(orig, MAX_MSG, "%s: could not read current top", _CMDNAME);
 }
