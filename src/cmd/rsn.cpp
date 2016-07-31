@@ -54,7 +54,8 @@ std::string CommandHandler::rsn(char *out, struct command *c)
 static std::string rsn_action(RSNList *rsns, const std::string user,
 		const std::vector<std::string> &argv)
 {
-	std::string err, rsn, crsn, nick;
+	const char *crsn;
+	std::string err, rsn, nick;
 
 	if (argv.size() > 1) {
 		rsn = argv[1];
@@ -80,10 +81,10 @@ static std::string rsn_action(RSNList *rsns, const std::string user,
 	} else {
 		/* check own nick or the one that was given */
 		nick = argv.size() == 1 ? user : rsn;
-		if ((crsn = rsns->getRSN(nick)).empty())
+		if (!(crsn = rsns->getRSN(nick.c_str())))
 			return "No RSN set for " + nick + ".";
 		else
-			return "RSN '" + crsn + "' is currently set for "
+			return "RSN '" + std::string(crsn) + "' is currently set for "
 				+ nick + ".";
 	}
 }

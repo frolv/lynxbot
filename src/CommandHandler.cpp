@@ -197,24 +197,33 @@ uint8_t CommandHandler::source(const std::string &cmd)
 	return 0;
 }
 
-/* getRSN: find the rsn referred to by text */
-std::string CommandHandler::getRSN(const std::string &text,
-	const std::string &nick, std::string &err, bool username)
+/* getrsn: print the rsn referred to by text into out */
+int CommandHandler::getrsn(char *out, size_t len, const char *text,
+		const char *nick, int username)
 {
-	std::string rsn;
+	const char *rsn;
+	char *s;
+
 	if (username) {
-		rsn = m_rsns.getRSN(text);
-		if (rsn.empty())
-			err = "no RSN set for user " + text;
+		if (!(rsn = m_rsns.getRSN(text))) {
+			_sprintf(out, len, "no RSN set for user %s", text);
+			return 0;
+		}
 	} else {
-		if (text == ".") {
-			if ((rsn = m_rsns.getRSN(nick)).empty())
-				err = "no RSN set for user " + nick;
+		if (strcmp(text, ".") == 0) {
+			if (!(rsn = m_rsns.getRSN(nick))) {
+				_sprintf(out, len, "no RSN set for user %s",
+						nick);
+				return 0;
+			}
 		} else {
 			rsn = text;
 		}
 	}
-	return rsn;
+	_sprintf(out, len, "%s", rsn);
+	while ((s = strchr(out, ' ')))
+		*s = '_';
+	return 1;
 }
 
 /* populateCmds: initialize pointers to all default commands */

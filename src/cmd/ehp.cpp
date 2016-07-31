@@ -30,6 +30,7 @@ std::string CommandHandler::ehp(char *out, struct command *c)
 	std::string output = "@" + std::string(c->nick) + ", ";
 	std::string rsn, err, res;
 	bool usenick;
+	char buf[RSN_BUF];
 
 	OptionParser op(c->fullCmd, "n");
 	int opt;
@@ -61,9 +62,10 @@ std::string CommandHandler::ehp(char *out, struct command *c)
 			return EHP_DESC;
 	}
 
-	if ((rsn = getRSN(c->fullCmd.substr(op.optind()),
-			c->nick, err, usenick)).empty())
-		return CMDNAME + ": " + err;
+	if (!getrsn(buf, RSN_BUF, c->fullCmd.substr(op.optind()).c_str(),
+				c->nick, usenick))
+		return CMDNAME + ": " + std::string(buf);
+	rsn = std::string(buf);
 	if (rsn.find(' ') != std::string::npos)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 

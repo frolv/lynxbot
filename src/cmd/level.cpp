@@ -34,6 +34,7 @@ std::string CommandHandler::level(char *out, struct command *c)
 	std::vector<std::string> argv;
 	bool usenick;
 	int8_t id, type;
+	char buf[RSN_BUF];
 
 	OptionParser op(c->fullCmd, "inu");
 	int opt;
@@ -76,8 +77,10 @@ std::string CommandHandler::level(char *out, struct command *c)
 	if (argv.size() != 2)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
-	if ((rsn = getRSN(argv[1], c->nick, err, usenick)).empty())
-		return c->cmd + ": " + err;
+	if (!getrsn(buf, RSN_BUF, c->fullCmd.substr(op.optind()).c_str(),
+				c->nick, usenick))
+		return CMDNAME + ": " + std::string(buf);
+	rsn = std::string(buf);
 	std::replace(rsn.begin(), rsn.end(), '-', '_');
 
 	if ((id = skill_id(argv[0])) == -1)

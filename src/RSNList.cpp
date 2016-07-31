@@ -16,10 +16,10 @@ RSNList::RSNList()
 bool RSNList::add(const std::string &nick, const std::string &rsn,
 		std::string &err)
 {
-	Json::Value t, user, prev(Json::arrayValue);
+	Json::Value *t, user, prev(Json::arrayValue);
 	if (!validRSN(rsn, err))
 		return false;
-	if (!(t = findByNick(nick)).empty()) {
+	if (!(t = findByNick(nick))->empty()) {
 		err = "you already have a RSN set";
 		return false;
 	}
@@ -35,15 +35,15 @@ bool RSNList::add(const std::string &nick, const std::string &rsn,
 bool RSNList::edit(const std::string &nick, const std::string &rsn,
 		std::string &err)
 {
-	Json::Value &user = findByNick(nick);
+	Json::Value *user = findByNick(nick);
 	if (!validRSN(rsn, err))
 		return false;
-	if (user.empty()) {
+	if (user->empty()) {
 		err = "you don't have a RSN set";
 		return false;
 	}
-	user["prev"].append(user["rsn"].asString());
-	user["rsn"] = rsn;
+	(*user)["prev"].append((*user)["rsn"].asString());
+	(*user)["rsn"] = rsn;
 	utils::writeJSON("rsns.json", m_rsns);
 	return true;
 }
@@ -68,27 +68,27 @@ bool RSNList::del(const std::string &nick)
 }
 
 /* get the rsn associated with a twitch nick */
-std::string RSNList::getRSN(const std::string &nick)
+const char *RSNList::getRSN(const char *nick)
 {
-	Json::Value user;
-	if ((user = findByNick(nick)).empty())
-		return "";
-	return user["rsn"].asString();
+	Json::Value *user;
+	if ((user = findByNick(nick))->empty())
+		return NULL;
+	return (*user)["rsn"].asCString();
 }
 
 /* get the twitch nick associated with a rsn */
-std::string RSNList::getNick(const std::string &rsn)
+const char *RSNList::getNick(const char *rsn)
 {
-	Json::Value user;
-	if ((user = findByRSN(rsn)).empty())
-		return "";
-	return user["nick"].asString();
+	Json::Value *user;
+	if ((user = findByRSN(rsn))->empty())
+		return NULL;
+	return (*user)["nick"].asCString();
 }
 
 /* check if the given rsn is valid */
 bool RSNList::validRSN(const std::string &rsn, std::string &err)
 {
-	Json::Value t;
+	Json::Value *t;
 	for (char c : rsn) {
 		if (!isalnum(c) && c != '_' && c != '-') {
 			err = "'" + rsn + "' contains invalid characters";
@@ -103,32 +103,32 @@ bool RSNList::validRSN(const std::string &rsn, std::string &err)
 		err = "invalid RSN - too long";
 		return false;
 	}
-	if (!(t = findByRSN(rsn)).empty()) {
+	if (!(t = findByRSN(rsn))->empty()) {
 		err = "the RSN '" + rsn + "' is already taken by "
-			+ t["nick"].asString() + ".";
+			+ (*t)["nick"].asString() + ".";
 		return false;
 	}
 	return true;
 }
 
 /* find the value with the given nick if it exists */
-Json::Value &RSNList::findByNick(const std::string &nick)
+Json::Value *RSNList::findByNick(const std::string &nick)
 {
 	for (auto &val : m_rsns["rsns"]) {
 		if (val["nick"].asString() == nick)
-			return val;
+			return &val;
 	}
-	return m_empty;
+	return &m_empty;
 }
 
 /* find the value with the given rsn if it exists */
-Json::Value &RSNList::findByRSN(const std::string &rsn)
+Json::Value *RSNList::findByRSN(const std::string &rsn)
 {
 	for (auto &val : m_rsns["rsns"]) {
 		if (val["rsn"].asString() == rsn)
-			return val;
+			return &val;
 	}
-	return m_empty;
+	return &m_empty;
 }
 
 /* read the rsns file into m_rsns */

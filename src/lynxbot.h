@@ -20,6 +20,9 @@
 /* maximum length of chat message */
 #define MAX_MSG 1024
 
+/* buffer size for RSN fetching */
+#define RSN_BUF 64
+
 #ifdef __linux__
 # define _sprintf snprintf
 #endif

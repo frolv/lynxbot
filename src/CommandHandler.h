@@ -151,9 +151,8 @@ class CommandHandler {
 
 		/* helpers */
 		uint8_t source(const std::string &cmd);
-		std::string getRSN(const std::string &text,
-			const std::string &nick, std::string &err,
-			bool username = false);
+		int getrsn(char *out, size_t len, const char *text,
+				const char *nick, int username = 0);
 		void populateCmds();
 		void populateHelp();
 };

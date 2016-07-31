@@ -32,9 +32,10 @@ static std::string current_top(int id);
 std::string CommandHandler::cml(char *out, struct command *c)
 {
 	std::string output = "@" + std::string(c->nick) + ", ";
-	std::string rsn, err;
+	std::string err;
 	bool usenick, update;
 	int page, id;
+	char buf[RSN_BUF];
 
 	OptionParser op(c->fullCmd, "nst:uv");
 	int opt;
@@ -103,19 +104,19 @@ std::string CommandHandler::cml(char *out, struct command *c)
 	}
 
 	/* get the rsn of the queried player */
-	if ((rsn = getRSN(c->fullCmd.substr(op.optind()),
-			c->nick, err, usenick)).empty())
-		return CMDNAME + ": " + err;
-	if (rsn.find(' ') != std::string::npos)
+	if (!getrsn(buf, RSN_BUF, c->fullCmd.substr(op.optind()).c_str(),
+				c->nick, usenick))
+		return CMDNAME + ": " + std::string(buf);
+	if (std::string(buf).find(' ') != std::string::npos)
 		return USAGEMSG(CMDNAME, CMDUSAGE);
 
 	if (update) {
-		if (updatecml(rsn, err) == 1)
-			return output + rsn + "'s CML tracker has been updated";
+		if (updatecml(std::string(buf), err) == 1)
+			return output + std::string(buf) + "'s CML tracker has been updated";
 		else
 			return CMDNAME + ": " + err;
 	} else {
-		return "[CML] " + CML_HOST + CML_USER + rsn;
+		return "[CML] " + CML_HOST + CML_USER + std::string(buf);
 	}
 }
 
