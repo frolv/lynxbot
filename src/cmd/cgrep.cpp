@@ -106,7 +106,8 @@ static void findcmds(char *out, const CommandHandler::commandMap *cmdmap,
 	}
 
 	def = (const char **)malloc((cmdmap->size() + 1) * sizeof(*def));
-	cus = (const char **)malloc(((*customs)["commands"].size() + 1) * sizeof(*cus));
+	cus = (const char **)malloc(((*customs)["commands"].size() + 1)
+			* sizeof(*cus));
 
 	nmatch = cmdlen = i = j = 0;
 	/* search default commands */
