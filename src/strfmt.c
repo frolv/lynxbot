@@ -1,6 +1,5 @@
 #include <string.h>
 #include "strfmt.h"
-#include <stdio.h>
 
 /* fmtnum: format a number with commas */
 void fmtnum(char *out, size_t size, const char *num)
