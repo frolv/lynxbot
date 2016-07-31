@@ -1,97 +1,107 @@
+#include <string.h>
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
 
 /* full name of the command */
-CMDNAME("delcom");
+_CMDNAME("delcom");
 /* description of the command */
-CMDDESCR("delete custom commands");
+_CMDDESCR("delete custom commands");
 /* command usage synopsis */
-CMDUSAGE("$delcom CMD...");
+_CMDUSAGE("$delcom CMD...");
 
-static void deletecom(CustomCommandHandler *ccmd, const std::string &cmd,
-		std::vector<std::string> &del, std::vector<std::string> &inv);
-static std::string formatoutput(std::vector<std::string> &del,
-		std::vector<std::string> &inv);
+/* number of deleted and invalid commands */
+static size_t nd, ni;
+
+static void deletecom(CustomCommandHandler *ccmd, const char *cmd,
+		const char **del, const char **inv);
+static void formatoutput(char *out, const char **del, const char **inv);
 
 /* delcom: delete custom commands */
 std::string CommandHandler::delcom(char *out, struct command *c)
 {
+	const char **del, **inv;
+
+	int opt;
+	static struct option long_opts[] = {
+		{ "help", NO_ARG, 'h' },
+		{ 0, 0, 0 }
+	};
+
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
 		return "";
 	}
 
-	std::string commands;
-	std::vector<std::string> argv, del, inv;
-
-	int opt;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
-		{ "help", NO_ARG, 'h' },
-		{ 0, 0, 0 }
-	};
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	nd = ni = 0;
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (!m_customCmds->isActive())
-		return CMDNAME + ": custom commands are currently disabled";
+	if (!m_customCmds->isActive()) {
+		_sprintf(out, MAX_MSG, "%s: custom commands are "
+				"currently disabled", c->argv[0]);
+		return "";
+	}
 
-	if (op.optind() == c->fullCmd.length())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind == c->argc) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
 
-	commands = c->fullCmd.substr(op.optind());
-	utils::split(commands, ' ', argv);
+	del = (const char **)malloc(m_customCmds->size() * sizeof(*del));
+	inv = (const char **)malloc(m_customCmds->size() * sizeof(*inv));
 
-	for (std::string &cmd : argv)
-		deletecom(m_customCmds, cmd, del, inv);
-	return "@" + std::string(c->nick) + ", " + formatoutput(del, inv);
+	for (; optind < c->argc; ++optind)
+		deletecom(m_customCmds, c->argv[optind], del, inv);
+	formatoutput(out, del, inv);
+	free(del);
+	free(inv);
+	return "";
 }
 
 /* deletecom: delete a single command */
-static void deletecom(CustomCommandHandler *ccmd, const std::string &cmd,
-		std::vector<std::string> &del, std::vector<std::string> &inv)
+static void deletecom(CustomCommandHandler *ccmd, const char *cmd,
+		const char **del, const char **inv)
 {
 	if (ccmd->delcom(cmd))
-		del.push_back(cmd);
+		del[nd++] = cmd;
 	else
-		inv.push_back(cmd);
+		inv[ni++] = cmd;
 }
 
-/* formatoutput: return a formatted output message */
-static std::string formatoutput(std::vector<std::string> &del,
-		std::vector<std::string> &inv)
+/* formatoutput: print a formatted output message into out */
+static void formatoutput(char *out, const char **del, const char **inv)
 {
-	std::string output;
 	size_t i;
 
-	if (del.size() > 0) {
-		output += "deleted: ";
-		for (i = 0; i < del.size(); ++i) {
-			output += "$" + del[i];
-			if (i != del.size() - 1)
-				output += " ";
+	if (nd) {
+		_sprintf(out, MAX_MSG, "deleted: ");
+		out = strchr(out, '\0');
+		for (i = 0; i < nd; ++i) {
+			_sprintf(out, MAX_MSG, "$%s%s", del[i],
+					i == nd - 1 ? "" : " ");
+			out = strchr(out, '\0');
 		}
 	}
-	if (inv.size() > 0) {
-		if (!output.empty())
-			output += " | ";
-		output += "not found: ";
-		for (i = 0; i < inv.size(); ++i) {
-			output += "$" + inv[i];
-			if (i != inv.size() - 1)
-				output += " ";
+	if (ni) {
+		_sprintf(out, MAX_MSG, "%snot found: ", nd ? " | " : "");
+		out = strchr(out, '\0');
+		for (i = 0; i < ni; ++i) {
+			_sprintf(out, MAX_MSG, "$%s%s", inv[i],
+					i == ni - 1 ? "" : " ");
+			out = strchr(out, '\0');
 		}
 	}
-	return output;
 }

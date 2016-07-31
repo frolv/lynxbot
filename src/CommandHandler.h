@@ -181,6 +181,7 @@ class CustomCommandHandler {
 		bool rename(const std::string &cmd, const std::string &newcmd);
 		Json::Value *getcom(const std::string &cmd);
 		const Json::Value *commands();
+		size_t size();
 		bool validName(const std::string &cmd, bool loading = false);
 		void write();
 		std::string error() const;

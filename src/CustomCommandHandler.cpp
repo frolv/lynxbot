@@ -182,6 +182,12 @@ const Json::Value *CustomCommandHandler::commands()
 	return &m_commands;
 }
 
+/* size: return number of custom commands */
+size_t CustomCommandHandler::size()
+{
+	return m_commands["commands"].size();
+}
+
 /* write: write all commands to file */
 void CustomCommandHandler::write()
 {
