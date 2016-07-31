@@ -1,83 +1,98 @@
 #include <algorithm>
+#include <string.h>
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
 
 /* full name of the command */
-CMDNAME("count");
+_CMDNAME("count");
 /* description of the command */
-CMDDESCR("manage message counts");
+_CMDDESCR("manage message counts");
 /* command usage synopsis */
-CMDUSAGE("$count start|stop|display");
+_CMDUSAGE("$count start|stop|display");
 
-static std::string getresults(std::unordered_map<std::string, uint16_t> *count);
+typedef std::unordered_map<std::string, uint16_t> countmap;
+
+static void getresults(char *out, countmap *count);
 
 /* count: manage message counts */
 std::string CommandHandler::count(char *out, struct command *c)
 {
+	int opt;
+	static struct option long_opts[] = {
+		{ "help", NO_ARG, 'h' },
+		{ 0, 0, 0 }
+	};
+
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
 		return "";
 	}
 
-	std::vector<std::string> argv;
-
-	int opt;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
-		{ "help", NO_ARG, 'h' },
-		{ 0, 0, 0 }
-	};
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	utils::split(c->fullCmd, ' ', argv);
-	if (argv.size() != 2 || !(argv[1] == "start" || argv[1] == "stop"
-				|| argv[1] == "display"))
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind != c->argc - 1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
 
-	if (argv[1] == "start") {
+	if (strcmp(c->argv[optind], "start") == 0) {
 		/* begin a new count */
-		if (m_counting)
-			return CMDNAME + ": count is already running";
+		if (m_counting) {
+			_sprintf(out, MAX_MSG, "%s: count is already running",
+					c->argv[0]);
+			return "";
+		}
 		m_usersCounted.clear();
 		m_messageCounts.clear();
 		m_counting = true;
-		return "Message counting has begun. Prepend your message with "
-			"a '+' to have it counted.";
-	} else if (argv[1] == "stop") {
+		_sprintf(out, MAX_MSG, "Message counting has begun. Prepend "
+				"your message with a '+' to have it counted.");
+	} else if (strcmp(c->argv[optind], "stop") == 0) {
 		/* end the current count */
-		if (!m_counting)
-			return CMDNAME + ": no active count";
+		if (!m_counting) {
+			_sprintf(out, MAX_MSG, "%s: no active count",
+					c->argv[0]);
+			return "";
+		}
 		m_counting = false;
-		return "Count ended. Use \"$count display\" to view results.";
-	} else {
+		_sprintf(out, MAX_MSG, "Count ended. Use \"$count display\" "
+				"to view results.");
+	} else if (strcmp(c->argv[optind], "display") == 0) {
 		/* display results from last count */
 		if (m_counting)
-			return CMDNAME + ": end count before viewing results";
-		if (m_messageCounts.empty())
-			return CMDNAME + ": nothing to display";
+			_sprintf(out, MAX_MSG, "%s: end count before "
+					"viewing results", c->argv[0]);
+		else if (m_messageCounts.empty())
+			_sprintf(out, MAX_MSG, "%s: nothing to display",
+					c->argv[0]);
 		else
-			return getresults(&m_messageCounts);
+			getresults(out, &m_messageCounts);
+	} else {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
 	}
+	return "";
 }
 
 /* getresults: return the top 10 items in count */
-static std::string getresults(std::unordered_map<std::string, uint16_t> *count)
+static void getresults(char *out, countmap *count)
 {
 	typedef std::pair<std::string, uint16_t> mcount;
 	std::vector<mcount> pairs;
-	std::string results;
+	size_t i, max;
 
 	/* add each result to vector to be sorted */
 	for (auto itr = count->begin(); itr != count->end(); ++itr)
@@ -86,15 +101,16 @@ static std::string getresults(std::unordered_map<std::string, uint16_t> *count)
 				return a.second > b.second;
 			});
 
-	results = "[RESULTS] ";
+	_sprintf(out, MAX_MSG, "[RESULTS] ");
+	out = strchr(out, '\0');
 	/* get top 10 results */
-	size_t max = pairs.size() > 10 ? 10 : pairs.size();
-	for (size_t i = 0; i < max; ++i) {
+	max = pairs.size() > 10 ? 10 : pairs.size();
+	for (i = 0; i < max; ++i) {
 		mcount &pair = pairs[i];
 		/* print rank and number of votes */
-		results += std::to_string(i + 1) + ". "
-			+ pair.first + " (" + std::to_string(pair.second) + ")"
-			+ (i == max - 1 ? "" : ", ");
+		_sprintf(out, MAX_MSG - 40 * i, "%lu. %s (%d)%s", i + 1,
+				pair.first.c_str(), pair.second,
+				i == max - 1 ? "" : ", ");
+		out = strchr(out, '\0');
 	}
-	return results;
 }
