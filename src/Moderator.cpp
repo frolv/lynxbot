@@ -3,6 +3,7 @@
 #include <iostream>
 #include <regex>
 #include <utils.h>
+#include "lynxbot.h"
 #include "Moderator.h"
 
 Moderator::Moderator(URLParser *urlp, ConfigReader *cfgr)
@@ -60,7 +61,7 @@ Moderator::Moderator(URLParser *urlp, ConfigReader *cfgr)
 		m_cap_ratio = (double)cap_ratio / 100.0;
 	}
 	if (invalid)
-		std::cin.get();
+		WAIT_INPUT();
 }
 
 Moderator::~Moderator() {}

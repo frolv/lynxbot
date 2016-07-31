@@ -3,6 +3,7 @@
 #include <iostream>
 #include <utils.h>
 #include "EventManager.h"
+#include "lynxbot.h"
 
 EventManager::EventManager(ConfigReader *cfgr)
 	: m_init(time(nullptr)), m_cfgr(cfgr), m_msg(false)
@@ -150,7 +151,7 @@ void EventManager::readFile()
 		}
 	}
 	if (error)
-		std::cin.get();
+		WAIT_INPUT();
 }
 
 /* writeFile: write recurring messages to file */

@@ -39,7 +39,7 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime,
 	if (!readGiveaway()) {
 		if (m_active) {
 			std::cout << "nothing to give away!" << std::endl;
-			std::cin.get();
+			WAIT_INPUT();
 		}
 	}
 }
@@ -50,7 +50,7 @@ Giveaway::~Giveaway() {}
 bool Giveaway::init(time_t initTime, bool first)
 {
 	if (!readSettings())
-		std::cin.get();
+		WAIT_INPUT();
 	if (!m_active) {
 		if (!first)
 			m_active = true;

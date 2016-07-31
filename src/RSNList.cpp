@@ -2,13 +2,14 @@
 #include <fstream>
 #include <iostream>
 #include <utils.h>
+#include "lynxbot.h"
 #include "RSNList.h"
 
 RSNList::RSNList()
 {
 	if (!readFile()) {
 		std::cerr << "Could not read rsns.json" << std::endl;
-		std::cin.get();
+		WAIT_INPUT();
 	}
 }
 

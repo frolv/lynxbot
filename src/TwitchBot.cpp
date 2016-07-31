@@ -37,7 +37,7 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 		std::cerr << m_cfgr->path() << ": url_titles: "
 			<< err << " (defaulting to true)" << std::endl;
 		m_urltitles = true;
-		std::cin.get();
+		WAIT_INPUT();
 	}
 }
 
@@ -375,7 +375,7 @@ void TwitchBot::parseSubMsg(std::string &tgt, const std::string &which)
 	if (!err.empty()) {
 		std::cerr << m_cfgr->path() << ": " << which << ": "
 			<< err << std::endl;
-		std::cin.get();
+		WAIT_INPUT();
 		fmt = "";
 	}
 	tgt = fmt;

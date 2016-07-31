@@ -1,5 +1,6 @@
 #include <iostream>
 #include <utils.h>
+#include "lynxbot.h"
 #include "SelectionWheel.h"
 
 SelectionWheel::SelectionWheel()
@@ -8,7 +9,7 @@ SelectionWheel::SelectionWheel()
 		std::cerr << "Could not read wheel.json. Wheel will be "
 			"disabled for this session." << std::endl;
 		m_active = false;
-		std::cin.get();
+		WAIT_INPUT();
 	} else {
 		static const std::string reqs[6] = { "active", "name", "cmd",
 			"desc", "usage", "cooldown"};
@@ -19,7 +20,7 @@ SelectionWheel::SelectionWheel()
 					"be disabled for this session."
 					<< std::endl;
 				m_active = false;
-				std::cin.get();
+				WAIT_INPUT();
 				return;
 			}
 		}

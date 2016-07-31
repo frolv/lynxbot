@@ -25,7 +25,7 @@ CommandHandler::CommandHandler(const char *name, const char *channel,
 	if (!m_customCmds->isActive()) {
 		std::cerr << "Custom commands will be disabled "
 			"for this session." << std::endl;
-		std::cin.get();
+		WAIT_INPUT();
 	}
 
 	/* read all responses from file */
@@ -38,7 +38,7 @@ CommandHandler::CommandHandler(const char *name, const char *channel,
 	} else {
 		std::cerr << "Failed to read responses.json. "
 			"Responses disabled for this session.";
-		std::cin.get();
+		WAIT_INPUT();
 	}
 
 	/* set all command cooldowns */
