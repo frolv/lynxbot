@@ -1,37 +1,41 @@
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
 
 /* full name of the command */
-CMDNAME("manual");
+_CMDNAME("manual");
 /* description of the command */
-CMDDESCR("view the lynxbot manual");
+_CMDDESCR("view the lynxbot manual");
 /* command usage synopsis */
-CMDUSAGE("$manual");
+_CMDUSAGE("$manual");
 
 /* manual: view the lynxbot manual */
 std::string CommandHandler::manual(char *out, struct command *c)
 {
 	int opt;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() != c->fullCmd.length())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
-
-	return "[MANUAL] " + std::string(BOT_WEBSITE) + "/manual/index.html";
+	if (optind != c->argc)
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+	else
+		_sprintf(out, MAX_MSG, "[MANUAL] %s/manual/index.html",
+				BOT_WEBSITE);
+	return "";
 }
