@@ -1,42 +1,39 @@
+#include <string.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+#include "../stringparse.h"
 #include "../TimerManager.h"
 
+#define ON  1
+#define OFF 2
+
 /* full name of the command */
-CMDNAME("editcom");
+_CMDNAME("editcom");
 /* description of the command */
-CMDDESCR("modify a custom command");
+_CMDDESCR("modify a custom command");
 /* command usage synopsis */
-CMDUSAGE("$editcom [-A on|off] [-a] [-c CD] [-r] CMD [RESPONSE]");
-
+_CMDUSAGE("$editcom [-A on|off] [-a] [-c CD] [-r] CMD [RESPONSE]");
 /* rename flag usage */
-static const std::string RUSAGE = "$editcom -r OLD NEW";
+static const char *RUSAGE = "$editcom -r OLD NEW";
 
-static bool edit(CustomCommandHandler *cch, const std::string &args,
-		const std::string &set, time_t cooldown, TimerManager *tm,
-		bool app, std::string &res);
-static bool rename(CustomCommandHandler *cch, const std::string &args,
-		std::string &res);
+/* whether to append to existing response */
+static int app;
+/* active setting */
+static int set;
+
+static void edit(char *out, CustomCommandHandler *cch, struct command *c,
+		time_t cooldown, TimerManager *tm);
+static void rename(char *out, CustomCommandHandler *cch, struct command *c);
 
 /* editcom: modify a custom command */
 std::string CommandHandler::editcom(char *out, struct command *c)
 {
-	if (!P_ALMOD(c->privileges)) {
-		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
-	}
-
-	if (!m_customCmds->isActive())
-		return CMDNAME + ": custom commands are currently disabled";
-
-	std::string outp, res, set, cmd;
 	time_t cooldown;
-	bool ren, append;
+	int ren;
 
-	OptionParser op(c->fullCmd, "A:ac:r");
 	int opt;
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "active", REQ_ARG, 'A'},
 		{ "append", NO_ARG, 'a'},
 		{ "cooldown", REQ_ARG, 'c'},
@@ -45,154 +42,164 @@ std::string CommandHandler::editcom(char *out, struct command *c)
 		{ 0, 0, 0 }
 	};
 
+	if (!P_ALMOD(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return "";
+	}
+
+	if (!m_customCmds->isActive()) {
+		_sprintf(out, MAX_MSG, "%s: custom commands are currently "
+				"disabled", c->argv[0]);
+		return "";
+	}
+
+	opt_init();
 	cooldown = -1;
-	ren = append = false;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	set = ren = app = 0;
+	while ((opt = getopt_long(c->argc, c->argv, "A:ac:r", long_opts))
+			!= EOF) {
 		switch (opt) {
 		case 'A':
-			if ((set = std::string(op.optarg())) != "on"
-					&& set != "off")
-				return CMDNAME + ": -A setting must be on/off";
+			if (strcmp(optarg, "on") == 0) {
+				set = ON;
+			} else if (strcmp(optarg, "off") == 0) {
+				set = OFF;
+			} else {
+				_sprintf(out, MAX_MSG, "%s: -A setting must "
+						"be on/off", c->argv[0]);
+				return "";
+			}
 			break;
 		case 'a':
-			append = true;
+			app = 1;
 			break;
 		case 'c':
 			/* user provided a cooldown */
-			try {
-				if ((cooldown = std::stoi(op.optarg())) < 0)
-					return CMDNAME + ": cooldown cannot be "
-						"negative";
-			} catch (std::invalid_argument) {
-				return CMDNAME  + ": invalid number -- '"
-					+ std::string(op.optarg()) + "'";
-			} catch (std::out_of_range) {
-				return CMDNAME + ": number too large";
+			if (!parsenum(optarg, &cooldown)) {
+				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+						c->argv[0], optarg);
+				return "";
+			}
+			if (cooldown < 0) {
+				_sprintf(out, MAX_MSG, "%s: cooldown cannot be "
+						"negative", c->argv[0]);
+				return "";
 			}
 			break;
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case 'r':
-			ren = true;
+			ren = 1;
 			break;
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length())
-			return USAGEMSG(CMDNAME, CMDUSAGE);
-
-	outp = "@" + std::string(c->nick) + ", ";
-	if (ren) {
-		if (append || cooldown != -1 || !set.empty())
-			return CMDNAME + ": cannot use other flags with -r";
-		if (!rename(m_customCmds, c->fullCmd.substr(op.optind()), res)) {
-			if (res.empty())
-				return USAGEMSG(CMDNAME, RUSAGE);
-			else
-				return CMDNAME + ": " + res;
-		}
-		return outp + res;
+	if (optind == c->argc) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
 	}
 
-	if (!edit(m_customCmds, c->fullCmd.substr(op.optind()), set,
-				cooldown, &m_cooldowns, append, res))
-		return CMDNAME + ": " + res;
-	return outp + res;
+	if (ren) {
+		if (app || cooldown != -1 || set)
+			_sprintf(out, MAX_MSG, "%s: cannot use other flags "
+					"with -r", c->argv[0]);
+		else
+			rename(out, m_customCmds, c);
+	} else {
+		edit(out, m_customCmds, c, cooldown, &m_cooldowns);
+	}
+	return "";
 }
 
 /* edit: edit a custom command */
-static bool edit(CustomCommandHandler *cch, const std::string &args,
-		const std::string &set, time_t cooldown, TimerManager *tm,
-		bool app, std::string &res)
+static void edit(char *out, CustomCommandHandler *cch, struct command *c,
+		time_t cooldown, TimerManager *tm)
 {
-	bool cd, resp, act;
-	size_t sp;
-	std::string cmd, response;
+	int cd, resp;
+	char response[MAX_MSG];
+	char buf[MAX_MSG];
 	Json::Value *com;
 
 	/* determine which parts are being changed */
 	cd = cooldown != -1;
-	resp = (sp = args.find(' ')) != std::string::npos;
-	cmd = resp ? args.substr(0, sp) : args;
-	act = !set.empty();
+	resp = optind != c->argc - 1;
 
-	response = resp ? args.substr(sp + 1) : "";
+	argvcat(response, c->argc, c->argv, optind + 1, 1);
 
 	if (app) {
-		if ((com = cch->getcom(cmd))->empty()) {
-			res = "not a command: $" + cmd;
-			return false;
+		if ((com = cch->getcom(c->argv[optind]))->empty()) {
+			_sprintf(out, MAX_MSG, "%s: not a command: $%s",
+					c->argv[0], c->argv[optind]);
+			return;
 		}
-		response = (*com)["response"].asString() + " " + response;
-	} else if (response[0] == '/') {
-		/* don't allow reponse to activate a twitch command */
-		response = " " + response;
+		strcpy(buf, response);
+		_sprintf(response, MAX_MSG, "%s %s",
+				(*com)["response"].asCString(), buf);
 	}
 
-	if (!cch->editcom(cmd, response, cooldown)) {
-		res = cch->error();
-		return false;
+	if (!cch->editcom(c->argv[optind], response, cooldown)) {
+		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+				cch->error().c_str());
+		return;
 	}
-	if (!cd && !resp && !act) {
-		res = "command $" + cmd + " was unchanged";
-		return true;
+	if (!cd && !resp && !set) {
+		_sprintf(out, MAX_MSG, "@%s, command $%s was unchanged",
+				c->nick, c->argv[optind]);
+		return;
 	}
 
 	/* build an output string detailing changes */
-	res += "command $" + cmd + " has been";
-	if (act) {
-		if (set == "on") {
-			if (!cch->activate(cmd)) {
-				res = cch->error();
-				res += ". Command not activated.";
-				return false;
+	_sprintf(out, MAX_MSG, "@%s, command $%s has been",
+			c->nick, c->argv[optind]);
+	if (set) {
+		if (set == ON) {
+			if (!cch->activate(c->argv[optind])) {
+				_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+						cch->error().c_str());
+				return;
 			}
-			res += " activated";
+			strcat(out, " activated");
 		} else {
-			cch->deactivate(cmd);
-			res += " deactivated";
+			cch->deactivate(c->argv[optind]);
+			strcat(out, " deactivated");
 		}
 	}
 	if (resp || cd) {
-		res += (act) ? " and" : "";
-		res += " changed to ";
-		if (resp)
-			res += "\"" + response + "\""
-				+ (cd ? ", with " : "");
+		if (set)
+			strcat(out, " and");
+		strcat(out, " changed to ");
+		out = strchr(out, '\0');
+		if (resp) {
+			_sprintf(out, MAX_MSG, "\"%s\"%s", response,
+					cd ? ", with " : "");
+			out = strchr(out, '\0');
+		}
 		if (cd) {
 			/* reset cooldown in TimerManager */
-			tm->remove(cmd);
-			tm->add(cmd, cooldown);
-			res += "a " + std::to_string(cooldown)
-				+ "s cooldown";
+			tm->remove(c->argv[optind]);
+			tm->add(c->argv[optind], cooldown);
+			_sprintf(out, MAX_MSG, "a %lds cooldown", cooldown);
 		}
 	}
-	res += ".";
-	return true;
+	strcat(out, ".");
 }
 
 /* rename: rename a custom command */
-static bool rename(CustomCommandHandler *cch, const std::string &args,
-		std::string &res)
+static void rename(char *out, CustomCommandHandler *cch, struct command *c)
 {
-	std::string cmd, newcmd;
-	size_t t;
-
-	if ((t = args.find(' ')) == std::string::npos)
-		return false;
-	cmd = args.substr(0, t);
-
-	if ((newcmd = args.substr(t + 1)).find(' ') != std::string::npos)
-		return false;
-
-	if (!cch->rename(cmd, newcmd)) {
-		res = cch->error();
-		return false;
-	}
-	res = "command $" + cmd + " has been renamed to $" + newcmd;
-	return true;
+	if (optind != c->argc - 2)
+		_USAGEMSG(out, _CMDNAME, RUSAGE);
+	else if (!cch->rename(c->argv[optind], c->argv[optind + 1]))
+		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+				cch->error().c_str());
+	else
+		_sprintf(out, MAX_MSG, "@%s, command $%s has been renamed "
+				"to $%s", c->nick, c->argv[optind],
+				c->argv[optind + 1]);
 }
