@@ -1,65 +1,73 @@
+#include <string.h>
 #include <tw/oauth.h>
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+
+#define F_SIZE 256
 
 /* full name of the command */
-CMDNAME("fashiongen");
+_CMDNAME("fashiongen");
 /* description of the command */
-CMDDESCR("generate an outfit");
+_CMDDESCR("generate an outfit");
 /* command usage synopsis */
-CMDUSAGE("$fashiongen");
+_CMDUSAGE("$fashiongen");
 
-static std::string gen_fashion(const Json::Value &items);
+static void gen_fashion(char *out, const Json::Value &items);
 
 /* fashiongen: generate an outfit */
 std::string CommandHandler::fashiongen(char *out, struct command *c)
 {
+	char fashion[F_SIZE];
 	int opt;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() != c->fullCmd.length())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
-
-	if (m_fashion.empty())
-		return CMDNAME + ": could not read item database";
-
-	return "[FASHIONGEN] " + utils::upload(gen_fashion(m_fashion));
+	if (optind != c->argc) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+	} else if (m_fashion.empty()) {
+		_sprintf(out, MAX_MSG, "%s: could not read item database",
+				c->argv[0]);
+	} else {
+		gen_fashion(fashion, m_fashion);
+		_sprintf(out, MAX_MSG, "[FASHIONGEN] %s",
+				utils::upload(fashion).c_str());
+	}
+	return "";
 }
 
 /* gen_fashion: generate a random outfit from items */
-static std::string gen_fashion(const Json::Value &items)
+static void gen_fashion(char *out, const Json::Value &items)
 {
-	std::string out;
 	Json::Value::Members categories;
 	srand(static_cast<uint32_t>(time(nullptr)));
 	int ind;
 
-	out = "Generated FashionScape\n";
-	out += "======================\n\n";
-
+	_sprintf(out, MAX_MSG, "Generated FashionScape\n"
+			"======================\n\n");
 	categories = items.getMemberNames();
 	for (const std::string &cat : categories) {
 		ind = rand() % items[cat].size();
-		out += (char)toupper(cat[0]) + cat.substr(1) + ":\t";
-		out += items[cat][ind].asString();
-		out += "\n";
+		out = strchr(out, '\0');
+		_sprintf(out, MAX_MSG, "%c%s:\t%s\n", toupper(cat[0]),
+				cat.substr(1).c_str(),
+				items[cat][ind].asCString());
 	}
-	return out;
 }
