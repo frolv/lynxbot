@@ -10,12 +10,13 @@ _CMDNAME("delrec");
 _CMDDESCR("delete a recurring message");
 /* command usage synopsis */
 _CMDUSAGE("$delrec ID");
+/* -a flag usage synposis */
+static const char *AUSAGE = "$delrec -a";
 
 /* delrec: delete a recurring message */
 std::string CommandHandler::delrec(char *out, struct command *c)
 {
 	int opt, all;
-	size_t i;
 	int64_t id;
 	static struct option long_opts[] = {
 		{ "all", NO_ARG, 'a' },
@@ -48,7 +49,7 @@ std::string CommandHandler::delrec(char *out, struct command *c)
 
 	if (all) {
 		if (optind != c->argc) {
-			_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+			_USAGEMSG(out, _CMDNAME, AUSAGE);
 			return "";
 		}
 		while (!m_evtp->messages()->empty())
