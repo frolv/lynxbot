@@ -51,7 +51,7 @@ std::string CommandHandler::delrec(char *out, struct command *c)
 			_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
 			return "";
 		}
-		for (i = 0; i < m_evtp->messages()->size(); ++i)
+		while (!m_evtp->messages()->empty())
 			m_evtp->delMessage(1);
 		_sprintf(out, MAX_MSG, "@%s, all recurring message deleted",
 				c->nick);
