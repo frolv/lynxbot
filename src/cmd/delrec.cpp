@@ -14,9 +14,11 @@ _CMDUSAGE("$delrec ID");
 /* delrec: delete a recurring message */
 std::string CommandHandler::delrec(char *out, struct command *c)
 {
-	int opt;
+	int opt, all;
+	size_t i;
 	int64_t id;
 	static struct option long_opts[] = {
+		{ "all", NO_ARG, 'a' },
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
@@ -27,8 +29,12 @@ std::string CommandHandler::delrec(char *out, struct command *c)
 	}
 
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
+	all = 0;
+	while ((opt = getopt_long(c->argc, c->argv, "a", long_opts)) != EOF) {
 		switch (opt) {
+		case 'a':
+			all = 1;
+			break;
 		case 'h':
 			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
 			return "";
@@ -39,7 +45,20 @@ std::string CommandHandler::delrec(char *out, struct command *c)
 			return "";
 		}
 	}
-	if (optind != c->argc - 1) {
+
+	if (all) {
+		if (optind != c->argc) {
+			_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+			return "";
+		}
+		for (i = 0; i < m_evtp->messages()->size(); ++i)
+			m_evtp->delMessage(1);
+		_sprintf(out, MAX_MSG, "@%s, all recurring message deleted",
+				c->nick);
+		return "";
+	}
+
+	if ((optind != c->argc - 1)) {
 		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
 		return "";
 	}
@@ -53,7 +72,7 @@ std::string CommandHandler::delrec(char *out, struct command *c)
 	if (!m_evtp->delMessage(id))
 		_sprintf(out, MAX_MSG, "%s: invalid ID provided", c->argv[0]);
 	else
-		_sprintf(out, MAX_MSG, "@%s, recurring message %d deleted.",
+		_sprintf(out, MAX_MSG, "@%s, recurring message %ld deleted.",
 				c->nick, id);
 	return "";
 }
