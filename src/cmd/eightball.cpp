@@ -1,41 +1,49 @@
+#include <string.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
 
 /* full name of the command */
-CMDNAME("8ball");
+_CMDNAME("8ball");
 /* description of the command */
-CMDDESCR("respond to questions");
+_CMDDESCR("respond to questions");
 /* command usage synopsis */
-CMDUSAGE("$8ball QUESTION");
+_CMDUSAGE("$8ball QUESTION");
 
 /* 8ball: respond to questions */
 std::string CommandHandler::eightball(char *out, struct command *c)
 {
 	int opt;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
+	char *last;
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
-
-	if (c->fullCmd[c->fullCmd.length() - 1] != '?')
-		return "[8 BALL] Ask me a question.";
-
-	std::uniform_int_distribution<> dis(0, m_eightball.size());
-	return "[8 BALL] @" + std::string(c->nick) + ", " + m_eightball[dis(m_gen)] + ".";
+	last = c->argv[c->argc - 1];
+	last += strlen(last) - 1;
+	if (optind == c->argc) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+	} else if (*last != '?') {
+		_sprintf(out, MAX_MSG, "[8 BALL] Ask me a question.");
+	} else {
+		std::uniform_int_distribution<> dis(0, m_eightball.size());
+		_sprintf(out, MAX_MSG, "[8 BALL] @%s, %s.", c->nick,
+				m_eightball[dis(m_gen)].c_str());
+	}
+	return "";
 }
