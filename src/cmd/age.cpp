@@ -35,6 +35,7 @@ std::string CommandHandler::age(char *out, struct command *c)
 
 	opt_init();
 	url[0] = '\0';
+	msg = NULL;
 	while ((opt = getopt_long(c->argc, c->argv, "fs", long_opts)) != EOF) {
 		switch (opt) {
 		case 'f':
