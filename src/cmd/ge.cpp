@@ -85,7 +85,7 @@ static int64_t extract_price(const std::string &resp)
 	Json::Reader reader;
 	Json::Value item;
 	if (reader.parse(resp, item))
-		return item["overall"].asInt();
+		return item["overall"].asInt64();
 	else
 		return -1;
 }
