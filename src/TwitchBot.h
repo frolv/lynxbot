@@ -43,7 +43,7 @@ class TwitchBot {
 		const std::string m_token;
 
 		tw::Authenticator m_auth;
-		Client m_client;
+		struct client m_client;
 		CommandHandler m_cmdhnd;
 		ConfigReader *m_cfgr;
 		EventManager m_event;

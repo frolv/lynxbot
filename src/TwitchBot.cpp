@@ -16,7 +16,7 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 		const std::string &password, const std::string &token,
 		ConfigReader *cfgr)
 	: m_connected(false), m_password(password.c_str()), m_nick(nick),
-	m_channel(channel), m_token(token), m_client(TWITCH_SERV, TWITCH_PORT),
+	m_channel(channel), m_token(token),
 	m_cmdhnd(nick.c_str(), channel.substr(1).c_str(), token.c_str(), &m_mod,
 			&m_parser, &m_event, &m_giveaway, cfgr, &m_auth),
 	m_cfgr(cfgr), m_event(cfgr),
@@ -34,8 +34,8 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 
 	if (!utils::parseBool(m_urltitles, m_cfgr->get("url_titles"),
 				err)) {
-		std::cerr << m_cfgr->path() << ": url_titles: "
-			<< err << " (defaulting to true)" << std::endl;
+		fprintf(stderr, "%s: url_titles: %s (defaulting to true)\n",
+				m_cfgr->path().c_str(), err.c_str());
 		m_urltitles = true;
 		WAIT_INPUT();
 	}
@@ -43,7 +43,7 @@ TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
 
 TwitchBot::~TwitchBot()
 {
-	m_client.cdisconnect();
+	disconnect();
 }
 
 bool TwitchBot::connected() const
@@ -56,7 +56,7 @@ bool TwitchBot::connect()
 {
 	char buf[MAX_MSG];
 
-	if (!(m_connected = m_client.cconnect()))
+	if (!(m_connected = !cconnect(&m_client, TWITCH_SERV, TWITCH_PORT)))
 		return false;
 
 	/* send required IRC data: PASS, NICK, USER */
@@ -88,7 +88,7 @@ bool TwitchBot::connect()
 /* disconnect: disconnect from Twitch server */
 void TwitchBot::disconnect()
 {
-	m_client.cdisconnect();
+	cdisconnect(&m_client);
 	m_connected = false;
 	m_tick.join();
 }
@@ -100,7 +100,7 @@ void TwitchBot::server_loop()
 
 	/* continously receive data from server */
 	while (true) {
-		if (m_client.cread(buf, MAX_MSG) <= 0) {
+		if (cread(&m_client, buf, MAX_MSG) <= 0) {
 			fprintf(stderr, "No data received. Exiting.\n");
 			disconnect();
 			break;
@@ -127,7 +127,7 @@ bool TwitchBot::send_raw(char *data)
 		strcpy(data + end, "\r\n");
 
 	/* send formatted data */
-	bytes = m_client.cwrite(data);
+	bytes = cwrite(&m_client, data);
 	printf("%s %s\n", bytes > 0 ? "[SENT]" : "Failed to send:", data);
 
 	/* return true iff data was sent succesfully */
@@ -373,8 +373,8 @@ void TwitchBot::parseSubMsg(std::string &tgt, const std::string &which)
 			++ind;
 	}
 	if (!err.empty()) {
-		std::cerr << m_cfgr->path() << ": " << which << ": "
-			<< err << std::endl;
+		fprintf(stderr, "%s: %s: %s\n", m_cfgr->path().c_str(),
+				which.c_str(), err.c_str());
 		WAIT_INPUT();
 		fmt = "";
 	}

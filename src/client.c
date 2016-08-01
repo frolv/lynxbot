@@ -38,7 +38,7 @@ int cconnect(struct client *cl, const char *serv, const char *port)
 int cdisconnect(struct client *cl)
 {
 	if (cl->connected) {
-		cl->connected = false;
+		cl->connected = 0;
 #ifdef __linux__
 		if (close(cl->fd) == -1) {
 			perror("close");
