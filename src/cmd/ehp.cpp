@@ -3,109 +3,120 @@
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+#include "../strfmt.h"
+
+#define MAX_URL 128
 
 /* full name of the command */
-CMDNAME("ehp");
+_CMDNAME("ehp");
 /* description of the command */
-CMDDESCR("view players' ehp");
+_CMDDESCR("view players' ehp");
 /* command usage synopsis */
-CMDUSAGE("$ehp [-n] [RSN]");
+_CMDUSAGE("$ehp [-n] [RSN]");
 
-static const std::string CML_HOST = "crystalmathlabs.com";
-static const std::string EHP_API = "/tracker/api.php?type="
+static const char *CML_HOST = "https://crystalmathlabs.com";
+static const char *EHP_API = "/tracker/api.php?type="
 	"virtualhiscoresatplayer&page=timeplayed&player=";
 
-static const std::string EHP_DESC = "[EHP] EHP stands for efficient hours "
+static const char *EHP_DESC = "[EHP] EHP stands for efficient hours "
 "played. You earn 1 EHP whenever you gain a certain amount of experience in "
 "a skill, depending on your level. You can find XP rates here: "
 "http://crystalmathlabs.com/tracker/suppliescalc.php . Watch a video "
 "explaining EHP: https://www.youtube.com/watch?v=rhxHlO8mvpc";
 
-static bool lookup_player(const std::string &rsn, std::string &res);
+static int lookup_player(char *out, const char *rsn);
 
 /* ehp: view players' ehp */
 std::string CommandHandler::ehp(char *out, struct command *c)
 {
-	std::string output = "@" + std::string(c->nick) + ", ";
-	std::string rsn, err, res;
-	bool usenick;
+	int usenick;
 	char buf[RSN_BUF];
 
-	OptionParser op(c->fullCmd, "n");
 	int opt;
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "nick", NO_ARG, 'n' },
 		{ 0, 0, 0 }
 	};
 
-	usenick = false;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	usenick = 0;
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "n", long_opts)) != EOF) {
 		switch (opt) {
-		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
 		case 'n':
-			usenick = true;
+			usenick = 1;
 			break;
+		case 'h':
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length()) {
+	if (optind == c->argc) {
 		if (usenick)
-			return CMDNAME + ": no Twitch name given";
+			_sprintf(out, MAX_MSG, "%s: no Twitch name given",
+					c->argv[0]);
 		else
-			return EHP_DESC;
+			_sprintf(out, MAX_MSG, "%s", EHP_DESC);
+		return "";
+	}
+	if (optind != c->argc - 1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
 	}
 
-	if (!getrsn(buf, RSN_BUF, c->fullCmd.substr(op.optind()).c_str(),
-				c->nick, usenick))
-		return CMDNAME + ": " + std::string(buf);
-	rsn = std::string(buf);
-	if (rsn.find(' ') != std::string::npos)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (!getrsn(buf, RSN_BUF, c->argv[optind], c->nick, usenick)) {
+		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
+		return "";
+	}
 
-	std::replace(rsn.begin(), rsn.end(), '-', '_');
-
-	if (lookup_player(rsn, res))
-		return "[EHP] " + res;
-	else
-		return CMDNAME + ": " + res;
+	lookup_player(out, buf);
+	return "";
 }
 
-/* lookup_player: look up rsn on cml, return EHP data */
-static bool lookup_player(const std::string &rsn, std::string &res)
+/* lookup_player: look up rsn on cml, write EHP data to out */
+static int lookup_player(char *out, const char *rsn)
 {
 	cpr::Response resp;
-	std::vector<std::string> elems;
-	size_t dot;
+	char buf[MAX_URL];
+	char num[MAX_URL];
+	char *name, *rank, *ehp, *week, *s;
 
-	resp = cpr::Get(cpr::Url("http://" + CML_HOST + EHP_API + rsn),
-			cpr::Header{{ "Connection", "close" }});
-	if (resp.text == "-3" || resp.text == "-4") {
-		res = "could not reach CML API, try again";
-		return false;
+	_sprintf(buf, MAX_URL, "%s%s%s", CML_HOST, EHP_API, rsn);
+	resp = cpr::Get(cpr::Url(buf), cpr::Header{{ "Connection", "close" }});
+	strcpy(buf, resp.text.c_str());
+
+	if (strcmp(buf, "-3") == 0 || strcmp(buf, "-4") == 0) {
+		_sprintf(out, MAX_MSG, "%s: could not reach CML API, try again",
+				_CMDNAME);
+		return 0;
+	}
+	if (strcmp(buf, "-1") == 0) {
+		_sprintf(out, MAX_MSG, "%s: player '%s' does not exist or has "
+				"not been tracked on CML", _CMDNAME, rsn);
+		return 0;
 	}
 
-	utils::split(resp.text, ',', elems);
-	if (elems.size() >= 3) {
-		std::string &ehp = elems[2];
-		if ((dot = ehp.find(".")) != std::string::npos) {
-			/* truncate to one decimal place */
-			ehp = ehp.substr(0, dot + 2);
-		}
-		res = "Name: " + elems[1] + ", Rank: " + elems[0] + ", EHP: "
-			+ ehp + " (+";
-		res += elems.size() == 4 ? elems[3] : "0.00";
-		res += " this week)";
-		return true;
-	} else {
-		res = "player '" + rsn + "' does not exist or has not been "
-			"tracked on CML";
-		return false;
-	}
+	/* extract and format data from buf */
+	rank = buf;
+	name = strchr(rank, ',');
+	*name++ = '\0';
+	ehp = strchr(name, ',');
+	*ehp++ = '\0';
+	week = strchr(ehp, ',');
+	*week++ = '\0';
+	if ((s = strchr(ehp, '.')))
+		s[3] = '\0';
+	fmtnum(num, MAX_URL, ehp);
+
+	_sprintf(out, MAX_MSG, "Name: %s, Rank: %s, EHP: %s (+%s this week)",
+			name, rank, num, *week ? week : "0.00");
+
+	return 1;
 }
