@@ -36,6 +36,6 @@ std::string CommandHandler::manual(char *out, struct command *c)
 		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
 	else
 		_sprintf(out, MAX_MSG, "[MANUAL] %s/manual/index.html",
-				BOT_WEBSITE);
+				_BOT_WEBSITE);
 	return "";
 }
