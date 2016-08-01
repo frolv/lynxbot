@@ -1,59 +1,59 @@
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+#include "../stringparse.h"
 
 /* full name of the command */
-CMDNAME("delrec");
+_CMDNAME("delrec");
 /* description of the command */
-CMDDESCR("delete a recurring message");
+_CMDDESCR("delete a recurring message");
 /* command usage synopsis */
-CMDUSAGE("$delrec ID");
+_CMDUSAGE("$delrec ID");
 
 /* delrec: delete a recurring message */
 std::string CommandHandler::delrec(char *out, struct command *c)
 {
+	int opt;
+	int64_t id;
+	static struct option long_opts[] = {
+		{ "help", NO_ARG, 'h' },
+		{ 0, 0, 0 }
+	};
+
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
 		return "";
 	}
 
-	std::string output = "@" + std::string(c->nick) + ", ";
-	std::vector<std::string> argv;
-
-	int opt, id;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
-		{ "help", NO_ARG, 'h' },
-		{ 0, 0, 0 }
-	};
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
+	if (optind != c->argc - 1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
 
-	utils::split(c->fullCmd, ' ', argv);
-	if (argv.size() != 2)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
-
-	try {
-		id = std::stoi(argv[1]);
-	} catch (std::invalid_argument) {
-		return c->cmd + ": invalid number -- '" + argv[1] + "'";
-	} catch (std::out_of_range) {
-		return CMDNAME + ": number too large";
+	if (!parsenum(c->argv[optind], &id)) {
+		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				c->argv[0], c->argv[optind]);
+		return "";
 	}
 
 	if (!m_evtp->delMessage(id))
-		return CMDNAME + "invalid ID provided";
+		_sprintf(out, MAX_MSG, "%s: invalid ID provided", c->argv[0]);
 	else
-		return output + "recurring message " + std::to_string(id)
-			+ " deleted.";
+		_sprintf(out, MAX_MSG, "@%s, recurring message %d deleted.",
+				c->nick, id);
+	return "";
 }
