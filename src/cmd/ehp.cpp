@@ -115,8 +115,7 @@ static int lookup_player(char *out, const char *rsn)
 		s[3] = '\0';
 	fmtnum(num, MAX_URL, ehp);
 
-	_sprintf(out, MAX_MSG, "Name: %s, Rank: %s, EHP: %s (+%s this week)",
-			name, rank, num, *week ? week : "0.00");
-
+	_sprintf(out, MAX_MSG, "[EHP] Name: %s, Rank: %s, EHP: %s (+%s this "
+			"week)", name, rank, num, *week ? week : "0.00");
 	return 1;
 }
