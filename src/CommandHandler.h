@@ -126,7 +126,6 @@ class CommandHandler {
 		std::string level(char *out, struct command *c);
 		std::string man(char *out, struct command *c);
 		std::string manual(char *out, struct command *c);
-		std::string pokemon(char *out, struct command *c);
 		std::string rsn(char *out, struct command *c);
 		std::string submit(char *out, struct command *c);
 		std::string twitter(char *out, struct command *c);
