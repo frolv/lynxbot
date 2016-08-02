@@ -114,8 +114,10 @@ void Giveaway::setFollowers(bool setting, uint32_t amt)
 void Giveaway::setTimer(bool setting, time_t interval)
 {
 	m_type[2] = setting;
-	if (interval)
+	if (interval) {
 		m_interval = interval;
+		updateTimes(time(NULL));
+	}
 	writeSettings();
 }
 
