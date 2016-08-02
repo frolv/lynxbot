@@ -43,7 +43,7 @@ std::string CommandHandler::man(char *out, struct command *c)
 		return "";
 	}
 
-	_sprintf(url, MAX_URL, "%s/manual/", BOT_WEBSITE);
+	_sprintf(url, MAX_URL, "%s/manual/", _BOT_WEBSITE);
 	if (m_help.find(c->argv[optind]) != m_help.end())
 		_sprintf(out, MAX_MSG, "[MAN] %s%s.html", url,
 				m_help[c->argv[optind]].c_str());
