@@ -7,19 +7,18 @@ class RSNList {
 
 	public:
 		RSNList();
-		bool add(const std::string &nick, const std::string &rsn,
-			std::string &err);
-		bool edit(const std::string &nick, const std::string &rsn,
-			std::string &err);
-		bool del(const std::string &nick);
-		const char *getRSN(const char *nick);
-		const char *getNick(const char *rsn);
+		int add(const char *nick, const char *rsn);
+		int edit(const char *nick, const char *rsn);
+		int del(const char *nick);
+		const char *rsn(const char *nick);
+		const char *nick(const char *rsn);
+		const char *err();
 	private:
 		Json::Value m_rsns;
 		Json::Value m_empty;
-		bool validRSN(const std::string &rsn, std::string &err);
-		Json::Value *findByNick(const std::string &nick);
-		Json::Value *findByRSN(const std::string &rsn);
-		bool readFile();
-		void writeFile();
+		char m_error[256];
+		int valid(const char *rsn);
+		Json::Value *find_rsn(const char *nick);
+		Json::Value *find_nick(const char *rsn);
+		int read_rsns();
 };

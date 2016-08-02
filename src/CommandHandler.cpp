@@ -205,13 +205,13 @@ int CommandHandler::getrsn(char *out, size_t len, const char *text,
 	char *s;
 
 	if (username) {
-		if (!(rsn = m_rsns.getRSN(text))) {
+		if (!(rsn = m_rsns.rsn(text))) {
 			_sprintf(out, len, "no RSN set for user %s", text);
 			return 0;
 		}
 	} else {
 		if (strcmp(text, ".") == 0) {
-			if (!(rsn = m_rsns.getRSN(nick))) {
+			if (!(rsn = m_rsns.rsn(nick))) {
 				_sprintf(out, len, "no RSN set for user %s",
 						nick);
 				return 0;
