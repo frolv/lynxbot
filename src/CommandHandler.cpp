@@ -296,6 +296,7 @@ void CommandHandler::populateHelp()
 	m_help["custom-commands"] = "custom-commands";
 	m_help["giveaway"] = "giveaways";
 	m_help["giveaways"] = "giveaways";
+	m_help["help"] = "man";
 	m_help["mod"] = "moderation";
 	m_help["moderation"] = "moderation";
 	m_help["moderator"] = "moderation";
