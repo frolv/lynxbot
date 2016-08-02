@@ -32,11 +32,6 @@ static const char *AUTH_URL = "https://api.twitch.tv/kraken/oauth2/"
 static const char *RELEASE_API =
 "https://api.github.com/repos/frolv/lynxbot/releases/latest";
 
-/* bot information */
-const char *BOT_NAME = "LynxBot";
-const char *BOT_VERSION = "v1.4.4-beta";
-const char *BOT_WEBSITE = "https://frolv.github.io/lynxbot";
-
 struct botset {
 	std::string name;		/* twitch username of bot */
 	std::string channel;		/* channel to join */

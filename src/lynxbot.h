@@ -1,4 +1,6 @@
-/* lynxbot.h */
+/*
+ * lynxbot.h: bot information and general purpose definitions
+ */
 
 #ifndef _LYNXBOT_H
 #define _LYNXBOT_H
@@ -6,15 +8,17 @@
 #include <stdio.h>
 
 /* general program information */
-#define _BOT_NAME	"LynxBot"
+#define BOT_NAME	"LynxBot"
+#define BOT_WEBSITE	"https://frolv.github.io/lynxbot"
+
+/* version information */
 #define _BOT_VER_MAJOR	"1"
 #define _BOT_VER_MINOR	"4"
 #define _BOT_VER_PATCH	"4"
 #define _BOT_VER_SUF	"-beta"
-#define _BOT_WEBSITE	"https://frolv.github.io/lynxbot"
 
 /* full version string */
-#define BOT_VER "v" _BOT_VER_MAJOR "." _BOT_VER_MINOR "."\
+#define BOT_VERSION "v" _BOT_VER_MAJOR "." _BOT_VER_MINOR "."\
 	_BOT_VER_PATCH _BOT_VER_SUF
 
 /* maximum length of chat message */
@@ -32,9 +36,5 @@
 
 /* wait for user to press return */
 #define WAIT_INPUT() while (getchar() != '\n');
-
-const extern char *BOT_NAME;
-const extern char *BOT_VERSION;
-const extern char *BOT_WEBSITE;
 
 #endif

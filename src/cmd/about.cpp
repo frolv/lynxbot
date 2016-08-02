@@ -61,8 +61,8 @@ std::string CommandHandler::about(char *out, struct command *c)
 		break;
 	default:
 		_sprintf(out, MAX_MSG, "[ABOUT] %s is running %s %s. "
-				"Find out more at %s", m_name, _BOT_NAME,
-				BOT_VER, _BOT_WEBSITE);
+				"Find out more at %s", m_name, BOT_NAME,
+				BOT_VERSION, BOT_WEBSITE);
 		break;
 	}
 	return "";
