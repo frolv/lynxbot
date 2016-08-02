@@ -12,7 +12,7 @@ class Giveaway {
 		~Giveaway();
 		bool init(time_t initTime, bool first);
 		bool active() const;
-		bool activate(time_t initTime, std::string &reason);
+		bool activate(time_t initTime);
 		void setFollowers(bool setting, uint32_t amt = 0);
 		void setTimer(bool setting, time_t interval = 0);
 		void setImages(bool setting);
@@ -23,6 +23,7 @@ class Giveaway {
 		uint32_t followers();
 		time_t interval();
 		std::string currentSettings(int8_t type = -1);
+		char *err();
 	private:
 		ConfigReader *m_cfgr;
 		bool m_active;
@@ -37,6 +38,7 @@ class Giveaway {
 		time_t m_earliest;
 		time_t m_latest;
 		std::vector<std::string> m_items;
+		char m_error[256];
 		bool initialize();
 		uint32_t getFollowers() const;
 		void interactiveFollowers();

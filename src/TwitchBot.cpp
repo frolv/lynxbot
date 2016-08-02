@@ -71,6 +71,9 @@ bool TwitchBot::connect()
 	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/tags");
 	send_raw(buf);
 
+	/* _sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/membership"); */
+	/* send_raw(buf); */
+
 	if (strlen(m_channel.c_str()) > 32) {
 		fprintf(stderr, "error: channel name too long\n");
 		disconnect();

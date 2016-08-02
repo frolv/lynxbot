@@ -76,18 +76,19 @@ bool Giveaway::active() const
 }
 
 /* activate: enable giveaways */
-bool Giveaway::activate(time_t initTime, std::string &reason)
+bool Giveaway::activate(time_t initTime)
 {
 	if (m_active) {
-		reason = "giveaways are already active.";
+		strcpy(m_error, "giveaways are already active.");
 		return false;
 	}
 	if (!init(initTime, false)) {
-		reason = "failed to start giveaway. See console for details.";
+		strcpy(m_error, "failed to start giveaway. See "
+				"console for details.");
 		return false;
 	}
 	if (m_items.empty()) {
-		reason = "nothing left to give away!";
+		strcpy(m_error, "nothing left to give away!");
 		return false;
 	}
 	writeSettings();
@@ -258,6 +259,11 @@ std::string Giveaway::currentSettings(int8_t type)
 	}
 
 	return output;
+}
+
+char *Giveaway::err()
+{
+	return m_error;
 }
 
 /* getFollowers: read channel followers from Twitch API */
