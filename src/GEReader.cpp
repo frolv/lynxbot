@@ -29,18 +29,19 @@ bool GEReader::active() const
 }
 
 /* getItem: return the json value of the item with name name */
-Json::Value GEReader::getItem(std::string &name) const
+Json::Value GEReader::getItem(const char *name) const
 {
 	int ind;
 	const Json::Value &arr = m_itemIDs["items"];
+	std::string n(name);
 
-	std::transform(name.begin(), name.end(), name.begin(), tolower);
-	name[0] = toupper(name[0]);
+	std::transform(n.begin(), n.end(), n.begin(), tolower);
+	n[0] = toupper(n[0]);
 
-	if (m_nicks.find(name) != m_nicks.end())
-		name = m_nicks.at(name);
+	if (m_nicks.find(n) != m_nicks.end())
+		n = m_nicks.at(n);
 
-	if ((ind = json_bsearch(arr, name, 0, arr.size() - 1)) != -1)
+	if ((ind = json_bsearch(arr, n, 0, arr.size() - 1)) != -1)
 		return arr[ind];
 
 	/* return empty value if item not found */

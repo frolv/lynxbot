@@ -10,7 +10,7 @@ class GEReader {
 		GEReader();
 		~GEReader();
 		bool active() const;
-		Json::Value getItem(std::string &name) const;
+		Json::Value getItem(const char *name) const;
 	private:
 		std::unordered_map<std::string, std::string> m_nicks;
 		Json::Value m_itemIDs;
