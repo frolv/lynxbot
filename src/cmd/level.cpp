@@ -3,42 +3,38 @@
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
 #include "../skills.h"
+#include "../strfmt.h"
 
 #define REG  0
 #define IRON 1
 #define ULT  2
 
 /* full name of the command */
-CMDNAME("level");
+_CMDNAME("level");
 /* description of the command */
-CMDDESCR("look up players' levels");
+_CMDDESCR("look up players' levels");
 /* command usage synopsis */
-CMDUSAGE("$level [-i|-u] [-n] SKILL RSN");
+_CMDUSAGE("$level [-i|-u] [-n] SKILL RSN");
 
-static const std::string HS_BASE =
+static const char *HS_BASE =
 	"http://services.runescape.com/m=hiscore_oldschool";
-static const std::string HS_IRON = "_ironman";
-static const std::string HS_ULT = "_ultimate";
-static const std::string HS_QUERY = "/index_lite.ws?player=";
+static const char *HS_IRON = "_ironman";
+static const char *HS_ULT = "_ultimate";
+static const char *HS_QUERY = "/index_lite.ws?player=";
 
-static std::string get_hiscores(const std::string &rsn, int8_t id, int8_t type,
-		std::string &err);
+static void get_hiscores(char *out, struct command *c, const char *rsn,
+		int id, int type);
 
 /* level: look up players' levels */
 std::string CommandHandler::level(char *out, struct command *c)
 {
-	std::string output = "@" + std::string(c->nick) + ", ";
-	std::string rsn, err, nick, res, which;
-	std::vector<std::string> argv;
-	bool usenick;
-	int8_t id, type;
+	int usenick, id, type;
 	char buf[RSN_BUF];
 
-	OptionParser op(c->fullCmd, "inu");
 	int opt;
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "ironman", NO_ARG, 'i' },
 		{ "nick", NO_ARG, 'n' },
@@ -46,88 +42,97 @@ std::string CommandHandler::level(char *out, struct command *c)
 		{ 0, 0, 0 }
 	};
 
-	usenick = false;
+	opt_init();
+	usenick = 0;
 	type = REG;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	while ((opt = getopt_long(c->argc, c->argv, "inu", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case 'i':
 			type = IRON;
-			which = "(iron) ";
 			break;
 		case 'n':
-			usenick = true;
+			usenick = 1;
 			break;
 		case 'u':
 			type = ULT;
-			which = "(ult) ";
 			break;
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind != c->argc - 2)
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+	else if (!getrsn(buf, RSN_BUF, c->argv[optind + 1], c->nick, usenick))
+		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
+	else if ((id = skill_id(c->argv[optind])) == -1)
+		_sprintf(out, MAX_MSG, "%s: invalid skill name: %s",
+				c->argv[0], c->argv[optind]);
+	else
+		get_hiscores(out, c, buf, id, type);
 
-	utils::split(c->fullCmd.substr(op.optind()), ' ', argv);
-	if (argv.size() != 2)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
-
-	if (!getrsn(buf, RSN_BUF, c->fullCmd.substr(op.optind()).c_str(),
-				c->nick, usenick))
-		return CMDNAME + ": " + std::string(buf);
-	rsn = std::string(buf);
-	std::replace(rsn.begin(), rsn.end(), '-', '_');
-
-	if ((id = skill_id(argv[0])) == -1)
-		return c->cmd + ": invalid skill name: " + argv[0];
-
-	if ((res = get_hiscores(rsn, id, type, err)).empty())
-		return c->cmd + ": " + err;
-
+	return "";
 	/* skill nickname is displayed to save space */
-	nick = skill_nick(id);
-	std::transform(nick.begin(), nick.end(), nick.begin(), toupper);
+	/* nick = skill_nick(id); */
+	/* std::transform(nick.begin(), nick.end(), nick.begin(), toupper); */
 
-	return "[" + nick + "] " + which + "Name: " + rsn + ", " + res;
+	/* return "[" + nick + "] " + which + "Name: " + rsn + ", " + res; */
 }
 
-/* get_hiscores: return hiscore data of player rsn in skill */
-static std::string get_hiscores(const std::string &rsn, int8_t id, int8_t type,
-		std::string &err)
+/* get_hiscores: return hiscore data of player rsn in skill id */
+static void get_hiscores(char *out, struct command *c, const char *rsn,
+		int id, int type)
 {
 	cpr::Response resp;
-	std::vector<std::string> skills;
-	std::vector<std::string> tokens;
-	std::string url;
+	char buf[MAX_MSG];
+	char exp[RSN_BUF];
+	char rnk[RSN_BUF];
+	char nick[8];
+	char *s, *t, *u;
+	int i;
 
-	url = HS_BASE;
+	strcpy(buf, HS_BASE);
 	if (type == IRON)
-		url += HS_IRON;
+		strcat(buf, HS_IRON);
 	else if (type == ULT)
-		url += HS_ULT;
-	url += HS_QUERY;
+		strcat(buf, HS_ULT);
+	strcat(buf, HS_QUERY);
+	strcat(buf, rsn);
 
-	resp = cpr::Get(cpr::Url(url + rsn),
-			cpr::Header{{ "Connection", "close" }});
-	if (resp.text.find("404 - Page not found") != std::string::npos) {
-		err = "player '" + rsn + "' not found on ";
-		if (type == IRON)
-			err += "ironman ";
-		else if (type == ULT)
-			err += "ultimate ironman ";
-		err += "hiscores";
-		return "";
+	resp = cpr::Get(cpr::Url(buf), cpr::Header{{ "Connection", "close" }});
+	strcpy(buf, resp.text.c_str());
+
+	if (strstr(buf, "404 - Page not found")) {
+		_sprintf(out, MAX_MSG, "%s: player '%s' not found on "
+				"%shiscores", c->argv[0], rsn,
+				type == REG ? "" : type == IRON ? "ironman "
+				: "ultimate ironman ");
+		return;
 	}
 
-	utils::split(resp.text, '\n', skills);
-	utils::split(skills[id], ',', tokens);
+	s = buf;
+	for (i = 0; i < id; ++i)
+		s = strchr(s, '\n') + 1;
+	if ((t = strchr(s, '\n')))
+		*t = '\0';
 
-	return "Level: " + tokens[1] + ", Exp: "
-		+ utils::formatInteger(tokens[2]) + ", Rank: "
-		+ utils::formatInteger(tokens[0]);
+	t = strchr(s, ',');
+		*t++ = '\0';
+	u = strchr(t, ',');
+		*u++ = '\0';
+	fmtnum(rnk, RSN_BUF, s);
+	fmtnum(exp, RSN_BUF, u);
+	_sprintf(nick, 8, "%s", skill_nick(id).c_str());
+	for (i = 0; nick[i]; ++i)
+		nick[i] = toupper(nick[i]);
+
+	_sprintf(out, MAX_MSG, "[%s]%s Name: %s, Level: %s, Exp: %s, Rank: %s",
+			nick, type == REG ? "" : type == IRON ? " (iron)"
+			: " (ult)", rsn, t, exp, rnk);
 }
