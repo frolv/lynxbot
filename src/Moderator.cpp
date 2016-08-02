@@ -152,9 +152,12 @@ bool Moderator::delurl(const std::string &site)
 }
 
 /* permit: permit nick to post amt links */
-void Moderator::permit(std::string &nick, int amt)
+void Moderator::permit(char *nick, int amt)
 {
-	std::transform(nick.begin(), nick.end(), nick.begin(), tolower);
+	char *s;
+
+	for (s = nick; *s; ++s)
+		*s = tolower(*s);
 	m_perm[nick] = amt;
 }
 

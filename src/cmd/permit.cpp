@@ -1,70 +1,75 @@
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+#include "../stringparse.h"
 
 /* full name of the command */
-CMDNAME("permit");
+_CMDNAME("permit");
 /* description of the command */
-CMDDESCR("grant user permission to post urls");
+_CMDDESCR("grant user permission to post urls");
 /* command usage synopsis */
-CMDUSAGE("$permit [-n AMT] [-s] USER");
+_CMDUSAGE("$permit [-n AMT] [-s] USER");
 
 /* permit: grant user permission to post a url */
 std::string CommandHandler::permit(char *out, struct command *c)
 {
-	if (!P_ALMOD(c->privileges)) {
-		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
-	}
-
-	std::string nick;
-	int opt, amt;
-	OptionParser op(c->fullCmd, "n:s");
-	static struct OptionParser::option long_opts[] = {
+	int opt;
+	int64_t amt;
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "amount", REQ_ARG, 'n' },
 		{ "session", NO_ARG, 's' },
 		{ 0, 0, 0 }
 	};
 
+	if (!P_ALMOD(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return "";
+	}
+
+	opt_init();
 	amt = 1;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	while ((opt = getopt_long(c->argc, c->argv, "n:s", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case 'n':
-			try {
-				if ((amt = std::stoi(op.optarg())) < 1)
-					return CMDNAME + ": amount must be a "
-						"positive integer";
-			} catch (std::invalid_argument) {
-				return CMDNAME + ": invalid number -- '"
-					+ op.optarg() + "'";
-			} catch (std::out_of_range) {
-				return CMDNAME + ": number too large";
+			if (!parsenum(optarg, &amt)) {
+				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+						c->argv[0], optarg);
+				return "";
+			}
+			if (amt < 1) {
+				_sprintf(out, MAX_MSG, "%s: amount must be a "
+						"positive integer", c->argv[0]);
+				return "";
 			}
 			break;
 		case 's':
 			amt = -1;
 			break;
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length() ||
-			(nick = c->fullCmd.substr(op.optind())).find(' ')
-			!= std::string::npos)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind != c->argc - 1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
 
-	m_modp->permit(nick, amt);
+	m_modp->permit(c->argv[optind], amt);
 	if (amt == -1)
-		return "[PERMIT] " + nick + " has been granted permission "
-			" to post links for the duration of this session.";
-
-	return "[PERMIT] " + nick + " has been granted permission "
-		"to post " + std::to_string(amt) + " link"
-		+ (amt == 1 ? "" : "s") + ".";
+		_sprintf(out, MAX_MSG, "[PERMIT] %s has been granted permission"
+				" to post links for the duration of this "
+				"session.", c->argv[optind]);
+	else
+		_sprintf(out, MAX_MSG, "[PERMIT] %s has been granted permission"
+				" to post %ld link%s.", c->argv[optind], amt,
+				amt == 1 ? "" : "s");
+	return "";
 }

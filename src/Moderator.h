@@ -18,7 +18,7 @@ class Moderator {
 		uint8_t getOffenses(const std::string &nick) const;
 		bool whitelist(const std::string &site);
 		bool delurl(const std::string &site);
-		void permit(std::string &nick, int amt);
+		void permit(char *nick, int amt);
 		std::string getFormattedWhitelist() const;
 	private:
 		URLParser *m_parsep;
