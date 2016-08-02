@@ -59,6 +59,8 @@ int parsenum_mult(const char *s, int64_t *num)
 			mult *= 1000000000;
 			break;
 		}
+	} else {
+		++last;
 	}
 
 	n = 0;
