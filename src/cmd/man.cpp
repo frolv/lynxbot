@@ -1,53 +1,60 @@
 #include <algorithm>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+
+#define MAX_URL 128
 
 /* full name of the command */
-CMDNAME("man");
+_CMDNAME("man");
 /* description of the command */
-CMDDESCR("view command reference manuals");
+_CMDDESCR("view command reference manuals");
 /* command usage synopsis */
-CMDUSAGE("$man CMD");
+_CMDUSAGE("$man CMD");
 
 /* man: view command reference manuals */
 std::string CommandHandler::man(char *out, struct command *c)
 {
-	std::string cmd, path;
 	Json::Value *ccmd;
+	char url[MAX_URL];
 
 	int opt;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length()
-			|| (cmd = c->fullCmd.substr(op.optind())).find(' ')
-			!= std::string::npos)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind != c->argc - 1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
 
-	path = std::string(BOT_WEBSITE) + "/manual/";
-	if (m_help.find(cmd) != m_help.end())
-		return "[MAN] " + path + m_help[cmd] + ".html";
+	_sprintf(url, MAX_URL, "%s/manual/", BOT_WEBSITE);
+	if (m_help.find(c->argv[optind]) != m_help.end())
+		_sprintf(out, MAX_MSG, "[MAN] %s%s.html", url,
+				m_help[c->argv[optind]].c_str());
+	else if (m_defaultCmds.find(c->argv[optind]) != m_defaultCmds.end())
+		_sprintf(out, MAX_MSG, "[MAN] %s%s.html", url, c->argv[optind]);
+	else if (!(ccmd = m_customCmds->getcom(c->argv[optind]))->empty())
+		_sprintf(out, MAX_MSG, "[MAN] '%s' is a custom command",
+				c->argv[optind]);
+	else
+		_sprintf(out, MAX_MSG, "%s: no manual entry for '%s'",
+				c->argv[0], c->argv[optind]);
 
-	if (m_defaultCmds.find(cmd) != m_defaultCmds.end())
-		return "[MAN] " + path + cmd + ".html";
-
-	if (!(ccmd = m_customCmds->getcom(cmd))->empty())
-		return "[MAN] " + cmd + " is a custom command";
-
-	return CMDNAME + ": no manual entry for '" + cmd + "'";
+	return "";
 }
