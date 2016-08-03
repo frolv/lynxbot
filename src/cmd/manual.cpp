@@ -10,7 +10,7 @@ CMDDESCR("view the lynxbot manual");
 CMDUSAGE("$manual");
 
 /* manual: view the lynxbot manual */
-std::string CommandHandler::manual(char *out, struct command *c)
+int CommandHandler::manual(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {
@@ -23,19 +23,20 @@ std::string CommandHandler::manual(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc)
+	if (optind != c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-	else
-		_sprintf(out, MAX_MSG, "[MANUAL] %s/manual/index.html",
-				BOT_WEBSITE);
-	return "";
+		return EXIT_FAILURE;
+	}
+
+	_sprintf(out, MAX_MSG, "[MANUAL] %s/manual/index.html", BOT_WEBSITE);
+	return EXIT_SUCCESS;
 }

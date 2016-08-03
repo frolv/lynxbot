@@ -7,7 +7,6 @@
 #include "cmdparse.h"
 #include "CommandHandler.h"
 #include "lynxbot.h"
-#include "OptionParser.h"
 
 CommandHandler::CommandHandler(const char *name, const char *channel,
 		const char *token, Moderator *mod, URLParser *urlp,
@@ -15,7 +14,8 @@ CommandHandler::CommandHandler(const char *name, const char *channel,
 		tw::Authenticator *auth)
 	: m_name(name), m_channel(channel), m_token(token), m_modp(mod),
 	m_parsep(urlp), m_customCmds(NULL), m_evtp(evtp), m_givp(givp),
-	m_cfgr(cfgr), m_auth(auth), m_counting(false), m_gen(m_rd())
+	m_cfgr(cfgr), m_auth(auth), m_counting(false), m_gen(m_rd()),
+	m_status(EXIT_SUCCESS)
 {
 	populateCmds();
 	m_poll[0] = '\0';
@@ -142,18 +142,14 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 /* process_default: run a default command */
 void CommandHandler::process_default(char *out, struct command *c)
 {
-	/* while commands are converted to new format */
-	std::string tmp;
-
 	if (P_ALSUB(c->privileges) || m_cooldowns.ready(c->argv[0])) {
-		if (!(tmp = (this->*m_defaultCmds[c->argv[0]])(out, c)).empty()) {
-			_sprintf(out, MAX_MSG, "%s", tmp.c_str());
-			m_cooldowns.setUsed(c->argv[0]);
-		}
-		return;
+		m_status = (this->*m_defaultCmds[c->argv[0]])(out, c);
+		m_cooldowns.setUsed(c->argv[0]);
+	} else {
+		_sprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
+				c->nick, c->argv[0]);
+		m_status = EXIT_FAILURE;
 	}
-	_sprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
-			c->nick, c->argv[0]);
 }
 
 /* process_custom: run a custom command */
@@ -171,15 +167,18 @@ void CommandHandler::process_custom(char *out, struct command *c)
 				m_customCmds->format(ccmd, c->nick).c_str());
 		m_cooldowns.setUsed((*ccmd)["cmd"].asString());
 		m_customCmds->write();
+		m_status = EXIT_SUCCESS;
 		return;
 	}
 	if (!(*ccmd)["active"].asBool()) {
 		_sprintf(out, MAX_MSG, "/w %s command is currently inactive: %s",
 				c->nick, c->argv[0]);
+		m_status = EXIT_FAILURE;
 		return;
 	}
 	_sprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
 			c->nick, c->argv[0]);
+	m_status = EXIT_FAILURE;
 }
 
 /* source: determine whether cmd is a default or custom command */

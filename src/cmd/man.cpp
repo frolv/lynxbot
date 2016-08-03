@@ -13,7 +13,7 @@ CMDDESCR("view command reference manuals");
 CMDUSAGE("$man CMD");
 
 /* man: view command reference manuals */
-std::string CommandHandler::man(char *out, struct command *c)
+int CommandHandler::man(char *out, struct command *c)
 {
 	Json::Value *ccmd;
 	char url[MAX_URL];
@@ -29,18 +29,18 @@ std::string CommandHandler::man(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	_sprintf(url, MAX_URL, "%s/manual/", BOT_WEBSITE);
@@ -56,5 +56,5 @@ std::string CommandHandler::man(char *out, struct command *c)
 		_sprintf(out, MAX_MSG, "%s: no manual entry for '%s'",
 				c->argv[0], c->argv[optind]);
 
-	return "";
+	return EXIT_SUCCESS;
 }

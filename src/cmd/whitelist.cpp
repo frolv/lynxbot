@@ -13,11 +13,11 @@ CMDDESCR("exempt websites from moderation");
 CMDUSAGE("$whitelist [-d] [SITE]");
 
 /* whitelist: exempt websites from moderation */
-std::string CommandHandler::whitelist(char *out, struct command *c)
+int CommandHandler::whitelist(char *out, struct command *c)
 {
 	char url[MAX_URL];
 	char *s;
-	int del;
+	int del, status;
 
 	int opt;
 	static struct option long_opts[] = {
@@ -28,10 +28,11 @@ std::string CommandHandler::whitelist(char *out, struct command *c)
 
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	del = 0;
+	status = EXIT_SUCCESS;
 	opt_init();
 	while ((opt = getopt_long(c->argc, c->argv, "d", long_opts)) != EOF) {
 		switch (opt) {
@@ -40,28 +41,30 @@ std::string CommandHandler::whitelist(char *out, struct command *c)
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
-		if (del)
+		if (del) {
 			_sprintf(out, MAX_MSG, "%s: no website specified",
 					c->argv[0]);
-		else
+			status = EXIT_FAILURE;
+		} else {
 			_sprintf(out, MAX_MSG, "[WHITELIST] %s",
 					m_modp->getFormattedWhitelist().c_str());
-		return "";
+		}
+		return status;
 	}
 
 	if (optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	_sprintf(out, MAX_MSG, "@%s, ", c->nick);
@@ -78,17 +81,17 @@ std::string CommandHandler::whitelist(char *out, struct command *c)
 			else
 				_sprintf(s, MAX_MSG, "%s is not on the "
 						"whitelist.", url);
-			return "";
+			return status;
 		}
 		if (m_modp->whitelist(url))
 			_sprintf(s, MAX_MSG, "%s has beed whitelisted.", url);
 		else
 			_sprintf(s, MAX_MSG, "%s is already on the whitelist.",
 					url);
-		return "";
+		return status;
 	}
 
 	_sprintf(out, MAX_MSG, "%s: invalid URL: %s", c->argv[0],
 			c->argv[optind]);
-	return "";
+	return EXIT_FAILURE;
 }

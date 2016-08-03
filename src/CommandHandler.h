@@ -34,9 +34,8 @@ class ConfigReader;
 class CommandHandler {
 
 	public:
-		typedef std::unordered_map<std::string,
-			std::string(CommandHandler::*)(char *,
-			struct command *)> commandMap;
+		typedef int(CommandHandler::*cmdfun)(char *, struct command *);
+		typedef std::unordered_map<std::string, cmdfun> commandMap;
 
 		CommandHandler(const char *name, const char *channel,
 				const char *token, Moderator *mod,
@@ -76,6 +75,7 @@ class CommandHandler {
 		std::random_device m_rd;
 		std::mt19937 m_gen;
 		char m_poll[MAX_LEN];
+		int m_status;
 		std::vector<std::string> m_eightball = {
 			"It is certain",
 			"It is decidedly so",
@@ -102,42 +102,42 @@ class CommandHandler {
 		void process_custom(char *out, struct command *c);
 
 		/* default bot commands */
-		std::string about(char *out, struct command *c);
-		std::string active(char *out, struct command *c);
-		std::string age(char *out, struct command *c);
-		std::string calc(char *out, struct command *c);
-		std::string cgrep(char *out, struct command *c);
-		std::string cmdinfo(char *out, struct command *c);
-		std::string cml(char *out, struct command *c);
-		std::string duck(char *out, struct command *c);
-		std::string ehp(char *out, struct command *c);
-		std::string eightball(char *out, struct command *c);
-		std::string fashiongen(char *out, struct command *c);
-		std::string ge(char *out, struct command *c);
-		std::string level(char *out, struct command *c);
-		std::string man(char *out, struct command *c);
-		std::string manual(char *out, struct command *c);
-		std::string rsn(char *out, struct command *c);
-		std::string submit(char *out, struct command *c);
-		std::string twitter(char *out, struct command *c);
-		std::string uptime(char *out, struct command *c);
-		std::string wheel(char *out, struct command *c);
-		std::string xp(char *out, struct command *c);
+		int about(char *out, struct command *c);
+		int active(char *out, struct command *c);
+		int age(char *out, struct command *c);
+		int calc(char *out, struct command *c);
+		int cgrep(char *out, struct command *c);
+		int cmdinfo(char *out, struct command *c);
+		int cml(char *out, struct command *c);
+		int duck(char *out, struct command *c);
+		int ehp(char *out, struct command *c);
+		int eightball(char *out, struct command *c);
+		int fashiongen(char *out, struct command *c);
+		int ge(char *out, struct command *c);
+		int level(char *out, struct command *c);
+		int man(char *out, struct command *c);
+		int manual(char *out, struct command *c);
+		int rsn(char *out, struct command *c);
+		int submit(char *out, struct command *c);
+		int twitter(char *out, struct command *c);
+		int uptime(char *out, struct command *c);
+		int wheel(char *out, struct command *c);
+		int xp(char *out, struct command *c);
 
 		/* moderator only commands */
-		std::string addcom(char *out, struct command *c);
-		std::string addrec(char *out, struct command *c);
-		std::string count(char *out, struct command *c);
-		std::string delcom(char *out, struct command *c);
-		std::string delrec(char *out, struct command *c);
-		std::string editcom(char *out, struct command *c);
-		std::string permit(char *out, struct command *c);
-		std::string setgiv(char *out, struct command *c);
-		std::string setrec(char *out, struct command *c);
-		std::string showrec(char *out, struct command *c);
-		std::string status(char *out, struct command *c);
-		std::string strawpoll(char *out, struct command *c);
-		std::string whitelist(char *out, struct command *c);
+		int addcom(char *out, struct command *c);
+		int addrec(char *out, struct command *c);
+		int count(char *out, struct command *c);
+		int delcom(char *out, struct command *c);
+		int delrec(char *out, struct command *c);
+		int editcom(char *out, struct command *c);
+		int permit(char *out, struct command *c);
+		int setgiv(char *out, struct command *c);
+		int setrec(char *out, struct command *c);
+		int showrec(char *out, struct command *c);
+		int status(char *out, struct command *c);
+		int strawpoll(char *out, struct command *c);
+		int whitelist(char *out, struct command *c);
 
 		/* helpers */
 		uint8_t source(const std::string &cmd);
@@ -150,11 +150,8 @@ class CommandHandler {
 class CustomCommandHandler {
 
 	public:
-		typedef std::unordered_map<std::string,
-			std::string(CommandHandler::*)(char *,
-			struct command *)> commandMap;
-
-		CustomCommandHandler(commandMap *defaultCmds, TimerManager *tm,
+		CustomCommandHandler(CommandHandler::commandMap *defaultCmds,
+				TimerManager *tm,
 				const std::string &wheelCmd,
 				const std::string &name,
 				const std::string &channel);
@@ -180,7 +177,7 @@ class CustomCommandHandler {
 
 	private:
 		bool m_active;
-		commandMap *m_cmp;
+		CommandHandler::commandMap *m_cmp;
 		TimerManager *m_tmp;
 		const std::string m_wheelCmd;
 		const std::string m_name;

@@ -14,10 +14,10 @@ CMDDESCR("view and manage stored rsns");
 CMDUSAGE("$rsn COMMAND [ARG]");
 
 static int invalidargs(struct command *c);
-static void rsn_action(char *out, RSNList *rsns, struct command *c);
+static int rsn_action(char *out, RSNList *rsns, struct command *c);
 
 /* rsn: view and manage stored rsns */
-std::string CommandHandler::rsn(char *out, struct command *c)
+int CommandHandler::rsn(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {
@@ -30,21 +30,21 @@ std::string CommandHandler::rsn(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
-	if (invalidargs(c))
+	if (invalidargs(c)) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-	else
-		rsn_action(out, &m_rsns, c);
+		return EXIT_FAILURE;
+	}
 
-	return "";
+	return rsn_action(out, &m_rsns, c);
 }
 
 /* invalidargs: check if command arguments are invalid */
@@ -61,10 +61,11 @@ static int invalidargs(struct command *c)
 }
 
 /* rsn_action: perform the requested action */
-static void rsn_action(char *out, RSNList *rsns, struct command *c)
+static int rsn_action(char *out, RSNList *rsns, struct command *c)
 {
 	const char *crsn;
 	char *s, *rsn, *nick;
+	int status;
 
 	if (c->argc == 3) {
 		rsn = c->argv[optind + 1];
@@ -76,33 +77,44 @@ static void rsn_action(char *out, RSNList *rsns, struct command *c)
 	} else {
 		rsn = NULL;
 	}
+
+	status = EXIT_SUCCESS;
 	if (strcmp(c->argv[optind], "set") == 0) {
-		if (!rsns->add(c->nick, rsn))
+		if (!rsns->add(c->nick, rsn)) {
 			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 					rsns->err());
-		else
+			status = EXIT_FAILURE;
+		} else {
 			_sprintf(out, MAX_MSG, "[RSN] The name '%s' has been "
 					"set for %s.", rsn, c->nick);
+		}
 	} else if (strcmp(c->argv[optind], "del") == 0) {
-		if (!rsns->del(c->nick))
+		if (!rsns->del(c->nick)) {
 			_sprintf(out, MAX_MSG, "%s: no RSN set", c->argv[0]);
-		else
+			status = EXIT_FAILURE;
+		} else {
 			_sprintf(out, MAX_MSG, "[RSN] Stored RSN for "
 					"%s deleted.", c->nick);
+		}
 	} else if (strcmp(c->argv[optind], "change") == 0) {
-		if (!rsns->edit(c->nick, rsn))
+		if (!rsns->edit(c->nick, rsn)) {
 			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 					rsns->err());
-		else
+			status = EXIT_FAILURE;
+		} else {
 			_sprintf(out, MAX_MSG, "[RSN] RSN for %s changed to"
 					"'%s'.", c->nick, rsn);
+		}
 	} else {
 		/* check own nick or the one that was given */
 		nick = c->argc == 2 ? c->nick : rsn;
-		if (!(crsn = rsns->rsn(nick)))
+		if (!(crsn = rsns->rsn(nick))) {
 			_sprintf(out, MAX_MSG, "[RSN] No RSN set for %s", nick);
-		else
+			status = EXIT_FAILURE;
+		} else {
 			_sprintf(out, MAX_MSG, "[RSN] The RSN '%s' is currently"
 					" set for %s.", crsn, nick);
+		}
 	}
+	return status;
 }

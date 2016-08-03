@@ -9,6 +9,13 @@
 #include "../lynxbot.h"
 #include "../permissions.h"
 
+#ifndef EXIT_SUCCESS
+# define EXIT_SUCCESS 0
+#endif
+#ifndef EXIT_FAILURE
+# define EXIT_FAILURE 1
+#endif
+
 #define CMDNAME(x) static const char *CMDNAME = x
 #define CMDDESCR(x) static const char *CMDDESCR = x
 #define CMDUSAGE(x) static const char *CMDUSAGE = x

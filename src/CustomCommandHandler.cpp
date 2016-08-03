@@ -7,7 +7,7 @@
 
 static bool valid_resp(const std::string &resp, std::string &err);
 
-CustomCommandHandler::CustomCommandHandler(commandMap *defaultCmds,
+CustomCommandHandler::CustomCommandHandler(CommandHandler::commandMap *defaultCmds,
 		TimerManager *tm, const std::string &wheelCmd,
 		const std::string &name, const std::string &channel)
 	: m_cmp(defaultCmds), m_tmp(tm), m_wheelCmd(wheelCmd),

@@ -11,11 +11,11 @@ CMDDESCR("create a new custom command");
 /* command usage synopsis */
 CMDUSAGE("$addcom [-c CD] CMD RESPONSE");
 
-static void create(char *out, CustomCommandHandler *cch,
+static int create(char *out, CustomCommandHandler *cch,
 		struct command *c, time_t cooldown);
 
 /* addcom: create a new custom command */
-std::string CommandHandler::addcom(char *out, struct command *c)
+int CommandHandler::addcom(char *out, struct command *c)
 {
 	time_t cooldown;
 	int opt;
@@ -28,13 +28,13 @@ std::string CommandHandler::addcom(char *out, struct command *c)
 
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (!m_customCmds->isActive()) {
 		_sprintf(out, MAX_MSG, "%s: custom commands are "
 				"currently disabled", c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	cooldown = 15;
@@ -46,41 +46,40 @@ std::string CommandHandler::addcom(char *out, struct command *c)
 			if (!parsenum(optarg, &cooldown)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], optarg);
-				return "";
+				return EXIT_FAILURE;
 			}
 			if (cooldown < 0) {
 				_sprintf(out, MAX_MSG, "%s: cooldown cannot be "
 						"negative", c->argv[0]);
-				return "";
+				return EXIT_FAILURE;
 			}
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 	if (optind == c->argc - 1) {
 		_sprintf(out, MAX_MSG, "%s: no response provided for "
 				"command $%s", c->argv[0], c->argv[optind]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
-	create(out, m_customCmds, c, cooldown);
-	return "";
+	return create(out, m_customCmds, c, cooldown);
 }
 
 /* create: create a custom command */
-static void create(char *out, CustomCommandHandler *cch,
+static int create(char *out, CustomCommandHandler *cch,
 		struct command *c, time_t cooldown)
 {
 	char *cmd;
@@ -91,8 +90,9 @@ static void create(char *out, CustomCommandHandler *cch,
 	if (!cch->addcom(cmd, resp, c->nick, cooldown)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());
-		return;
+		return EXIT_FAILURE;
 	}
 	_sprintf(out, MAX_MSG, "@%s, command $%s has been added with a %ld"
 			"s cooldown", c->nick, cmd, cooldown);
+	return EXIT_SUCCESS;
 }

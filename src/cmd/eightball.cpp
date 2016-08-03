@@ -11,9 +11,9 @@ CMDDESCR("respond to questions");
 CMDUSAGE("$8ball QUESTION");
 
 /* 8ball: respond to questions */
-std::string CommandHandler::eightball(char *out, struct command *c)
+int CommandHandler::eightball(char *out, struct command *c)
 {
-	int opt;
+	int opt, status;
 	char *last;
 	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
@@ -21,16 +21,17 @@ std::string CommandHandler::eightball(char *out, struct command *c)
 	};
 
 	opt_init();
+	status = EXIT_SUCCESS;
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
@@ -38,12 +39,14 @@ std::string CommandHandler::eightball(char *out, struct command *c)
 	last += strlen(last) - 1;
 	if (optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
+		status = EXIT_FAILURE;
 	} else if (*last != '?') {
 		_sprintf(out, MAX_MSG, "[8 BALL] Ask me a question.");
+		status = EXIT_FAILURE;
 	} else {
 		std::uniform_int_distribution<> dis(0, m_eightball.size());
 		_sprintf(out, MAX_MSG, "[8 BALL] @%s, %s.", c->nick,
 				m_eightball[dis(m_gen)].c_str());
 	}
-	return "";
+	return status;
 }

@@ -11,7 +11,7 @@ CMDDESCR("select items from various categories");
 CMDUSAGE("$WHEELCMD CATEGORY");
 
 /* wheel: select items from various categories */
-std::string CommandHandler::wheel(char *out, struct command *c)
+int CommandHandler::wheel(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {
@@ -24,26 +24,26 @@ std::string CommandHandler::wheel(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
 		_sprintf(out, MAX_MSG, "%s: %s %s", m_wheel.name(),
 				m_wheel.desc(), m_wheel.usage());
-		return "";
+		return EXIT_SUCCESS;
 	}
 
 	/* check if category is valid */
 	if (optind != c->argc - 1 || (!m_wheel.valid((c->argv[optind]))
 				&& strcmp(c->argv[optind], "check") != 0)) {
 		USAGEMSG(out, c->argv[0], m_wheel.usage());
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (strcmp(c->argv[optind], "check") == 0) {
@@ -65,5 +65,5 @@ std::string CommandHandler::wheel(char *out, struct command *c)
 				m_wheel.choose(c->nick, c->argv[optind]));
 	}
 
-	return "";
+	return EXIT_SUCCESS;
 }

@@ -18,17 +18,17 @@ CMDUSAGE("status [-a] [STATUS]");
 static const char *TWITCH_API = "https://api.twitch.tv/kraken/channels/";
 
 static int curr_status(char *buf, const char *channel, const cpr::Header *head);
-static void set_status(char *out, const char *channel, const char *status,
+static int set_status(char *out, const char *channel, const char *status,
 		const cpr::Header *head);
 
 /* status: set channel status */
-std::string CommandHandler::status(char *out, struct command *c)
+int CommandHandler::status(char *out, struct command *c)
 {
 	const cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
 		{ "Authorization", "OAuth " + std::string(m_token) }};
 
 	char buf[MAX_MSG];
-	int append;
+	int append, status;
 
 	int opt;
 	static struct option long_opts[] = {
@@ -39,12 +39,13 @@ std::string CommandHandler::status(char *out, struct command *c)
 
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	opt_init();
 	append = 0;
 	buf[0] = '\0';
+	status = EXIT_SUCCESS;
 	while ((opt = getopt_long(c->argc, c->argv, "a", long_opts)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -52,12 +53,12 @@ std::string CommandHandler::status(char *out, struct command *c)
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
@@ -65,26 +66,27 @@ std::string CommandHandler::status(char *out, struct command *c)
 	if (optind == c->argc || append) {
 		if (!curr_status(buf, m_channel, &head)) {
 			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
-		if (append)
+		if (append) {
 			_sprintf(out, MAX_MSG, "%s: no text to append",
 					c->argv[0]);
-		else
+			status = EXIT_FAILURE;
+		} else {
 			_sprintf(out, MAX_MSG, "[STATUS] Current status for %s "
 					"is \"%s\".", m_channel, buf);
-		return "";
+		}
+		return status;
 	}
 
 	if (append)
 		strcat(buf, " ");
 	argvcat(buf + strlen(buf), c->argc, c->argv, optind, 1);
-	set_status(out, m_channel, buf, &head);
 
-	return "";
+	return set_status(out, m_channel, buf, &head);
 }
 
 /* curr_status: get current status of channel */
@@ -115,7 +117,7 @@ static int curr_status(char *buf, const char *channel, const cpr::Header *head)
 }
 
 /* curr_status: set new status of channel */
-static void set_status(char *out, const char *channel, const char *status,
+static int set_status(char *out, const char *channel, const char *status,
 		const cpr::Header *head)
 {
 	cpr::Response resp;
@@ -141,11 +143,12 @@ static void set_status(char *out, const char *channel, const char *status,
 					response["error"].asCString());
 			for (s = out; *s; ++s)
 				*s = tolower(*s);
-			return;
+			return EXIT_FAILURE;
 		}
 		_sprintf(out, MAX_MSG, "[STATUS] Channel status changed to "
 				"\"%s\".", response["status"].asCString());
-		return;
+		return EXIT_SUCCESS;
 	}
 	_sprintf(out, MAX_MSG, "could not parse channel data");
+	return EXIT_FAILURE;
 }

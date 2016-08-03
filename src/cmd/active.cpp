@@ -12,7 +12,7 @@ CMDUSAGE("$active");
 static const char *SP_HOST = "https://strawpoll.me";
 
 /* active: view current poll */
-std::string CommandHandler::active(char *out, struct command *c)
+int CommandHandler::active(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {
@@ -25,23 +25,23 @@ std::string CommandHandler::active(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (!*m_poll)
 		_sprintf(out, MAX_MSG, "[ACTIVE] no poll has been created");
 	else
 		_sprintf(out, MAX_MSG, "[ACTIVE] %s/%s", SP_HOST, m_poll);
-	return "";
+	return EXIT_SUCCESS;
 }

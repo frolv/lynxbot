@@ -19,7 +19,7 @@ static void deletecom(CustomCommandHandler *ccmd, const char *cmd,
 static void formatoutput(char *out, const char **del, const char **inv);
 
 /* delcom: delete custom commands */
-std::string CommandHandler::delcom(char *out, struct command *c)
+int CommandHandler::delcom(char *out, struct command *c)
 {
 	const char **del, **inv;
 
@@ -31,7 +31,7 @@ std::string CommandHandler::delcom(char *out, struct command *c)
 
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	opt_init();
@@ -40,24 +40,24 @@ std::string CommandHandler::delcom(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (!m_customCmds->isActive()) {
 		_sprintf(out, MAX_MSG, "%s: custom commands are "
 				"currently disabled", c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	del = (const char **)malloc(m_customCmds->size() * sizeof(*del));
@@ -68,7 +68,7 @@ std::string CommandHandler::delcom(char *out, struct command *c)
 	formatoutput(out, del, inv);
 	free(del);
 	free(inv);
-	return "";
+	return ni ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
 /* deletecom: delete a single command */

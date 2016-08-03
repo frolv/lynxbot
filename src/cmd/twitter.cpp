@@ -11,7 +11,7 @@ CMDDESCR("get information about a twitter user");
 CMDUSAGE("$twitter [-r] USER");
 
 /* twitter: get information about a twitter user */
-std::string CommandHandler::twitter(char *out, struct command *c)
+int CommandHandler::twitter(char *out, struct command *c)
 {
 	int recent;
 	tw::Reader reader(m_auth);
@@ -29,31 +29,31 @@ std::string CommandHandler::twitter(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		case 'r':
 			recent = 1;
 			break;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (!reader.read_user(c->argv[optind])) {
 		_sprintf(out, MAX_MSG, "%s: could not read user '%s'",
 				c->argv[0], c->argv[optind]);
-		return "";
+		return EXIT_FAILURE;
 	}
 	if (recent)
 		reader.read_recent();
 
 	_sprintf(out, MAX_MSG, "[TWITTER] %s", reader.result().c_str());
-	return "";
+	return EXIT_SUCCESS;
 }

@@ -21,9 +21,9 @@ static int atime, crtime, creator, mtime, uses;
 static void putinfo(char *out, Json::Value *cmd);
 
 /* cmdinfo: show information about a custom command */
-std::string CommandHandler::cmdinfo(char *out, struct command *c)
+int CommandHandler::cmdinfo(char *out, struct command *c)
 {
-	int opt;
+	int opt, status;
 	static struct option long_opts[] = {
 		{ "atime", NO_ARG, 'a' },
 		{ "creator", NO_ARG, 'C' },
@@ -35,6 +35,7 @@ std::string CommandHandler::cmdinfo(char *out, struct command *c)
 	};
 
 	opt_init();
+	status = EXIT_SUCCESS;
 	atime = crtime = creator = mtime = uses = mod = 0;
 	while ((opt = getopt_long(c->argc, c->argv, "aCcmu", long_opts))
 			!= EOF) {
@@ -50,7 +51,7 @@ std::string CommandHandler::cmdinfo(char *out, struct command *c)
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case 'm':
 			mod = mtime = 1;
 			break;
@@ -59,9 +60,9 @@ std::string CommandHandler::cmdinfo(char *out, struct command *c)
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 	if (!mod)
@@ -69,7 +70,7 @@ std::string CommandHandler::cmdinfo(char *out, struct command *c)
 
 	if (optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	switch (source(c->argv[optind])) {
@@ -83,9 +84,10 @@ std::string CommandHandler::cmdinfo(char *out, struct command *c)
 	default:
 		_sprintf(out, MAX_MSG, "%s: command not found: %s",
 				c->argv[0], c->argv[optind]);
+		status = EXIT_FAILURE;
 		break;
 	}
-	return "";
+	return status;
 }
 
 /* info: return requested information about cmd */

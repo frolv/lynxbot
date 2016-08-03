@@ -27,14 +27,14 @@ static int ign;
 /* which commands to search through */
 static int type;
 
-static void findcmds(char *out, const CommandHandler::commandMap *cmdmap,
+static int findcmds(char *out, const CommandHandler::commandMap *cmdmap,
 		const Json::Value *customs, const char *pat);
 static void format(char *out, const char **def, const char **cus);
 static void format_ul(char *out, const char **def, const char **cus);
 static int cmp(const void *a, const void *b);
 
 /* cgrep: find commands matching a pattern */
-std::string CommandHandler::cgrep(char *out, struct command *c)
+int CommandHandler::cgrep(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {
@@ -63,28 +63,29 @@ std::string CommandHandler::cgrep(char *out, struct command *c)
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case 'i':
 			ign = 1;
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc - 1)
+	if (optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-	else
-		findcmds(out, &m_defaultCmds, m_customCmds->commands(),
+		return EXIT_FAILURE;
+	}
+
+	return findcmds(out, &m_defaultCmds, m_customCmds->commands(),
 				c->argv[optind]);
-	return "";
 }
 
 /* findcmds: find any bot commands that match pat */
-static void findcmds(char *out, const CommandHandler::commandMap *cmdmap,
+static int findcmds(char *out, const CommandHandler::commandMap *cmdmap,
 		const Json::Value *customs, const char *pat)
 {
 	const char **def, **cus;
@@ -102,7 +103,7 @@ static void findcmds(char *out, const CommandHandler::commandMap *cmdmap,
 	} catch (std::regex_error) {
 		_sprintf(out, MAX_MSG, "%s: invalid regular expression",
 				CMDNAME);
-		return;
+		return EXIT_FAILURE;
 	}
 
 	def = (const char **)malloc((cmdmap->size() + 1) * sizeof(*def));
@@ -141,7 +142,7 @@ static void findcmds(char *out, const CommandHandler::commandMap *cmdmap,
 
 	if (!nmatch) {
 		_sprintf(out, MAX_MSG, "[CGREP] no matches found for '%s'", pat);
-		return;
+		return EXIT_FAILURE;
 	}
 
 	qsort(def, i, sizeof(*def), cmp);
@@ -162,6 +163,7 @@ static void findcmds(char *out, const CommandHandler::commandMap *cmdmap,
 	}
 	free(def);
 	free(cus);
+	return EXIT_SUCCESS;
 }
 
 /* format: return a formatted string of all found commands */

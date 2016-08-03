@@ -24,13 +24,13 @@ static const char *HS_IRON = "_ironman";
 static const char *HS_ULT = "_ultimate";
 static const char *HS_QUERY = "/index_lite.ws?player=";
 
-static void get_hiscores(char *out, struct command *c, const char *rsn,
+static int get_hiscores(char *out, struct command *c, const char *rsn,
 		int id, int type);
 
 /* level: look up players' levels */
-std::string CommandHandler::level(char *out, struct command *c)
+int CommandHandler::level(char *out, struct command *c)
 {
-	int usenick, id, type;
+	int usenick, id, type, status;
 	char buf[RSN_BUF];
 
 	int opt;
@@ -45,11 +45,12 @@ std::string CommandHandler::level(char *out, struct command *c)
 	opt_init();
 	usenick = 0;
 	type = REG;
+	status = EXIT_SUCCESS;
 	while ((opt = getopt_long(c->argc, c->argv, "inu", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_FAILURE;
 		case 'i':
 			type = IRON;
 			break;
@@ -61,32 +62,32 @@ std::string CommandHandler::level(char *out, struct command *c)
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc - 2)
+	if (optind != c->argc - 2) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-	else if (!getrsn(buf, RSN_BUF, c->argv[optind + 1], c->nick, usenick))
+		status = EXIT_FAILURE;
+	} else if (!getrsn(buf, RSN_BUF, c->argv[optind + 1],
+				c->nick, usenick)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
-	else if ((id = skill_id(c->argv[optind])) == -1)
+		status = EXIT_FAILURE;
+	} else if ((id = skill_id(c->argv[optind])) == -1) {
 		_sprintf(out, MAX_MSG, "%s: invalid skill name: %s",
 				c->argv[0], c->argv[optind]);
-	else
-		get_hiscores(out, c, buf, id, type);
+		status = EXIT_FAILURE;
+	} else {
+		status = get_hiscores(out, c, buf, id, type);
+	}
 
-	return "";
-	/* skill nickname is displayed to save space */
-	/* nick = skill_nick(id); */
-	/* std::transform(nick.begin(), nick.end(), nick.begin(), toupper); */
-
-	/* return "[" + nick + "] " + which + "Name: " + rsn + ", " + res; */
+	return status;
 }
 
 /* get_hiscores: return hiscore data of player rsn in skill id */
-static void get_hiscores(char *out, struct command *c, const char *rsn,
+static int get_hiscores(char *out, struct command *c, const char *rsn,
 		int id, int type)
 {
 	cpr::Response resp;
@@ -113,7 +114,7 @@ static void get_hiscores(char *out, struct command *c, const char *rsn,
 				"%shiscores", c->argv[0], rsn,
 				type == REG ? "" : type == IRON ? "ironman "
 				: "ultimate ironman ");
-		return;
+		return EXIT_FAILURE;
 	}
 
 	s = buf;
@@ -135,4 +136,5 @@ static void get_hiscores(char *out, struct command *c, const char *rsn,
 	_sprintf(out, MAX_MSG, "[%s]%s Name: %s, Level: %s, Exp: %s, Rank: %s",
 			nick, type == REG ? "" : type == IRON ? " (iron)"
 			: " (ult)", rsn, t, exp, rnk);
+	return EXIT_SUCCESS;
 }

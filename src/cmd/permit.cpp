@@ -11,7 +11,7 @@ CMDDESCR("grant user permission to post urls");
 CMDUSAGE("$permit [-n AMT] [-s] USER");
 
 /* permit: grant user permission to post a url */
-std::string CommandHandler::permit(char *out, struct command *c)
+int CommandHandler::permit(char *out, struct command *c)
 {
 	int opt;
 	int64_t amt;
@@ -24,7 +24,7 @@ std::string CommandHandler::permit(char *out, struct command *c)
 
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	opt_init();
@@ -33,17 +33,17 @@ std::string CommandHandler::permit(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case 'n':
 			if (!parsenum(optarg, &amt)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], optarg);
-				return "";
+				return EXIT_FAILURE;
 			}
 			if (amt < 1) {
 				_sprintf(out, MAX_MSG, "%s: amount must be a "
 						"positive integer", c->argv[0]);
-				return "";
+				return EXIT_FAILURE;
 			}
 			break;
 		case 's':
@@ -51,15 +51,15 @@ std::string CommandHandler::permit(char *out, struct command *c)
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	m_modp->permit(c->argv[optind], amt);
@@ -71,5 +71,5 @@ std::string CommandHandler::permit(char *out, struct command *c)
 		_sprintf(out, MAX_MSG, "[PERMIT] %s has been granted permission"
 				" to post %ld link%s.", c->argv[optind], amt,
 				amt == 1 ? "" : "s");
-	return "";
+	return EXIT_SUCCESS;
 }

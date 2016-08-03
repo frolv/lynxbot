@@ -19,12 +19,12 @@ static const char *RUSAGE = "$xp -r START STOP";
 
 static int xptolvl(int x);
 static int lvltoxp(int x);
-static void xprange(char *out, struct command *c);
+static int xprange(char *out, struct command *c);
 
 /* xp: query experience information */
-std::string CommandHandler::xp(char *out, struct command *c)
+int CommandHandler::xp(char *out, struct command *c)
 {
-	int inv, range;
+	int inv, range, status;
 	int64_t x;
 	char num[RSN_BUF];
 
@@ -37,12 +37,13 @@ std::string CommandHandler::xp(char *out, struct command *c)
 	};
 
 	inv = range = 0;
+	status = EXIT_SUCCESS;
 	opt_init();
 	while ((opt = getopt_long(c->argc, c->argv, "ir", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case 'i':
 			inv = 1;
 			break;
@@ -51,58 +52,62 @@ std::string CommandHandler::xp(char *out, struct command *c)
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (range) {
-		if (inv)
+		if (inv) {
 			_sprintf(out, MAX_MSG, "%s: cannot use -i with -r",
 					c->argv[0]);
-		else
-			xprange(out, c);
-		return "";
+			status = EXIT_FAILURE;
+		} else {
+			status = xprange(out, c);
+		}
+		return status;
 	}
 
 	if (optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (!parsenum(c->argv[optind], &x)) {
 		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
 				c->argv[0], c->argv[optind]);
-		return "";
+		return EXIT_FAILURE;
 	}
 	if (x < 0) {
 		_sprintf(out, MAX_MSG, "%s: number cannot be "
 				"negative", c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (inv) {
 		if (x > MAX_XP) {
 			_sprintf(out, MAX_MSG, "%s: xp cannot exceed 200m",
 					c->argv[0]);
+			status = EXIT_FAILURE;
 		} else {
 			fmtnum(num, RSN_BUF, c->argv[optind]);
 			_sprintf(out, MAX_MSG, "[XP] %s xp: level %d",
 					num, xptolvl(x));
 		}
-		return "";
+		return status;
 	}
 
 	if (x < 1 || x > 126) {
 		_sprintf(out, MAX_MSG, "%s: level must be between 1-126",
 				c->argv[0]);
+		status = EXIT_FAILURE;
 	} else {
 		_sprintf(out, MAX_MSG, "%d", lvltoxp(x));
 		fmtnum(num, RSN_BUF, out);
 		_sprintf(out, MAX_MSG, "[XP] level %ld: %s xp", x, num);
 	}
-	return "";
+	return status;
 }
 
 /* xptolvl: calculate the level at x xp */
@@ -135,7 +140,7 @@ static int lvltoxp(int x)
 }
 
 /* xprange: calcuate the amount of xp between the levels in args */
-static void xprange(char *out, struct command *c)
+static int xprange(char *out, struct command *c)
 {
 	int64_t x, y;
 	char *a, *b;
@@ -143,7 +148,7 @@ static void xprange(char *out, struct command *c)
 
 	if (optind == c->argc || optind < c->argc - 2) {
 		USAGEMSG(out, CMDNAME, RUSAGE);
-		return;
+		return EXIT_FAILURE;
 	}
 
 	a = c->argv[optind];
@@ -151,7 +156,7 @@ static void xprange(char *out, struct command *c)
 		if (!(b = strchr(a, '-')) || !b[1]) {
 			_sprintf(out, MAX_MSG, "%s: must provide two levels",
 					c->argv[0]);
-			return;
+			return EXIT_FAILURE;
 		}
 		*b++ = '\0';
 	} else {
@@ -160,26 +165,26 @@ static void xprange(char *out, struct command *c)
 
 	if (!parsenum(a, &x)) {
 		_sprintf(out, MAX_MSG, "%s: invalid number: %s", c->argv[0], a);
-		return;
+		return EXIT_FAILURE;
 	}
 	if (x < 1 || x > 126) {
 		_sprintf(out, MAX_MSG, "%s: level must be between 1-126",
 				c->argv[0]);
-		return;
+		return EXIT_FAILURE;
 	}
 	if (!parsenum(b, &y)) {
 		_sprintf(out, MAX_MSG, "%s: invalid number: %s", c->argv[0], b);
-		return;
+		return EXIT_FAILURE;
 	}
 	if (y < 1 || y > 126) {
 		_sprintf(out, MAX_MSG, "%s: level must be between 1-126",
 				c->argv[0]);
-		return;
+		return EXIT_FAILURE;
 	}
 
 	if (x > y) {
 		_sprintf(out, MAX_MSG, "%s: invalid range", c->argv[0]);
-		return;
+		return EXIT_FAILURE;
 	}
 
 	x = lvltoxp(x);
@@ -188,4 +193,5 @@ static void xprange(char *out, struct command *c)
 	_sprintf(out, MAX_MSG, "%ld", y - x);
 	fmtnum(num, RSN_BUF, out);
 	_sprintf(out, MAX_MSG, "[XP] level %s-%s: %s xp", a, b, num);
+	return EXIT_SUCCESS;
 }

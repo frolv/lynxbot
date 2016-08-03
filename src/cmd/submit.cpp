@@ -14,7 +14,7 @@ CMDDESCR("submit a message to the streamer");
 CMDUSAGE("$submit MSG");
 
 /* submit: submit a message to the streamer */
-std::string CommandHandler::submit(char *out, struct command *c)
+int CommandHandler::submit(char *out, struct command *c)
 {
 	char path[MAX_PATH];
 	char buf[MAX_MSG];
@@ -33,18 +33,18 @@ std::string CommandHandler::submit(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	_sprintf(path, MAX_PATH, "%s%s", utils::configdir().c_str(),
@@ -53,7 +53,7 @@ std::string CommandHandler::submit(char *out, struct command *c)
 		_sprintf(out, MAX_MSG, "%s: could not open submission file",
 				c->argv[0]);
 		perror(path);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	t = time(nullptr);
@@ -72,5 +72,5 @@ std::string CommandHandler::submit(char *out, struct command *c)
 
 	_sprintf(out, MAX_MSG, "@%s, your topic has been submitted. Thank you.",
 			c->nick);
-	return "";
+	return EXIT_SUCCESS;
 }

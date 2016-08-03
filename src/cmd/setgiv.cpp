@@ -17,11 +17,11 @@ CMDDESCR("change giveaway settings");
 /* command usage synopsis */
 CMDUSAGE("$setgiv [-f|-i|-t] [-n LIM] on|off|check");
 
-static void process(char *out, Giveaway *g, struct command *c,
+static int process(char *out, Giveaway *g, struct command *c,
 		int type, int amt);
 
 /* setgiv: change giveaway settings */
-std::string CommandHandler::setgiv(char *out, struct command *c)
+int CommandHandler::setgiv(char *out, struct command *c)
 {
 	int setfollowers, settimer, setimages, type;
 	int64_t amt;
@@ -46,7 +46,7 @@ std::string CommandHandler::setgiv(char *out, struct command *c)
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case 'i':
 			setimages = 1;
 			break;
@@ -54,12 +54,12 @@ std::string CommandHandler::setgiv(char *out, struct command *c)
 			if (!parsenum(optarg, &amt)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], optarg);
-				return "";
+				return EXIT_FAILURE;
 			}
 			if (amt < 1) {
 				_sprintf(out, MAX_MSG, "%s: amount must be a "
 						"postive integer", c->argv[0]);
-				return "";
+				return EXIT_FAILURE;
 			}
 			break;
 		case 't':
@@ -67,9 +67,9 @@ std::string CommandHandler::setgiv(char *out, struct command *c)
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
@@ -77,21 +77,21 @@ std::string CommandHandler::setgiv(char *out, struct command *c)
 			|| (setimages && settimer)) {
 		_sprintf(out, MAX_MSG, "%s: cannot combine -f, -i and -t flags",
 				c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (optind != c->argc - 1 || (strcmp(c->argv[optind], "on") != 0
 				&& strcmp(c->argv[optind], "off") != 0
 				&& strcmp(c->argv[optind], "check") != 0)) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 #ifdef _WIN32
 	if (setimages) {
 		_sprintf(out, MAX_MSG, "%s: image-based giveaways are not "
 				"available on Windows systems", c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 #endif
 
@@ -106,21 +106,20 @@ std::string CommandHandler::setgiv(char *out, struct command *c)
 	if (strcmp(c->argv[optind], "check") == 0) {
 		_sprintf(out, MAX_MSG, "@%s, %s", c->nick,
 				m_givp->currentSettings(type).c_str());
-		return "";
+		return EXIT_SUCCESS;
 	}
 
 	/* allow all users to check but only owner to set */
 	if (!P_ISOWN(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
-	process(out, m_givp, c, type, amt);
-	return "";
+	return process(out, m_givp, c, type, amt);
 }
 
 /* process: perform the giveaway setting */
-static void process(char *out, Giveaway *g, struct command *c,
+static int process(char *out, Giveaway *g, struct command *c,
 		int type, int amt)
 {
 	char *s;
@@ -145,12 +144,12 @@ static void process(char *out, Giveaway *g, struct command *c,
 			_sprintf(s, MAX_MSG, "image-based giveaways enabled.");
 			break;
 		default:
-			if (!g->activate(time(nullptr)))
+			if (!g->activate(time(nullptr))) {
 				_sprintf(out, MAX_MSG, "%s: %s",
 						c->argv[0], g->err());
-			else
-				_sprintf(s, MAX_MSG, "giveaways have "
-						"been activated");
+				return EXIT_FAILURE;
+			}
+			_sprintf(s, MAX_MSG, "giveaways have been activated");
 			break;
 		}
 	} else {
@@ -173,4 +172,5 @@ static void process(char *out, Giveaway *g, struct command *c,
 			break;
 		}
 	}
+	return EXIT_SUCCESS;
 }

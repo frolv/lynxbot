@@ -28,9 +28,9 @@ static const char *EHP_DESC = "[EHP] EHP stands for efficient hours "
 static int lookup_player(char *out, const char *rsn);
 
 /* ehp: view players' ehp */
-std::string CommandHandler::ehp(char *out, struct command *c)
+int CommandHandler::ehp(char *out, struct command *c)
 {
-	int usenick;
+	int usenick, status;
 	char buf[RSN_BUF];
 
 	int opt;
@@ -41,6 +41,7 @@ std::string CommandHandler::ehp(char *out, struct command *c)
 	};
 
 	usenick = 0;
+	status = EXIT_SUCCESS;
 	opt_init();
 	while ((opt = getopt_long(c->argc, c->argv, "n", long_opts)) != EOF) {
 		switch (opt) {
@@ -49,35 +50,36 @@ std::string CommandHandler::ehp(char *out, struct command *c)
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
-		if (usenick)
+		if (usenick) {
 			_sprintf(out, MAX_MSG, "%s: no Twitch name given",
 					c->argv[0]);
-		else
+			status = EXIT_FAILURE;
+		} else {
 			_sprintf(out, MAX_MSG, "%s", EHP_DESC);
-		return "";
+		}
+		return status;
 	}
 	if (optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (!getrsn(buf, RSN_BUF, c->argv[optind], c->nick, usenick)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
-		return "";
+		return EXIT_FAILURE;
 	}
 
-	lookup_player(out, buf);
-	return "";
+	return lookup_player(out, buf);
 }
 
 /* lookup_player: look up rsn on cml, write EHP data to out */
@@ -95,12 +97,12 @@ static int lookup_player(char *out, const char *rsn)
 	if (strcmp(buf, "-3") == 0 || strcmp(buf, "-4") == 0) {
 		_sprintf(out, MAX_MSG, "%s: could not reach CML API, try again",
 				CMDNAME);
-		return 0;
+		return EXIT_FAILURE;
 	}
 	if (strcmp(buf, "-1") == 0) {
 		_sprintf(out, MAX_MSG, "%s: player '%s' does not exist or has "
 				"not been tracked on CML", CMDNAME, rsn);
-		return 0;
+		return EXIT_FAILURE;
 	}
 
 	/* extract and format data from buf */
@@ -117,5 +119,5 @@ static int lookup_player(char *out, const char *rsn)
 
 	_sprintf(out, MAX_MSG, "[EHP] Name: %s, Rank: %s, EHP: %s (+%s this "
 			"week)", name, rank, num, *week ? week : "0.00");
-	return 1;
+	return EXIT_SUCCESS;
 }

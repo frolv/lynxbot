@@ -13,7 +13,7 @@ CMDUSAGE("$duck QUERY");
 static const char *DDG_QUERY = "https://duckduckgo.com/?q=";
 
 /* duck: search duckduckgo with a query string */
-std::string CommandHandler::duck(char *out, struct command *c)
+int CommandHandler::duck(char *out, struct command *c)
 {
 	char query[MAX_MSG];
 	int opt;
@@ -27,21 +27,21 @@ std::string CommandHandler::duck(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	argvcat(query, c->argc, c->argv, optind, 1);
 	_sprintf(out, MAX_MSG, "%s%s", DDG_QUERY, tw::pencode(query).c_str());
-	return "";
+	return EXIT_SUCCESS;
 }

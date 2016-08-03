@@ -16,10 +16,10 @@ CMDUSAGE("$uptime [-b]");
 
 static const char *UPTIME_API = "https://api.twitch.tv/kraken/streams/";
 
-static void channel_uptime(char *out, const char *channel);
+static int channel_uptime(char *out, const char *channel);
 
 /* uptime: check how long channel has been live */
-std::string CommandHandler::uptime(char *out, struct command *c)
+int CommandHandler::uptime(char *out, struct command *c)
 {
 	int opt, bot;
 	static struct option long_opts[] = {
@@ -37,49 +37,54 @@ std::string CommandHandler::uptime(char *out, struct command *c)
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (bot) {
 		_sprintf(out, MAX_MSG, "[UPTIME] %s has been running for %s.",
 				m_name, + utils::conv_time((time(NULL)
 						- m_evtp->init())).c_str());
-		return "";
+		return EXIT_SUCCESS;
 	}
 
-	channel_uptime(out, m_channel);
-	return "";
+	return channel_uptime(out, m_channel);
 }
 
 /* channel_uptime: get how long channel has been streaming */
-static void channel_uptime(char *out, const char *channel)
+static int channel_uptime(char *out, const char *channel)
 {
 	cpr::Response resp;
 	Json::Reader reader;
 	Json::Value val;
 	char url[MAX_URL];
+	int status;
 
+	status = EXIT_SUCCESS;
 	_sprintf(url, MAX_URL, "%s%s", UPTIME_API, channel);
 	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
-	if (!reader.parse(resp.text, val))
+
+	if (!reader.parse(resp.text, val)) {
 		_sprintf(out, MAX_MSG, "%s: could not parse response", CMDNAME);
-	else if (val["stream"].isNull())
+		status = EXIT_FAILURE;
+	} else if (val["stream"].isNull()) {
 		_sprintf(out, MAX_MSG, "[UPTIME] %s is not currently live.",
 				channel);
-	else
+	} else {
 		_sprintf(out, MAX_MSG, "[UPTIME] %s has been live for %s.",
 				channel, utils::parse_time(
 					val["stream"]["created_at"].asString(),
 					false).c_str());
+	}
+	return status;
 }

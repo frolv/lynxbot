@@ -22,15 +22,15 @@ static int app;
 /* active setting */
 static int set;
 
-static void edit(char *out, CustomCommandHandler *cch, struct command *c,
+static int edit(char *out, CustomCommandHandler *cch, struct command *c,
 		time_t cooldown, TimerManager *tm);
-static void rename(char *out, CustomCommandHandler *cch, struct command *c);
+static int rename(char *out, CustomCommandHandler *cch, struct command *c);
 
 /* editcom: modify a custom command */
-std::string CommandHandler::editcom(char *out, struct command *c)
+int CommandHandler::editcom(char *out, struct command *c)
 {
 	time_t cooldown;
-	int ren;
+	int ren, status;
 
 	int opt;
 	static struct option long_opts[] = {
@@ -44,18 +44,19 @@ std::string CommandHandler::editcom(char *out, struct command *c)
 
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (!m_customCmds->isActive()) {
 		_sprintf(out, MAX_MSG, "%s: custom commands are currently "
 				"disabled", c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	opt_init();
 	cooldown = -1;
 	set = ren = app = 0;
+	status = EXIT_SUCCESS;
 	while ((opt = getopt_long(c->argc, c->argv, "A:ac:r", long_opts))
 			!= EOF) {
 		switch (opt) {
@@ -67,7 +68,7 @@ std::string CommandHandler::editcom(char *out, struct command *c)
 			} else {
 				_sprintf(out, MAX_MSG, "%s: -A setting must "
 						"be on/off", c->argv[0]);
-				return "";
+				return EXIT_FAILURE;
 			}
 			break;
 		case 'a':
@@ -78,47 +79,49 @@ std::string CommandHandler::editcom(char *out, struct command *c)
 			if (!parsenum(optarg, &cooldown)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], optarg);
-				return "";
+				return EXIT_FAILURE;
 			}
 			if (cooldown < 0) {
 				_sprintf(out, MAX_MSG, "%s: cooldown cannot be "
 						"negative", c->argv[0]);
-				return "";
+				return EXIT_FAILURE;
 			}
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case 'r':
 			ren = 1;
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (ren) {
-		if (app || cooldown != -1 || set)
+		if (app || cooldown != -1 || set) {
 			_sprintf(out, MAX_MSG, "%s: cannot use other flags "
 					"with -r", c->argv[0]);
-		else
-			rename(out, m_customCmds, c);
+			status = EXIT_FAILURE;
+		} else {
+			status = rename(out, m_customCmds, c);
+		}
 	} else {
-		edit(out, m_customCmds, c, cooldown, &m_cooldowns);
+		status = edit(out, m_customCmds, c, cooldown, &m_cooldowns);
 	}
-	return "";
+	return status;
 }
 
 /* edit: edit a custom command */
-static void edit(char *out, CustomCommandHandler *cch, struct command *c,
+static int edit(char *out, CustomCommandHandler *cch, struct command *c,
 		time_t cooldown, TimerManager *tm)
 {
 	int cd, resp;
@@ -136,7 +139,7 @@ static void edit(char *out, CustomCommandHandler *cch, struct command *c,
 		if ((com = cch->getcom(c->argv[optind]))->empty()) {
 			_sprintf(out, MAX_MSG, "%s: not a command: $%s",
 					c->argv[0], c->argv[optind]);
-			return;
+			return EXIT_FAILURE;
 		}
 		strcpy(buf, response);
 		_sprintf(response, MAX_MSG, "%s %s",
@@ -146,12 +149,12 @@ static void edit(char *out, CustomCommandHandler *cch, struct command *c,
 	if (!cch->editcom(c->argv[optind], response, cooldown)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());
-		return;
+		return EXIT_FAILURE;
 	}
 	if (!cd && !resp && !set) {
 		_sprintf(out, MAX_MSG, "@%s, command $%s was unchanged",
 				c->nick, c->argv[optind]);
-		return;
+		return EXIT_SUCCESS;
 	}
 
 	/* build an output string detailing changes */
@@ -162,7 +165,7 @@ static void edit(char *out, CustomCommandHandler *cch, struct command *c,
 			if (!cch->activate(c->argv[optind])) {
 				_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 						cch->error().c_str());
-				return;
+				return EXIT_FAILURE;
 			}
 			strcat(out, " activated");
 		} else {
@@ -188,18 +191,26 @@ static void edit(char *out, CustomCommandHandler *cch, struct command *c,
 		}
 	}
 	strcat(out, ".");
+	return EXIT_SUCCESS;
 }
 
 /* rename: rename a custom command */
-static void rename(char *out, CustomCommandHandler *cch, struct command *c)
+static int rename(char *out, CustomCommandHandler *cch, struct command *c)
 {
-	if (optind != c->argc - 2)
+	int status;
+
+	if (optind != c->argc - 2) {
 		USAGEMSG(out, CMDNAME, RUSAGE);
-	else if (!cch->rename(c->argv[optind], c->argv[optind + 1]))
+		status = EXIT_FAILURE;
+	} else if (!cch->rename(c->argv[optind], c->argv[optind + 1])) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());
-	else
+		status = EXIT_FAILURE;
+	} else {
 		_sprintf(out, MAX_MSG, "@%s, command $%s has been renamed "
 				"to $%s", c->nick, c->argv[optind],
 				c->argv[optind + 1]);
+		status = EXIT_SUCCESS;
+	}
+	return status;
 }

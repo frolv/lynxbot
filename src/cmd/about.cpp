@@ -17,7 +17,7 @@ static const char *SOURCE = "https://github.com/frolv/lynxbot";
 static const char *RELEASE = "https://github.com/frolv/lynxbot/releases/latest";
 
 /* about: print bot information */
-std::string CommandHandler::about(char *out, struct command *c)
+int CommandHandler::about(char *out, struct command *c)
 {
 	int opt, type;
 	static struct option long_opts[] = {
@@ -33,7 +33,7 @@ std::string CommandHandler::about(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case 'r':
 			type = REL;
 			break;
@@ -42,15 +42,15 @@ std::string CommandHandler::about(char *out, struct command *c)
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	switch (type) {
@@ -65,5 +65,5 @@ std::string CommandHandler::about(char *out, struct command *c)
 				BOT_VERSION, BOT_WEBSITE);
 		break;
 	}
-	return "";
+	return EXIT_SUCCESS;
 }

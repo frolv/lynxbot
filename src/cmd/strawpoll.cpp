@@ -22,10 +22,10 @@ static bool captcha;
 /* whether to allow multiple choices */
 static bool multi;
 
-static void create_poll(char *out, char *pollbuf, struct command *c);
+static int create_poll(char *out, char *pollbuf, struct command *c);
 
 /* strawpoll: create polls */
-std::string CommandHandler::strawpoll(char *out, struct command *c)
+int CommandHandler::strawpoll(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {
@@ -38,7 +38,7 @@ std::string CommandHandler::strawpoll(char *out, struct command *c)
 
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	opt_init();
@@ -53,29 +53,28 @@ std::string CommandHandler::strawpoll(char *out, struct command *c)
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case 'm':
 			multi = true;
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
-	create_poll(out, m_poll, c);
-	return "";
+	return create_poll(out, m_poll, c);
 }
 
 /* create_poll: create a strawpoll, return id */
-static void create_poll(char *out, char *pollbuf, struct command *c)
+static int create_poll(char *out, char *pollbuf, struct command *c)
 {
 	/* json values to hold created poll, poll options and http response */
 	Json::Value poll, options(Json::arrayValue), response;
@@ -91,14 +90,14 @@ static void create_poll(char *out, char *pollbuf, struct command *c)
 		if (!binary) {
 			_sprintf(out, MAX_MSG, "%s: poll must have a question "
 					"and at least two answers", c->argv[0]);
-			return;
+			return EXIT_FAILURE;
 		}
 	} else {
 		*s = '\0';
 		if (binary) {
 			_sprintf(out, MAX_MSG, "%s: cannot provide answers "
 					"for binary poll", c->argv[0]);
-			return;
+			return EXIT_FAILURE;
 		}
 	}
 
@@ -117,7 +116,7 @@ static void create_poll(char *out, char *pollbuf, struct command *c)
 	if (options.size() < 2) {
 		_sprintf(out, MAX_MSG, "%s: poll must have a question "
 				"and at least two answers", c->argv[0]);
-		return;
+		return EXIT_FAILURE;
 	}
 
 	/* populate the poll json */
@@ -137,12 +136,13 @@ static void create_poll(char *out, char *pollbuf, struct command *c)
 		if (!response.isMember("id")) {
 			_sprintf(out, MAX_MSG, "%s: poll could not be created",
 					c->argv[0]);
-			return;
+			return EXIT_FAILURE;
 		}
 		_sprintf(pollbuf, MAX_LEN, "%d", response["id"].asInt());
 		_sprintf(out, MAX_MSG, "[STRAWPOLL] %s/%s",
 				STRAWPOLL_HOST, pollbuf);
-		return;
+		return EXIT_SUCCESS;
 	}
 	_sprintf(out, MAX_MSG, "%s: could not parse response", c->argv[0]);
+	return EXIT_FAILURE;
 }

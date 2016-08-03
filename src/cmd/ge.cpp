@@ -20,7 +20,7 @@ static const char *EXCHANGE_API =
 static int64_t extract_price(const char *resp);
 
 /* ge: look up item prices */
-std::string CommandHandler::ge(char *out, struct command *c)
+int CommandHandler::ge(char *out, struct command *c)
 {
 	int64_t amt, price;
 	cpr::Response resp;
@@ -38,7 +38,7 @@ std::string CommandHandler::ge(char *out, struct command *c)
 
 	if (!m_GEReader.active()) {
 		_sprintf(out, MAX_MSG, "%s: GE reader is inactive", c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	opt_init();
@@ -47,30 +47,30 @@ std::string CommandHandler::ge(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case 'n':
 			if (!parsenum_mult(optarg, &amt)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], optarg);
-				return "";
+				return EXIT_FAILURE;
 			}
 			if (amt < 0) {
 				_sprintf(out, MAX_MSG, "%s: amount cannot be "
 						"negative", c->argv[0]);
-				return "";
+				return EXIT_FAILURE;
 			}
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	argvcat(buf, c->argc, c->argv, optind, 1);
@@ -81,7 +81,7 @@ std::string CommandHandler::ge(char *out, struct command *c)
 	if ((item = m_GEReader.getItem(buf)).empty()) {
 		_sprintf(out, MAX_MSG, "%s: item not found: %s",
 				c->argv[0], buf);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	/* read ge api and extract data */
@@ -92,7 +92,7 @@ std::string CommandHandler::ge(char *out, struct command *c)
 	if ((price = extract_price(buf)) == -1) {
 		_sprintf(out, MAX_MSG, "%s: could not extract price",
 				c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	strcpy(out, "[GE] ");
@@ -107,7 +107,7 @@ std::string CommandHandler::ge(char *out, struct command *c)
 	fmtnum(num, RSN_BUF, buf);
 	_sprintf(out, MAX_MSG, "%s: %s gp", item["name"].asCString(), num);
 
-	return "";
+	return EXIT_SUCCESS;
 }
 
 /* extract_price: return the price of the json data in resp */

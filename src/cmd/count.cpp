@@ -17,7 +17,7 @@ typedef std::unordered_map<std::string, uint16_t> countmap;
 static void getresults(char *out, countmap *count);
 
 /* count: manage message counts */
-std::string CommandHandler::count(char *out, struct command *c)
+int CommandHandler::count(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {
@@ -27,7 +27,7 @@ std::string CommandHandler::count(char *out, struct command *c)
 
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	opt_init();
@@ -35,18 +35,18 @@ std::string CommandHandler::count(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (strcmp(c->argv[optind], "start") == 0) {
@@ -54,7 +54,7 @@ std::string CommandHandler::count(char *out, struct command *c)
 		if (m_counting) {
 			_sprintf(out, MAX_MSG, "%s: count is already running",
 					c->argv[0]);
-			return "";
+			return EXIT_FAILURE;
 		}
 		m_usersCounted.clear();
 		m_messageCounts.clear();
@@ -66,7 +66,7 @@ std::string CommandHandler::count(char *out, struct command *c)
 		if (!m_counting) {
 			_sprintf(out, MAX_MSG, "%s: no active count",
 					c->argv[0]);
-			return "";
+			return EXIT_FAILURE;
 		}
 		m_counting = false;
 		_sprintf(out, MAX_MSG, "Count ended. Use \"$count display\" "
@@ -84,7 +84,7 @@ std::string CommandHandler::count(char *out, struct command *c)
 	} else {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	}
-	return "";
+	return EXIT_SUCCESS;
 }
 
 /* getresults: return the top 10 items in count */

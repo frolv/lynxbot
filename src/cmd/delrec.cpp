@@ -14,7 +14,7 @@ CMDUSAGE("$delrec ID");
 static const char *AUSAGE = "$delrec -a";
 
 /* delrec: delete a recurring message */
-std::string CommandHandler::delrec(char *out, struct command *c)
+int CommandHandler::delrec(char *out, struct command *c)
 {
 	int opt, all;
 	int64_t id;
@@ -26,7 +26,7 @@ std::string CommandHandler::delrec(char *out, struct command *c)
 
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	opt_init();
@@ -38,42 +38,44 @@ std::string CommandHandler::delrec(char *out, struct command *c)
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (all) {
 		if (optind != c->argc) {
 			USAGEMSG(out, CMDNAME, AUSAGE);
-			return "";
+			return EXIT_FAILURE;
 		}
 		while (!m_evtp->messages()->empty())
 			m_evtp->delMessage(1);
 		_sprintf(out, MAX_MSG, "@%s, all recurring message deleted",
 				c->nick);
-		return "";
+		return EXIT_SUCCESS;
 	}
 
 	if ((optind != c->argc - 1)) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	if (!parsenum(c->argv[optind], &id)) {
 		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
 				c->argv[0], c->argv[optind]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
-	if (!m_evtp->delMessage(id))
+	if (!m_evtp->delMessage(id)) {
 		_sprintf(out, MAX_MSG, "%s: invalid ID provided", c->argv[0]);
-	else
-		_sprintf(out, MAX_MSG, "@%s, recurring message %ld deleted.",
-				c->nick, id);
-	return "";
+		return EXIT_FAILURE;
+	}
+
+	_sprintf(out, MAX_MSG, "@%s, recurring message %ld deleted.",
+			c->nick, id);
+	return EXIT_SUCCESS;
 }

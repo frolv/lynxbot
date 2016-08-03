@@ -15,7 +15,7 @@ CMDUSAGE("age <-f|-s>");
 static const char *TWITCH_API = "https://api.twitch.tv/kraken";
 
 /* followage: check how long you have been following a channel */
-std::string CommandHandler::age(char *out, struct command *c)
+int CommandHandler::age(char *out, struct command *c)
 {
 	static cpr::Header head{{ "Accept","application/vnd.twitchtv.v3+json" },
 		{ "Authorization", "OAuth " + std::string(m_token) }};
@@ -45,7 +45,7 @@ std::string CommandHandler::age(char *out, struct command *c)
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case 's':
 			_sprintf(url, MAX_MSG, "%s/channels/%s/subscriptions/%s",
 					TWITCH_API, m_channel, c->nick);
@@ -53,15 +53,15 @@ std::string CommandHandler::age(char *out, struct command *c)
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != c->argc || !url[0]) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	resp = cpr::Get(cpr::Url(url), head);
@@ -76,5 +76,5 @@ std::string CommandHandler::age(char *out, struct command *c)
 				c->nick, msg, m_channel,
 				utils::parse_time(response["created_at"]
 					.asString(), true).c_str());
-	return "";
+	return EXIT_SUCCESS;
 }

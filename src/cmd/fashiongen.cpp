@@ -17,40 +17,43 @@ CMDUSAGE("$fashiongen");
 static void gen_fashion(char *out, const Json::Value &items);
 
 /* fashiongen: generate an outfit */
-std::string CommandHandler::fashiongen(char *out, struct command *c)
+int CommandHandler::fashiongen(char *out, struct command *c)
 {
 	char fashion[F_SIZE];
-	int opt;
+	int opt, status;
 	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
 	opt_init();
+	status = EXIT_SUCCESS;
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
+		status = EXIT_FAILURE;
 	} else if (m_fashion.empty()) {
 		_sprintf(out, MAX_MSG, "%s: could not read item database",
 				c->argv[0]);
+		status = EXIT_FAILURE;
 	} else {
 		gen_fashion(fashion, m_fashion);
 		_sprintf(out, MAX_MSG, "[FASHIONGEN] %s",
 				utils::upload(fashion).c_str());
 	}
-	return "";
+	return status;
 }
 
 /* gen_fashion: generate a random outfit from items */

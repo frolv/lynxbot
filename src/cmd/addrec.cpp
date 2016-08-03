@@ -12,7 +12,7 @@ CMDDESCR("add a recurring message");
 CMDUSAGE("$addrec [-c INT] MSG");
 
 /* addrec: add a recurring message */
-std::string CommandHandler::addrec(char *out, struct command *c)
+int CommandHandler::addrec(char *out, struct command *c)
 {
 	time_t cooldown;
 	char msg[MAX_MSG];
@@ -27,7 +27,7 @@ std::string CommandHandler::addrec(char *out, struct command *c)
 
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	opt_init();
@@ -39,39 +39,39 @@ std::string CommandHandler::addrec(char *out, struct command *c)
 			if (!parsenum(optarg, &cooldown)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], optarg);
-				return "";
+				return EXIT_FAILURE;
 			}
 			if (cooldown < 0) {
 				_sprintf(out, MAX_MSG, "%s: cooldown cannot be "
 						"negative", c->argv[0]);
-				return "";
+				return EXIT_FAILURE;
 			}
 			cooldown *= 60;
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (cooldown % 300 != 0) {
 		_sprintf(out, MAX_MSG, "%s: interval must be a multiple "
 				"of 5 mins", c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 	else if (cooldown > 3600) {
 		_sprintf(out, MAX_MSG, "%s: interval cannot be longer "
 				"than 60 mins", c->argv[0]);
-		return "";
+		return EXIT_FAILURE;
 	}
 	if (optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	argvcat(msg, c->argc, c->argv, optind, 1);
@@ -82,5 +82,5 @@ std::string CommandHandler::addrec(char *out, struct command *c)
 		_sprintf(out, MAX_MSG, "@%s, recurring message \"%s\" has been "
 				"added at a %ld min interval", c->nick, msg,
 				cooldown / 60);
-	return "";
+	return EXIT_SUCCESS;
 }

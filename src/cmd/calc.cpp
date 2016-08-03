@@ -14,7 +14,7 @@ CMDDESCR("perform basic calculations");
 CMDUSAGE("$calc EXPR");
 
 /* calc: perform basic calculations */
-std::string CommandHandler::calc(char *out, struct command *c)
+int CommandHandler::calc(char *out, struct command *c)
 {
 	char expr[MAX_MSG];
 	char *s;
@@ -30,18 +30,18 @@ std::string CommandHandler::calc(char *out, struct command *c)
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
-			return "";
+			return EXIT_SUCCESS;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
-			return "";
+			return EXIT_FAILURE;
 		default:
-			return "";
+			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
-		return "";
+		return EXIT_FAILURE;
 	}
 
 	argvcat(expr, c->argc, c->argv, optind, 0);
@@ -55,7 +55,7 @@ std::string CommandHandler::calc(char *out, struct command *c)
 		_sprintf(out, MAX_MSG, "[CALC] %f", exp.eval());
 	} catch (std::runtime_error &e) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], e.what());
-		return "";
+		return EXIT_FAILURE;
 	}
 	if (strstr(out, "inf") || strstr(out, "-nan(ind)"))
 		_sprintf(out, MAX_MSG, "%s: division by 0", c->argv[0]);
@@ -69,5 +69,5 @@ std::string CommandHandler::calc(char *out, struct command *c)
 			*s-- = '\0';
 	}
 
-	return "";
+	return EXIT_SUCCESS;
 }
