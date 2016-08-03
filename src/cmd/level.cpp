@@ -12,11 +12,11 @@
 #define ULT  2
 
 /* full name of the command */
-_CMDNAME("level");
+CMDNAME("level");
 /* description of the command */
-_CMDDESCR("look up players' levels");
+CMDDESCR("look up players' levels");
 /* command usage synopsis */
-_CMDUSAGE("$level [-i|-u] [-n] SKILL RSN");
+CMDUSAGE("$level [-i|-u] [-n] SKILL RSN");
 
 static const char *HS_BASE =
 	"http://services.runescape.com/m=hiscore_oldschool";
@@ -48,7 +48,7 @@ std::string CommandHandler::level(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "inu", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'i':
 			type = IRON;
@@ -68,7 +68,7 @@ std::string CommandHandler::level(char *out, struct command *c)
 	}
 
 	if (optind != c->argc - 2)
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	else if (!getrsn(buf, RSN_BUF, c->argv[optind + 1], c->nick, usenick))
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 	else if ((id = skill_id(c->argv[optind])) == -1)

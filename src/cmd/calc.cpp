@@ -7,11 +7,11 @@
 #include "../stringparse.h"
 
 /* full name of the command */
-_CMDNAME("calc");
+CMDNAME("calc");
 /* description of the command */
-_CMDDESCR("perform basic calculations");
+CMDDESCR("perform basic calculations");
 /* command usage synopsis */
-_CMDUSAGE("$calc EXPR");
+CMDUSAGE("$calc EXPR");
 
 /* calc: perform basic calculations */
 std::string CommandHandler::calc(char *out, struct command *c)
@@ -29,7 +29,7 @@ std::string CommandHandler::calc(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -40,7 +40,7 @@ std::string CommandHandler::calc(char *out, struct command *c)
 	}
 
 	if (optind == c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

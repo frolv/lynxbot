@@ -5,11 +5,11 @@
 #include "../option.h"
 
 /* full name of the command */
-_CMDNAME("delcom");
+CMDNAME("delcom");
 /* description of the command */
-_CMDDESCR("delete custom commands");
+CMDDESCR("delete custom commands");
 /* command usage synopsis */
-_CMDUSAGE("$delcom CMD...");
+CMDUSAGE("$delcom CMD...");
 
 /* number of deleted and invalid commands */
 static size_t nd, ni;
@@ -39,7 +39,7 @@ std::string CommandHandler::delcom(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -56,7 +56,7 @@ std::string CommandHandler::delcom(char *out, struct command *c)
 	}
 
 	if (optind == c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

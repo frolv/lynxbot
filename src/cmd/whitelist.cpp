@@ -6,11 +6,11 @@
 #define MAX_URL 256
 
 /* full name of the command */
-_CMDNAME("whitelist");
+CMDNAME("whitelist");
 /* description of the command */
-_CMDDESCR("exempt websites from moderation");
+CMDDESCR("exempt websites from moderation");
 /* command usage synopsis */
-_CMDUSAGE("$whitelist [-d] [SITE]");
+CMDUSAGE("$whitelist [-d] [SITE]");
 
 /* whitelist: exempt websites from moderation */
 std::string CommandHandler::whitelist(char *out, struct command *c)
@@ -39,7 +39,7 @@ std::string CommandHandler::whitelist(char *out, struct command *c)
 			del = 1;
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -60,7 +60,7 @@ std::string CommandHandler::whitelist(char *out, struct command *c)
 	}
 
 	if (optind != c->argc - 1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

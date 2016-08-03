@@ -9,11 +9,11 @@
 #define MAX_URL 128
 
 /* full name of the command */
-_CMDNAME("ehp");
+CMDNAME("ehp");
 /* description of the command */
-_CMDDESCR("view players' ehp");
+CMDDESCR("view players' ehp");
 /* command usage synopsis */
-_CMDUSAGE("$ehp [-n] [RSN]");
+CMDUSAGE("$ehp [-n] [RSN]");
 
 static const char *CML_HOST = "https://crystalmathlabs.com";
 static const char *EHP_API = "/tracker/api.php?type="
@@ -48,7 +48,7 @@ std::string CommandHandler::ehp(char *out, struct command *c)
 			usenick = 1;
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -67,7 +67,7 @@ std::string CommandHandler::ehp(char *out, struct command *c)
 		return "";
 	}
 	if (optind != c->argc - 1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 
@@ -94,12 +94,12 @@ static int lookup_player(char *out, const char *rsn)
 
 	if (strcmp(buf, "-3") == 0 || strcmp(buf, "-4") == 0) {
 		_sprintf(out, MAX_MSG, "%s: could not reach CML API, try again",
-				_CMDNAME);
+				CMDNAME);
 		return 0;
 	}
 	if (strcmp(buf, "-1") == 0) {
 		_sprintf(out, MAX_MSG, "%s: player '%s' does not exist or has "
-				"not been tracked on CML", _CMDNAME, rsn);
+				"not been tracked on CML", CMDNAME, rsn);
 		return 0;
 	}
 

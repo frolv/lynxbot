@@ -6,11 +6,11 @@
 #include "../option.h"
 
 /* full name of the command */
-_CMDNAME("age");
+CMDNAME("age");
 /* description of the command */
-_CMDDESCR("check length of channel relationships");
+CMDDESCR("check length of channel relationships");
 /* command usage synopsis */
-_CMDUSAGE("age <-f|-s>");
+CMDUSAGE("age <-f|-s>");
 
 static const char *TWITCH_API = "https://api.twitch.tv/kraken";
 
@@ -44,7 +44,7 @@ std::string CommandHandler::age(char *out, struct command *c)
 			msg = "following";
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 's':
 			_sprintf(url, MAX_MSG, "%s/channels/%s/subscriptions/%s",
@@ -60,14 +60,14 @@ std::string CommandHandler::age(char *out, struct command *c)
 	}
 
 	if (optind != c->argc || !url[0]) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 
 	resp = cpr::Get(cpr::Url(url), head);
 
 	if (!reader.parse(resp.text, response))
-		_sprintf(out, MAX_MSG, "%s: could not parse response", _CMDNAME);
+		_sprintf(out, MAX_MSG, "%s: could not parse response", CMDNAME);
 	else if (!response.isMember("created_at"))
 		_sprintf(out, MAX_MSG, "@%s, you are not %s %s.",
 				c->nick, msg, m_channel);

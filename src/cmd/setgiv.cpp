@@ -11,11 +11,11 @@
 #define IMAGE	3
 
 /* full name of the command */
-_CMDNAME("setgiv");
+CMDNAME("setgiv");
 /* description of the command */
-_CMDDESCR("change giveaway settings");
+CMDDESCR("change giveaway settings");
 /* command usage synopsis */
-_CMDUSAGE("$setgiv [-f|-i|-t] [-n LIM] on|off|check");
+CMDUSAGE("$setgiv [-f|-i|-t] [-n LIM] on|off|check");
 
 static void process(char *out, Giveaway *g, struct command *c,
 		int type, int amt);
@@ -45,7 +45,7 @@ std::string CommandHandler::setgiv(char *out, struct command *c)
 			setfollowers = 1;
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'i':
 			setimages = 1;
@@ -83,7 +83,7 @@ std::string CommandHandler::setgiv(char *out, struct command *c)
 	if (optind != c->argc - 1 || (strcmp(c->argv[optind], "on") != 0
 				&& strcmp(c->argv[optind], "off") != 0
 				&& strcmp(c->argv[optind], "check") != 0)) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

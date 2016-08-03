@@ -4,11 +4,11 @@
 #include "../option.h"
 
 /* full name of the command */
-_CMDNAME("duck");
+CMDNAME("duck");
 /* description of the command */
-_CMDDESCR("search duckduckgo with a query string");
+CMDDESCR("search duckduckgo with a query string");
 /* command usage synopsis */
-_CMDUSAGE("$duck QUERY");
+CMDUSAGE("$duck QUERY");
 
 static const char *DDG_QUERY = "https://duckduckgo.com/?q=";
 
@@ -26,7 +26,7 @@ std::string CommandHandler::duck(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -37,7 +37,7 @@ std::string CommandHandler::duck(char *out, struct command *c)
 	}
 
 	if (optind == c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

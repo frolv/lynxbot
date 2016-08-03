@@ -4,11 +4,11 @@
 #include "../option.h"
 
 /* full name of the command */
-_CMDNAME("selection-wheel");
+CMDNAME("selection-wheel");
 /* description of the command */
-_CMDDESCR("select items from various categories");
+CMDDESCR("select items from various categories");
 /* command usage synopsis */
-_CMDUSAGE("$WHEELCMD CATEGORY");
+CMDUSAGE("$WHEELCMD CATEGORY");
 
 /* wheel: select items from various categories */
 std::string CommandHandler::wheel(char *out, struct command *c)
@@ -23,7 +23,7 @@ std::string CommandHandler::wheel(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -42,7 +42,7 @@ std::string CommandHandler::wheel(char *out, struct command *c)
 	/* check if category is valid */
 	if (optind != c->argc - 1 || (!m_wheel.valid((c->argv[optind]))
 				&& strcmp(c->argv[optind], "check") != 0)) {
-		_USAGEMSG(out, c->argv[0], m_wheel.usage());
+		USAGEMSG(out, c->argv[0], m_wheel.usage());
 		return "";
 	}
 

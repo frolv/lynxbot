@@ -4,11 +4,11 @@
 #include "../option.h"
 
 /* full name of the command */
-_CMDNAME("8ball");
+CMDNAME("8ball");
 /* description of the command */
-_CMDDESCR("respond to questions");
+CMDDESCR("respond to questions");
 /* command usage synopsis */
-_CMDUSAGE("$8ball QUESTION");
+CMDUSAGE("$8ball QUESTION");
 
 /* 8ball: respond to questions */
 std::string CommandHandler::eightball(char *out, struct command *c)
@@ -24,7 +24,7 @@ std::string CommandHandler::eightball(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -37,7 +37,7 @@ std::string CommandHandler::eightball(char *out, struct command *c)
 	last = c->argv[c->argc - 1];
 	last += strlen(last) - 1;
 	if (optind == c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	} else if (*last != '?') {
 		_sprintf(out, MAX_MSG, "[8 BALL] Ask me a question.");
 	} else {

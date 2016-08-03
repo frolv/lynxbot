@@ -6,11 +6,11 @@
 #include "../option.h"
 
 /* full name of the command */
-_CMDNAME("strawpoll");
+CMDNAME("strawpoll");
 /* description of the command */
-_CMDDESCR("create polls");
+CMDDESCR("create polls");
 /* command usage synopsis */
-_CMDUSAGE("$strawpoll [-bcm] QUESTION | OPTION1 | OPTION2...");
+CMDUSAGE("$strawpoll [-bcm] QUESTION | OPTION1 | OPTION2...");
 
 static const char *STRAWPOLL_HOST = "https://strawpoll.me";
 static const char *STRAWPOLL_API = "/api/v2/polls";
@@ -52,7 +52,7 @@ std::string CommandHandler::strawpoll(char *out, struct command *c)
 			captcha = true;
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'm':
 			multi = true;
@@ -66,7 +66,7 @@ std::string CommandHandler::strawpoll(char *out, struct command *c)
 	}
 
 	if (optind == c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

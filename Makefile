@@ -41,19 +41,19 @@ _JSONH=json.h json-forwards.h
 JSONH=$(patsubst %,include/json/%,$(_JSONH))
 JSOND=$(LIBD)/json
 
-_LYNXBOT=cmdparse.o CommandHandler.o config.o CustomCommandHandler.o\
-	 EventManager.o ExpressionParser.o GEReader.o Giveaway.o main.o\
-	 Moderator.o OpMap.o OptionParser.o RSNList.o SelectionWheel.o\
-	 skills.o TimerManager.o TwitchBot.o URLParser.o
+_LYNXBOT=CommandHandler.o config.o CustomCommandHandler.o EventManager.o\
+	 ExpressionParser.o GEReader.o Giveaway.o main.o Moderator.o OpMap.o\
+	 OptionParser.o RSNList.o SelectionWheel.o skills.o TimerManager.o\
+	 TwitchBot.o URLParser.o
 LYNXBOT=$(patsubst %,$(OBJ)/%,$(_LYNXBOT))
-_LBH=cmdparse.h CommandHandler.h config.h EventManager.h ExpressionParser.h\
-     GEReader.h Giveaway.h lynxbot.h Moderator.h OpMap.h OptionParser.h\
-     RSNList.h SelectionWheel.h skills.h TimerManager.h TwitchBot.h URLParser.h
+_LBH=CommandHandler.h config.h EventManager.h ExpressionParser.h GEReader.h\
+     Giveaway.h lynxbot.h Moderator.h OpMap.h OptionParser.h RSNList.h\
+     SelectionWheel.h skills.h TimerManager.h TwitchBot.h URLParser.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
-_LYNXC=client.o option.o strfmt.o stringparse.o
+_LYNXC=client.o cmdparse.o option.o strfmt.o stringparse.o
 LYNXC=$(patsubst %,$(OBJ)/%,$(_LYNXC))
-_LCH=client.h option.h strfmt.h stringparse.h
+_LCH=client.h cmdparse.h option.h strfmt.h stringparse.h
 LCH=$(patsubst %,$(SRC)/%,$(_LCH))
 
 _COMMANDS=about.o active.o addcom.o addrec.o age.o calc.o cgrep.o cmdinfo.o\

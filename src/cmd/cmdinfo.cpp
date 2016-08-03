@@ -9,11 +9,11 @@
 #define MAX_PRINT 128
 
 /* full name of the command */
-_CMDNAME("command");
+CMDNAME("command");
 /* description of the command */
-_CMDDESCR("show information about a custom command");
+CMDDESCR("show information about a custom command");
 /* command usage synopsis */
-_CMDUSAGE("$cmdinfo [-aCcmu] CMD");
+CMDUSAGE("$cmdinfo [-aCcmu] CMD");
 
 static int mod;
 static int atime, crtime, creator, mtime, uses;
@@ -49,7 +49,7 @@ std::string CommandHandler::cmdinfo(char *out, struct command *c)
 			mod = crtime = 1;
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'm':
 			mod = mtime = 1;
@@ -68,7 +68,7 @@ std::string CommandHandler::cmdinfo(char *out, struct command *c)
 		atime = crtime = creator = mtime = uses = 1;
 
 	if (optind != c->argc - 1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

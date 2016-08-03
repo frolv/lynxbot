@@ -4,11 +4,11 @@
 #include "../stringparse.h"
 
 /* full name of the command */
-_CMDNAME("permit");
+CMDNAME("permit");
 /* description of the command */
-_CMDDESCR("grant user permission to post urls");
+CMDDESCR("grant user permission to post urls");
 /* command usage synopsis */
-_CMDUSAGE("$permit [-n AMT] [-s] USER");
+CMDUSAGE("$permit [-n AMT] [-s] USER");
 
 /* permit: grant user permission to post a url */
 std::string CommandHandler::permit(char *out, struct command *c)
@@ -32,7 +32,7 @@ std::string CommandHandler::permit(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "n:s", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'n':
 			if (!parsenum(optarg, &amt)) {
@@ -58,7 +58,7 @@ std::string CommandHandler::permit(char *out, struct command *c)
 	}
 
 	if (optind != c->argc - 1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

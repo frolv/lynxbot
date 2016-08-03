@@ -8,11 +8,11 @@
 #define MAX_URL 128
 
 /* full name of the command */
-_CMDNAME("uptime");
+CMDNAME("uptime");
 /* description of the command */
-_CMDDESCR("check how long channel has been live");
+CMDDESCR("check how long channel has been live");
 /* command usage synopsis */
-_CMDUSAGE("$uptime [-b]");
+CMDUSAGE("$uptime [-b]");
 
 static const char *UPTIME_API = "https://api.twitch.tv/kraken/streams/";
 
@@ -36,7 +36,7 @@ std::string CommandHandler::uptime(char *out, struct command *c)
 			bot = 1;
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -47,7 +47,7 @@ std::string CommandHandler::uptime(char *out, struct command *c)
 	}
 
 	if (optind != c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 
@@ -73,7 +73,7 @@ static void channel_uptime(char *out, const char *channel)
 	_sprintf(url, MAX_URL, "%s%s", UPTIME_API, channel);
 	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
 	if (!reader.parse(resp.text, val))
-		_sprintf(out, MAX_MSG, "%s: could not parse response", _CMDNAME);
+		_sprintf(out, MAX_MSG, "%s: could not parse response", CMDNAME);
 	else if (val["stream"].isNull())
 		_sprintf(out, MAX_MSG, "[UPTIME] %s is not currently live.",
 				channel);

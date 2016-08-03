@@ -9,11 +9,11 @@
 #define OFF 2
 
 /* full name of the command */
-_CMDNAME("editcom");
+CMDNAME("editcom");
 /* description of the command */
-_CMDDESCR("modify a custom command");
+CMDDESCR("modify a custom command");
 /* command usage synopsis */
-_CMDUSAGE("$editcom [-A on|off] [-a] [-c CD] [-r] CMD [RESPONSE]");
+CMDUSAGE("$editcom [-A on|off] [-a] [-c CD] [-r] CMD [RESPONSE]");
 /* rename flag usage */
 static const char *RUSAGE = "$editcom -r OLD NEW";
 
@@ -87,7 +87,7 @@ std::string CommandHandler::editcom(char *out, struct command *c)
 			}
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'r':
 			ren = 1;
@@ -101,7 +101,7 @@ std::string CommandHandler::editcom(char *out, struct command *c)
 	}
 
 	if (optind == c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 
@@ -194,7 +194,7 @@ static void edit(char *out, CustomCommandHandler *cch, struct command *c,
 static void rename(char *out, CustomCommandHandler *cch, struct command *c)
 {
 	if (optind != c->argc - 2)
-		_USAGEMSG(out, _CMDNAME, RUSAGE);
+		USAGEMSG(out, CMDNAME, RUSAGE);
 	else if (!cch->rename(c->argv[optind], c->argv[optind + 1]))
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());

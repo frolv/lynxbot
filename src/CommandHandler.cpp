@@ -66,14 +66,12 @@ void CommandHandler::process_cmd(char *out, char *nick, char *cmdstr, perm_t p)
 {
 	struct command c;
 
-	c.fullCmd = cmdstr;
+	c.nick = nick;
+	c.privileges = p;
 	if (!parse_cmd(cmdstr, &c)) {
 		_sprintf(out, MAX_MSG, "%s", cmderr());
 		return;
 	}
-	c.nick = nick;
-	c.cmd = c.argv[0];
-	c.privileges = p;
 
 	switch (source(c.argv[0])) {
 	case DEFAULT:

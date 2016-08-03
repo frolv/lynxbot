@@ -3,11 +3,11 @@
 #include "../option.h"
 
 /* full name of the command */
-_CMDNAME("manual");
+CMDNAME("manual");
 /* description of the command */
-_CMDDESCR("view the lynxbot manual");
+CMDDESCR("view the lynxbot manual");
 /* command usage synopsis */
-_CMDUSAGE("$manual");
+CMDUSAGE("$manual");
 
 /* manual: view the lynxbot manual */
 std::string CommandHandler::manual(char *out, struct command *c)
@@ -22,7 +22,7 @@ std::string CommandHandler::manual(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -33,7 +33,7 @@ std::string CommandHandler::manual(char *out, struct command *c)
 	}
 
 	if (optind != c->argc)
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	else
 		_sprintf(out, MAX_MSG, "[MANUAL] %s/manual/index.html",
 				BOT_WEBSITE);

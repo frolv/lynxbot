@@ -4,11 +4,11 @@
 #include "../stringparse.h"
 
 /* full name of the command */
-_CMDNAME("showrec");
+CMDNAME("showrec");
 /* description of the command */
-_CMDDESCR("show recurring messages");
+CMDDESCR("show recurring messages");
 /* command usage synopsis */
-_CMDUSAGE("$showrec [ID]");
+CMDUSAGE("$showrec [ID]");
 
 /* listrec: show recurring messages */
 std::string CommandHandler::showrec(char *out, struct command *c)
@@ -29,7 +29,7 @@ std::string CommandHandler::showrec(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -45,7 +45,7 @@ std::string CommandHandler::showrec(char *out, struct command *c)
 	}
 
 	if (optind != c->argc - 1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

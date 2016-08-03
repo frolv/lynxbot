@@ -6,11 +6,11 @@
 #define MAX_URL 128
 
 /* full name of the command */
-_CMDNAME("man");
+CMDNAME("man");
 /* description of the command */
-_CMDDESCR("view command reference manuals");
+CMDDESCR("view command reference manuals");
 /* command usage synopsis */
-_CMDUSAGE("$man CMD");
+CMDUSAGE("$man CMD");
 
 /* man: view command reference manuals */
 std::string CommandHandler::man(char *out, struct command *c)
@@ -28,7 +28,7 @@ std::string CommandHandler::man(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -39,7 +39,7 @@ std::string CommandHandler::man(char *out, struct command *c)
 	}
 
 	if (optind != c->argc - 1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

@@ -12,11 +12,11 @@
 #define CUSTOM	2
 
 /* full name of the command */
-_CMDNAME("cgrep");
+CMDNAME("cgrep");
 /* description of the command */
-_CMDDESCR("find commands matching a pattern");
+CMDDESCR("find commands matching a pattern");
 /* command usage synopsis */
-_CMDUSAGE("$cgrep [-ai] [-c|-d] PATTERN");
+CMDUSAGE("$cgrep [-ai] [-c|-d] PATTERN");
 
 /* only show active commands */
 static int act;
@@ -62,7 +62,7 @@ std::string CommandHandler::cgrep(char *out, struct command *c)
 			type = DEFAULT;
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'i':
 			ign = 1;
@@ -76,7 +76,7 @@ std::string CommandHandler::cgrep(char *out, struct command *c)
 	}
 
 	if (optind != c->argc - 1)
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	else
 		findcmds(out, &m_defaultCmds, m_customCmds->commands(),
 				c->argv[optind]);
@@ -101,7 +101,7 @@ static void findcmds(char *out, const CommandHandler::commandMap *cmdmap,
 			reg = std::regex(pat);
 	} catch (std::regex_error) {
 		_sprintf(out, MAX_MSG, "%s: invalid regular expression",
-				_CMDNAME);
+				CMDNAME);
 		return;
 	}
 

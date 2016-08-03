@@ -31,15 +31,6 @@ class Giveaway;
 class RSNList;
 class ConfigReader;
 
-struct command {
-	char *nick;		/* name of command user */
-	int argc;		/* number of arguments */
-	char **argv;		/* array of arguments */
-	perm_t privileges;	/* user privileges */
-	std::string cmd;
-	std::string fullCmd;
-};
-
 class CommandHandler {
 
 	public:

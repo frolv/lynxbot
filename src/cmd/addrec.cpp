@@ -5,11 +5,11 @@
 #include "../stringparse.h"
 
 /* full name of the command */
-_CMDNAME("addrec");
+CMDNAME("addrec");
 /* description of the command */
-_CMDDESCR("add a recurring message");
+CMDDESCR("add a recurring message");
 /* command usage synopsis */
-_CMDUSAGE("$addrec [-c INT] MSG");
+CMDUSAGE("$addrec [-c INT] MSG");
 
 /* addrec: add a recurring message */
 std::string CommandHandler::addrec(char *out, struct command *c)
@@ -49,7 +49,7 @@ std::string CommandHandler::addrec(char *out, struct command *c)
 			cooldown *= 60;
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -70,7 +70,7 @@ std::string CommandHandler::addrec(char *out, struct command *c)
 		return "";
 	}
 	if (optind == c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

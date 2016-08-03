@@ -8,11 +8,11 @@
 #define F_SIZE 256
 
 /* full name of the command */
-_CMDNAME("fashiongen");
+CMDNAME("fashiongen");
 /* description of the command */
-_CMDDESCR("generate an outfit");
+CMDDESCR("generate an outfit");
 /* command usage synopsis */
-_CMDUSAGE("$fashiongen");
+CMDUSAGE("$fashiongen");
 
 static void gen_fashion(char *out, const Json::Value &items);
 
@@ -30,7 +30,7 @@ std::string CommandHandler::fashiongen(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -41,7 +41,7 @@ std::string CommandHandler::fashiongen(char *out, struct command *c)
 	}
 
 	if (optind != c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	} else if (m_fashion.empty()) {
 		_sprintf(out, MAX_MSG, "%s: could not read item database",
 				c->argv[0]);

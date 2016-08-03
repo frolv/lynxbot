@@ -7,11 +7,11 @@
 #include "../stringparse.h"
 
 /* full name of the command */
-_CMDNAME("xp");
+CMDNAME("xp");
 /* description of the command */
-_CMDDESCR("query experience information");
+CMDDESCR("query experience information");
 /* command usage synopsis */
-_CMDUSAGE("$xp [-i|-r] NUM");
+CMDUSAGE("$xp [-i|-r] NUM");
 /* -r flag usage */
 static const char *RUSAGE = "$xp -r START STOP";
 
@@ -41,7 +41,7 @@ std::string CommandHandler::xp(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "ir", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'i':
 			inv = 1;
@@ -67,7 +67,7 @@ std::string CommandHandler::xp(char *out, struct command *c)
 	}
 
 	if (optind != c->argc - 1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 
@@ -142,7 +142,7 @@ static void xprange(char *out, struct command *c)
 	char num[RSN_BUF];
 
 	if (optind == c->argc || optind < c->argc - 2) {
-		_USAGEMSG(out, _CMDNAME, RUSAGE);
+		USAGEMSG(out, CMDNAME, RUSAGE);
 		return;
 	}
 

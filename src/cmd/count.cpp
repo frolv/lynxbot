@@ -6,11 +6,11 @@
 #include "../option.h"
 
 /* full name of the command */
-_CMDNAME("count");
+CMDNAME("count");
 /* description of the command */
-_CMDDESCR("manage message counts");
+CMDDESCR("manage message counts");
 /* command usage synopsis */
-_CMDUSAGE("$count start|stop|display");
+CMDUSAGE("$count start|stop|display");
 
 typedef std::unordered_map<std::string, uint16_t> countmap;
 
@@ -34,7 +34,7 @@ std::string CommandHandler::count(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -45,7 +45,7 @@ std::string CommandHandler::count(char *out, struct command *c)
 	}
 
 	if (optind != c->argc - 1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 
@@ -82,7 +82,7 @@ std::string CommandHandler::count(char *out, struct command *c)
 		else
 			getresults(out, &m_messageCounts);
 	} else {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	}
 	return "";
 }

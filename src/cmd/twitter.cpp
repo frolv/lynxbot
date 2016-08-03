@@ -4,11 +4,11 @@
 #include "../option.h"
 
 /* full name of the command */
-_CMDNAME("twitter");
+CMDNAME("twitter");
 /* description of the command */
-_CMDDESCR("get information about a twitter user");
+CMDDESCR("get information about a twitter user");
 /* command usage synopsis */
-_CMDUSAGE("$twitter [-r] USER");
+CMDUSAGE("$twitter [-r] USER");
 
 /* twitter: get information about a twitter user */
 std::string CommandHandler::twitter(char *out, struct command *c)
@@ -28,7 +28,7 @@ std::string CommandHandler::twitter(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "r", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -42,7 +42,7 @@ std::string CommandHandler::twitter(char *out, struct command *c)
 	}
 
 	if (optind != c->argc - 1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

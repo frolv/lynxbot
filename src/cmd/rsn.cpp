@@ -7,11 +7,11 @@
 #include "../RSNList.h"
 
 /* full name of the command */
-_CMDNAME("rsn");
+CMDNAME("rsn");
 /* description of the command */
-_CMDDESCR("view and manage stored rsns");
+CMDDESCR("view and manage stored rsns");
 /* command usage synopsis */
-_CMDUSAGE("$rsn COMMAND [ARG]");
+CMDUSAGE("$rsn COMMAND [ARG]");
 
 static int invalidargs(struct command *c);
 static void rsn_action(char *out, RSNList *rsns, struct command *c);
@@ -29,7 +29,7 @@ std::string CommandHandler::rsn(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -40,7 +40,7 @@ std::string CommandHandler::rsn(char *out, struct command *c)
 	}
 
 	if (invalidargs(c))
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	else
 		rsn_action(out, &m_rsns, c);
 

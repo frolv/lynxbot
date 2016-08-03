@@ -5,11 +5,11 @@
 #include "../stringparse.h"
 
 /* full name of the command */
-_CMDNAME("addcom");
+CMDNAME("addcom");
 /* description of the command */
-_CMDDESCR("create a new custom command");
+CMDDESCR("create a new custom command");
 /* command usage synopsis */
-_CMDUSAGE("$addcom [-c CD] CMD RESPONSE");
+CMDUSAGE("$addcom [-c CD] CMD RESPONSE");
 
 static void create(char *out, CustomCommandHandler *cch,
 		struct command *c, time_t cooldown);
@@ -55,7 +55,7 @@ std::string CommandHandler::addcom(char *out, struct command *c)
 			}
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -66,7 +66,7 @@ std::string CommandHandler::addcom(char *out, struct command *c)
 	}
 
 	if (optind == c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 	if (optind == c->argc - 1) {

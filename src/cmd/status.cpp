@@ -9,11 +9,11 @@
 #define MAX_URL 128
 
 /* full name of the command */
-_CMDNAME("status");
+CMDNAME("status");
 /* description of the command */
-_CMDDESCR("set channel status");
+CMDDESCR("set channel status");
 /* command usage synopsis */
-_CMDUSAGE("status [-a] [STATUS]");
+CMDUSAGE("status [-a] [STATUS]");
 
 static const char *TWITCH_API = "https://api.twitch.tv/kraken/channels/";
 
@@ -51,7 +51,7 @@ std::string CommandHandler::status(char *out, struct command *c)
 			append = 1;
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -137,7 +137,7 @@ static void set_status(char *out, const char *channel, const char *status,
 
 	if (reader.parse(resp.text, response)) {
 		if (response.isMember("error")) {
-			_sprintf(out, MAX_MSG, "%s: %s", _CMDNAME,
+			_sprintf(out, MAX_MSG, "%s: %s", CMDNAME,
 					response["error"].asCString());
 			for (s = out; *s; ++s)
 				*s = tolower(*s);

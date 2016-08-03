@@ -8,11 +8,11 @@
 #include "../strfmt.h"
 
 /* full name of the command */
-_CMDNAME("ge");
+CMDNAME("ge");
 /* description of the command */
-_CMDDESCR("look up item prices");
+CMDDESCR("look up item prices");
 /* command usage synopsis */
-_CMDUSAGE("$ge [-n AMT] ITEM");
+CMDUSAGE("$ge [-n AMT] ITEM");
 
 static const char *EXCHANGE_API =
 	"https://api.rsbuddy.com/grandExchange?a=guidePrice&i=";
@@ -46,7 +46,7 @@ std::string CommandHandler::ge(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "n:", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'n':
 			if (!parsenum_mult(optarg, &amt)) {
@@ -69,7 +69,7 @@ std::string CommandHandler::ge(char *out, struct command *c)
 	}
 
 	if (optind == c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

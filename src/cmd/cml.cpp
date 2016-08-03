@@ -12,11 +12,11 @@
 #define MAX_URL 128
 
 /* full name of the command */
-_CMDNAME("cml");
+CMDNAME("cml");
 /* description of the command */
-_CMDDESCR("interact with crystalmathlabs trackers");
+CMDDESCR("interact with crystalmathlabs trackers");
 /* command usage synopsis */
-_CMDUSAGE("$cml [-s|-v] [-nu] [-t SKILL] [RSN]");
+CMDUSAGE("$cml [-s|-v] [-nu] [-t SKILL] [RSN]");
 
 static const char *CML_HOST = "https://crystalmathlabs.com";
 static const char *CML_USER = "/tracker/track.php?player=";
@@ -54,7 +54,7 @@ std::string CommandHandler::cml(char *out, struct command *c)
 			!= EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'n':
 			usenick = 1;
@@ -109,7 +109,7 @@ std::string CommandHandler::cml(char *out, struct command *c)
 			_sprintf(out, MAX_MSG, "[CML] %s", CML_HOST);
 		return "";
 	} else if (optind != c->argc - 1 || page || id != -1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 
@@ -185,7 +185,7 @@ static void read_current_top(char *out, int id)
 
 	if (strcmp(text, "-3") == 0 || strcmp(text, "-4") == 0) {
 		_sprintf(out, MAX_MSG, "%s: could not reach CML API, try again",
-				_CMDNAME);
+				CMDNAME);
 		return;
 	}
 
@@ -217,5 +217,5 @@ static void read_current_top(char *out, int id)
 	}
 
 	if (i != 5)
-		_sprintf(orig, MAX_MSG, "%s: could not read current top", _CMDNAME);
+		_sprintf(orig, MAX_MSG, "%s: could not read current top", CMDNAME);
 }

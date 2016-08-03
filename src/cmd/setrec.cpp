@@ -4,11 +4,11 @@
 #include "../option.h"
 
 /* full name of the command */
-_CMDNAME("setrec");
+CMDNAME("setrec");
 /* description of the command */
-_CMDDESCR("enable/disabe recurring messages");
+CMDDESCR("enable/disabe recurring messages");
 /* command usage synopsis */
-_CMDUSAGE("$setrec on|off");
+CMDUSAGE("$setrec on|off");
 
 /* setrec: enable and disable recurring messages */
 std::string CommandHandler::setrec(char *out, struct command *c)
@@ -28,7 +28,7 @@ std::string CommandHandler::setrec(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -39,7 +39,7 @@ std::string CommandHandler::setrec(char *out, struct command *c)
 	}
 
 	if (optind != c->argc - 1) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	} else if (strcmp(c->argv[optind], "on") == 0) {
 		m_evtp->activateMessages();
 		_sprintf(out, MAX_MSG, "@%s, recurring mesasges enabled.",
@@ -49,7 +49,7 @@ std::string CommandHandler::setrec(char *out, struct command *c)
 		_sprintf(out, MAX_MSG, "@%s, recurring mesasges disabled.",
 				c->nick);
 	} else {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	}
 	return "";
 }

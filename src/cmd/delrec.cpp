@@ -5,11 +5,11 @@
 #include "../stringparse.h"
 
 /* full name of the command */
-_CMDNAME("delrec");
+CMDNAME("delrec");
 /* description of the command */
-_CMDDESCR("delete a recurring message");
+CMDDESCR("delete a recurring message");
 /* command usage synopsis */
-_CMDUSAGE("$delrec ID");
+CMDUSAGE("$delrec ID");
 /* -a flag usage synposis */
 static const char *AUSAGE = "$delrec -a";
 
@@ -37,7 +37,7 @@ std::string CommandHandler::delrec(char *out, struct command *c)
 			all = 1;
 			break;
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", opterr());
@@ -49,7 +49,7 @@ std::string CommandHandler::delrec(char *out, struct command *c)
 
 	if (all) {
 		if (optind != c->argc) {
-			_USAGEMSG(out, _CMDNAME, AUSAGE);
+			USAGEMSG(out, CMDNAME, AUSAGE);
 			return "";
 		}
 		while (!m_evtp->messages()->empty())
@@ -60,7 +60,7 @@ std::string CommandHandler::delrec(char *out, struct command *c)
 	}
 
 	if ((optind != c->argc - 1)) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 

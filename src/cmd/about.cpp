@@ -7,11 +7,11 @@
 #define SRC 2
 
 /* full name of the command */
-_CMDNAME("about");
+CMDNAME("about");
 /* description of the command */
-_CMDDESCR("print bot information");
+CMDDESCR("print bot information");
 /* command usage synopsis */
-_CMDUSAGE("$about [-s|-r]");
+CMDUSAGE("$about [-s|-r]");
 
 static const char *SOURCE = "https://github.com/frolv/lynxbot";
 static const char *RELEASE = "https://github.com/frolv/lynxbot/releases/latest";
@@ -32,7 +32,7 @@ std::string CommandHandler::about(char *out, struct command *c)
 	while ((opt = getopt_long(c->argc, c->argv, "rs", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return "";
 		case 'r':
 			type = REL;
@@ -49,7 +49,7 @@ std::string CommandHandler::about(char *out, struct command *c)
 	}
 
 	if (optind != c->argc) {
-		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return "";
 	}
 
