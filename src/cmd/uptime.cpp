@@ -3,73 +3,83 @@
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+
+#define MAX_URL 128
 
 /* full name of the command */
-CMDNAME("uptime");
+_CMDNAME("uptime");
 /* description of the command */
-CMDDESCR("check how long channel has been live");
+_CMDDESCR("check how long channel has been live");
 /* command usage synopsis */
-CMDUSAGE("$uptime [-b]");
+_CMDUSAGE("$uptime [-b]");
 
-static const std::string UPTIME_API = "https://api.twitch.tv/kraken/streams/";
+static const char *UPTIME_API = "https://api.twitch.tv/kraken/streams/";
 
-static std::string channel_uptime(const std::string &channel);
+static void channel_uptime(char *out, const char *channel);
 
 /* uptime: check how long channel has been live */
 std::string CommandHandler::uptime(char *out, struct command *c)
 {
-	bool bot;
-
-	int opt;
-	OptionParser op(c->fullCmd, "b");
-	static struct OptionParser::option long_opts[] = {
+	int opt, bot;
+	static struct option long_opts[] = {
 		{ "bot", NO_ARG, 'b' },
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
-	bot = false;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	bot = 0;
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "b", long_opts)) != EOF) {
 		switch (opt) {
 		case 'b':
-			bot = true;
+			bot = 1;
 			break;
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() != c->fullCmd.length())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind != c->argc) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
 
-	if (bot)
-		return std::string(m_name) + " has been running for "
-			+ utils::conv_time((time(NULL) - m_evtp->init())) + ".";
+	if (bot) {
+		_sprintf(out, MAX_MSG, "[UPTIME] %s has been running for %s.",
+				m_name, + utils::conv_time((time(NULL)
+						- m_evtp->init())).c_str());
+		return "";
+	}
 
-	return "[UPTIME] " + channel_uptime(m_channel);
+	channel_uptime(out, m_channel);
+	return "";
 }
 
 /* channel_uptime: get how long channel has been streaming */
-static std::string channel_uptime(const std::string &channel)
+static void channel_uptime(char *out, const char *channel)
 {
 	cpr::Response resp;
 	Json::Reader reader;
 	Json::Value val;
+	char url[MAX_URL];
 
-	resp = cpr::Get(cpr::Url(UPTIME_API + channel),
-			cpr::Header{{ "Connection", "close" }});
+	_sprintf(url, MAX_URL, "%s%s", UPTIME_API, channel);
+	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
 	if (!reader.parse(resp.text, val))
-		return "could not parse response";
-
-	if (val["stream"].isNull())
-		return channel + " is not currently live.";
-
-	return channel + " has been live for "
-		+ utils::parse_time(val["stream"]["created_at"].asString(),
-				false) + ".";
+		_sprintf(out, MAX_MSG, "%s: could not parse response", _CMDNAME);
+	else if (val["stream"].isNull())
+		_sprintf(out, MAX_MSG, "[UPTIME] %s is not currently live.",
+				channel);
+	else
+		_sprintf(out, MAX_MSG, "[UPTIME] %s has been live for %s.",
+				channel, utils::parse_time(
+					val["stream"]["created_at"].asString(),
+					false).c_str());
 }
