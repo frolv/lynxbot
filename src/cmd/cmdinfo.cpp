@@ -3,7 +3,7 @@
 #include <time.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 #define MAX_PRINT 128
@@ -21,7 +21,7 @@ static int atime, crtime, creator, mtime, uses;
 static void putinfo(char *out, Json::Value *cmd);
 
 /* cmdinfo: show information about a custom command */
-int CommandHandler::cmdinfo(char *out, struct command *c)
+int CmdHandler::cmdinfo(char *out, struct command *c)
 {
 	int opt, status;
 	static struct option long_opts[] = {

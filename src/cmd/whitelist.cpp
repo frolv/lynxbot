@@ -1,6 +1,6 @@
 #include <string.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 #define MAX_URL 256
@@ -13,7 +13,7 @@ CMDDESCR("exempt websites from moderation");
 CMDUSAGE("$whitelist [-d] [SITE]");
 
 /* whitelist: exempt websites from moderation */
-int CommandHandler::whitelist(char *out, struct command *c)
+int CmdHandler::whitelist(char *out, struct command *c)
 {
 	char url[MAX_URL];
 	char *s;

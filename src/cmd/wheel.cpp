@@ -1,6 +1,6 @@
 #include <string.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -11,7 +11,7 @@ CMDDESCR("select items from various categories");
 CMDUSAGE("$WHEELCMD CATEGORY");
 
 /* wheel: select items from various categories */
-int CommandHandler::wheel(char *out, struct command *c)
+int CmdHandler::wheel(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {

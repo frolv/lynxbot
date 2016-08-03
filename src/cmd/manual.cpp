@@ -1,5 +1,5 @@
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -10,7 +10,7 @@ CMDDESCR("view the lynxbot manual");
 CMDUSAGE("$manual");
 
 /* manual: view the lynxbot manual */
-int CommandHandler::manual(char *out, struct command *c)
+int CmdHandler::manual(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {

@@ -204,7 +204,7 @@ bool TwitchBot::process_privmsg(char *privmsg)
 	}
 
 	/* count */
-	if (m_cmdhnd.isCounting() && msg[0] == '+' && msg[1]) {
+	if (m_cmdhnd.counting() && msg[0] == '+' && msg[1]) {
 		m_cmdhnd.count(nick, msg + 1);
 		return true;
 	}

@@ -5,10 +5,10 @@
 #include <regex>
 #include <utils.h>
 #include "cmdparse.h"
-#include "CommandHandler.h"
+#include "CmdHandler.h"
 #include "lynxbot.h"
 
-CommandHandler::CommandHandler(const char *name, const char *channel,
+CmdHandler::CmdHandler(const char *name, const char *channel,
 		const char *token, Moderator *mod, URLParser *urlp,
 		EventManager *evtp, Giveaway *givp, ConfigReader *cfgr,
 		tw::Authenticator *auth)
@@ -17,10 +17,10 @@ CommandHandler::CommandHandler(const char *name, const char *channel,
 	m_cfgr(cfgr), m_auth(auth), m_counting(false), m_gen(m_rd()),
 	m_status(EXIT_SUCCESS)
 {
-	populateCmds();
+	populate_cmd();
 	m_poll[0] = '\0';
 
-	m_customCmds = new CustomCommandHandler(&m_defaultCmds, &m_cooldowns,
+	m_customCmds = new CustomHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd(), name, channel);
 	if (!m_customCmds->isActive()) {
 		std::cerr << "Custom commands will be disabled "
@@ -53,16 +53,16 @@ CommandHandler::CommandHandler(const char *name, const char *channel,
 	if (!utils::readJSON("fashion.json", m_fashion))
 		std::cerr << "Could not read fashion.json" << std::endl;
 
-	populateHelp();
+	populate_help();
 }
 
-CommandHandler::~CommandHandler()
+CmdHandler::~CmdHandler()
 {
 	delete m_customCmds;
 }
 
 /* process_cmd: run message as a bot command and store output in out */
-void CommandHandler::process_cmd(char *out, char *nick, char *cmdstr, perm_t p)
+void CmdHandler::process_cmd(char *out, char *nick, char *cmdstr, perm_t p)
 {
 	struct command c;
 
@@ -89,7 +89,7 @@ void CommandHandler::process_cmd(char *out, char *nick, char *cmdstr, perm_t p)
 }
 
 /* process_resp: test a message against auto response regexes */
-void CommandHandler::process_resp(char *out, char *msg, char *nick)
+void CmdHandler::process_resp(char *out, char *msg, char *nick)
 {
 	const std::string message(msg);
 	std::regex respreg;
@@ -117,13 +117,13 @@ void CommandHandler::process_resp(char *out, char *msg, char *nick)
 	}
 }
 
-bool CommandHandler::isCounting() const
+bool CmdHandler::counting() const
 {
 	return m_counting;
 }
 
 /* count: count message in m_messageCounts */
-void CommandHandler::count(const std::string &nick, const std::string &message)
+void CmdHandler::count(const std::string &nick, const std::string &message)
 {
 	std::string msg = message;
 	std::transform(msg.begin(), msg.end(), msg.begin(), tolower);
@@ -140,7 +140,7 @@ void CommandHandler::count(const std::string &nick, const std::string &message)
 }
 
 /* process_default: run a default command */
-void CommandHandler::process_default(char *out, struct command *c)
+void CmdHandler::process_default(char *out, struct command *c)
 {
 	if (P_ALSUB(c->privileges) || m_cooldowns.ready(c->argv[0])) {
 		m_status = (this->*m_defaultCmds[c->argv[0]])(out, c);
@@ -153,7 +153,7 @@ void CommandHandler::process_default(char *out, struct command *c)
 }
 
 /* process_custom: run a custom command */
-void CommandHandler::process_custom(char *out, struct command *c)
+void CmdHandler::process_custom(char *out, struct command *c)
 {
 	Json::Value *ccmd;
 
@@ -182,7 +182,7 @@ void CommandHandler::process_custom(char *out, struct command *c)
 }
 
 /* source: determine whether cmd is a default or custom command */
-uint8_t CommandHandler::source(const std::string &cmd)
+uint8_t CmdHandler::source(const std::string &cmd)
 {
 	if (m_defaultCmds.find(cmd) != m_defaultCmds.end())
 		return DEFAULT;
@@ -195,7 +195,7 @@ uint8_t CommandHandler::source(const std::string &cmd)
 }
 
 /* getrsn: print the rsn referred to by text into out */
-int CommandHandler::getrsn(char *out, size_t len, const char *text,
+int CmdHandler::getrsn(char *out, size_t len, const char *text,
 		const char *nick, int username)
 {
 	const char *rsn;
@@ -224,58 +224,58 @@ int CommandHandler::getrsn(char *out, size_t len, const char *text,
 }
 
 /* populateCmds: initialize pointers to all default commands */
-void CommandHandler::populateCmds()
+void CmdHandler::populate_cmd()
 {
 	/* regular commands */
-	m_defaultCmds["8ball"] = &CommandHandler::eightball;
-	m_defaultCmds["about"] = &CommandHandler::about;
-	m_defaultCmds["active"] = &CommandHandler::active;
-	m_defaultCmds["age"] = &CommandHandler::age;
-	m_defaultCmds["calc"] = &CommandHandler::calc;
-	m_defaultCmds["cgrep"] = &CommandHandler::cgrep;
-	m_defaultCmds["cmdinfo"] = &CommandHandler::cmdinfo;
-	m_defaultCmds["cml"] = &CommandHandler::cml;
-	m_defaultCmds["commands"] = &CommandHandler::manual;
-	m_defaultCmds["duck"] = &CommandHandler::duck;
-	m_defaultCmds["ehp"] = &CommandHandler::ehp;
-	m_defaultCmds["fashiongen"] = &CommandHandler::fashiongen;
-	m_defaultCmds["ge"] = &CommandHandler::ge;
-	m_defaultCmds["help"] = &CommandHandler::man;
-	m_defaultCmds["level"] = &CommandHandler::level;
-	m_defaultCmds["lvl"] = &CommandHandler::level;
-	m_defaultCmds["man"] = &CommandHandler::man;
-	m_defaultCmds["manual"] = &CommandHandler::manual;
-	m_defaultCmds["rsn"] = &CommandHandler::rsn;
-	m_defaultCmds["submit"] = &CommandHandler::submit;
-	m_defaultCmds["twitter"] = &CommandHandler::twitter;
-	m_defaultCmds["uptime"] = &CommandHandler::uptime;
-	m_defaultCmds["xp"] = &CommandHandler::xp;
-	m_defaultCmds[m_wheel.cmd()] = &CommandHandler::wheel;
+	m_defaultCmds["8ball"] = &CmdHandler::eightball;
+	m_defaultCmds["about"] = &CmdHandler::about;
+	m_defaultCmds["active"] = &CmdHandler::active;
+	m_defaultCmds["age"] = &CmdHandler::age;
+	m_defaultCmds["calc"] = &CmdHandler::calc;
+	m_defaultCmds["cgrep"] = &CmdHandler::cgrep;
+	m_defaultCmds["cmdinfo"] = &CmdHandler::cmdinfo;
+	m_defaultCmds["cml"] = &CmdHandler::cml;
+	m_defaultCmds["commands"] = &CmdHandler::manual;
+	m_defaultCmds["duck"] = &CmdHandler::duck;
+	m_defaultCmds["ehp"] = &CmdHandler::ehp;
+	m_defaultCmds["fashiongen"] = &CmdHandler::fashiongen;
+	m_defaultCmds["ge"] = &CmdHandler::ge;
+	m_defaultCmds["help"] = &CmdHandler::man;
+	m_defaultCmds["level"] = &CmdHandler::level;
+	m_defaultCmds["lvl"] = &CmdHandler::level;
+	m_defaultCmds["man"] = &CmdHandler::man;
+	m_defaultCmds["manual"] = &CmdHandler::manual;
+	m_defaultCmds["rsn"] = &CmdHandler::rsn;
+	m_defaultCmds["submit"] = &CmdHandler::submit;
+	m_defaultCmds["twitter"] = &CmdHandler::twitter;
+	m_defaultCmds["uptime"] = &CmdHandler::uptime;
+	m_defaultCmds["xp"] = &CmdHandler::xp;
+	m_defaultCmds[m_wheel.cmd()] = &CmdHandler::wheel;
 
 	/* moderator commands */
-	m_defaultCmds["ac"] = &CommandHandler::addcom;
-	m_defaultCmds["addcom"] = &CommandHandler::addcom;
-	m_defaultCmds["addrec"] = &CommandHandler::addrec;
-	m_defaultCmds["ar"] = &CommandHandler::addrec;
-	m_defaultCmds["count"] = &CommandHandler::count;
-	m_defaultCmds["dc"] = &CommandHandler::delcom;
-	m_defaultCmds["delcom"] = &CommandHandler::delcom;
-	m_defaultCmds["delrec"] = &CommandHandler::delrec;
-	m_defaultCmds["dr"] = &CommandHandler::delrec;
-	m_defaultCmds["ec"] = &CommandHandler::editcom;
-	m_defaultCmds["editcom"] = &CommandHandler::editcom;
-	m_defaultCmds["permit"] = &CommandHandler::permit;
-	m_defaultCmds["setgiv"] = &CommandHandler::setgiv;
-	m_defaultCmds["setrec"] = &CommandHandler::setrec;
-	m_defaultCmds["showrec"] = &CommandHandler::showrec;
-	m_defaultCmds["sp"] = &CommandHandler::strawpoll;
-	m_defaultCmds["status"] = &CommandHandler::status;
-	m_defaultCmds["strawpoll"] = &CommandHandler::strawpoll;
-	m_defaultCmds["whitelist"] = &CommandHandler::whitelist;
+	m_defaultCmds["ac"] = &CmdHandler::addcom;
+	m_defaultCmds["addcom"] = &CmdHandler::addcom;
+	m_defaultCmds["addrec"] = &CmdHandler::addrec;
+	m_defaultCmds["ar"] = &CmdHandler::addrec;
+	m_defaultCmds["count"] = &CmdHandler::count;
+	m_defaultCmds["dc"] = &CmdHandler::delcom;
+	m_defaultCmds["delcom"] = &CmdHandler::delcom;
+	m_defaultCmds["delrec"] = &CmdHandler::delrec;
+	m_defaultCmds["dr"] = &CmdHandler::delrec;
+	m_defaultCmds["ec"] = &CmdHandler::editcom;
+	m_defaultCmds["editcom"] = &CmdHandler::editcom;
+	m_defaultCmds["permit"] = &CmdHandler::permit;
+	m_defaultCmds["setgiv"] = &CmdHandler::setgiv;
+	m_defaultCmds["setrec"] = &CmdHandler::setrec;
+	m_defaultCmds["showrec"] = &CmdHandler::showrec;
+	m_defaultCmds["sp"] = &CmdHandler::strawpoll;
+	m_defaultCmds["status"] = &CmdHandler::status;
+	m_defaultCmds["strawpoll"] = &CmdHandler::strawpoll;
+	m_defaultCmds["whitelist"] = &CmdHandler::whitelist;
 }
 
 /* populateHelp: fill m_help with manual page names */
-void CommandHandler::populateHelp()
+void CmdHandler::populate_help()
 {
 	m_help[m_wheel.cmd()] = "selection-wheel";
 	m_help["wheel"] = "selection-wheel";

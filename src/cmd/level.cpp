@@ -2,7 +2,7 @@
 #include <cpr/cpr.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../skills.h"
 #include "../strfmt.h"
@@ -28,7 +28,7 @@ static int get_hiscores(char *out, struct command *c, const char *rsn,
 		int id, int type);
 
 /* level: look up players' levels */
-int CommandHandler::level(char *out, struct command *c)
+int CmdHandler::level(char *out, struct command *c)
 {
 	int usenick, id, type, status;
 	char buf[RSN_BUF];

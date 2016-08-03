@@ -1,6 +1,6 @@
 #include <string.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../stringparse.h"
 
@@ -12,7 +12,7 @@ CMDDESCR("add a recurring message");
 CMDUSAGE("$addrec [-c INT] MSG");
 
 /* addrec: add a recurring message */
-int CommandHandler::addrec(char *out, struct command *c)
+int CmdHandler::addrec(char *out, struct command *c)
 {
 	time_t cooldown;
 	char msg[MAX_MSG];

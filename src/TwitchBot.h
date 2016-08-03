@@ -5,7 +5,7 @@
 #include <thread>
 #include <tw/authenticator.h>
 #include "client.h"
-#include "CommandHandler.h"
+#include "CmdHandler.h"
 #include "config.h"
 #include "EventManager.h"
 #include "Giveaway.h"
@@ -15,7 +15,7 @@
 
 class Authenticator;
 class Client;
-class CommandHandler;
+class CmdHandler;
 class ConfigReader;
 class EventManager;
 class Giveaway;
@@ -44,7 +44,7 @@ class TwitchBot {
 
 		tw::Authenticator m_auth;
 		struct client m_client;
-		CommandHandler m_cmdhnd;
+		CmdHandler m_cmdhnd;
 		ConfigReader *m_cfgr;
 		EventManager m_event;
 		Giveaway m_giveaway;

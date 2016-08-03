@@ -2,7 +2,7 @@
 #include <tw/oauth.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 #define F_SIZE 256
@@ -17,7 +17,7 @@ CMDUSAGE("$fashiongen");
 static void gen_fashion(char *out, const Json::Value &items);
 
 /* fashiongen: generate an outfit */
-int CommandHandler::fashiongen(char *out, struct command *c)
+int CmdHandler::fashiongen(char *out, struct command *c)
 {
 	char fashion[F_SIZE];
 	int opt, status;

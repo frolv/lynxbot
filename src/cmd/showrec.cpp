@@ -1,5 +1,5 @@
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../stringparse.h"
 
@@ -11,7 +11,7 @@ CMDDESCR("show recurring messages");
 CMDUSAGE("$showrec [ID]");
 
 /* listrec: show recurring messages */
-int CommandHandler::showrec(char *out, struct command *c)
+int CmdHandler::showrec(char *out, struct command *c)
 {
 	int64_t id;
 	int opt, status;

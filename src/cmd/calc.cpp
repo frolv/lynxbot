@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <string.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../ExpressionParser.h"
 #include "../option.h"
 #include "../stringparse.h"
@@ -14,7 +14,7 @@ CMDDESCR("perform basic calculations");
 CMDUSAGE("$calc EXPR");
 
 /* calc: perform basic calculations */
-int CommandHandler::calc(char *out, struct command *c)
+int CmdHandler::calc(char *out, struct command *c)
 {
 	char expr[MAX_MSG];
 	char *s;

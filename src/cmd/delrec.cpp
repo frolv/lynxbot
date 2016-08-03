@@ -1,6 +1,6 @@
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../stringparse.h"
 
@@ -14,7 +14,7 @@ CMDUSAGE("$delrec ID");
 static const char *AUSAGE = "$delrec -a";
 
 /* delrec: delete a recurring message */
-int CommandHandler::delrec(char *out, struct command *c)
+int CmdHandler::delrec(char *out, struct command *c)
 {
 	int opt, all;
 	int64_t id;

@@ -1,5 +1,5 @@
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 #define ABT 0
@@ -17,7 +17,7 @@ static const char *SOURCE = "https://github.com/frolv/lynxbot";
 static const char *RELEASE = "https://github.com/frolv/lynxbot/releases/latest";
 
 /* about: print bot information */
-int CommandHandler::about(char *out, struct command *c)
+int CmdHandler::about(char *out, struct command *c)
 {
 	int opt, type;
 	static struct option long_opts[] = {

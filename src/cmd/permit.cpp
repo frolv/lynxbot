@@ -1,5 +1,5 @@
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../stringparse.h"
 
@@ -11,7 +11,7 @@ CMDDESCR("grant user permission to post urls");
 CMDUSAGE("$permit [-n AMT] [-s] USER");
 
 /* permit: grant user permission to post a url */
-int CommandHandler::permit(char *out, struct command *c)
+int CmdHandler::permit(char *out, struct command *c)
 {
 	int opt;
 	int64_t amt;

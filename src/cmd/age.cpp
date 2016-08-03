@@ -2,7 +2,7 @@
 #include <json/json.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -15,7 +15,7 @@ CMDUSAGE("age <-f|-s>");
 static const char *TWITCH_API = "https://api.twitch.tv/kraken";
 
 /* followage: check how long you have been following a channel */
-int CommandHandler::age(char *out, struct command *c)
+int CmdHandler::age(char *out, struct command *c)
 {
 	static cpr::Header head{{ "Accept","application/vnd.twitchtv.v3+json" },
 		{ "Authorization", "OAuth " + std::string(m_token) }};

@@ -3,11 +3,11 @@
 #include <fstream>
 #include <iostream>
 #include <utils.h>
-#include "CommandHandler.h"
+#include "CmdHandler.h"
 
 static bool valid_resp(const std::string &resp, std::string &err);
 
-CustomCommandHandler::CustomCommandHandler(CommandHandler::commandMap *defaultCmds,
+CustomHandler::CustomHandler(CmdHandler::commandMap *defaultCmds,
 		TimerManager *tm, const std::string &wheelCmd,
 		const std::string &name, const std::string &channel)
 	: m_cmp(defaultCmds), m_tmp(tm), m_wheelCmd(wheelCmd),
@@ -29,15 +29,15 @@ CustomCommandHandler::CustomCommandHandler(CommandHandler::commandMap *defaultCm
 		std::cerr << "\nCustom commands disabled." << std::endl;
 }
 
-CustomCommandHandler::~CustomCommandHandler() {}
+CustomHandler::~CustomHandler() {}
 
-bool CustomCommandHandler::isActive()
+bool CustomHandler::isActive()
 {
 	return m_active;
 }
 
 /* addcom: add a new custom command cmd with response and cooldown */
-bool CustomCommandHandler::addcom(const std::string &cmd,
+bool CustomHandler::addcom(const std::string &cmd,
 		std::string response, const std::string &nick,
 		time_t cooldown)
 {
@@ -68,7 +68,7 @@ bool CustomCommandHandler::addcom(const std::string &cmd,
 }
 
 /* delCom: delete command cmd if it exists */
-bool CustomCommandHandler::delcom(const std::string &cmd)
+bool CustomHandler::delcom(const std::string &cmd)
 {
 	Json::ArrayIndex ind = 0;
 	Json::Value def, rem;
@@ -88,7 +88,7 @@ bool CustomCommandHandler::delcom(const std::string &cmd)
 }
 
 /* editCom: modify the command cmd with newResp and newcd */
-bool CustomCommandHandler::editcom(const std::string &cmd,
+bool CustomHandler::editcom(const std::string &cmd,
 		std::string newResp, time_t newcd)
 {
 	auto *com = getcom(cmd);
@@ -114,7 +114,7 @@ bool CustomCommandHandler::editcom(const std::string &cmd,
 }
 
 /* activate: activate the command cmd */
-bool CustomCommandHandler::activate(const std::string &cmd)
+bool CustomHandler::activate(const std::string &cmd)
 {
 	Json::Value *com;
 
@@ -130,7 +130,7 @@ bool CustomCommandHandler::activate(const std::string &cmd)
 }
 
 /* deactivate: deactivate the command cmd */
-bool CustomCommandHandler::deactivate(const std::string &cmd)
+bool CustomHandler::deactivate(const std::string &cmd)
 {
 	Json::Value *com;
 
@@ -144,7 +144,7 @@ bool CustomCommandHandler::deactivate(const std::string &cmd)
 }
 
 /* rename: rename custom command cmd to newcmd */
-bool CustomCommandHandler::rename(const std::string &cmd,
+bool CustomHandler::rename(const std::string &cmd,
 		const std::string &newcmd)
 {
 	Json::Value *com;
@@ -166,7 +166,7 @@ bool CustomCommandHandler::rename(const std::string &cmd,
 }
 
 /* getcom: return command value if it exists, empty value otherwise */
-Json::Value *CustomCommandHandler::getcom(const std::string &cmd)
+Json::Value *CustomHandler::getcom(const std::string &cmd)
 {
 	for (auto &val : m_commands["commands"]) {
 		if (val["cmd"] == cmd)
@@ -177,25 +177,25 @@ Json::Value *CustomCommandHandler::getcom(const std::string &cmd)
 	return &m_emptyVal;
 }
 
-const Json::Value *CustomCommandHandler::commands()
+const Json::Value *CustomHandler::commands()
 {
 	return &m_commands;
 }
 
 /* size: return number of custom commands */
-size_t CustomCommandHandler::size()
+size_t CustomHandler::size()
 {
 	return m_commands["commands"].size();
 }
 
 /* write: write all commands to file */
-void CustomCommandHandler::write()
+void CustomHandler::write()
 {
 	utils::writeJSON("customcmds.json", m_commands);
 }
 
 /* validName: check if cmd is a valid command name */
-bool CustomCommandHandler::validName(const std::string &cmd, bool loading)
+bool CustomHandler::validName(const std::string &cmd, bool loading)
 {
 	/* if CCH is loading commands from file (in constructor) */
 	/* it doesn't need to check against its stored commands */
@@ -203,13 +203,13 @@ bool CustomCommandHandler::validName(const std::string &cmd, bool loading)
 		&& cmd.length() < 20 && (loading ? true : getcom(cmd)->empty());
 }
 
-std::string CustomCommandHandler::error() const
+std::string CustomHandler::error() const
 {
 	return m_error;
 }
 
 /* format: format a response for cmd */
-std::string CustomCommandHandler::format(const Json::Value *cmd,
+std::string CustomHandler::format(const Json::Value *cmd,
 		const std::string &nick) const
 {
 	size_t ind;
@@ -250,7 +250,7 @@ std::string CustomCommandHandler::format(const Json::Value *cmd,
 }
 
 /* cmdcheck: check the validity of a command and add missing fields */
-bool CustomCommandHandler::cmdcheck()
+bool CustomHandler::cmdcheck()
 {
 	time_t t;
 	bool added;

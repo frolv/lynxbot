@@ -1,6 +1,6 @@
 #include <string.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../stringparse.h"
 #include "../TimerManager.h"
@@ -22,12 +22,12 @@ static int app;
 /* active setting */
 static int set;
 
-static int edit(char *out, CustomCommandHandler *cch, struct command *c,
+static int edit(char *out, CustomHandler *cch, struct command *c,
 		time_t cooldown, TimerManager *tm);
-static int rename(char *out, CustomCommandHandler *cch, struct command *c);
+static int rename(char *out, CustomHandler *cch, struct command *c);
 
 /* editcom: modify a custom command */
-int CommandHandler::editcom(char *out, struct command *c)
+int CmdHandler::editcom(char *out, struct command *c)
 {
 	time_t cooldown;
 	int ren, status;
@@ -121,7 +121,7 @@ int CommandHandler::editcom(char *out, struct command *c)
 }
 
 /* edit: edit a custom command */
-static int edit(char *out, CustomCommandHandler *cch, struct command *c,
+static int edit(char *out, CustomHandler *cch, struct command *c,
 		time_t cooldown, TimerManager *tm)
 {
 	int cd, resp;
@@ -195,7 +195,7 @@ static int edit(char *out, CustomCommandHandler *cch, struct command *c,
 }
 
 /* rename: rename a custom command */
-static int rename(char *out, CustomCommandHandler *cch, struct command *c)
+static int rename(char *out, CustomHandler *cch, struct command *c)
 {
 	int status;
 

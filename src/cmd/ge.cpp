@@ -2,7 +2,7 @@
 #include <cpr/cpr.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../stringparse.h"
 #include "../strfmt.h"
@@ -20,7 +20,7 @@ static const char *EXCHANGE_API =
 static int64_t extract_price(const char *resp);
 
 /* ge: look up item prices */
-int CommandHandler::ge(char *out, struct command *c)
+int CmdHandler::ge(char *out, struct command *c)
 {
 	int64_t amt, price;
 	cpr::Response resp;

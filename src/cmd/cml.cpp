@@ -1,7 +1,7 @@
 #include <cpr/cpr.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../skills.h"
 #include "../strfmt.h"
@@ -29,7 +29,7 @@ static int updatecml(char *rsn, char *err);
 static int read_current_top(char *out, int id);
 
 /* cml: interact with crystalmathlabs trackers */
-int CommandHandler::cml(char *out, struct command *c)
+int CmdHandler::cml(char *out, struct command *c)
 {
 	int usenick, update, page, id, status;
 	char buf[RSN_BUF];

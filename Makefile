@@ -41,12 +41,12 @@ _JSONH=json.h json-forwards.h
 JSONH=$(patsubst %,include/json/%,$(_JSONH))
 JSOND=$(LIBD)/json
 
-_LYNXBOT=CommandHandler.o config.o CustomCommandHandler.o EventManager.o\
+_LYNXBOT=CmdHandler.o config.o CustomHandler.o EventManager.o\
 	 ExpressionParser.o GEReader.o Giveaway.o main.o Moderator.o OpMap.o\
 	 RSNList.o SelectionWheel.o skills.o TimerManager.o TwitchBot.o\
 	 URLParser.o
 LYNXBOT=$(patsubst %,$(OBJ)/%,$(_LYNXBOT))
-_LBH=CommandHandler.h config.h EventManager.h ExpressionParser.h GEReader.h\
+_LBH=CmdHandler.h config.h EventManager.h ExpressionParser.h GEReader.h\
      Giveaway.h lynxbot.h Moderator.h OpMap.h RSNList.h SelectionWheel.h\
      skills.h TimerManager.h TwitchBot.h URLParser.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))

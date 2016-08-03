@@ -1,6 +1,6 @@
 #include <string.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -11,7 +11,7 @@ CMDDESCR("respond to questions");
 CMDUSAGE("$8ball QUESTION");
 
 /* 8ball: respond to questions */
-int CommandHandler::eightball(char *out, struct command *c)
+int CmdHandler::eightball(char *out, struct command *c)
 {
 	int opt, status;
 	char *last;

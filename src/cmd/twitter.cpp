@@ -1,6 +1,6 @@
 #include <tw/reader.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -11,7 +11,7 @@ CMDDESCR("get information about a twitter user");
 CMDUSAGE("$twitter [-r] USER");
 
 /* twitter: get information about a twitter user */
-int CommandHandler::twitter(char *out, struct command *c)
+int CmdHandler::twitter(char *out, struct command *c)
 {
 	int recent;
 	tw::Reader reader(m_auth);

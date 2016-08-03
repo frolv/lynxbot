@@ -1,7 +1,7 @@
 #include <string.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../strfmt.h"
 #include "../stringparse.h"
@@ -22,7 +22,7 @@ static int lvltoxp(int x);
 static int xprange(char *out, struct command *c);
 
 /* xp: query experience information */
-int CommandHandler::xp(char *out, struct command *c)
+int CmdHandler::xp(char *out, struct command *c)
 {
 	int inv, range, status;
 	int64_t x;

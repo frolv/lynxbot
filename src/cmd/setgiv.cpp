@@ -1,6 +1,6 @@
 #include <string.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../Giveaway.h"
 #include "../option.h"
 #include "../stringparse.h"
@@ -21,7 +21,7 @@ static int process(char *out, Giveaway *g, struct command *c,
 		int type, int amt);
 
 /* setgiv: change giveaway settings */
-int CommandHandler::setgiv(char *out, struct command *c)
+int CmdHandler::setgiv(char *out, struct command *c)
 {
 	int setfollowers, settimer, setimages, type;
 	int64_t amt;

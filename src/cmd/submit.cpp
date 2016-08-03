@@ -1,7 +1,7 @@
 #include <time.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 #define MAX_PATH 512
@@ -14,7 +14,7 @@ CMDDESCR("submit a message to the streamer");
 CMDUSAGE("$submit MSG");
 
 /* submit: submit a message to the streamer */
-int CommandHandler::submit(char *out, struct command *c)
+int CmdHandler::submit(char *out, struct command *c)
 {
 	char path[MAX_PATH];
 	char buf[MAX_MSG];

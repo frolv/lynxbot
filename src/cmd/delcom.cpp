@@ -1,7 +1,7 @@
 #include <string.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -14,12 +14,12 @@ CMDUSAGE("$delcom CMD...");
 /* number of deleted and invalid commands */
 static size_t nd, ni;
 
-static void deletecom(CustomCommandHandler *ccmd, const char *cmd,
+static void deletecom(CustomHandler *ccmd, const char *cmd,
 		const char **del, const char **inv);
 static void formatoutput(char *out, const char **del, const char **inv);
 
 /* delcom: delete custom commands */
-int CommandHandler::delcom(char *out, struct command *c)
+int CmdHandler::delcom(char *out, struct command *c)
 {
 	const char **del, **inv;
 
@@ -72,7 +72,7 @@ int CommandHandler::delcom(char *out, struct command *c)
 }
 
 /* deletecom: delete a single command */
-static void deletecom(CustomCommandHandler *ccmd, const char *cmd,
+static void deletecom(CustomHandler *ccmd, const char *cmd,
 		const char **del, const char **inv)
 {
 	if (ccmd->delcom(cmd))

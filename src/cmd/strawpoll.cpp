@@ -2,7 +2,7 @@
 #include <json/json.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -25,7 +25,7 @@ static bool multi;
 static int create_poll(char *out, char *pollbuf, struct command *c);
 
 /* strawpoll: create polls */
-int CommandHandler::strawpoll(char *out, struct command *c)
+int CmdHandler::strawpoll(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {

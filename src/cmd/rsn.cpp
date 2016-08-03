@@ -2,7 +2,7 @@
 #include <string.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../RSNList.h"
 
@@ -17,7 +17,7 @@ static int invalidargs(struct command *c);
 static int rsn_action(char *out, RSNList *rsns, struct command *c);
 
 /* rsn: view and manage stored rsns */
-int CommandHandler::rsn(char *out, struct command *c)
+int CmdHandler::rsn(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {

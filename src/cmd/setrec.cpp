@@ -1,6 +1,6 @@
 #include <string.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -11,7 +11,7 @@ CMDDESCR("enable/disabe recurring messages");
 CMDUSAGE("$setrec on|off");
 
 /* setrec: enable and disable recurring messages */
-int CommandHandler::setrec(char *out, struct command *c)
+int CmdHandler::setrec(char *out, struct command *c)
 {
 	int opt, status;
 	static struct option long_opts[] = {

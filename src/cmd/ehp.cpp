@@ -2,7 +2,7 @@
 #include <cpr/cpr.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../strfmt.h"
 
@@ -28,7 +28,7 @@ static const char *EHP_DESC = "[EHP] EHP stands for efficient hours "
 static int lookup_player(char *out, const char *rsn);
 
 /* ehp: view players' ehp */
-int CommandHandler::ehp(char *out, struct command *c)
+int CmdHandler::ehp(char *out, struct command *c)
 {
 	int usenick, status;
 	char buf[RSN_BUF];

@@ -3,7 +3,7 @@
 #include <tw/oauth.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 #define MAX_URL 128
@@ -22,7 +22,7 @@ static int set_status(char *out, const char *channel, const char *status,
 		const cpr::Header *head);
 
 /* status: set channel status */
-int CommandHandler::status(char *out, struct command *c)
+int CmdHandler::status(char *out, struct command *c)
 {
 	const cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
 		{ "Authorization", "OAuth " + std::string(m_token) }};

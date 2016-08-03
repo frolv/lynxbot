@@ -2,7 +2,7 @@
 #include <ctime>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 #define MAX_URL 128
@@ -19,7 +19,7 @@ static const char *UPTIME_API = "https://api.twitch.tv/kraken/streams/";
 static int channel_uptime(char *out, const char *channel);
 
 /* uptime: check how long channel has been live */
-int CommandHandler::uptime(char *out, struct command *c)
+int CmdHandler::uptime(char *out, struct command *c)
 {
 	int opt, bot;
 	static struct option long_opts[] = {

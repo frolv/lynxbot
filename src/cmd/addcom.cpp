@@ -1,6 +1,6 @@
 #include <string.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 #include "../stringparse.h"
 
@@ -11,11 +11,11 @@ CMDDESCR("create a new custom command");
 /* command usage synopsis */
 CMDUSAGE("$addcom [-c CD] CMD RESPONSE");
 
-static int create(char *out, CustomCommandHandler *cch,
-		struct command *c, time_t cooldown);
+static int create(char *out, CustomHandler *cch, struct command *c,
+		time_t cooldown);
 
 /* addcom: create a new custom command */
-int CommandHandler::addcom(char *out, struct command *c)
+int CmdHandler::addcom(char *out, struct command *c)
 {
 	time_t cooldown;
 	int opt;
@@ -79,8 +79,8 @@ int CommandHandler::addcom(char *out, struct command *c)
 }
 
 /* create: create a custom command */
-static int create(char *out, CustomCommandHandler *cch,
-		struct command *c, time_t cooldown)
+static int create(char *out, CustomHandler *cch, struct command *c,
+		time_t cooldown)
 {
 	char *cmd;
 	char resp[MAX_MSG];

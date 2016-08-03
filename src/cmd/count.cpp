@@ -2,7 +2,7 @@
 #include <string.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -17,7 +17,7 @@ typedef std::unordered_map<std::string, uint16_t> countmap;
 static void getresults(char *out, countmap *count);
 
 /* count: manage message counts */
-int CommandHandler::count(char *out, struct command *c)
+int CmdHandler::count(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {

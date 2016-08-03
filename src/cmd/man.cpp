@@ -1,6 +1,6 @@
 #include <algorithm>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 #define MAX_URL 128
@@ -13,7 +13,7 @@ CMDDESCR("view command reference manuals");
 CMDUSAGE("$man CMD");
 
 /* man: view command reference manuals */
-int CommandHandler::man(char *out, struct command *c)
+int CmdHandler::man(char *out, struct command *c)
 {
 	Json::Value *ccmd;
 	char url[MAX_URL];

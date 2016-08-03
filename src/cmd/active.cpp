@@ -1,5 +1,5 @@
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -12,7 +12,7 @@ CMDUSAGE("$active");
 static const char *SP_HOST = "https://strawpoll.me";
 
 /* active: view current poll */
-int CommandHandler::active(char *out, struct command *c)
+int CmdHandler::active(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {

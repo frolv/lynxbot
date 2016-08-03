@@ -21,7 +21,7 @@
 #define MAX_LEN 128
 
 class Moderator;
-class CustomCommandHandler;
+class CustomHandler;
 class GEReader;
 class TimerManager;
 class EventManager;
@@ -31,22 +31,22 @@ class Giveaway;
 class RSNList;
 class ConfigReader;
 
-class CommandHandler {
+class CmdHandler {
 
 	public:
-		typedef int(CommandHandler::*cmdfun)(char *, struct command *);
+		typedef int(CmdHandler::*cmdfun)(char *, struct command *);
 		typedef std::unordered_map<std::string, cmdfun> commandMap;
 
-		CommandHandler(const char *name, const char *channel,
+		CmdHandler(const char *name, const char *channel,
 				const char *token, Moderator *mod,
 				URLParser *urlp, EventManager *evtp,
 				Giveaway *givp, ConfigReader *cfgr,
 				tw::Authenticator *auth);
-		~CommandHandler();
+		~CmdHandler();
 
 		void process_cmd(char *out, char *nick, char *cmdstr, perm_t p);
 		void process_resp(char *out, char *msg, char *nick);
-		bool isCounting() const;
+		bool counting() const;
 		void count(const std::string &nick, const std::string &message);
 
 	private:
@@ -59,7 +59,7 @@ class CommandHandler {
 		GEReader m_GEReader;
 		TimerManager m_cooldowns;
 		SelectionWheel m_wheel;
-		CustomCommandHandler *m_customCmds;
+		CustomHandler *m_customCmds;
 		EventManager *m_evtp;
 		Giveaway *m_givp;
 		RSNList m_rsns;
@@ -143,19 +143,19 @@ class CommandHandler {
 		uint8_t source(const std::string &cmd);
 		int getrsn(char *out, size_t len, const char *text,
 				const char *nick, int username = 0);
-		void populateCmds();
-		void populateHelp();
+		void populate_cmd();
+		void populate_help();
 };
 
-class CustomCommandHandler {
+class CustomHandler {
 
 	public:
-		CustomCommandHandler(CommandHandler::commandMap *defaultCmds,
+		CustomHandler(CmdHandler::commandMap *defaultCmds,
 				TimerManager *tm,
 				const std::string &wheelCmd,
 				const std::string &name,
 				const std::string &channel);
-		~CustomCommandHandler();
+		~CustomHandler();
 		bool isActive();
 		bool addcom(const std::string &cmd, std::string response,
 				const std::string &nick, time_t cooldown);
@@ -177,7 +177,7 @@ class CustomCommandHandler {
 
 	private:
 		bool m_active;
-		CommandHandler::commandMap *m_cmp;
+		CmdHandler::commandMap *m_cmp;
 		TimerManager *m_tmp;
 		const std::string m_wheelCmd;
 		const std::string m_name;

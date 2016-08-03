@@ -4,7 +4,7 @@
 #include <string.h>
 #include <utils.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 #define ALL	0
@@ -27,14 +27,14 @@ static int ign;
 /* which commands to search through */
 static int type;
 
-static int findcmds(char *out, const CommandHandler::commandMap *cmdmap,
+static int findcmds(char *out, const CmdHandler::commandMap *cmdmap,
 		const Json::Value *customs, const char *pat);
 static void format(char *out, const char **def, const char **cus);
 static void format_ul(char *out, const char **def, const char **cus);
 static int cmp(const void *a, const void *b);
 
 /* cgrep: find commands matching a pattern */
-int CommandHandler::cgrep(char *out, struct command *c)
+int CmdHandler::cgrep(char *out, struct command *c)
 {
 	int opt;
 	static struct option long_opts[] = {
@@ -85,7 +85,7 @@ int CommandHandler::cgrep(char *out, struct command *c)
 }
 
 /* findcmds: find any bot commands that match pat */
-static int findcmds(char *out, const CommandHandler::commandMap *cmdmap,
+static int findcmds(char *out, const CmdHandler::commandMap *cmdmap,
 		const Json::Value *customs, const char *pat)
 {
 	const char **def, **cus;

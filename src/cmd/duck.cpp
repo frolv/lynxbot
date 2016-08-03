@@ -1,6 +1,6 @@
 #include <tw/oauth.h>
 #include "command.h"
-#include "../CommandHandler.h"
+#include "../CmdHandler.h"
 #include "../option.h"
 
 /* full name of the command */
@@ -13,7 +13,7 @@ CMDUSAGE("$duck QUERY");
 static const char *DDG_QUERY = "https://duckduckgo.com/?q=";
 
 /* duck: search duckduckgo with a query string */
-int CommandHandler::duck(char *out, struct command *c)
+int CmdHandler::duck(char *out, struct command *c)
 {
 	char query[MAX_MSG];
 	int opt;
