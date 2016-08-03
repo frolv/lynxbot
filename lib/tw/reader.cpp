@@ -131,7 +131,7 @@ static std::string format_user(const Json::Value &resp)
 	tweets = resp["statuses_count"].asString();
 	followers = resp["followers_count"].asString();
 
-	output += "@" + name + ": " + utils::decode(desc) + " ";
+	output += "@" + name + ": " + desc + " ";
 	output += "(" + utils::formatInteger(tweets) + " tweet"
 		+ (tweets == "1" ? "" : "s") + ", ";
 	output += utils::formatInteger(followers) + " follower"

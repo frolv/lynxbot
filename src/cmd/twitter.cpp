@@ -1,54 +1,59 @@
 #include <tw/reader.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
 
 /* full name of the command */
-CMDNAME("twitter");
+_CMDNAME("twitter");
 /* description of the command */
-CMDDESCR("get information about a twitter user");
+_CMDDESCR("get information about a twitter user");
 /* command usage synopsis */
-CMDUSAGE("$twitter [-r] USER");
+_CMDUSAGE("$twitter [-r] USER");
 
 /* twitter: get information about a twitter user */
 std::string CommandHandler::twitter(char *out, struct command *c)
 {
-	std::string user;
-	bool recent;
+	int recent;
 	tw::Reader reader(m_auth);
 
 	int opt;
-	OptionParser op(c->fullCmd, "r");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "recent-tweet", NO_ARG, 'r' },
 		{ 0, 0, 0 }
 	};
 
-	recent = false;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	recent = 0;
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "r", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
-		case 'r':
-			recent = true;
-			break;
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
+		case 'r':
+			recent = 1;
+			break;
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length() ||
-			(user = c->fullCmd.substr(op.optind())).find(' ')
-			!= std::string::npos)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind != c->argc - 1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
 
-	if (!reader.read_user(user))
-		return CMDNAME + ": could not read user '" + user + "'";
+	if (!reader.read_user(c->argv[optind])) {
+		_sprintf(out, MAX_MSG, "%s: could not read user '%s'",
+				c->argv[0], c->argv[optind]);
+		return "";
+	}
 	if (recent)
 		reader.read_recent();
 
-	return "[TWITTER] " + reader.result();
+	_sprintf(out, MAX_MSG, "[TWITTER] %s", reader.result().c_str());
+	return "";
 }
