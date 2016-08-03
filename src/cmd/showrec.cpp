@@ -1,60 +1,62 @@
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+#include "../stringparse.h"
 
 /* full name of the command */
-CMDNAME("showrec");
+_CMDNAME("showrec");
 /* description of the command */
-CMDDESCR("show recurring messages");
+_CMDDESCR("show recurring messages");
 /* command usage synopsis */
-CMDUSAGE("$showrec [ID]");
+_CMDUSAGE("$showrec [ID]");
 
 /* listrec: show recurring messages */
 std::string CommandHandler::showrec(char *out, struct command *c)
 {
+	int64_t id;
+	int opt;
+	static struct option long_opts[] = {
+		{ "help", NO_ARG, 'h' },
+		{ 0, 0, 0 }
+	};
+
 	if (!P_ALMOD(c->privileges)) {
 		PERM_DENIED(out, c->nick, c->argv[0]);
 		return "";
 	}
 
-	std::string num;
-	size_t id;
-
-	int opt;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
-		{ "help", NO_ARG, 'h' },
-		{ 0, 0, 0 }
-	};
-
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length())
-		return m_evtp->messageList();
-
-	if ((num = c->fullCmd.substr(op.optind())).find(' ') != std::string::npos)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
-
-	/* show a single message */
-	try {
-		if ((id = std::stoi(num)) < 1 || id > 5
-				|| m_evtp->messages()->size() < id)
-			return CMDNAME + ": recurring message "
-				+ std::to_string(id) + " doesn't exist";
-	} catch (std::invalid_argument) {
-		return CMDNAME + ": invalid number -- '" + num + "'";
-	} catch (std::out_of_range) {
-		return CMDNAME + ": number too large";
+	if (optind == c->argc) {
+		_sprintf(out, MAX_MSG, "%s", m_evtp->messageList().c_str());
+		return "";
 	}
 
-	return m_evtp->message(id - 1);
+	if (optind != c->argc - 1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
+
+	/* show a single message */
+	if (!parsenum(c->argv[optind], &id))
+		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				c->argv[0], c->argv[optind]);
+	else if (id < 1 || (size_t)id > m_evtp->messages()->size())
+		_sprintf(out, MAX_MSG, "%s: recurring message %ld "
+				"doesn't exist", c->argv[0], id);
+	else
+		_sprintf(out, MAX_MSG, "%s", m_evtp->message(id - 1).c_str());
+	return "";
 }
