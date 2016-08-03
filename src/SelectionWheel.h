@@ -13,15 +13,14 @@ class SelectionWheel {
 		SelectionWheel();
 		~SelectionWheel();
 		bool isActive();
-		std::string name() const;
-		std::string cmd() const;
-		std::string desc() const;
-		std::string usage() const;
-		bool valid(const std::string &category) const;
-		std::string choose(const std::string &nick,
-			const std::string &category);
-		bool ready(const std::string &nick) const;
-		std::string selection(const std::string &nick) const;
+		const char *name() const;
+		const char *cmd() const;
+		const char *desc() const;
+		const char *usage() const;
+		bool valid(const char *category) const;
+		const char *choose(const char *nick, const char *category);
+		bool ready(const char *nick) const;
+		const char *selection(const char *nick) const;
 
 	private:
 		Json::Value m_data;

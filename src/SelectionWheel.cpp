@@ -5,14 +5,16 @@
 
 SelectionWheel::SelectionWheel()
 {
+	static const std::string reqs[6] = { "active", "name", "cmd",
+		"desc", "usage", "cooldown"};
+
+	srand(static_cast<uint32_t>(time(nullptr)));
 	if (!utils::readJSON("wheel.json", m_data)) {
 		std::cerr << "Could not read wheel.json. Wheel will be "
 			"disabled for this session." << std::endl;
 		m_active = false;
 		WAIT_INPUT();
 	} else {
-		static const std::string reqs[6] = { "active", "name", "cmd",
-			"desc", "usage", "cooldown"};
 		for (auto &s : reqs) {
 			if (!m_data.isMember("wheel" + s)) {
 				std::cerr << "wheel" << s << " variable is "
@@ -36,34 +38,36 @@ bool SelectionWheel::isActive()
 	return m_active;
 }
 
-bool SelectionWheel::valid(const std::string &category) const
+bool SelectionWheel::valid(const char *category) const
 {
 	return m_data["categories"].isMember(category);
 }
 
-std::string SelectionWheel::name() const
+const char *SelectionWheel::name() const
 {
-	return m_data["wheelname"].asString();
+	return m_data["wheelname"].asCString();
 }
 
-std::string SelectionWheel::cmd() const
+const char *SelectionWheel::cmd() const
 {
-	return m_data["wheelcmd"].asString();
+	return m_data["wheelcmd"].asCString();
 }
 
-std::string SelectionWheel::desc() const
+const char *SelectionWheel::desc() const
 {
-	return m_data["wheeldesc"].asString();
+	return m_data["wheeldesc"].asCString();
 }
 
-std::string SelectionWheel::usage() const
+const char *SelectionWheel::usage() const
 {
-	return m_data["wheelusage"].asString();
+	return m_data["wheelusage"].asCString();
 }
 
-std::string SelectionWheel::choose(const std::string &nick,
-	const std::string &category)
+const char *SelectionWheel::choose(const char *nick, const char *category)
 {
+	int ind;
+	const char *selection;
+
 	Json::Value &arr = m_data["categories"][category];
 	if (!arr.isArray()) {
 		std::cerr << "wheel.json is improperly configured. "
@@ -73,15 +77,14 @@ std::string SelectionWheel::choose(const std::string &nick,
 	}
 
 	/* choose value at random from given category */
-	srand(static_cast<uint32_t>(time(nullptr)));
-	uint16_t index = rand() % arr.size();
-	std::string selection = arr[index].asString();
+	ind = rand() % arr.size();
+	selection = arr[ind].asCString();
 	add(nick, selection);
 
 	return selection;
 }
 
-bool SelectionWheel::ready(const std::string &nick) const
+bool SelectionWheel::ready(const char *nick) const
 {
 	return m_stored.find(nick) == m_stored.end()
 		|| time(nullptr) - lastUsed(nick) >= m_cooldown;
@@ -102,11 +105,11 @@ void SelectionWheel::add(const std::string &nick, const std::string &selection)
 	}
 }
 
-std::string SelectionWheel::selection(const std::string &nick) const
+const char *SelectionWheel::selection(const char *nick) const
 {
 	if (m_stored.find(nick) == m_stored.end())
 		return "";
-	return m_stored.find(nick)->second.first;
+	return m_stored.find(nick)->second.first.c_str();
 }
 
 time_t SelectionWheel::lastUsed(const std::string &nick) const
