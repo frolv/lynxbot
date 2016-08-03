@@ -1,50 +1,57 @@
+#include <string.h>
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+#include "../strfmt.h"
+#include "../stringparse.h"
 
 /* full name of the command */
-CMDNAME("xp");
+_CMDNAME("xp");
 /* description of the command */
-CMDDESCR("query experience information");
+_CMDDESCR("query experience information");
 /* command usage synopsis */
-CMDUSAGE("$xp [-i|-r] NUM");
+_CMDUSAGE("$xp [-i|-r] NUM");
+/* -r flag usage */
+static const char *RUSAGE = "$xp -r START STOP";
 
 #define MAX_XP 0xBEBC200
 
 static int xptolvl(int x);
 static int lvltoxp(int x);
-static std::string xprange(const std::string &args);
+static void xprange(char *out, struct command *c);
 
 /* xp: query experience information */
 std::string CommandHandler::xp(char *out, struct command *c)
 {
-	bool inv, range;
-	int x;
-	std::string lvl;
+	int inv, range;
+	int64_t x;
+	char num[RSN_BUF];
 
 	int opt;
-	OptionParser op(c->fullCmd, "ir");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "inverse", NO_ARG, 'i' },
 		{ "range", NO_ARG, 'r' },
 		{ 0, 0, 0 }
 	};
 
-	inv = range = false;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	inv = range = 0;
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "ir", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case 'i':
-			inv = true;
+			inv = 1;
 			break;
 		case 'r':
-			range = true;
+			range = 1;
 			break;
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
@@ -52,36 +59,50 @@ std::string CommandHandler::xp(char *out, struct command *c)
 
 	if (range) {
 		if (inv)
-			return CMDNAME + ": cannot use -i with -r";
-		return xprange(c->fullCmd.substr(op.optind()));
+			_sprintf(out, MAX_MSG, "%s: cannot use -i with -r",
+					c->argv[0]);
+		else
+			xprange(out, c);
+		return "";
 	}
 
-	if (op.optind() == c->fullCmd.length()
-			|| (lvl = c->fullCmd.substr(op.optind())).find(' ')
-			!= std::string::npos)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
-
-	try {
-		if ((x = std::stoi(lvl)) < 0)
-			return CMDNAME + ": number cannot be negative";
-	} catch (std::invalid_argument) {
-		return CMDNAME + ": invalid number -- '" + lvl + "'";
-	} catch (std::out_of_range) {
-		return CMDNAME + ": number too large";
+	if (optind != c->argc - 1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
 	}
 
+	if (!parsenum(c->argv[optind], &x)) {
+		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				c->argv[0], c->argv[optind]);
+		return "";
+	}
+	if (x < 0) {
+		_sprintf(out, MAX_MSG, "%s: number cannot be "
+				"negative", c->argv[0]);
+		return "";
+	}
 
 	if (inv) {
-		if (x > MAX_XP)
-			return CMDNAME + ": xp cannot exceed 200m";
-		return "[XP] " + utils::formatInteger(std::to_string(x))
-			+ " xp: level " + std::to_string(xptolvl(x));
+		if (x > MAX_XP) {
+			_sprintf(out, MAX_MSG, "%s: xp cannot exceed 200m",
+					c->argv[0]);
+		} else {
+			fmtnum(num, RSN_BUF, c->argv[optind]);
+			_sprintf(out, MAX_MSG, "[XP] %s xp: level %d",
+					num, xptolvl(x));
+		}
+		return "";
 	}
 
-	if (x < 1 || x > 126)
-		return CMDNAME + ": level must be between 1-126";
-	return "[XP] level " + std::to_string(x) + ": "
-		+ utils::formatInteger(std::to_string(lvltoxp(x))) + " xp";
+	if (x < 1 || x > 126) {
+		_sprintf(out, MAX_MSG, "%s: level must be between 1-126",
+				c->argv[0]);
+	} else {
+		_sprintf(out, MAX_MSG, "%d", lvltoxp(x));
+		fmtnum(num, RSN_BUF, out);
+		_sprintf(out, MAX_MSG, "[XP] level %ld: %s xp", x, num);
+	}
+	return "";
 }
 
 /* xptolvl: calculate the level at x xp */
@@ -114,48 +135,57 @@ static int lvltoxp(int x)
 }
 
 /* xprange: calcuate the amount of xp between the levels in args */
-static std::string xprange(const std::string &args)
+static void xprange(char *out, struct command *c)
 {
-	std::string a, b;
-	size_t i;
-	int x, y;
+	int64_t x, y;
+	char *a, *b;
+	char num[RSN_BUF];
 
-	i = 0;
-	/* read the first level */
-	while (i < args.length() && !isspace(args[i]) && args[i] != '-')
-		a += args[i++];
-	if (i == args.length())
-		return CMDNAME + ": must provide two levels";
-
-	++i;
-	/* read the second level */
-	while (i < args.length() && !isspace(args[i]))
-		b += args[i++];
-	if (i != args.length())
-		return CMDNAME + ": must provide two levels";
-
-	try {
-		if ((x = std::stoi(a)) < 1 || x > 126)
-			return CMDNAME + ": level must be between 1-126";
-	} catch (std::invalid_argument) {
-		return CMDNAME + ": invalid number -- '" + a + "'";
-	} catch (std::out_of_range) {
-		return CMDNAME + ": number too large";
-	}
-	try {
-		if ((y = std::stoi(b)) < 1 || y > 126)
-			return CMDNAME + ": level must be between 1-126";
-	} catch (std::invalid_argument) {
-		return CMDNAME + ": invalid number -- '" + b + "'";
-	} catch (std::out_of_range) {
-		return CMDNAME + ": number too large";
+	if (optind == c->argc || optind < c->argc - 2) {
+		_USAGEMSG(out, _CMDNAME, RUSAGE);
+		return;
 	}
 
-	if (x > y)
-		return CMDNAME + ": invalid range";
+	a = c->argv[optind];
+	if (optind == c->argc - 1) {
+		if (!(b = strchr(a, '-')) || !b[1]) {
+			_sprintf(out, MAX_MSG, "%s: must provide two levels",
+					c->argv[0]);
+			return;
+		}
+		*b++ = '\0';
+	} else {
+		b = c->argv[optind + 1];
+	}
+
+	if (!parsenum(a, &x)) {
+		_sprintf(out, MAX_MSG, "%s: invalid number: %s", c->argv[0], a);
+		return;
+	}
+	if (x < 1 || x > 126) {
+		_sprintf(out, MAX_MSG, "%s: level must be between 1-126",
+				c->argv[0]);
+		return;
+	}
+	if (!parsenum(b, &y)) {
+		_sprintf(out, MAX_MSG, "%s: invalid number: %s", c->argv[0], b);
+		return;
+	}
+	if (y < 1 || y > 126) {
+		_sprintf(out, MAX_MSG, "%s: level must be between 1-126",
+				c->argv[0]);
+		return;
+	}
+
+	if (x > y) {
+		_sprintf(out, MAX_MSG, "%s: invalid range", c->argv[0]);
+		return;
+	}
+
 	x = lvltoxp(x);
 	y = lvltoxp(y);
 
-	return "[XP] level " + a + "-" + b + ": "
-		+ utils::formatInteger(std::to_string(y - x)) + " xp";
+	_sprintf(out, MAX_MSG, "%ld", y - x);
+	fmtnum(num, RSN_BUF, out);
+	_sprintf(out, MAX_MSG, "[XP] level %s-%s: %s xp", a, b, num);
 }
