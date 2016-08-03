@@ -71,19 +71,6 @@ std::string CommandHandler::strawpoll(char *out, struct command *c)
 	}
 
 	create_poll(out, m_poll, c);
-	/* if (binary && tokens.size() != 1) */
-	/* 	return c->cmd + ": cannot provide options for binary poll"; */
-	/* if (!binary && tokens.size() < 3) */
-	/* 	return c->cmd + ": poll must have a question and at least " */
-	/* 		"two answers"; */
-
-	/* std::string poll; */
-	/* if ((poll = create_poll(tokens, err)).empty()) { */
-	/* 	m_poll[0] = '\0'; */
-	/* 	return c->cmd + ": " + err; */
-	/* } */
-	/* strcpy(m_poll, poll.c_str()); */
-	/* return "[STRAWPOLL] " + STRAWPOLL_HOST + "/" + poll; */
 	return "";
 }
 
