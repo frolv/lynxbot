@@ -1,56 +1,76 @@
-#include <ctime>
-#include <iomanip>
+#include <time.h>
 #include <utils.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+
+#define MAX_PATH 512
 
 /* full name of the command */
-CMDNAME("submit");
+_CMDNAME("submit");
 /* description of the command */
-CMDDESCR("submit a message to the streamer");
+_CMDDESCR("submit a message to the streamer");
 /* command usage synopsis */
-CMDUSAGE("$submit MSG");
+_CMDUSAGE("$submit MSG");
 
 /* submit: submit a message to the streamer */
 std::string CommandHandler::submit(char *out, struct command *c)
 {
-	std::string output = "@" + std::string(c->nick) + ", ";
-	const std::string path = utils::configdir() + utils::config("submit");
-	std::ofstream writer(path, std::ios::app);
+	char path[MAX_PATH];
+	char buf[MAX_MSG];
 	time_t t;
-	std::tm tm;
+	struct tm msgtm;
+	FILE *f;
 
 	int opt;
-	OptionParser op(c->fullCmd, "");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length())
-		return USAGEMSG(CMDNAME, CMDUSAGE);
+	if (optind == c->argc) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
+
+	_sprintf(path, MAX_PATH, "%s%s", utils::configdir().c_str(),
+			utils::config("submit").c_str());
+	if (!(f = fopen(path, "a"))) {
+		_sprintf(out, MAX_MSG, "%s: could not open submission file",
+				c->argv[0]);
+		perror(path);
+		return "";
+	}
 
 	t = time(nullptr);
+
 #ifdef __linux__
-	tm = *localtime(&t);
+	msgtm = *localtime(&t);
 #endif
 #ifdef _WIN32
-	localtime_s(&tm, &t);
+	localtime_s(&msgtm, &t);
 #endif
-	writer << "[" << std::put_time(&tm, "%Y-%m-%d %R") << "] ";
-	writer << c->nick << ": " << c->fullCmd.substr(op.optind()) << std::endl;
+	strftime(buf, MAX_MSG, "%Y-%m-%d %R", &msgtm);
+	fprintf(f, "[%s] ", buf);
+	argvcat(buf, c->argc, c->argv, optind, 1);
+	fprintf(f, "%s: %s\n", c->nick, buf);
+	fclose(f);
 
-	return output + "your topic has been submitted. Thank you.";
+	_sprintf(out, MAX_MSG, "@%s, your topic has been submitted. Thank you.",
+			c->nick);
+	return "";
 }
