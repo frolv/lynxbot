@@ -1,77 +1,94 @@
+#include <string.h>
 #include "command.h"
 #include "../CommandHandler.h"
-#include "../OptionParser.h"
+#include "../option.h"
+
+#define MAX_URL 256
 
 /* full name of the command */
-CMDNAME("whitelist");
+_CMDNAME("whitelist");
 /* description of the command */
-CMDDESCR("exempt websites from moderation");
+_CMDDESCR("exempt websites from moderation");
 /* command usage synopsis */
-CMDUSAGE("$whitelist [-d] [SITE]");
+_CMDUSAGE("$whitelist [-d] [SITE]");
 
 /* whitelist: exempt websites from moderation */
 std::string CommandHandler::whitelist(char *out, struct command *c)
 {
-	if (!P_ALMOD(c->privileges)) {
-		PERM_DENIED(out, c->nick, c->argv[0]);
-		return "";
-	}
-
-	std::string website, outp;
-	bool del;
+	char url[MAX_URL];
+	char *s;
+	int del;
 
 	int opt;
-	OptionParser op(c->fullCmd, "d");
-	static struct OptionParser::option long_opts[] = {
+	static struct option long_opts[] = {
 		{ "delete", NO_ARG, 'd' },
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
-	del = false;
-	while ((opt = op.getopt_long(long_opts)) != EOF) {
+	if (!P_ALMOD(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return "";
+	}
+
+	del = 0;
+	opt_init();
+	while ((opt = getopt_long(c->argc, c->argv, "d", long_opts)) != EOF) {
 		switch (opt) {
 		case 'd':
-			del = true;
+			del = 1;
 			break;
 		case 'h':
-			return HELPMSG(CMDNAME, CMDUSAGE, CMDDESCR);
+			_HELPMSG(out, _CMDNAME, _CMDUSAGE, _CMDDESCR);
+			return "";
 		case '?':
-			return std::string(op.opterr());
+			_sprintf(out, MAX_MSG, "%s", opterr());
+			return "";
 		default:
 			return "";
 		}
 	}
 
-	if (op.optind() == c->fullCmd.length()) {
+	if (optind == c->argc) {
 		if (del)
-			return CMDNAME + ": no website specified";
-		/* no args: show current whitelist */
-		return m_modp->getFormattedWhitelist();
-	}
-
-	if ((website = c->fullCmd.substr(op.optind())).find(' ')
-				!= std::string::npos)
-		return USAGEMSG(CMDNAME, CMDUSAGE);
-
-	outp = "@" + std::string(c->nick) + ", ";
-	if (m_parsep->parse(website)) {
-		/* extract domain and add to whitelist */
-		website = m_parsep->getLast()->subdomain
-			+ m_parsep->getLast()->domain;
-		if (del) {
-			if (m_modp->delurl(website))
-				return outp + website + " has been "
-					"removed from the whitelist.";
-			else
-				return outp + website + " is not on "
-					"the whitelist.";
-		}
-		if (m_modp->whitelist(website))
-			return outp + website + " has been whitelisted.";
+			_sprintf(out, MAX_MSG, "%s: no website specified",
+					c->argv[0]);
 		else
-			return outp + website + " is already on the whitelist.";
+			_sprintf(out, MAX_MSG, "[WHITELIST] %s",
+					m_modp->getFormattedWhitelist().c_str());
+		return "";
 	}
 
-	return CMDNAME + ": invalid URL: " + website;
+	if (optind != c->argc - 1) {
+		_USAGEMSG(out, _CMDNAME, _CMDUSAGE);
+		return "";
+	}
+
+	_sprintf(out, MAX_MSG, "@%s, ", c->nick);
+	s = strchr(out, '\0');
+	if (m_parsep->parse(c->argv[optind])) {
+		/* extract domain and add to whitelist */
+		_sprintf(url, MAX_URL, "%s%s",
+				m_parsep->getLast()->subdomain.c_str(),
+				m_parsep->getLast()->domain.c_str());
+		if (del) {
+			if (m_modp->delurl(url))
+				_sprintf(s, MAX_MSG, "%s has been removed "
+						"from the whitelist.", url);
+			else
+				_sprintf(s, MAX_MSG, "%s is not on the "
+						"whitelist.", url);
+			return "";
+		}
+		if (m_modp->whitelist(url))
+			_sprintf(s, MAX_MSG, "%s has beed whitelisted.", url);
+		else
+			_sprintf(s, MAX_MSG, "%s is already on the whitelist.",
+					url);
+		return "";
+	}
+
+	_sprintf(out, MAX_MSG, "%s: invalid URL: %s", c->argv[0],
+			c->argv[optind]);
+	return "";
 }
