@@ -32,7 +32,6 @@ void check_channel(const char *channel)
 	_sprintf(url, MAX_URL, "%s%s", UPTIME_API, channel);
 	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
 
-	printf("%s\n", resp.text.c_str());
 	if (!reader.parse(resp.text, val)) {
 		fprintf(stderr, "could not parse uptime response\n");
 		return;
