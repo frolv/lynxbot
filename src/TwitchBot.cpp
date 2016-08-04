@@ -5,6 +5,7 @@
 #include <tw/reader.h>
 #include <utils.h>
 #include "lynxbot.h"
+#include "timers.h"
 #include "TwitchBot.h"
 
 static const char *TWITCH_SERV = "irc.twitch.tv";
@@ -25,6 +26,10 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 {
 	std::string err;
 	bool error;
+
+	init_timers(m_channel + 1);
+	/* create uptime checking event */
+	m_event.add("checkuptime", 60, time(nullptr));
 
 	/* create giveaway checking event */
 	m_event.add("checkgiveaway", 10, time(nullptr));
@@ -397,6 +402,10 @@ void TwitchBot::tick()
 			if (m_giveaway.checkConditions(time(nullptr)))
 				send_msg(m_giveaway.giveaway().c_str());
 			m_event.setUsed("checkgiveaway");
+		}
+		if (m_event.ready("checkuptime")) {
+			check_channel(m_channel + 1);
+			m_event.setUsed("checkuptime");
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}

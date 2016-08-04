@@ -4,8 +4,7 @@
 #include "command.h"
 #include "../CmdHandler.h"
 #include "../option.h"
-
-#define MAX_URL 128
+#include "../timers.h"
 
 /* full name of the command */
 CMDNAME("uptime");
@@ -14,9 +13,7 @@ CMDDESCR("check how long channel has been live");
 /* command usage synopsis */
 CMDUSAGE("$uptime [-b]");
 
-static const char *UPTIME_API = "https://api.twitch.tv/kraken/streams/";
-
-static int channel_uptime(char *out, const char *channel);
+static int chan_uptime(char *out, const char *channel);
 
 /* uptime: check how long channel has been live */
 int CmdHandler::uptime(char *out, struct command *c)
@@ -53,38 +50,24 @@ int CmdHandler::uptime(char *out, struct command *c)
 
 	if (bot) {
 		_sprintf(out, MAX_MSG, "[UPTIME] %s has been running for %s.",
-				m_name, + utils::conv_time((time(NULL)
-						- m_evtp->init())).c_str());
+				m_name, utils::conv_time(bot_uptime()).c_str());
 		return EXIT_SUCCESS;
 	}
 
-	return channel_uptime(out, m_channel);
+	return chan_uptime(out, m_channel);
 }
 
 /* channel_uptime: get how long channel has been streaming */
-static int channel_uptime(char *out, const char *channel)
+static int chan_uptime(char *out, const char *channel)
 {
-	cpr::Response resp;
-	Json::Reader reader;
-	Json::Value val;
-	char url[MAX_URL];
-	int status;
+	time_t up;
 
-	status = EXIT_SUCCESS;
-	_sprintf(url, MAX_URL, "%s%s", UPTIME_API, channel);
-	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
-
-	if (!reader.parse(resp.text, val)) {
-		_sprintf(out, MAX_MSG, "%s: could not parse response", CMDNAME);
-		status = EXIT_FAILURE;
-	} else if (val["stream"].isNull()) {
+	if (!(up = channel_uptime()))
 		_sprintf(out, MAX_MSG, "[UPTIME] %s is not currently live.",
 				channel);
-	} else {
-		_sprintf(out, MAX_MSG, "[UPTIME] %s has been live for %s.",
-				channel, utils::parse_time(
-					val["stream"]["created_at"].asString(),
-					false).c_str());
-	}
-	return status;
+	else
+		_sprintf(out, MAX_MSG, "[UPTIME] %s has been live "
+				"for %s.", channel,
+				utils::conv_time(channel_uptime()).c_str());
+	return EXIT_SUCCESS;
 }
