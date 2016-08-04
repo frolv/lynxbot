@@ -55,6 +55,7 @@ class TwitchBot {
 		std::string m_resubMsg;
 		std::thread m_tick;
 		bool m_urltitles;
+		bool m_familiarity;
 
 		bool send_raw(char *data);
 		bool send_msg(const char *msg);

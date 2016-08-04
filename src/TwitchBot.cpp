@@ -24,6 +24,7 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 	m_mod(&m_parser, cfgr)
 {
 	std::string err;
+	bool error;
 
 	/* create giveaway checking event */
 	m_event.add("checkgiveaway", 10, time(nullptr));
@@ -32,13 +33,24 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 	parseSubMsg(m_subMsg, "submessage");
 	parseSubMsg(m_resubMsg, "resubmessage");
 
+	error = false;
 	if (!utils::parseBool(m_urltitles, m_cfgr->get("url_titles"),
 				err)) {
 		fprintf(stderr, "%s: url_titles: %s (defaulting to true)\n",
 				m_cfgr->path().c_str(), err.c_str());
 		m_urltitles = true;
-		WAIT_INPUT();
+		error = true;
 	}
+	if (!utils::parseBool(m_familiarity, m_cfgr->get("familiarity_mode"),
+				err)) {
+		fprintf(stderr, "%s: familiarity_mode: %s "
+				"(defaulting to false)\n",
+				m_cfgr->path().c_str(), err.c_str());
+		m_familiarity = false;
+		error = true;
+	}
+	if (error)
+		WAIT_INPUT();
 }
 
 TwitchBot::~TwitchBot()
@@ -196,7 +208,7 @@ bool TwitchBot::process_privmsg(char *privmsg)
 	if (P_ISREG(p) && m_mod.active() && moderate(nick, msg))
 		return true;
 
-	if (msg[0] == '$' && msg[1]) {
+	if ((msg[0] == '$' || (m_familiarity && msg[0] == '!')) && msg[1]) {
 		m_cmdhnd.process_cmd(out, nick, msg + 1, p);
 		send_msg(out);
 		return true;
