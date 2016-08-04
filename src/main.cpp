@@ -138,7 +138,8 @@ int main(int argc, char **argv)
 /* launchBot: start a TwitchBot instance */
 void launchBot(struct botset *b, ConfigReader *cfgr)
 {
-	TwitchBot bot(b->name, b->channel, b->pass, b->access_token, cfgr);
+	TwitchBot bot(b->name.c_str(), b->channel.c_str(), b->pass.c_str(),
+			b->access_token.c_str(), cfgr);
 
 	if (bot.connect())
 		bot.server_loop();
@@ -168,30 +169,29 @@ void twitchAuth(struct botset *b)
 	status = open_win(AUTH_URL);
 #endif
 	if (status != 0) {
-		std::cerr << "Could not open web browser" << std::endl;
-		std::cout << "Please navigate to the following URL manually:"
-			<< std::endl << AUTH_URL << std::endl;
+		fprintf(stderr, "Could not open web browser\nPlease navigate "
+				"to the following URL manually:\n%s\n,",
+				AUTH_URL);
 		WAIT_INPUT();
 	}
 
-	std::cout << "The authorization URL has been opened in your "
-		"browser. Sign in with your Twitch account and click "
-		"\"Authorize\" to proceed." << std::endl;
+	printf("The authorization URL has been opened in your browser. Sign in "
+			"with your Twitch account and click \"Authorize\" to "
+			"proceed.\n");
 
-	std::cout << "After you have clicked \"Authorize\" you will be "
-		"redirected to a webpage with an access token." << std::endl;
-	std::cout << "Enter the access token here:" << std::endl;
+	printf("After you have clicked \"Authorize\" you will be redirected to "
+			"a webpage with an access token.\nEnter the access "
+			"token here:\n");
 	while (token.empty())
 		std::getline(std::cin, token);
 
 	if (authtest(token, user)) {
 		b->access_token = token;
-		std::cout << "Welcome, " << user << "!\n" << BOT_NAME
-			<< " has successfully been authorized with "
-			"your Twitch account." << std::endl;
+		printf("Welcome, %s!\n %s has successfully been authorized "
+				"with your Twitch account.",
+				user.c_str(), BOT_NAME);
 	} else {
-		std::cout << "Invalid token. Authorization failed."
-			<< std::endl;
+		printf("Invalid token. Authorization failed.\n");
 	}
 	WAIT_INPUT();
 }
@@ -220,7 +220,7 @@ void checkupdates()
 	static const char *accept = "application/vnd.github.v3+json";
 	Json::Value js;
 	Json::Reader reader;
-	char c;
+	int c;
 
 	if (strstr(BOT_VERSION, "-beta"))
 		return;

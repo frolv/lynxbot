@@ -25,8 +25,8 @@ class URLParser;
 class TwitchBot {
 
 	public:
-		TwitchBot(const std::string &name, const std::string &channel,
-			const std::string &password, const std::string &token,
+		TwitchBot(const char *name, const char *channel,
+			const char *password, const char *token,
 			ConfigReader *cfgr);
 		~TwitchBot();
 		bool connected() const;
@@ -38,9 +38,9 @@ class TwitchBot {
 		bool m_connected;
 		/* twitch.tv information */
 		const char *m_password;
-		const std::string m_nick;
-		const std::string m_channel;
-		const std::string m_token;
+		const char *m_nick;
+		const char *m_channel;
+		const char *m_token;
 
 		tw::Authenticator m_auth;
 		struct client m_client;
@@ -57,13 +57,14 @@ class TwitchBot {
 		bool m_urltitles;
 
 		bool send_raw(char *data);
-		bool send_msg(const std::string &msg);
+		bool send_msg(const char *msg);
 		bool pong(char *ping);
 		void process_data(char *data);
 		bool process_privmsg(char *privmsg);
 		bool process_url(char *out);
 		bool parse_privmsg(char *privmsg, char **nick,
 				char **msg, perm_t *p);
+		bool process_submsg(char *out, char *submsg);
 		bool moderate(const std::string &nick, const std::string &msg);
 		void tick();
 		void parseSubMsg(std::string &fmt, const std::string &which);

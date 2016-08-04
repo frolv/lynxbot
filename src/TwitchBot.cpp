@@ -12,15 +12,15 @@ static const char *TWITCH_PORT = "80";
 
 static std::string urltitle(const std::string &resp);
 
-TwitchBot::TwitchBot(const std::string &nick, const std::string &channel,
-		const std::string &password, const std::string &token,
+TwitchBot::TwitchBot(const char *name, const char *channel,
+		const char *password, const char *token,
 		ConfigReader *cfgr)
-	: m_connected(false), m_password(password.c_str()), m_nick(nick),
+	: m_connected(false), m_password(password), m_nick(name),
 	m_channel(channel), m_token(token),
-	m_cmdhnd(nick.c_str(), channel.substr(1).c_str(), token.c_str(), &m_mod,
-			&m_parser, &m_event, &m_giveaway, cfgr, &m_auth),
+	m_cmdhnd(name, channel + 1, token, &m_mod, &m_parser, &m_event,
+			&m_giveaway, cfgr, &m_auth),
 	m_cfgr(cfgr), m_event(cfgr),
-	m_giveaway(channel.substr(1), time(nullptr), cfgr),
+	m_giveaway(channel + 1, time(nullptr), cfgr),
 	m_mod(&m_parser, cfgr)
 {
 	std::string err;
@@ -62,9 +62,9 @@ bool TwitchBot::connect()
 	/* send required IRC data: PASS, NICK, USER */
 	_sprintf(buf, MAX_MSG, "PASS %s", m_password);
 	send_raw(buf);
-	_sprintf(buf, MAX_MSG, "NICK %s", m_nick.c_str());
+	_sprintf(buf, MAX_MSG, "NICK %s", m_nick);
 	send_raw(buf);
-	_sprintf(buf, MAX_MSG, "USER %s", m_nick.c_str());
+	_sprintf(buf, MAX_MSG, "USER %s", m_nick);
 	send_raw(buf);
 
 	/* enable tags in PRIVMSGs */
@@ -74,14 +74,14 @@ bool TwitchBot::connect()
 	/* _sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/membership"); */
 	/* send_raw(buf); */
 
-	if (strlen(m_channel.c_str()) > 32) {
+	if (strlen(m_channel) > 32) {
 		fprintf(stderr, "error: channel name too long\n");
 		disconnect();
 		return false;
 	}
 
 	/* join channel */
-	_sprintf(buf, MAX_MSG, "JOIN %s", m_channel.c_str());
+	_sprintf(buf, MAX_MSG, "JOIN %s", m_channel);
 	send_raw(buf);
 
 	m_tick = std::thread(&TwitchBot::tick, this);
@@ -102,7 +102,7 @@ void TwitchBot::server_loop()
 	char buf[MAX_MSG];
 
 	/* continously receive data from server */
-	while (true) {
+	while (1) {
 		if (cread(&m_client, buf, MAX_MSG) <= 0) {
 			fprintf(stderr, "No data received. Exiting.\n");
 			disconnect();
@@ -138,12 +138,11 @@ bool TwitchBot::send_raw(char *data)
 }
 
 /* send_msg: send a PRIVMSG to the connected channel */
-bool TwitchBot::send_msg(const std::string &msg)
+bool TwitchBot::send_msg(const char *msg)
 {
 	char buf[MAX_MSG + 64];
 
-	_sprintf(buf, MAX_MSG + 64, "PRIVMSG %s :%s",
-			m_channel.c_str(), msg.c_str());
+	_sprintf(buf, MAX_MSG + 64, "PRIVMSG %s :%s", m_channel, msg);
 	return send_raw(buf);
 }
 
@@ -180,7 +179,8 @@ bool TwitchBot::process_privmsg(char *privmsg)
 	char out[MAX_MSG];
 
 	if (strstr(privmsg, ":twitchnotify") == privmsg) {
-		/* parse_submsg(privmsg); */
+		if (process_submsg(out, privmsg))
+			send_msg(out);
 		return true;
 	}
 
@@ -198,8 +198,7 @@ bool TwitchBot::process_privmsg(char *privmsg)
 
 	if (msg[0] == '$' && msg[1]) {
 		m_cmdhnd.process_cmd(out, nick, msg + 1, p);
-		if (*out)
-			send_msg(out);
+		send_msg(out);
 		return true;
 	}
 
@@ -220,8 +219,7 @@ bool TwitchBot::process_privmsg(char *privmsg)
 	}
 
 	/* check for responses */
-	m_cmdhnd.process_resp(out, msg, nick);
-	if (*out)
+	if (m_cmdhnd.process_resp(out, msg, nick))
 		send_msg(out);
 
 	return true;
@@ -277,7 +275,7 @@ bool TwitchBot::parse_privmsg(char *privmsg, char **nick, char **msg, perm_t *p)
 
 	/* set user privileges */
 	P_RESET(*p);
-	if (strcmp(*nick, m_channel.c_str() + 1) == 0
+	if (strcmp(*nick, m_channel + 1) == 0
 			|| strcmp(*nick, "brainsoldier") == 0)
 		P_STOWN(*p);
 	tok = strstr(privmsg, "mod=");
@@ -291,7 +289,7 @@ bool TwitchBot::parse_privmsg(char *privmsg, char **nick, char **msg, perm_t *p)
 	tok = strchr(s + 1, '#');
 	s = strchr(tok, ' ');
 	*s = '\0';
-	if (strcmp(tok, m_channel.c_str()) != 0)
+	if (strcmp(tok, m_channel) != 0)
 		return false;
 
 	/* read actual message into msg */
@@ -302,25 +300,66 @@ bool TwitchBot::parse_privmsg(char *privmsg, char **nick, char **msg, perm_t *p)
 	return true;
 }
 
+/* process_submsg: extract data from subscription message and write to out */
+bool TwitchBot::process_submsg(char *out, char *submsg)
+{
+	char *nick, *s, *t;
+	const char *msg;
+
+	if (!strstr(submsg, "subscribed")) {
+		*out = '\0';
+		return false;
+	}
+
+	s = strchr(submsg, '#');
+	t = strchr(s, ' ');
+	*t = '\0';
+	if (strcmp(s, m_channel) != 0)
+		return false;
+
+	nick = t + 2;
+	t = strchr(nick, ' ');
+	*t = '\0';
+
+	if ((s = strstr(t + 1, "for"))) {
+		s += 4;
+		t = strchr(s, ' ');
+		*t = '\0';
+		msg = m_resubMsg.c_str();
+	} else {
+		s = submsg;
+		*s = '1';
+		s[1] = '\0';
+		msg = m_subMsg.c_str();
+	}
+	_sprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, s).c_str());
+	return true;
+}
+
 /* moderate: check if message is valid; penalize nick if not */
 bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 {
-	std::string reason;
+	static const std::string warnings[3] = { "first", "second", "FINAL" };
+	std::string reason, warning;
+	char out[MAX_MSG];
+	int offenses, t;
+
 	if (!m_mod.isValidMsg(msg, nick, reason)) {
-		uint8_t offenses = m_mod.getOffenses(nick);
-		static const std::string warnings[3] = { "first", "second",
-			"FINAL" };
-		std::string warning;
+		offenses = m_mod.getOffenses(nick);
 		if (offenses < 4) {
 			/* timeout for 2^(offenses - 1) minutes */
-			uint16_t t = 60 * (uint16_t)pow(2, offenses - 1);
-			send_msg("/timeout " + nick + " " + std::to_string(t));
+			t = 60 * (int)pow(2, offenses - 1);
+			_sprintf(out, MAX_MSG, "/timeout %s %d", nick.c_str(), t);
+			send_msg(out);
 			warning = warnings[offenses - 1] + " warning";
 		} else {
-			send_msg("/ban " + nick);
+			_sprintf(out, MAX_MSG, "/ban %s", nick.c_str());
+			send_msg(out);
 			warning = "Permanently banned";
 		}
-		send_msg(nick + " - " + reason + " (" + warning + ")");
+		_sprintf(out, MAX_MSG, "%s - %s (%s)", nick.c_str(),
+				reason.c_str(), warning.c_str());
+		send_msg(out);
 		return true;
 	}
 
@@ -336,14 +375,15 @@ void TwitchBot::tick()
 				i < m_event.messages()->size(); ++i) {
 			if (m_event.ready("msg" + std::to_string(i))) {
 				if (m_event.messagesActive())
-					send_msg(((*m_event.messages())[i]).first);
+					send_msg(((*m_event.messages())[i])
+							.first.c_str());
 				m_event.setUsed("msg" + std::to_string(i));
 				break;
 			}
 		}
 		if (m_giveaway.active() && m_event.ready("checkgiveaway")) {
 			if (m_giveaway.checkConditions(time(nullptr)))
-				send_msg(m_giveaway.giveaway());
+				send_msg(m_giveaway.giveaway().c_str());
 			m_event.setUsed("checkgiveaway");
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -405,7 +445,7 @@ std::string TwitchBot::formatSubMsg(const std::string &format,
 			ins = "@" + n + ",";
 			break;
 		case 'c':
-			ins = m_channel.substr(1);
+			ins = m_channel + 1;
 			break;
 		case 'm':
 			ins = m;
