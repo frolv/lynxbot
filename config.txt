@@ -96,6 +96,10 @@ recurring = {
 
 #### Other settings ####
 
+# If set to true, chat messages starting with a ! will also be processed
+# as commands in addition to those starting with a $
+familiarity_mode = false
+
 # Whether to post webpage titles when URLs are posted in chat
 url_titles = true
 
