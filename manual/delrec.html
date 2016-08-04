@@ -39,6 +39,7 @@
 
         <h3>SYNOPSIS</h3>
         <pre><code>$delrec <u>ID</u></code></pre>
+        <pre><code>$delrec -a</code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>delrec</strong> deletes the recurring message with ID
@@ -47,8 +48,13 @@
         <p>The IDs of recurring messages can be obtained through the
         <strong>showrec</strong> command.</p>
 
+        <p>Alternatively, the <strong>-a</strong> option can be used to
+        delete all recurring messages.</p>
+
         <h3>OPTIONS</h3>
         <dl compact="">
+          <dt><b>-a, --all</b></dt>
+          <dd>deletes all recurring messages</dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
         </dl>
