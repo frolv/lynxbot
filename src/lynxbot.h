@@ -15,7 +15,7 @@
 #define _BOT_VER_MAJOR	"1"
 #define _BOT_VER_MINOR	"4"
 #define _BOT_VER_PATCH	"4"
-#define _BOT_VER_SUF	"-beta"
+#define _BOT_VER_SUF	""
 
 /* full version string */
 #define BOT_VERSION "v" _BOT_VER_MAJOR "." _BOT_VER_MINOR "."\
