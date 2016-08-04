@@ -45,9 +45,9 @@ class CmdHandler {
 		~CmdHandler();
 
 		void process_cmd(char *out, char *nick, char *cmdstr, perm_t p);
-		void process_resp(char *out, char *msg, char *nick);
+		int process_resp(char *out, char *msg, char *nick);
 		bool counting() const;
-		void count(const std::string &nick, const std::string &message);
+		void count(const char *nick, const char *message);
 
 	private:
 		const char *m_name;
@@ -140,7 +140,7 @@ class CmdHandler {
 		int whitelist(char *out, struct command *c);
 
 		/* helpers */
-		uint8_t source(const std::string &cmd);
+		uint8_t source(const char *cmd);
 		int getrsn(char *out, size_t len, const char *text,
 				const char *nick, int username = 0);
 		void populate_cmd();

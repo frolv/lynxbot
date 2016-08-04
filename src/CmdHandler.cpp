@@ -89,7 +89,7 @@ void CmdHandler::process_cmd(char *out, char *nick, char *cmdstr, perm_t p)
 }
 
 /* process_resp: test a message against auto response regexes */
-void CmdHandler::process_resp(char *out, char *msg, char *nick)
+int CmdHandler::process_resp(char *out, char *msg, char *nick)
 {
 	const std::string message(msg);
 	std::regex respreg;
@@ -98,7 +98,7 @@ void CmdHandler::process_resp(char *out, char *msg, char *nick)
 
 	*out = '\0';
 	if (!m_responding)
-		return;
+		return 0;
 
 	/* test the message against all response regexes */
 	for (auto &val : m_responses["responses"]) {
@@ -111,10 +111,11 @@ void CmdHandler::process_resp(char *out, char *msg, char *nick)
 			m_cooldowns.setUsed(name);
 			_sprintf(out, MAX_MSG, "@%s, %s", nick,
 					val["response"].asCString());
-			return;
+			return 1;
 		}
 
 	}
+	return 0;
 }
 
 bool CmdHandler::counting() const
@@ -123,7 +124,7 @@ bool CmdHandler::counting() const
 }
 
 /* count: count message in m_messageCounts */
-void CmdHandler::count(const std::string &nick, const std::string &message)
+void CmdHandler::count(const char *nick, const char *message)
 {
 	std::string msg = message;
 	std::transform(msg.begin(), msg.end(), msg.begin(), tolower);
@@ -182,7 +183,7 @@ void CmdHandler::process_custom(char *out, struct command *c)
 }
 
 /* source: determine whether cmd is a default or custom command */
-uint8_t CmdHandler::source(const std::string &cmd)
+uint8_t CmdHandler::source(const char *cmd)
 {
 	if (m_defaultCmds.find(cmd) != m_defaultCmds.end())
 		return DEFAULT;
