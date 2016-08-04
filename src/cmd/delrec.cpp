@@ -9,7 +9,7 @@ CMDNAME("delrec");
 /* description of the command */
 CMDDESCR("delete a recurring message");
 /* command usage synopsis */
-CMDUSAGE("$delrec ID");
+CMDUSAGE("$delrec [-a] ID");
 /* -a flag usage synposis */
 static const char *AUSAGE = "$delrec -a";
 
