@@ -29,7 +29,7 @@ int CmdHandler::xp(char *out, struct command *c)
 	char num[RSN_BUF];
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "inverse", NO_ARG, 'i' },
 		{ "range", NO_ARG, 'r' },
@@ -39,7 +39,7 @@ int CmdHandler::xp(char *out, struct command *c)
 	inv = range = 0;
 	status = EXIT_SUCCESS;
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "ir", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "ir", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
@@ -51,7 +51,7 @@ int CmdHandler::xp(char *out, struct command *c)
 			range = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -69,14 +69,14 @@ int CmdHandler::xp(char *out, struct command *c)
 		return status;
 	}
 
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
-	if (!parsenum(c->argv[optind], &x)) {
+	if (!parsenum(c->argv[l_optind], &x)) {
 		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
-				c->argv[0], c->argv[optind]);
+				c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 	if (x < 0) {
@@ -91,7 +91,7 @@ int CmdHandler::xp(char *out, struct command *c)
 					c->argv[0]);
 			status = EXIT_FAILURE;
 		} else {
-			fmtnum(num, RSN_BUF, c->argv[optind]);
+			fmtnum(num, RSN_BUF, c->argv[l_optind]);
 			_sprintf(out, MAX_MSG, "[XP] %s xp: level %d",
 					num, xptolvl(x));
 		}
@@ -148,13 +148,13 @@ static int xprange(char *out, struct command *c)
 	char *a, *b;
 	char num[RSN_BUF];
 
-	if (optind == c->argc || optind < c->argc - 2) {
+	if (l_optind == c->argc || l_optind < c->argc - 2) {
 		USAGEMSG(out, CMDNAME, RUSAGE);
 		return EXIT_FAILURE;
 	}
 
-	a = c->argv[optind];
-	if (optind == c->argc - 1) {
+	a = c->argv[l_optind];
+	if (l_optind == c->argc - 1) {
 		if (!(b = strchr(a, '-')) || !b[1]) {
 			_sprintf(out, MAX_MSG, "%s: must provide two levels",
 					c->argv[0]);
@@ -162,7 +162,7 @@ static int xprange(char *out, struct command *c)
 		}
 		*b++ = '\0';
 	} else {
-		b = c->argv[optind + 1];
+		b = c->argv[l_optind + 1];
 	}
 
 	if (!parsenum(a, &x)) {

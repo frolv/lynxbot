@@ -20,7 +20,7 @@ int CmdHandler::whitelist(char *out, struct command *c)
 	int del, status;
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "delete", NO_ARG, 'd' },
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
@@ -34,7 +34,7 @@ int CmdHandler::whitelist(char *out, struct command *c)
 	del = 0;
 	status = EXIT_SUCCESS;
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "d", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "d", long_opts)) != EOF) {
 		switch (opt) {
 		case 'd':
 			del = 1;
@@ -43,14 +43,14 @@ int CmdHandler::whitelist(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		if (del) {
 			_sprintf(out, MAX_MSG, "%s: no website specified",
 					c->argv[0]);
@@ -62,14 +62,14 @@ int CmdHandler::whitelist(char *out, struct command *c)
 		return status;
 	}
 
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
 	_sprintf(out, MAX_MSG, "@%s, ", c->nick);
 	s = strchr(out, '\0');
-	if (m_parsep->parse(c->argv[optind])) {
+	if (m_parsep->parse(c->argv[l_optind])) {
 		/* extract domain and add to whitelist */
 		_sprintf(url, MAX_URL, "%s%s",
 				m_parsep->getLast()->subdomain.c_str(),
@@ -92,6 +92,6 @@ int CmdHandler::whitelist(char *out, struct command *c)
 	}
 
 	_sprintf(out, MAX_MSG, "%s: invalid URL: %s", c->argv[0],
-			c->argv[optind]);
+			c->argv[l_optind]);
 	return EXIT_FAILURE;
 }

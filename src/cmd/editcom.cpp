@@ -33,7 +33,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 	int ren, status;
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "active", REQ_ARG, 'A'},
 		{ "append", NO_ARG, 'a'},
 		{ "cooldown", REQ_ARG, 'c'},
@@ -57,13 +57,13 @@ int CmdHandler::editcom(char *out, struct command *c)
 	cooldown = -1;
 	set = ren = app = 0;
 	status = EXIT_SUCCESS;
-	while ((opt = getopt_long(c->argc, c->argv, "A:ac:r", long_opts))
+	while ((opt = l_getopt_long(c->argc, c->argv, "A:ac:r", long_opts))
 			!= EOF) {
 		switch (opt) {
 		case 'A':
-			if (strcmp(optarg, "on") == 0) {
+			if (strcmp(l_optarg, "on") == 0) {
 				set = ON;
-			} else if (strcmp(optarg, "off") == 0) {
+			} else if (strcmp(l_optarg, "off") == 0) {
 				set = OFF;
 			} else {
 				_sprintf(out, MAX_MSG, "%s: -A setting must "
@@ -76,9 +76,9 @@ int CmdHandler::editcom(char *out, struct command *c)
 			break;
 		case 'c':
 			/* user provided a cooldown */
-			if (!parsenum(optarg, &cooldown)) {
+			if (!parsenum(l_optarg, &cooldown)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
-						c->argv[0], optarg);
+						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (cooldown < 0) {
@@ -94,14 +94,14 @@ int CmdHandler::editcom(char *out, struct command *c)
 			ren = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
@@ -131,14 +131,14 @@ static int edit(char *out, CustomHandler *cch, struct command *c,
 
 	/* determine which parts are being changed */
 	cd = cooldown != -1;
-	resp = optind != c->argc - 1;
+	resp = l_optind != c->argc - 1;
 
-	argvcat(response, c->argc, c->argv, optind + 1, 1);
+	argvcat(response, c->argc, c->argv, l_optind + 1, 1);
 
 	if (app) {
-		if ((com = cch->getcom(c->argv[optind]))->empty()) {
+		if ((com = cch->getcom(c->argv[l_optind]))->empty()) {
 			_sprintf(out, MAX_MSG, "%s: not a command: $%s",
-					c->argv[0], c->argv[optind]);
+					c->argv[0], c->argv[l_optind]);
 			return EXIT_FAILURE;
 		}
 		strcpy(buf, response);
@@ -146,30 +146,30 @@ static int edit(char *out, CustomHandler *cch, struct command *c,
 				(*com)["response"].asCString(), buf);
 	}
 
-	if (!cch->editcom(c->argv[optind], response, cooldown)) {
+	if (!cch->editcom(c->argv[l_optind], response, cooldown)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());
 		return EXIT_FAILURE;
 	}
 	if (!cd && !resp && !set) {
 		_sprintf(out, MAX_MSG, "@%s, command $%s was unchanged",
-				c->nick, c->argv[optind]);
+				c->nick, c->argv[l_optind]);
 		return EXIT_SUCCESS;
 	}
 
 	/* build an output string detailing changes */
 	_sprintf(out, MAX_MSG, "@%s, command $%s has been",
-			c->nick, c->argv[optind]);
+			c->nick, c->argv[l_optind]);
 	if (set) {
 		if (set == ON) {
-			if (!cch->activate(c->argv[optind])) {
+			if (!cch->activate(c->argv[l_optind])) {
 				_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 						cch->error().c_str());
 				return EXIT_FAILURE;
 			}
 			strcat(out, " activated");
 		} else {
-			cch->deactivate(c->argv[optind]);
+			cch->deactivate(c->argv[l_optind]);
 			strcat(out, " deactivated");
 		}
 	}
@@ -185,8 +185,8 @@ static int edit(char *out, CustomHandler *cch, struct command *c,
 		}
 		if (cd) {
 			/* reset cooldown in TimerManager */
-			tm->remove(c->argv[optind]);
-			tm->add(c->argv[optind], cooldown);
+			tm->remove(c->argv[l_optind]);
+			tm->add(c->argv[l_optind], cooldown);
 			_sprintf(out, MAX_MSG, "a %lds cooldown", cooldown);
 		}
 	}
@@ -199,17 +199,17 @@ static int rename(char *out, CustomHandler *cch, struct command *c)
 {
 	int status;
 
-	if (optind != c->argc - 2) {
+	if (l_optind != c->argc - 2) {
 		USAGEMSG(out, CMDNAME, RUSAGE);
 		status = EXIT_FAILURE;
-	} else if (!cch->rename(c->argv[optind], c->argv[optind + 1])) {
+	} else if (!cch->rename(c->argv[l_optind], c->argv[l_optind + 1])) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());
 		status = EXIT_FAILURE;
 	} else {
 		_sprintf(out, MAX_MSG, "@%s, command $%s has been renamed "
-				"to $%s", c->nick, c->argv[optind],
-				c->argv[optind + 1]);
+				"to $%s", c->nick, c->argv[l_optind],
+				c->argv[l_optind + 1]);
 		status = EXIT_SUCCESS;
 	}
 	return status;

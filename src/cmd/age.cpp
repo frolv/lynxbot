@@ -26,7 +26,7 @@ int CmdHandler::age(char *out, struct command *c)
 	const char *msg;
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "follow", NO_ARG, 'f' },
 		{ "help", NO_ARG, 'h' },
 		{ "sub", NO_ARG, 's' },
@@ -36,7 +36,7 @@ int CmdHandler::age(char *out, struct command *c)
 	opt_init();
 	url[0] = '\0';
 	msg = NULL;
-	while ((opt = getopt_long(c->argc, c->argv, "fs", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "fs", long_opts)) != EOF) {
 		switch (opt) {
 		case 'f':
 			_sprintf(url, MAX_MSG, "%s/users/%s/follows/channels/%s",
@@ -52,14 +52,14 @@ int CmdHandler::age(char *out, struct command *c)
 			msg = "subscribed to";
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc || !url[0]) {
+	if (l_optind != c->argc || !url[0]) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}

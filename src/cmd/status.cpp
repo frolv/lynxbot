@@ -31,7 +31,7 @@ int CmdHandler::status(char *out, struct command *c)
 	int append, status;
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "append", NO_ARG, 'a' },
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
@@ -46,7 +46,7 @@ int CmdHandler::status(char *out, struct command *c)
 	append = 0;
 	buf[0] = '\0';
 	status = EXIT_SUCCESS;
-	while ((opt = getopt_long(c->argc, c->argv, "a", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "a", long_opts)) != EOF) {
 		switch (opt) {
 		case 'a':
 			append = 1;
@@ -55,7 +55,7 @@ int CmdHandler::status(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -63,14 +63,14 @@ int CmdHandler::status(char *out, struct command *c)
 	}
 
 	/* get the current status if no arg provided or if appending */
-	if (optind == c->argc || append) {
+	if (l_optind == c->argc || append) {
 		if (!curr_status(buf, m_channel, &head)) {
 			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		if (append) {
 			_sprintf(out, MAX_MSG, "%s: no text to append",
 					c->argv[0]);
@@ -84,7 +84,7 @@ int CmdHandler::status(char *out, struct command *c)
 
 	if (append)
 		strcat(buf, " ");
-	argvcat(buf + strlen(buf), c->argc, c->argv, optind, 1);
+	argvcat(buf + strlen(buf), c->argc, c->argv, l_optind, 1);
 
 	return set_status(out, m_channel, buf, &head);
 }

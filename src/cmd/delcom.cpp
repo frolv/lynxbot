@@ -24,7 +24,7 @@ int CmdHandler::delcom(char *out, struct command *c)
 	const char **del, **inv;
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
@@ -36,13 +36,13 @@ int CmdHandler::delcom(char *out, struct command *c)
 
 	opt_init();
 	nd = ni = 0;
-	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -55,7 +55,7 @@ int CmdHandler::delcom(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
@@ -63,8 +63,8 @@ int CmdHandler::delcom(char *out, struct command *c)
 	del = (const char **)malloc(m_customCmds->size() * sizeof(*del));
 	inv = (const char **)malloc(m_customCmds->size() * sizeof(*inv));
 
-	for (; optind < c->argc; ++optind)
-		deletecom(m_customCmds, c->argv[optind], del, inv);
+	for (; l_optind < c->argc; ++l_optind)
+		deletecom(m_customCmds, c->argv[l_optind], del, inv);
 	formatoutput(out, del, inv);
 	free(del);
 	free(inv);

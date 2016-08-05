@@ -27,7 +27,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 	int64_t amt;
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "followers", NO_ARG, 'f' },
 		{ "help", NO_ARG, 'h' },
 		{ "image", NO_ARG, 'i' },
@@ -38,7 +38,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 
 	opt_init();
 	amt = setfollowers = settimer = setimages = 0;
-	while ((opt = getopt_long(c->argc, c->argv, "fin:t", long_opts))
+	while ((opt = l_getopt_long(c->argc, c->argv, "fin:t", long_opts))
 			!= EOF) {
 		switch (opt) {
 		case 'f':
@@ -51,9 +51,9 @@ int CmdHandler::setgiv(char *out, struct command *c)
 			setimages = 1;
 			break;
 		case 'n':
-			if (!parsenum(optarg, &amt)) {
+			if (!parsenum(l_optarg, &amt)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
-						c->argv[0], optarg);
+						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (amt < 1) {
@@ -66,7 +66,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 			settimer = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -80,9 +80,9 @@ int CmdHandler::setgiv(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (optind != c->argc - 1 || (strcmp(c->argv[optind], "on") != 0
-				&& strcmp(c->argv[optind], "off") != 0
-				&& strcmp(c->argv[optind], "check") != 0)) {
+	if (l_optind != c->argc - 1 || (strcmp(c->argv[l_optind], "on") != 0
+				&& strcmp(c->argv[l_optind], "off") != 0
+				&& strcmp(c->argv[l_optind], "check") != 0)) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
@@ -103,7 +103,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 	if (setimages)
 		type = IMAGE;
 
-	if (strcmp(c->argv[optind], "check") == 0) {
+	if (strcmp(c->argv[l_optind], "check") == 0) {
 		_sprintf(out, MAX_MSG, "@%s, %s", c->nick,
 				m_givp->currentSettings(type).c_str());
 		return EXIT_SUCCESS;
@@ -127,7 +127,7 @@ static int process(char *out, Giveaway *g, struct command *c,
 	_sprintf(out, MAX_MSG, "@%s, ", c->nick);
 	s = strchr(out, '\0');
 
-	if (strcmp(c->argv[optind], "on") == 0) {
+	if (strcmp(c->argv[l_optind], "on") == 0) {
 		switch (type) {
 		case FOLLOW:
 			g->setFollowers(true, amt);

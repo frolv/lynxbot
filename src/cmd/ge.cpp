@@ -30,7 +30,7 @@ int CmdHandler::ge(char *out, struct command *c)
 	char *s;
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "amount", REQ_ARG, 'n' },
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
@@ -43,15 +43,15 @@ int CmdHandler::ge(char *out, struct command *c)
 
 	opt_init();
 	amt = 1;
-	while ((opt = getopt_long(c->argc, c->argv, "n:", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "n:", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case 'n':
-			if (!parsenum_mult(optarg, &amt)) {
+			if (!parsenum_mult(l_optarg, &amt)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
-						c->argv[0], optarg);
+						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (amt < 0) {
@@ -61,19 +61,19 @@ int CmdHandler::ge(char *out, struct command *c)
 			}
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
-	argvcat(buf, c->argc, c->argv, optind, 1);
+	argvcat(buf, c->argc, c->argv, l_optind, 1);
 	while ((s = strchr(buf, '_')))
 		*s = ' ';
 

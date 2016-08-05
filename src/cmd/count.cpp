@@ -20,7 +20,7 @@ static void getresults(char *out, countmap *count);
 int CmdHandler::count(char *out, struct command *c)
 {
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
@@ -31,25 +31,25 @@ int CmdHandler::count(char *out, struct command *c)
 	}
 
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
-	if (strcmp(c->argv[optind], "start") == 0) {
+	if (strcmp(c->argv[l_optind], "start") == 0) {
 		/* begin a new count */
 		if (m_counting) {
 			_sprintf(out, MAX_MSG, "%s: count is already running",
@@ -61,7 +61,7 @@ int CmdHandler::count(char *out, struct command *c)
 		m_counting = true;
 		_sprintf(out, MAX_MSG, "Message counting has begun. Prepend "
 				"your message with a '+' to have it counted.");
-	} else if (strcmp(c->argv[optind], "stop") == 0) {
+	} else if (strcmp(c->argv[l_optind], "stop") == 0) {
 		/* end the current count */
 		if (!m_counting) {
 			_sprintf(out, MAX_MSG, "%s: no active count",
@@ -71,7 +71,7 @@ int CmdHandler::count(char *out, struct command *c)
 		m_counting = false;
 		_sprintf(out, MAX_MSG, "Count ended. Use \"$count display\" "
 				"to view results.");
-	} else if (strcmp(c->argv[optind], "display") == 0) {
+	} else if (strcmp(c->argv[l_optind], "display") == 0) {
 		/* display results from last count */
 		if (m_counting)
 			_sprintf(out, MAX_MSG, "%s: end count before "

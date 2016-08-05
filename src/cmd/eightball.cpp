@@ -15,20 +15,20 @@ int CmdHandler::eightball(char *out, struct command *c)
 {
 	int opt, status;
 	char *last;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
 	opt_init();
 	status = EXIT_SUCCESS;
-	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -37,7 +37,7 @@ int CmdHandler::eightball(char *out, struct command *c)
 
 	last = c->argv[c->argc - 1];
 	last += strlen(last) - 1;
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		status = EXIT_FAILURE;
 	} else if (*last != '?') {

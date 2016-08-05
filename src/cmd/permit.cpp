@@ -15,7 +15,7 @@ int CmdHandler::permit(char *out, struct command *c)
 {
 	int opt;
 	int64_t amt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "amount", REQ_ARG, 'n' },
 		{ "session", NO_ARG, 's' },
@@ -29,15 +29,15 @@ int CmdHandler::permit(char *out, struct command *c)
 
 	opt_init();
 	amt = 1;
-	while ((opt = getopt_long(c->argc, c->argv, "n:s", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "n:s", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case 'n':
-			if (!parsenum(optarg, &amt)) {
+			if (!parsenum(l_optarg, &amt)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
-						c->argv[0], optarg);
+						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (amt < 1) {
@@ -50,26 +50,26 @@ int CmdHandler::permit(char *out, struct command *c)
 			amt = -1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
-	m_modp->permit(c->argv[optind], amt);
+	m_modp->permit(c->argv[l_optind], amt);
 	if (amt == -1)
 		_sprintf(out, MAX_MSG, "[PERMIT] %s has been granted permission"
 				" to post links for the duration of this "
-				"session.", c->argv[optind]);
+				"session.", c->argv[l_optind]);
 	else
 		_sprintf(out, MAX_MSG, "[PERMIT] %s has been granted permission"
-				" to post %ld link%s.", c->argv[optind], amt,
+				" to post %ld link%s.", c->argv[l_optind], amt,
 				amt == 1 ? "" : "s");
 	return EXIT_SUCCESS;
 }

@@ -5,8 +5,8 @@
 #define INV_OPT 0
 #define ERR_SIZE 256
 
-int optind;
-char *optarg;
+int l_optind;
+char *l_optarg;
 
 static int optopt;
 static char *next;
@@ -14,31 +14,31 @@ static char error[ERR_SIZE];
 
 static int parseopt(int argc, char **argv, const char *optstr, int c);
 static int parselong(int argc, char **argv,
-		const struct option *longopts, char *lopt);
+		const struct l_option *longopts, char *lopt);
 
 /* opt_init: reset all getopt variables */
 void opt_init()
 {
-	optind = 0;
+	l_optind = 0;
 	optopt = '\0';
-	optarg = next = NULL;
+	l_optarg = next = NULL;
 	error[0] = '\0';
 }
 
 /* getopt: parse command options */
-int getopt(int argc, char **argv, const char *optstr)
+int l_getopt(int argc, char **argv, const char *optstr)
 {
-	optarg = NULL;
+	l_optarg = NULL;
 	error[0] = '\0';
 	if (!next || !*next) {
-		if (++optind == argc || *argv[optind] != '-'
-				|| strcmp(argv[optind], "-") == 0)
+		if (++l_optind == argc || *argv[l_optind] != '-'
+				|| strcmp(argv[l_optind], "-") == 0)
 			return EOF;
-		if (strcmp(argv[optind], "--") == 0) {
-			++optind;
+		if (strcmp(argv[l_optind], "--") == 0) {
+			++l_optind;
 			return EOF;
 		}
-		next = argv[optind] + 1;
+		next = argv[l_optind] + 1;
 	}
 
 	optopt = *next++;
@@ -49,20 +49,20 @@ int getopt(int argc, char **argv, const char *optstr)
  * getopt_long: parse command options with suppport
  * for long options starting with '--'
  */
-int getopt_long(int argc, char **argv, const char *optstr,
-		const struct option *longopts)
+int l_getopt_long(int argc, char **argv, const char *optstr,
+		const struct l_option *longopts)
 {
-	optarg = NULL;
+	l_optarg = NULL;
 	error[0] = '\0';
 	if (!next || !*next) {
-		if (++optind == argc || *argv[optind] != '-'
-				|| strcmp(argv[optind], "-") == 0)
+		if (++l_optind == argc || *argv[l_optind] != '-'
+				|| strcmp(argv[l_optind], "-") == 0)
 			return EOF;
-		if (strcmp(argv[optind], "--") == 0) {
-			++optind;
+		if (strcmp(argv[l_optind], "--") == 0) {
+			++l_optind;
 			return EOF;
 		}
-		next = argv[optind] + 1;
+		next = argv[l_optind] + 1;
 	}
 
 	/* long option */
@@ -73,7 +73,7 @@ int getopt_long(int argc, char **argv, const char *optstr,
 	return parseopt(argc, argv, optstr, optopt);
 }
 
-char *opterr()
+char *l_opterr()
 {
 	return error;
 }
@@ -95,14 +95,14 @@ static int parseopt(int argc, char **argv, const char *optstr, int c)
 	case NO_ARG:
 		return c;
 	case REQ_ARG:
-		if (!*(optarg = next)) {
-			if (++optind == argc) {
+		if (!*(l_optarg = next)) {
+			if (++l_optind == argc) {
 				_sprintf(error, ERR_SIZE, "%s: option requires "
 						"an argument -- '%c'",
 						argv[0], c);
 				return '?';
 			}
-			optarg = argv[optind];
+			l_optarg = argv[l_optind];
 			next = NULL;
 		}
 		next = NULL;
@@ -116,7 +116,7 @@ static int parseopt(int argc, char **argv, const char *optstr, int c)
 
 /* parselong: process a single long option */
 static int parselong(int argc, char **argv,
-		const struct option *longopts, char *lopt)
+		const struct l_option *longopts, char *lopt)
 {
 	if ((next = strchr(lopt, '=')))
 		*next = '\0';
@@ -134,15 +134,15 @@ static int parselong(int argc, char **argv,
 			return longopts->val;
 		}
 		if (!next) {
-			if (++optind == argc) {
+			if (++l_optind == argc) {
 				_sprintf(error, ERR_SIZE, "%s: option '%s' "
 						"requires an argument",
 						argv[0], lopt);
 				return '?';
 			}
-			optarg = argv[optind];
+			l_optarg = argv[l_optind];
 		} else {
-			optarg = next + 1;
+			l_optarg = next + 1;
 		}
 		next = NULL;
 		return longopts->val;

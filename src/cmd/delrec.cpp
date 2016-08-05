@@ -18,7 +18,7 @@ int CmdHandler::delrec(char *out, struct command *c)
 {
 	int opt, all;
 	int64_t id;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "all", NO_ARG, 'a' },
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
@@ -31,7 +31,7 @@ int CmdHandler::delrec(char *out, struct command *c)
 
 	opt_init();
 	all = 0;
-	while ((opt = getopt_long(c->argc, c->argv, "a", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "a", long_opts)) != EOF) {
 		switch (opt) {
 		case 'a':
 			all = 1;
@@ -40,7 +40,7 @@ int CmdHandler::delrec(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -48,7 +48,7 @@ int CmdHandler::delrec(char *out, struct command *c)
 	}
 
 	if (all) {
-		if (optind != c->argc) {
+		if (l_optind != c->argc) {
 			USAGEMSG(out, CMDNAME, AUSAGE);
 			return EXIT_FAILURE;
 		}
@@ -59,14 +59,14 @@ int CmdHandler::delrec(char *out, struct command *c)
 		return EXIT_SUCCESS;
 	}
 
-	if ((optind != c->argc - 1)) {
+	if ((l_optind != c->argc - 1)) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
-	if (!parsenum(c->argv[optind], &id)) {
+	if (!parsenum(c->argv[l_optind], &id)) {
 		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
-				c->argv[0], c->argv[optind]);
+				c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 

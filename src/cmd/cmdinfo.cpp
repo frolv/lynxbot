@@ -24,7 +24,7 @@ static void putinfo(char *out, Json::Value *cmd);
 int CmdHandler::cmdinfo(char *out, struct command *c)
 {
 	int opt, status;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "atime", NO_ARG, 'a' },
 		{ "creator", NO_ARG, 'C' },
 		{ "ctime", NO_ARG, 'c' },
@@ -37,7 +37,7 @@ int CmdHandler::cmdinfo(char *out, struct command *c)
 	opt_init();
 	status = EXIT_SUCCESS;
 	atime = crtime = creator = mtime = uses = mod = 0;
-	while ((opt = getopt_long(c->argc, c->argv, "aCcmu", long_opts))
+	while ((opt = l_getopt_long(c->argc, c->argv, "aCcmu", long_opts))
 			!= EOF) {
 		switch (opt) {
 		case 'a':
@@ -59,7 +59,7 @@ int CmdHandler::cmdinfo(char *out, struct command *c)
 			mod = uses = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -68,22 +68,22 @@ int CmdHandler::cmdinfo(char *out, struct command *c)
 	if (!mod)
 		atime = crtime = creator = mtime = uses = 1;
 
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
-	switch (source(c->argv[optind])) {
+	switch (source(c->argv[l_optind])) {
 	case DEFAULT:
 		_sprintf(out, MAX_MSG, "[CMDINFO] %s is a default command",
-				c->argv[optind]);
+				c->argv[l_optind]);
 		break;
 	case CUSTOM:
-		putinfo(out, m_customCmds->getcom(c->argv[optind]));
+		putinfo(out, m_customCmds->getcom(c->argv[l_optind]));
 		break;
 	default:
 		_sprintf(out, MAX_MSG, "%s: command not found: %s",
-				c->argv[0], c->argv[optind]);
+				c->argv[0], c->argv[l_optind]);
 		status = EXIT_FAILURE;
 		break;
 	}

@@ -20,19 +20,19 @@ static int rsn_action(char *out, RSNList *rsns, struct command *c);
 int CmdHandler::rsn(char *out, struct command *c)
 {
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -50,14 +50,14 @@ int CmdHandler::rsn(char *out, struct command *c)
 /* invalidargs: check if command arguments are invalid */
 static int invalidargs(struct command *c)
 {
-	return optind == c->argc || (strcmp(c->argv[optind], "set") != 0
-			&& strcmp(c->argv[optind], "check") != 0
-			&& strcmp(c->argv[optind], "del") != 0
-			&& strcmp(c->argv[optind], "change") != 0)
-		|| (strcmp(c->argv[optind], "set") == 0 && optind != c->argc - 2)
-		|| (strcmp(c->argv[optind], "check") == 0 && optind < c->argc - 2)
-		|| (strcmp(c->argv[optind], "del") == 0 && optind != c->argc - 1)
-		|| (strcmp(c->argv[optind], "change") == 0 && optind != c->argc - 2);
+	return l_optind == c->argc || (strcmp(c->argv[l_optind], "set") != 0
+			&& strcmp(c->argv[l_optind], "check") != 0
+			&& strcmp(c->argv[l_optind], "del") != 0
+			&& strcmp(c->argv[l_optind], "change") != 0)
+		|| (strcmp(c->argv[l_optind], "set") == 0 && l_optind != c->argc - 2)
+		|| (strcmp(c->argv[l_optind], "check") == 0 && l_optind < c->argc - 2)
+		|| (strcmp(c->argv[l_optind], "del") == 0 && l_optind != c->argc - 1)
+		|| (strcmp(c->argv[l_optind], "change") == 0 && l_optind != c->argc - 2);
 }
 
 /* rsn_action: perform the requested action */
@@ -68,7 +68,7 @@ static int rsn_action(char *out, RSNList *rsns, struct command *c)
 	int status;
 
 	if (c->argc == 3) {
-		rsn = c->argv[optind + 1];
+		rsn = c->argv[l_optind + 1];
 		for (s = rsn; *s; ++s) {
 			*s = tolower(*s);
 			if (*s == ' ')
@@ -79,7 +79,7 @@ static int rsn_action(char *out, RSNList *rsns, struct command *c)
 	}
 
 	status = EXIT_SUCCESS;
-	if (strcmp(c->argv[optind], "set") == 0) {
+	if (strcmp(c->argv[l_optind], "set") == 0) {
 		if (!rsns->add(c->nick, rsn)) {
 			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 					rsns->err());
@@ -88,7 +88,7 @@ static int rsn_action(char *out, RSNList *rsns, struct command *c)
 			_sprintf(out, MAX_MSG, "[RSN] The name '%s' has been "
 					"set for %s.", rsn, c->nick);
 		}
-	} else if (strcmp(c->argv[optind], "del") == 0) {
+	} else if (strcmp(c->argv[l_optind], "del") == 0) {
 		if (!rsns->del(c->nick)) {
 			_sprintf(out, MAX_MSG, "%s: no RSN set", c->argv[0]);
 			status = EXIT_FAILURE;
@@ -96,7 +96,7 @@ static int rsn_action(char *out, RSNList *rsns, struct command *c)
 			_sprintf(out, MAX_MSG, "[RSN] Stored RSN for "
 					"%s deleted.", c->nick);
 		}
-	} else if (strcmp(c->argv[optind], "change") == 0) {
+	} else if (strcmp(c->argv[l_optind], "change") == 0) {
 		if (!rsns->edit(c->nick, rsn)) {
 			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 					rsns->err());

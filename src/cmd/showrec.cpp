@@ -15,7 +15,7 @@ int CmdHandler::showrec(char *out, struct command *c)
 {
 	int64_t id;
 	int opt, status;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
@@ -27,33 +27,33 @@ int CmdHandler::showrec(char *out, struct command *c)
 
 	opt_init();
 	status = EXIT_SUCCESS;
-	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		_sprintf(out, MAX_MSG, "%s", m_evtp->messageList().c_str());
 		return status;
 	}
 
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
 	/* show a single message */
-	if (!parsenum(c->argv[optind], &id)) {
+	if (!parsenum(c->argv[l_optind], &id)) {
 		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
-				c->argv[0], c->argv[optind]);
+				c->argv[0], c->argv[l_optind]);
 		status = EXIT_FAILURE;
 	} else if (id < 1 || (size_t)id > m_evtp->messages()->size()) {
 		_sprintf(out, MAX_MSG, "%s: recurring message %ld "

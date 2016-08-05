@@ -34,7 +34,7 @@ int CmdHandler::level(char *out, struct command *c)
 	char buf[RSN_BUF];
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "ironman", NO_ARG, 'i' },
 		{ "nick", NO_ARG, 'n' },
@@ -46,7 +46,7 @@ int CmdHandler::level(char *out, struct command *c)
 	usenick = 0;
 	type = REG;
 	status = EXIT_SUCCESS;
-	while ((opt = getopt_long(c->argc, c->argv, "inu", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "inu", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
@@ -61,23 +61,23 @@ int CmdHandler::level(char *out, struct command *c)
 			type = ULT;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc - 2) {
+	if (l_optind != c->argc - 2) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		status = EXIT_FAILURE;
-	} else if (!getrsn(buf, RSN_BUF, c->argv[optind + 1],
+	} else if (!getrsn(buf, RSN_BUF, c->argv[l_optind + 1],
 				c->nick, usenick)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 		status = EXIT_FAILURE;
-	} else if ((id = skill_id(c->argv[optind])) == -1) {
+	} else if ((id = skill_id(c->argv[l_optind])) == -1) {
 		_sprintf(out, MAX_MSG, "%s: invalid skill name: %s",
-				c->argv[0], c->argv[optind]);
+				c->argv[0], c->argv[l_optind]);
 		status = EXIT_FAILURE;
 	} else {
 		status = get_hiscores(out, c, buf, id, type);

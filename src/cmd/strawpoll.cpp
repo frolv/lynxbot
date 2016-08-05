@@ -28,7 +28,7 @@ static int create_poll(char *out, char *pollbuf, struct command *c);
 int CmdHandler::strawpoll(char *out, struct command *c)
 {
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "binary", NO_ARG, 'b' },
 		{ "captcha", NO_ARG, 'c' },
 		{ "help", NO_ARG, 'h' },
@@ -43,7 +43,7 @@ int CmdHandler::strawpoll(char *out, struct command *c)
 
 	opt_init();
 	binary = captcha = multi = false;
-	while ((opt = getopt_long(c->argc, c->argv, "bcm", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "bcm", long_opts)) != EOF) {
 		switch (opt) {
 		case 'b':
 			binary = true;
@@ -58,14 +58,14 @@ int CmdHandler::strawpoll(char *out, struct command *c)
 			multi = true;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
@@ -84,7 +84,7 @@ static int create_poll(char *out, char *pollbuf, struct command *c)
 	char buf[MAX_MSG];
 	char *quest, *s, *t;
 
-	argvcat(buf, c->argc, c->argv, optind, 1);
+	argvcat(buf, c->argc, c->argv, l_optind, 1);
 	quest = buf;
 	if (!(s = strchr(quest, '|'))) {
 		if (!binary) {

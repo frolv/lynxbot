@@ -37,7 +37,7 @@ static int cmp(const void *a, const void *b);
 int CmdHandler::cgrep(char *out, struct command *c)
 {
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "active", NO_ARG, 'a' },
 		{ "custom", NO_ARG, 'c' },
 		{ "default", NO_ARG, 'd' },
@@ -49,7 +49,7 @@ int CmdHandler::cgrep(char *out, struct command *c)
 	opt_init();
 	act = ign = 0;
 	type = ALL;
-	while ((opt = getopt_long(c->argc, c->argv, "acdi",
+	while ((opt = l_getopt_long(c->argc, c->argv, "acdi",
 					long_opts)) != EOF) {
 		switch (opt) {
 		case 'a':
@@ -68,20 +68,20 @@ int CmdHandler::cgrep(char *out, struct command *c)
 			ign = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
 	return findcmds(out, &m_defaultCmds, m_customCmds->commands(),
-				c->argv[optind]);
+				c->argv[l_optind]);
 }
 
 /* findcmds: find any bot commands that match pat */

@@ -23,26 +23,26 @@ int CmdHandler::submit(char *out, struct command *c)
 	FILE *f;
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
@@ -66,7 +66,7 @@ int CmdHandler::submit(char *out, struct command *c)
 #endif
 	strftime(buf, MAX_MSG, "%Y-%m-%d %R", &msgtm);
 	fprintf(f, "[%s] ", buf);
-	argvcat(buf, c->argc, c->argv, optind, 1);
+	argvcat(buf, c->argc, c->argv, l_optind, 1);
 	fprintf(f, "%s: %s\n", c->nick, buf);
 	fclose(f);
 

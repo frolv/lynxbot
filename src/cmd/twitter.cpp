@@ -17,7 +17,7 @@ int CmdHandler::twitter(char *out, struct command *c)
 	tw::Reader reader(m_auth);
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "recent-tweet", NO_ARG, 'r' },
 		{ 0, 0, 0 }
@@ -25,13 +25,13 @@ int CmdHandler::twitter(char *out, struct command *c)
 
 	recent = 0;
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "r", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "r", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		case 'r':
 			recent = 1;
@@ -41,14 +41,14 @@ int CmdHandler::twitter(char *out, struct command *c)
 		}
 	}
 
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
-	if (!reader.read_user(c->argv[optind])) {
+	if (!reader.read_user(c->argv[l_optind])) {
 		_sprintf(out, MAX_MSG, "%s: could not read user '%s'",
-				c->argv[0], c->argv[optind]);
+				c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 	if (recent)

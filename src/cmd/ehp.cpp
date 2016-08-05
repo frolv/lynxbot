@@ -34,7 +34,7 @@ int CmdHandler::ehp(char *out, struct command *c)
 	char buf[RSN_BUF];
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "nick", NO_ARG, 'n' },
 		{ 0, 0, 0 }
@@ -43,7 +43,7 @@ int CmdHandler::ehp(char *out, struct command *c)
 	usenick = 0;
 	status = EXIT_SUCCESS;
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "n", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "n", long_opts)) != EOF) {
 		switch (opt) {
 		case 'n':
 			usenick = 1;
@@ -52,14 +52,14 @@ int CmdHandler::ehp(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		if (usenick) {
 			_sprintf(out, MAX_MSG, "%s: no Twitch name given",
 					c->argv[0]);
@@ -69,12 +69,12 @@ int CmdHandler::ehp(char *out, struct command *c)
 		}
 		return status;
 	}
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
-	if (!getrsn(buf, RSN_BUF, c->argv[optind], c->nick, usenick)) {
+	if (!getrsn(buf, RSN_BUF, c->argv[l_optind], c->nick, usenick)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 		return EXIT_FAILURE;
 	}

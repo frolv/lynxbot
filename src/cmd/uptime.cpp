@@ -19,7 +19,7 @@ static int chan_uptime(char *out, const char *channel);
 int CmdHandler::uptime(char *out, struct command *c)
 {
 	int opt, bot;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "bot", NO_ARG, 'b' },
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
@@ -27,7 +27,7 @@ int CmdHandler::uptime(char *out, struct command *c)
 
 	bot = 0;
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "b", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "b", long_opts)) != EOF) {
 		switch (opt) {
 		case 'b':
 			bot = 1;
@@ -36,14 +36,14 @@ int CmdHandler::uptime(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc) {
+	if (l_optind != c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}

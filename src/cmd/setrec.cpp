@@ -14,7 +14,7 @@ CMDUSAGE("$setrec on|off");
 int CmdHandler::setrec(char *out, struct command *c)
 {
 	int opt, status;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
@@ -26,27 +26,27 @@ int CmdHandler::setrec(char *out, struct command *c)
 
 	opt_init();
 	status = EXIT_SUCCESS;
-	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		status = EXIT_FAILURE;
-	} else if (strcmp(c->argv[optind], "on") == 0) {
+	} else if (strcmp(c->argv[l_optind], "on") == 0) {
 		m_evtp->activateMessages();
 		_sprintf(out, MAX_MSG, "@%s, recurring mesasges enabled.",
 				c->nick);
-	} else if (strcmp(c->argv[optind], "off") == 0) {
+	} else if (strcmp(c->argv[l_optind], "off") == 0) {
 		m_evtp->deactivateMessages();
 		_sprintf(out, MAX_MSG, "@%s, recurring mesasges disabled.",
 				c->nick);

@@ -19,42 +19,42 @@ int CmdHandler::man(char *out, struct command *c)
 	char url[MAX_URL];
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
 	};
 
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind != c->argc - 1) {
+	if (l_optind != c->argc - 1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
 	_sprintf(url, MAX_URL, "%s/manual/", BOT_WEBSITE);
-	if (m_help.find(c->argv[optind]) != m_help.end())
+	if (m_help.find(c->argv[l_optind]) != m_help.end())
 		_sprintf(out, MAX_MSG, "[MAN] %s%s.html", url,
-				m_help[c->argv[optind]].c_str());
-	else if (m_defaultCmds.find(c->argv[optind]) != m_defaultCmds.end())
-		_sprintf(out, MAX_MSG, "[MAN] %s%s.html", url, c->argv[optind]);
-	else if (!(ccmd = m_customCmds->getcom(c->argv[optind]))->empty())
+				m_help[c->argv[l_optind]].c_str());
+	else if (m_defaultCmds.find(c->argv[l_optind]) != m_defaultCmds.end())
+		_sprintf(out, MAX_MSG, "[MAN] %s%s.html", url, c->argv[l_optind]);
+	else if (!(ccmd = m_customCmds->getcom(c->argv[l_optind]))->empty())
 		_sprintf(out, MAX_MSG, "[MAN] '%s' is a custom command",
-				c->argv[optind]);
+				c->argv[l_optind]);
 	else
 		_sprintf(out, MAX_MSG, "%s: no manual entry for '%s'",
-				c->argv[0], c->argv[optind]);
+				c->argv[0], c->argv[l_optind]);
 
 	return EXIT_SUCCESS;
 }

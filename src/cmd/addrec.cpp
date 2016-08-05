@@ -18,7 +18,7 @@ int CmdHandler::addrec(char *out, struct command *c)
 	char msg[MAX_MSG];
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "cooldown", REQ_ARG, 'c' },
 		{ "help", NO_ARG, 'h' },
 		{ "interval", REQ_ARG, 'c' },
@@ -32,13 +32,13 @@ int CmdHandler::addrec(char *out, struct command *c)
 
 	opt_init();
 	cooldown = 600;
-	while ((opt = getopt_long(c->argc, c->argv, "c:", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "c:", long_opts)) != EOF) {
 		switch (opt) {
 		case 'c':
 			/* user provided a cooldown */
-			if (!parsenum(optarg, &cooldown)) {
+			if (!parsenum(l_optarg, &cooldown)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
-						c->argv[0], optarg);
+						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (cooldown < 0) {
@@ -52,7 +52,7 @@ int CmdHandler::addrec(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -69,12 +69,12 @@ int CmdHandler::addrec(char *out, struct command *c)
 				"than 60 mins", c->argv[0]);
 		return EXIT_FAILURE;
 	}
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
-	argvcat(msg, c->argc, c->argv, optind, 1);
+	argvcat(msg, c->argc, c->argv, l_optind, 1);
 	if (!m_evtp->addMessage(msg, cooldown))
 		_sprintf(out, MAX_MSG, "%s: limit of 5 recurring "
 				"messages reached", c->argv[0]);

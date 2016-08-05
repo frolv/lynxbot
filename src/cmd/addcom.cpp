@@ -19,7 +19,7 @@ int CmdHandler::addcom(char *out, struct command *c)
 {
 	time_t cooldown;
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "cooldown", REQ_ARG, 'c'},
 		{ "help", NO_ARG, 'h' },
 		{ 0, 0, 0 }
@@ -39,13 +39,13 @@ int CmdHandler::addcom(char *out, struct command *c)
 
 	cooldown = 15;
 	opt_init();
-	while ((opt = getopt_long(c->argc, c->argv, "c:", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "c:", long_opts)) != EOF) {
 		switch (opt) {
 		case 'c':
 			/* user provided a cooldown */
-			if (!parsenum(optarg, &cooldown)) {
+			if (!parsenum(l_optarg, &cooldown)) {
 				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
-						c->argv[0], optarg);
+						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (cooldown < 0) {
@@ -58,20 +58,20 @@ int CmdHandler::addcom(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
-	if (optind == c->argc - 1) {
+	if (l_optind == c->argc - 1) {
 		_sprintf(out, MAX_MSG, "%s: no response provided for "
-				"command $%s", c->argv[0], c->argv[optind]);
+				"command $%s", c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 
@@ -85,8 +85,8 @@ static int create(char *out, CustomHandler *cch, struct command *c,
 	char *cmd;
 	char resp[MAX_MSG];
 
-	cmd = c->argv[optind];
-	argvcat(resp, c->argc, c->argv, ++optind, 1);
+	cmd = c->argv[l_optind];
+	argvcat(resp, c->argc, c->argv, ++l_optind, 1);
 	if (!cch->addcom(cmd, resp, c->nick, cooldown)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());

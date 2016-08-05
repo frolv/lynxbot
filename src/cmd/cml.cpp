@@ -36,7 +36,7 @@ int CmdHandler::cml(char *out, struct command *c)
 	char err[RSN_BUF];
 
 	int opt;
-	static struct option long_opts[] = {
+	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
 		{ "nick", NO_ARG, 'n' },
 		{ "supplies-calc", NO_ARG, 's' },
@@ -51,7 +51,7 @@ int CmdHandler::cml(char *out, struct command *c)
 	page = NP;
 	id = -1;
 	status = EXIT_SUCCESS;
-	while ((opt = getopt_long(c->argc, c->argv, "nst:uv", long_opts))
+	while ((opt = l_getopt_long(c->argc, c->argv, "nst:uv", long_opts))
 			!= EOF) {
 		switch (opt) {
 		case 'h':
@@ -64,13 +64,13 @@ int CmdHandler::cml(char *out, struct command *c)
 			page = SC;
 			break;
 		case 't':
-			if (strcmp(optarg, "ehp") == 0) {
+			if (strcmp(l_optarg, "ehp") == 0) {
 				id = 99;
 				break;
 			}
-			if ((id = skill_id(optarg)) == -1) {
+			if ((id = skill_id(l_optarg)) == -1) {
 				_sprintf(out, MAX_MSG, "%s: invalid skill "
-						"name: %s", c->argv[0], optarg);
+						"name: %s", c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			break;
@@ -81,14 +81,14 @@ int CmdHandler::cml(char *out, struct command *c)
 			page = VH;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", opterr());
+			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
 		}
 	}
 
-	if (optind == c->argc) {
+	if (l_optind == c->argc) {
 		if (page) {
 			if (update || usenick || id != -1) {
 				_sprintf(out, MAX_MSG, "%s: cannot use other "
@@ -113,13 +113,13 @@ int CmdHandler::cml(char *out, struct command *c)
 			_sprintf(out, MAX_MSG, "[CML] %s", CML_HOST);
 		}
 		return status;
-	} else if (optind != c->argc - 1 || page || id != -1) {
+	} else if (l_optind != c->argc - 1 || page || id != -1) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
 	/* get the rsn of the queried player */
-	if (!getrsn(buf, RSN_BUF, c->argv[optind], c->nick, usenick)) {
+	if (!getrsn(buf, RSN_BUF, c->argv[l_optind], c->nick, usenick)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 		return EXIT_FAILURE;
 	}
