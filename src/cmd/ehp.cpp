@@ -21,7 +21,7 @@ static const char *EHP_API = "/tracker/api.php?type="
 
 static const char *EHP_DESC = "[EHP] EHP stands for efficient hours "
 "played. You earn 1 EHP whenever you gain a certain amount of experience in "
-"a skill, depending on your level. You can find XP rates here: "
+"a skill, depending on your level. You can find EHP rates here: "
 "http://crystalmathlabs.com/tracker/suppliescalc.php . Watch a video "
 "explaining EHP: https://www.youtube.com/watch?v=rhxHlO8mvpc";
 
