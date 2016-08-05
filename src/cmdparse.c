@@ -40,8 +40,7 @@ int parse_cmd(char *cmdstr, struct command *c)
 	}
 	c->argc++;
 
-	/* c++ requires malloc to be cast */
-	c->argv = (char **)malloc((c->argc + 1) * sizeof(*(c->argv)));
+	c->argv = malloc((c->argc + 1) * sizeof(*(c->argv)));
 
 	s = cmdstr;
 	for (i = 0; i < c->argc; ++i) {

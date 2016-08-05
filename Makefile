@@ -4,14 +4,16 @@ PROGNAME=lynxbot
 
 INC=-I./include
 
-LIB=-lcurl -lpthread -lcrypto
-
 OBJ=obj
 SRC=src
 LIBD=lib
 
 CXX=g++
 CXXFLAGS=$(INC) -Wall -Wextra -c -std=c++14
+CC=gcc
+CFLAGS=$(INC) -Wall -Wextra -c -std=c99
+
+LDFLAGS=-lcurl -lpthread -lcrypto
 
 # compile for debug or release (default: release)
 DEBUG ?= 0
@@ -24,7 +26,6 @@ else
 	CXXFLAGS+=-O2
 	CFLAGS+=-O2
 	OBJ:=$(OBJ)/release
-	OFLAGS=-s
 endif
 
 _CPR=auth.o cookies.o cprtypes.o digest.o error.o multipart.o parameters.o\
@@ -81,7 +82,7 @@ $(OBJ)/%.o: $(SRC)/%.cpp $(LBH) $(LIBH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 # lynxc
 $(OBJ)/%.o: $(SRC)/%.c $(LCH)
-	$(CXX) $(CXXFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) -o $@ $<
 
 $(OBJ)/%.o: $(LIBD)/%.cpp $(LIBH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
@@ -105,14 +106,14 @@ $(OBJ)/cpr_%.o: $(CPRD)/%.cpp $(CPRH)
 $(OBJ)/tw_%.o: $(TWD)/%.cpp $(TWH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-lynxbot: odir exec
+all: objdir lynxbot
 
 # create directory for .o files
-odir:
+objdir:
 	@mkdir -p $(OBJ)/cmd
 
-exec: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(LYNXC) $(COMMANDS) $(TW)
-	$(CXX) ${OFLAGS} -o $(PROGNAME) $(LIB) $^
+lynxbot: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(LYNXC) $(COMMANDS) $(TW)
+	$(CXX) -o $(PROGNAME) $(LDFLAGS) $^
 
 .PHONY: clean
 

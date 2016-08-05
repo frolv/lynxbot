@@ -12,6 +12,10 @@
 #define NO_ARG  1
 #define REQ_ARG 2
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* index in argv being parsed */
 extern int optind;
 
@@ -40,5 +44,9 @@ int getopt_long(int argc, char **argv, const char *optstr,
 
 /* opterr: return string describing getopt error */
 char *opterr();
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif

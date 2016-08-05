@@ -8,6 +8,10 @@
 
 #include "cmd/command.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* parse_cmd: split cmdstr into argv of c */
 int parse_cmd(char *cmdstr, struct command *c);
 
@@ -16,5 +20,9 @@ void free_cmd(struct command *c);
 
 /* cmderr: return parsing error */
 char *cmderr();
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif

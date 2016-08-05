@@ -40,7 +40,15 @@ struct command {
 	perm_t privileges;	/* user privileges */
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* argvcat: concatenate argv from start to argc into buf */
 void argvcat(char *buf, int argc, char **argv, int start, int space);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif

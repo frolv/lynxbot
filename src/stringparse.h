@@ -7,6 +7,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* shift_l: move every char in s one to the left */
 void shift_l(char *s);
 
@@ -18,5 +22,9 @@ int parsenum(const char *s, int64_t *res);
  * in k, m or b representing multiples of 1e3, 1e6 and 1e9, respectively
  */
 int parsenum_mult(const char *s, int64_t *amt);
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif

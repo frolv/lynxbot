@@ -22,6 +22,10 @@ struct client {
 #endif
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* cconnect: connect cl to server serv on port port */
 int cconnect(struct client *cl, const char *serv, const char *port);
 
@@ -33,5 +37,9 @@ int cwrite(struct client *cl, const char *msg);
 
 /* cread: read data from cl server */
 int cread(struct client *cl, char *buf, size_t sz);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
