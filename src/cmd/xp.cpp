@@ -105,7 +105,9 @@ int CmdHandler::xp(char *out, struct command *c)
 	} else {
 		_sprintf(out, MAX_MSG, "%d", lvltoxp(x));
 		fmtnum(num, RSN_BUF, out);
-		_sprintf(out, MAX_MSG, "[XP] level %ld: %s xp", x, num);
+		_sprintf(out, MAX_MSG, "[XP] level %ld: ", x);
+		strcat(out, num);
+		strcat(out, " xp");
 	}
 	return status;
 }

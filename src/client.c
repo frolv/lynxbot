@@ -123,7 +123,7 @@ static int connect_win(struct client *cl, const char *serv, const char *port)
 	int error;
 
 	cl->connected = 0;
-	if ((error = WSAStartup(MAKEWORD(2, 2), cl->wsa))) {
+	if ((error = WSAStartup(MAKEWORD(2, 2), &cl->wsa))) {
 		fprintf(stderr, "WSAStartup failed. Error %d: %s\n",
 				error, WSAGetLastError());
 		return 1;
