@@ -13,10 +13,10 @@
 #include <utils.h>
 #include "config.h"
 #include "lynxbot.h"
+#include "option.h"
 #include "TwitchBot.h"
 
 #ifdef __linux__
-# include <getopt.h>
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <unistd.h>
@@ -60,16 +60,16 @@ int main(int argc, char **argv)
 	int update;
 
 	update = 1;
-#ifdef __linux__
 	int c;
-	static struct option long_opts[] = {
-		{ "help", no_argument, 0, 'h' },
-		{ "no-check-update", no_argument, 0, 'n' },
-		{ "version", no_argument, 0, 'v' },
-		{ 0, 0, 0, 0 }
+	static struct l_option long_opts[] = {
+		{ "help", NO_ARG, 'h' },
+		{ "no-check-update", NO_ARG, 'n' },
+		{ "version", NO_ARG, 'v' },
+		{ 0, 0, 0 }
 	};
 
-	while ((c = getopt_long(argc, argv, "hv", long_opts, NULL)) != EOF) {
+	opt_init();
+	while ((c = l_getopt_long(argc, argv, "hv", long_opts)) != EOF) {
 		switch (c) {
 		case 'h':
 			printf("usage: lynxbot [CHANNEL]\n%s - A Twitch.tv IRC "
@@ -91,12 +91,8 @@ int main(int argc, char **argv)
 			return 1;
 		}
 	}
-#endif
-#ifdef _WIN32
-	int optind = 1;
-#endif
 
-	if (argc - optind > 1) {
+	if (argc - l_optind > 1) {
 		fprintf(stderr, "usage: %s [CHANNEL]\n", argv[0]);
 		return 1;
 	}
@@ -126,8 +122,8 @@ int main(int argc, char **argv)
 	}
 
 	/* overwrite channel with arg */
-	if (optind != argc)
-		b.channel = argv[optind];
+	if (l_optind != argc)
+		b.channel = argv[l_optind];
 	if (b.channel[0] != '#')
 		b.channel = '#' + b.channel;
 
@@ -218,6 +214,7 @@ bool authtest(const std::string &token, std::string &user)
 void checkupdates()
 {
 	static const char *accept = "application/vnd.github.v3+json";
+	cpr::Response resp;
 	Json::Value js;
 	Json::Reader reader;
 	int c;
@@ -225,7 +222,7 @@ void checkupdates()
 	if (strstr(BOT_VERSION, "-beta"))
 		return;
 
-	cpr::Response resp = cpr::Get(cpr::Url(RELEASE_API),
+	resp = cpr::Get(cpr::Url(RELEASE_API),
 			cpr::Header{{ "Accept", accept }});
 	if (!reader.parse(resp.text, js))
 		return;
@@ -274,7 +271,9 @@ static int open_linux(const char *url)
 /* open_win: launch browser on windows systems */
 static int open_win(const char *url)
 {
-	int i = (int)ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
+	int i;
+
+	i = (int)ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
 	return i <= 32;
 }
 #endif
