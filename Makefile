@@ -18,6 +18,8 @@ LDFLAGS=-lcurl -lpthread -lcrypto
 PREFIX=/usr/local
 COMPDIR=/usr/share/zsh/site-functions
 
+MANFILE=lynxbot.1
+
 # compile for debug or release (default: release)
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
@@ -122,6 +124,9 @@ binary: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(LYNXC) $(COMMANDS) $(TW)
 install: $(PROGNAME)
 	mkdir -p $(PREFIX)/bin
 	cp $< $(PREFIX)/bin
+	install -d $(PREFIX)/man/man1
+	install -g 0 -o 0 -m 0644 misc/$(MANFILE) $(PREFIX)/man/man1
+	gzip -f $(PREFIX)/man/man1/$(MANFILE)
 	[ -d $(COMPDIR) ] && cp misc/_lynxbot $(COMPDIR)
 
 clean:

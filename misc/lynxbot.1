@@ -1,0 +1,33 @@
+.TH LYNXBOT 1 "July 2016" "lynxbot v1.4.4" "User Commands"
+.SH NAME
+lynxbot \- a Twitch.tv IRC bot for Oldschool Runescape
+.SH SYNOPSIS
+.B lynxbot
+[\fB\-\-no\-check\-update\fR] [\fICHANNEL\fR]
+.SH DESCRIPTION
+LynxBot is a Twitch.tv IRC bot designed for use on Oldschool Runescape streams.
+.PP
+When launched, \fBlynxbot\fR will join the channel specified in its config file.
+This can be overriden by providing the argument \fICHANNEL\fR.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+show a help message and exit
+.TP
+.BR \-\-no\-check\-update
+do not check for updated version
+.TP
+.BR \-v ", " \-\-version
+print version information and exit
+.SH FILES
+\fI$HOME/.lynxbot/config\fR: main config file
+.PP
+\fI$HOME/.lynxbot/giveaway\fR: giveaway items
+.PP
+\fI$HOME/.lynxbot/submitted\fR: submitted messages
+.PP
+\fI$HOME/.lynxbot/img/back[0-4].jpg\fR: backgrounds for image giveaways
+.PP
+\fI$HOME/.lynxbot/json/*.json\fR: all json data
+.SH SEE ALSO
+Full documentation at: https://frolv.github.io./lynxbot/manual/index.html
