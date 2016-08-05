@@ -1,5 +1,7 @@
 # lynxbot makefile
 
+SHELL=/bin/sh
+
 PROGNAME=lynxbot
 
 INC=-I./include
@@ -122,11 +124,12 @@ binary: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(LYNXC) $(COMMANDS) $(TW)
 
 .PHONY: install clean
 install: $(PROGNAME)
-	mkdir -p $(PREFIX)/bin
-	cp $< $(PREFIX)/bin
-	install -d $(PREFIX)/man/man1
-	install -g 0 -o 0 -m 0644 misc/$(MANFILE) $(PREFIX)/man/man1
-	gzip -f $(PREFIX)/man/man1/$(MANFILE)
+	install -d -m 0755 $(PREFIX)/bin
+	install -g 0 -o 0 -m 0755 $< $(PREFIX)/bin
+	-install -d -m 0755 $(PREFIX)/man/man1
+	-install -g 0 -o 0 -m 0644 misc/$(MANFILE) $(PREFIX)/man/man1
+	-gzip -f $(PREFIX)/man/man1/$(MANFILE)
+	-mandb -f $(PREFIX)/man/man1/$(MANFILE)
 	[ -d $(COMPDIR) ] && cp misc/_lynxbot $(COMPDIR)
 
 clean:
