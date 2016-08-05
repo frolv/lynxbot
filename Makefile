@@ -15,17 +15,20 @@ CFLAGS=$(INC) -Wall -Wextra -c -std=c99
 
 LDFLAGS=-lcurl -lpthread -lcrypto
 
+PREFIX=/usr/local
+COMPDIR=/usr/share/zsh/site-functions
+
 # compile for debug or release (default: release)
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
 	CXXFLAGS+=-DDEBUG -g
 	CFLAGS+=-DDEBUG -g
-	OBJ:=$(OBJ)/debug
+	OBJ:=$(OBJ)/dbg
 	PROGNAME:=$(PROGNAME)-d
 else
 	CXXFLAGS+=-O2
 	CFLAGS+=-O2
-	OBJ:=$(OBJ)/release
+	OBJ:=$(OBJ)/rel
 endif
 
 _CPR=auth.o cookies.o cprtypes.o digest.o error.o multipart.o parameters.o\
@@ -106,16 +109,20 @@ $(OBJ)/cpr_%.o: $(CPRD)/%.cpp $(CPRH)
 $(OBJ)/tw_%.o: $(TWD)/%.cpp $(TWH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-all: objdir lynxbot
+all: objdir binary
 
 # create directory for .o files
 objdir:
 	@mkdir -p $(OBJ)/cmd
 
-lynxbot: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(LYNXC) $(COMMANDS) $(TW)
+binary: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(LYNXC) $(COMMANDS) $(TW)
 	$(CXX) -o $(PROGNAME) $(LDFLAGS) $^
 
-.PHONY: clean
+.PHONY: install clean
+install: $(PROGNAME)
+	mkdir -p $(PREFIX)/bin
+	cp $< $(PREFIX)/bin
+	[ -d $(COMPDIR) ] && cp misc/_lynxbot $(COMPDIR)
 
 clean:
 	rm -f $(PROGNAME) $(OBJ)/*.o $(OBJ)/cmd/*.o
