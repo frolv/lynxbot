@@ -133,7 +133,8 @@ install: $(PROGNAME)
 	[ -f $(CONFDIR)/json/wheel.json ] || install $(USRGRP) $(FMODE)\
 		json/wheel.json $(CONFDIR)/json
 	for i in `seq 0 4`; do\
-		[ -f $(CONFDIR)/img/back$$i.jpg ] || cp img/back$$i.jpg $(CONFDIR)/img;\
+		[ -f $(CONFDIR)/img/back$$i.jpg ] || install $(USRGRP) $(FMODE)\
+		img/back$$i.jpg $(CONFDIR)/img;\
 	done
 
 clean:
