@@ -2,13 +2,10 @@
 
 SHELL=/bin/sh
 
-PROGNAME=lynxbot
-
-INC=-I./include
-
 SRC=src
 LIBD=lib
 
+INC=-I./include
 CXX=g++
 CXXFLAGS+=$(INC) -Wall -Wextra -c -std=c++14
 CC=gcc
@@ -107,15 +104,37 @@ objdir:
 binary: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(LYNXC) $(COMMANDS) $(TW)
 	$(CXX) -o $(PROGNAME) $(LDFLAGS) $^
 
+FMODE=-m 0644
+DMODE=-m 0755
+USRGRP=-g $(USR) -o $(USR)
+
 .PHONY: install clean
 install: $(PROGNAME)
 	install -d -m 0755 $(PREFIX)/bin
-	install -g 0 -o 0 -m 0755 $< $(PREFIX)/bin
+	install -g 0 -o 0 $(DMODE) $< $(PREFIX)/bin
 	-install -d -m 0755 $(PREFIX)/man/man1
-	-install -g 0 -o 0 -m 0644 misc/$(MANFILE) $(PREFIX)/man/man1
+	-install -g 0 -o 0 $(FMODE) misc/$(MANFILE) $(PREFIX)/man/man1
 	-gzip -f $(PREFIX)/man/man1/$(MANFILE)
 	-mandb -f $(PREFIX)/man/man1/$(MANFILE)
 	[ -d $(COMPDIR) ] && cp misc/_lynxbot $(COMPDIR)
+	install -d -g $(USR) -o $(USR) $(DMODE) $(CONFDIR)/json $(CONFDIR)/img
+	[ -f $(CONFDIR)/config ] || install $(USRGRP) $(FMODE)\
+		config.txt $(CONFDIR)/config
+	[ -f $(CONFDIR)/giveaway ] || install $(USRGRP) $(FMODE)\
+		giveaway.txt $(CONFDIR)/giveaway
+	install $(USRGRP) $(FMODE) json/fashion.json $(CONFDIR)/json
+	install $(USRGRP) $(FMODE) json/itemids.json $(CONFDIR)/json
+	[ -f $(CONFDIR)/json/customcmds.json ] || install $(USRGRP) $(FMODE)\
+		json/customcmds.json $(CONFDIR)/json
+	[ -f $(CONFDIR)/json/responses.json ] || install $(USRGRP) $(FMODE)\
+		json/responses.json $(CONFDIR)/json
+	[ -f $(CONFDIR)/json/rsns.json ] || install $(USRGRP) $(FMODE)\
+		json/rsns.json $(CONFDIR)/json
+	[ -f $(CONFDIR)/json/wheel.json ] || install $(USRGRP) $(FMODE)\
+		json/wheel.json $(CONFDIR)/json
+	for i in `seq 0 4`; do\
+		[ -f $(CONFDIR)/img/back$$i.jpg ] || cp img/back$$i.jpg $(CONFDIR)/img;\
+	done
 
 clean:
 	rm -f $(PROGNAME) $(OBJ)/*.o $(OBJ)/cmd/*.o
