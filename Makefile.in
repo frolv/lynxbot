@@ -117,7 +117,8 @@ install: $(PROGNAME)
 	-gzip -f $(PREFIX)/man/man1/$(MANFILE)
 	-mandb -f $(PREFIX)/man/man1/$(MANFILE)
 	[ -d $(COMPDIR) ] && cp misc/_lynxbot $(COMPDIR)
-	install -d -g $(USR) -o $(USR) $(DMODE) $(CONFDIR)/json $(CONFDIR)/img
+	install -d -g $(USR) -o $(USR) $(DMODE) $(CONFDIR)\
+		$(CONFDIR)/json $(CONFDIR)/img
 	[ -f $(CONFDIR)/config ] || install $(USRGRP) $(FMODE)\
 		config.txt $(CONFDIR)/config
 	[ -f $(CONFDIR)/giveaway ] || install $(USRGRP) $(FMODE)\
