@@ -86,6 +86,10 @@ int main(int argc, char **argv)
 					"software\nunder the terms of the MIT "
 					"License.\n", BOT_NAME, BOT_VERSION);
 			return 0;
+		case '?':
+			fprintf(stderr, "%s\n", l_opterr());
+			fprintf(stderr, "usage: %s [CHANNEL]\n", argv[0]);
+			return 1;
 		default:
 			fprintf(stderr, "usage: %s [CHANNEL]\n", argv[0]);
 			return 1;
