@@ -33,11 +33,11 @@ JSOND=$(LIBD)/json
 
 _LYNXBOT=CmdHandler.o config.o CustomHandler.o EventManager.o\
 	 ExpressionParser.o GEReader.o Giveaway.o main.o Moderator.o OpMap.o\
-	 RSNList.o SelectionWheel.o skills.o TimerManager.o timers.o\
+	 RSNList.o sed.o SelectionWheel.o skills.o TimerManager.o timers.o\
 	 TwitchBot.o URLParser.o
 LYNXBOT=$(patsubst %,$(OBJ)/%,$(_LYNXBOT))
 _LBH=CmdHandler.h config.h EventManager.h ExpressionParser.h GEReader.h\
-     Giveaway.h lynxbot.h Moderator.h OpMap.h RSNList.h SelectionWheel.h\
+     Giveaway.h lynxbot.h Moderator.h OpMap.h RSNList.h sed.h SelectionWheel.h\
      skills.h TimerManager.h timers.h TwitchBot.h URLParser.h
 LBH=$(patsubst %,$(SRC)/%,$(_LBH))
 
