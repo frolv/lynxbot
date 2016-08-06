@@ -6,34 +6,19 @@ PROGNAME=lynxbot
 
 INC=-I./include
 
-OBJ=obj
 SRC=src
 LIBD=lib
 
 CXX=g++
-CXXFLAGS=$(INC) -Wall -Wextra -c -std=c++14
+CXXFLAGS+=$(INC) -Wall -Wextra -c -std=c++14
 CC=gcc
-CFLAGS=$(INC) -Wall -Wextra -c -std=c99
+CFLAGS+=$(INC) -Wall -Wextra -c -std=c99
 
 LDFLAGS=-lcurl -lpthread -lcrypto
 
-PREFIX=/usr/local
 COMPDIR=/usr/share/zsh/site-functions
 
 MANFILE=lynxbot.1
-
-# compile for debug or release (default: release)
-DEBUG ?= 0
-ifeq ($(DEBUG), 1)
-	CXXFLAGS+=-DDEBUG -g
-	CFLAGS+=-DDEBUG -g
-	OBJ:=$(OBJ)/dbg
-	PROGNAME:=$(PROGNAME)-d
-else
-	CXXFLAGS+=-O2
-	CFLAGS+=-O2
-	OBJ:=$(OBJ)/rel
-endif
 
 _CPR=auth.o cookies.o cprtypes.o digest.o error.o multipart.o parameters.o\
     payload.o proxies.o session.o util.o

@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# configure - generate a Makefile for lynxbot
+
+prefix=/usr/local
+debug=false
+
+while [ "$1" ]; do
+	case "$1" in
+		--debug)
+			debug=true
+			shift
+			;;
+		--help)
+			echo "usage: ./configure [OPTION]..."
+			echo
+			echo "    --debug"
+			echo "        compile with debug symbols"
+			echo "    --help"
+			echo "        show this help information"
+			echo "    --prefix=PATH"
+			echo "        set installation prefix to PATH"
+			exit 0
+			;;
+		--prefix=*)
+			prefix=`echo "$1" | sed 's/--prefix=//'`
+			shift
+			;;
+		-*) echo invalid option "$1" >&2; exit 1;;
+		*) echo "usage: ./configure [OPTION]..." >&2; exit 1;;
+	esac
+done
+
+echo generating Makefile...
+echo PREFIX=$prefix > Makefile
+if $debug; then
+	echo PROGNAME=lynxbot-d >> Makefile
+	echo OBJ=obj/dbg >> Makefile
+	echo CFLAGS+=-DDEBUG -g >> Makefile
+	echo CXXFLAGS+=-DDEBUG -g >> Makefile
+else
+	echo PROGNAME=lynxbot >> Makefile
+	echo OBJ=obj/rel >> Makefile
+	echo CFLAGS+=-O2 >> Makefile
+	echo CXXFLAGS+=-O2 >> Makefile
+fi
+
+echo USR=$USER >> Makefile
+echo CONFDIR=$HOME/.lynxbot >> Makefile
+
+cat Makefile.in >> Makefile
+echo configuration complete, type make to build
