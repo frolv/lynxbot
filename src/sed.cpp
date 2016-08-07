@@ -16,6 +16,7 @@ struct sedinfo {
 static int parsecmd(struct sedinfo *s, char *cmd);
 static void puterr(char *out, size_t max, struct sedinfo *s);
 
+/* sed: perform a basic sed substitution command on input */
 int sed(char *s, size_t max, const char *input, const char *sedcmd)
 {
 	char cmd[MAX_MSG];
@@ -35,6 +36,7 @@ int sed(char *s, size_t max, const char *input, const char *sedcmd)
 #define UNTERM 2
 #define BADOPT 3
 
+/* parsecmd: break up the sed command into its parts */
 static int parsecmd(struct sedinfo *s, char *cmd)
 {
 	char *t;
@@ -87,6 +89,7 @@ static int parsecmd(struct sedinfo *s, char *cmd)
 	return 1;
 }
 
+/* puterr: write error string corresponding to s->error to out */
 static void puterr(char *out, size_t max, struct sedinfo *s)
 {
 	switch (s->error) {
