@@ -53,7 +53,7 @@ int sed(char *s, size_t max, const char *input, const char *sedcmd)
 static int parsecmd(struct sedinfo *s, char *cmd)
 {
 	char *t;
-	int delim, type;
+	int delim;
 
 	s->global = s->ignore = 0;
 	if (cmd[0] != 's') {
@@ -67,7 +67,7 @@ static int parsecmd(struct sedinfo *s, char *cmd)
 	}
 	t = s->regex;
 	for (t = s->regex; *t; ++t) {
-		if (*t == '\'' || *t == '"') {
+		if (*t == '(' || *t == '[') {
 			if (!(t = readbrackets(t))) {
 				s->error = UNTERM;
 				return 0;
@@ -134,5 +134,12 @@ static void puterr(char *out, size_t max, struct sedinfo *s)
 
 static char *readbrackets(char *s)
 {
-	return s;
+	int end;
+
+	end = *s == '(' ? ')' : ']';
+	for (++s; *s && *s != end; ++s) {
+		if (*s == '\\' && s[1] == end)
+			shift_l(s);
+	}
+	return *s ? s : NULL;
 }
