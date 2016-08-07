@@ -15,6 +15,7 @@ struct sedinfo {
 
 static int parsecmd(struct sedinfo *s, char *cmd);
 static void puterr(char *out, size_t max, struct sedinfo *s);
+static char *readbrackets(char *s);
 
 /* sed: perform a basic sed substitution command on input */
 int sed(char *s, size_t max, const char *input, const char *sedcmd)
@@ -36,7 +37,7 @@ int sed(char *s, size_t max, const char *input, const char *sedcmd)
 		else
 			pattern = std::regex(sedbuf.regex, std::regex::icase);
 	} catch (std::regex_error) {
-		_sprintf(out, max, "sed: invalid regex");
+		_sprintf(s, max, "sed: invalid regex");
 		return 0;
 	}
 
@@ -52,7 +53,7 @@ int sed(char *s, size_t max, const char *input, const char *sedcmd)
 static int parsecmd(struct sedinfo *s, char *cmd)
 {
 	char *t;
-	int delim;
+	int delim, type;
 
 	s->global = s->ignore = 0;
 	if (cmd[0] != 's') {
@@ -65,8 +66,19 @@ static int parsecmd(struct sedinfo *s, char *cmd)
 		return 0;
 	}
 	t = s->regex;
-	while ((t = strchr(t, delim)) && *(t - 1) == '\\')
-		shift_l(t - 1);
+	for (t = s->regex; *t; ++t) {
+		if (*t == '\'' || *t == '"') {
+			if (!(t = readbrackets(t))) {
+				s->error = UNTERM;
+				return 0;
+			}
+		} else if (*t == delim) {
+			if (*(t - 1) != '\\')
+				break;
+			shift_l(t - 1);
+			--t;
+		}
+	}
 	if (!t) {
 		s->error = UNTERM;
 		return 0;
@@ -118,4 +130,9 @@ static void puterr(char *out, size_t max, struct sedinfo *s)
 	default:
 		break;
 	}
+}
+
+static char *readbrackets(char *s)
+{
+	return s;
 }
