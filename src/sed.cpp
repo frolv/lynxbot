@@ -23,7 +23,7 @@ int sed(char *s, size_t max, const char *input, const char *sedcmd)
 	char cmd[MAX_MSG];
 	struct sedinfo sedbuf;
 	std::regex pattern;
-	std::smatch match;
+	auto type = std::regex_constants::format_sed;
 
 	strncpy(cmd, sedcmd, MAX_MSG);
 	if (!parsecmd(&sedbuf, cmd)) {
@@ -32,7 +32,7 @@ int sed(char *s, size_t max, const char *input, const char *sedcmd)
 	}
 
 	try {
-		if (sedbuf.ignore)
+		if (!sedbuf.ignore)
 			pattern = std::regex(sedbuf.regex);
 		else
 			pattern = std::regex(sedbuf.regex, std::regex::icase);
@@ -41,7 +41,10 @@ int sed(char *s, size_t max, const char *input, const char *sedcmd)
 		return 0;
 	}
 
-	printf("%s\n%s\n%s\n", input, sedbuf.regex, sedbuf.replace);
+	if (!sedbuf.global)
+		type |= std::regex_constants::format_first_only;
+	_sprintf(s, max, "%s", std::regex_replace(input, pattern,
+				sedbuf.replace, type).c_str());
 	return 1;
 }
 
