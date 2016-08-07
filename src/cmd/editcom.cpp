@@ -2,6 +2,7 @@
 #include "command.h"
 #include "../CmdHandler.h"
 #include "../option.h"
+#include "../sed.h"
 #include "../stringparse.h"
 #include "../TimerManager.h"
 
@@ -21,16 +22,20 @@ static const char *RUSAGE = "$editcom -r OLD NEW";
 static int app;
 /* active setting */
 static int set;
+/* command cooldown */
+time_t cooldown;
 
 static int edit(char *out, CustomHandler *cch, struct command *c,
-		time_t cooldown, TimerManager *tm);
+		TimerManager *tm);
 static int rename(char *out, CustomHandler *cch, struct command *c);
+static int cmdsed(char *out, CustomHandler *cch, struct command *c,
+		const char *sedcmd);
 
 /* editcom: modify a custom command */
 int CmdHandler::editcom(char *out, struct command *c)
 {
-	time_t cooldown;
-	int ren, status;
+	int ren, sed, status;
+	char sedcmd[MAX_MSG];
 
 	int opt;
 	static struct l_option long_opts[] = {
@@ -39,6 +44,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 		{ "cooldown", REQ_ARG, 'c'},
 		{ "help", NO_ARG, 'h' },
 		{ "rename", NO_ARG, 'r' },
+		{ "sed", REQ_ARG, 's' },
 		{ 0, 0, 0 }
 	};
 
@@ -55,9 +61,9 @@ int CmdHandler::editcom(char *out, struct command *c)
 
 	opt_init();
 	cooldown = -1;
-	set = ren = app = 0;
+	set = ren = app = sed = 0;
 	status = EXIT_SUCCESS;
-	while ((opt = l_getopt_long(c->argc, c->argv, "A:ac:r", long_opts))
+	while ((opt = l_getopt_long(c->argc, c->argv, "A:ac:rs:", long_opts))
 			!= EOF) {
 		switch (opt) {
 		case 'A':
@@ -93,6 +99,10 @@ int CmdHandler::editcom(char *out, struct command *c)
 		case 'r':
 			ren = 1;
 			break;
+		case 's':
+			sed = 1;
+			strcpy(sedcmd, l_optarg);
+			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
@@ -106,8 +116,20 @@ int CmdHandler::editcom(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (ren) {
-		if (app || cooldown != -1 || set) {
+	if (sed) {
+		if (app || ren) {
+			_sprintf(out, MAX_MSG, "%s: cannot use -a or -r "
+					"with -s", c->argv[0]);
+			status = EXIT_FAILURE;
+		} else if (l_optind != c->argc - 1) {
+			_sprintf(out, MAX_MSG, "%s: cannot provide reponse"
+					"with -s flag", c->argv[0]);
+			status = EXIT_FAILURE;
+		} else {
+			status = cmdsed(out, m_customCmds, c, sedcmd);
+		}
+	} else if (ren) {
+		if (app || cooldown != -1 || set || sed) {
 			_sprintf(out, MAX_MSG, "%s: cannot use other flags "
 					"with -r", c->argv[0]);
 			status = EXIT_FAILURE;
@@ -115,14 +137,14 @@ int CmdHandler::editcom(char *out, struct command *c)
 			status = rename(out, m_customCmds, c);
 		}
 	} else {
-		status = edit(out, m_customCmds, c, cooldown, &m_cooldowns);
+		status = edit(out, m_customCmds, c, &m_cooldowns);
 	}
 	return status;
 }
 
 /* edit: edit a custom command */
 static int edit(char *out, CustomHandler *cch, struct command *c,
-		time_t cooldown, TimerManager *tm)
+		TimerManager *tm)
 {
 	int cd, resp;
 	char response[MAX_MSG];
@@ -213,4 +235,29 @@ static int rename(char *out, CustomHandler *cch, struct command *c)
 		status = EXIT_SUCCESS;
 	}
 	return status;
+}
+
+static int cmdsed(char *out, CustomHandler *cch, struct command *c,
+		const char *sedcmd)
+{
+	Json::Value *com;
+	char buf[MAX_MSG];
+
+	if ((com = cch->getcom(c->argv[l_optind]))->empty()) {
+		_sprintf(out, MAX_MSG, "%s: not a command: $%s",
+				c->argv[0], c->argv[l_optind]);
+		return EXIT_FAILURE;
+	}
+	if (!sed(buf, MAX_MSG, (*com)["response"].asCString(), sedcmd)) {
+		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
+		return EXIT_FAILURE;
+	}
+	if (!cch->editcom(c->argv[l_optind], buf, cooldown)) {
+		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+				cch->error().c_str());
+		return EXIT_FAILURE;
+	}
+	_sprintf(out, MAX_MSG, "@%s, command $%s has been changed to \"%s\"",
+			c->nick, c->argv[l_optind], buf);
+	return EXIT_SUCCESS;
 }
