@@ -135,6 +135,7 @@ static void puterr(char *out, size_t max, struct sedinfo *s)
 	}
 }
 
+/* readbrackets: read over a bracketed block */
 static char *readbrackets(char *s)
 {
 	int end;
