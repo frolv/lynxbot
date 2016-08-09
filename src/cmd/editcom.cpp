@@ -208,6 +208,7 @@ static int rename(char *out, CustomHandler *cch, struct command *c)
 	return status;
 }
 
+/* cmdsed: perform a sed operation on command response */
 static int cmdsed(char *out, CustomHandler *cch, struct command *c,
 		const char *sedcmd)
 {
@@ -239,6 +240,7 @@ static int cmdsed(char *out, CustomHandler *cch, struct command *c,
 	return EXIT_SUCCESS;
 }
 
+/* outputmsg: write a message to out detailing command changes */
 static void outputmsg(char *out, struct command *c, char *resp)
 {
 	int cd;
