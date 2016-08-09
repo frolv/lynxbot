@@ -126,8 +126,14 @@ int CmdHandler::editrec(char *out, struct command *c)
 		}
 	}
 
-	if (app)
+	if (app) {
+		if (l_optind == c->argc - 1) {
+			_sprintf(out, MAX_MSG, "%s: nothing to append",
+					c->argv[0]);
+			return EXIT_FAILURE;
+		}
 		strcat(response, " ");
+	}
 	argvcat(response + strlen(response), c->argc, c->argv, l_optind + 1, 1);
 
 	return edit_recurring(out, m_evtp, id, c, response);
