@@ -5,6 +5,7 @@
 #include "command.h"
 #include "../CmdHandler.h"
 #include "../option.h"
+#include "../sed.h"
 
 #define MAX_URL 128
 
@@ -13,7 +14,7 @@ CMDNAME("status");
 /* description of the command */
 CMDDESCR("set channel status");
 /* command usage synopsis */
-CMDUSAGE("status [-a] [STATUS]");
+CMDUSAGE("status [-a] [-s SEDCMD] [STATUS]");
 
 static const char *TWITCH_API = "https://api.twitch.tv/kraken/channels/";
 
@@ -28,12 +29,14 @@ int CmdHandler::status(char *out, struct command *c)
 		{ "Authorization", "OAuth " + std::string(m_token) }};
 
 	char buf[MAX_MSG];
-	int append, status;
+	char sedcmd[MAX_MSG];
+	int append, sedflag;
 
 	int opt;
 	static struct l_option long_opts[] = {
 		{ "append", NO_ARG, 'a' },
 		{ "help", NO_ARG, 'h' },
+		{ "sed", REQ_ARG, 's' },
 		{ 0, 0, 0 }
 	};
 
@@ -43,10 +46,9 @@ int CmdHandler::status(char *out, struct command *c)
 	}
 
 	opt_init();
-	append = 0;
+	append = sedflag = 0;
 	buf[0] = '\0';
-	status = EXIT_SUCCESS;
-	while ((opt = l_getopt_long(c->argc, c->argv, "a", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "as:", long_opts)) != EOF) {
 		switch (opt) {
 		case 'a':
 			append = 1;
@@ -54,6 +56,10 @@ int CmdHandler::status(char *out, struct command *c)
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
+		case 's':
+			sedflag = 1;
+			strcpy(sedcmd, l_optarg);
+			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
@@ -62,8 +68,14 @@ int CmdHandler::status(char *out, struct command *c)
 		}
 	}
 
-	/* get the current status if no arg provided or if appending */
-	if (l_optind == c->argc || append) {
+	if (append && sedflag) {
+		_sprintf(out, MAX_MSG, "%s: cannot combine -s and -a",
+				c->argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	/* get the current status if no arg provided, appending or sed */
+	if (l_optind == c->argc || append || sedflag) {
 		if (!curr_status(buf, m_channel, &head)) {
 			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 			return EXIT_FAILURE;
@@ -74,12 +86,22 @@ int CmdHandler::status(char *out, struct command *c)
 		if (append) {
 			_sprintf(out, MAX_MSG, "%s: no text to append",
 					c->argv[0]);
-			status = EXIT_FAILURE;
+			return EXIT_FAILURE;
+		} else if (sedflag) {
+			if (!sed(buf, MAX_MSG, buf, sedcmd)) {
+				_sprintf(out, MAX_MSG, "%s: %s",
+						c->argv[0], buf);
+				return EXIT_FAILURE;
+			}
 		} else {
 			_sprintf(out, MAX_MSG, "[STATUS] Current status for %s "
 					"is \"%s\".", m_channel, buf);
+			return EXIT_SUCCESS;
 		}
-		return status;
+	} else if (sedflag) {
+		_sprintf(out, MAX_MSG, "%s: cannot provide status with -s",
+				c->argv[0]);
+		return EXIT_FAILURE;
 	}
 
 	if (append)
