@@ -265,6 +265,8 @@ void CmdHandler::populate_cmd()
 	m_defaultCmds["dr"] = &CmdHandler::delrec;
 	m_defaultCmds["ec"] = &CmdHandler::editcom;
 	m_defaultCmds["editcom"] = &CmdHandler::editcom;
+	m_defaultCmds["er"] = &CmdHandler::editrec;
+	m_defaultCmds["editrec"] = &CmdHandler::editrec;
 	m_defaultCmds["permit"] = &CmdHandler::permit;
 	m_defaultCmds["setgiv"] = &CmdHandler::setgiv;
 	m_defaultCmds["setrec"] = &CmdHandler::setrec;
@@ -285,6 +287,7 @@ void CmdHandler::populate_help()
 	m_help["ec"] = "editcom";
 	m_help["ar"] = "addrec";
 	m_help["dr"] = "delrec";
+	m_help["er"] = "editrec";
 	m_help["lvl"] = "level";
 	m_help["sp"] = "strawpoll";
 	m_help["automated-responses"] = "automated-responses";
