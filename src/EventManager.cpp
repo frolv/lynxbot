@@ -57,8 +57,18 @@ bool EventManager::delmsg(size_t id)
 }
 
 /* editmsg: modify recurring message id */
-bool editmsg(size_t id, const char *msg, time_t cd)
+bool EventManager::editmsg(size_t id, const char *msg, time_t cd)
 {
+	if (id < 1 || id > m_messages.size())
+		return false;
+	auto &pair = m_messages[id - 1];
+	if (msg)
+		pair.first = std::string(msg);
+	if (cd != -1) {
+		pair.second = cd;
+		reload_messages();
+	}
+	write_messages();
 	return true;
 }
 
