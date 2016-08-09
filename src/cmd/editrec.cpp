@@ -13,7 +13,7 @@ CMDDESCR("modify a recurring message");
 CMDUSAGE("editrec [-c INTERVAL] [-s SEDCMD] ID [MSG]");
 
 /* editrec: modify a recurring message */
-int CmdHandler::editcom(char *out, struct command *c)
+int CmdHandler::editrec(char *out, struct command *c)
 {
 	return EXIT_SUCCESS;
 }
