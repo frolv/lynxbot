@@ -14,7 +14,7 @@ CMDNAME("editcom");
 /* description of the command */
 CMDDESCR("modify a custom command");
 /* command usage synopsis */
-CMDUSAGE("$editcom [-A on|off] [-a] [-c CD] [-r] CMD [RESPONSE]");
+CMDUSAGE("$editcom [-A on|off] [-a] [-c CD] [-r] [-s SEDCMD] CMD [RESPONSE]");
 /* rename flag usage */
 static const char *RUSAGE = "$editcom -r OLD NEW";
 
