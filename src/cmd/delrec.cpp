@@ -53,7 +53,7 @@ int CmdHandler::delrec(char *out, struct command *c)
 			return EXIT_FAILURE;
 		}
 		while (!m_evtp->messages()->empty())
-			m_evtp->delMessage(1);
+			m_evtp->delmsg(1);
 		_sprintf(out, MAX_MSG, "@%s, all recurring message deleted",
 				c->nick);
 		return EXIT_SUCCESS;
@@ -70,7 +70,7 @@ int CmdHandler::delrec(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (!m_evtp->delMessage(id)) {
+	if (!m_evtp->delmsg(id)) {
 		_sprintf(out, MAX_MSG, "%s: invalid ID provided", c->argv[0]);
 		return EXIT_FAILURE;
 	}

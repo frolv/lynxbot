@@ -13,21 +13,21 @@ class EventManager : public TimerManager {
 	public:
 		EventManager(ConfigReader *cfgr);
 		~EventManager();
-		bool messagesActive();
-		void activateMessages();
-		void deactivateMessages();
-		bool addMessage(const std::string &message,
-				time_t cooldown, bool write = true);
-		bool delMessage(size_t id);
-		std::string messageList() const;
+		bool active();
+		void activate();
+		void deactivate();
+		bool addmsg(const char *msg, time_t cd, bool write = true);
+		bool delmsg(size_t id);
+		bool editmsg(size_t id, const char *msg, time_t cd);
+		std::string msglist() const;
 		std::string message(size_t id, int lim = -1) const;
 		std::vector<std::pair<std::string, time_t>> *messages();
 	private:
 		ConfigReader *m_cfgr;
 		bool m_msg;
 		std::vector<std::pair<std::string, time_t>> m_messages;
-		void readFile();
-		void writeFile();
-		void reloadMessages();
+		void read_messages();
+		void write_messages();
+		void reload_messages();
 
 };

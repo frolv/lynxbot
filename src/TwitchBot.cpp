@@ -391,7 +391,7 @@ void TwitchBot::tick()
 		for (std::vector<std::string>::size_type i = 0;
 				i < m_event.messages()->size(); ++i) {
 			if (m_event.ready("msg" + std::to_string(i))) {
-				if (m_event.messagesActive())
+				if (m_event.active())
 					send_msg(((*m_event.messages())[i])
 							.first.c_str());
 				m_event.setUsed("msg" + std::to_string(i));

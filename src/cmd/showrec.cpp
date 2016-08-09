@@ -41,7 +41,7 @@ int CmdHandler::showrec(char *out, struct command *c)
 	}
 
 	if (l_optind == c->argc) {
-		_sprintf(out, MAX_MSG, "%s", m_evtp->messageList().c_str());
+		_sprintf(out, MAX_MSG, "%s", m_evtp->msglist().c_str());
 		return status;
 	}
 

@@ -42,7 +42,7 @@ int CmdHandler::addrec(char *out, struct command *c)
 				return EXIT_FAILURE;
 			}
 			if (cooldown < 0) {
-				_sprintf(out, MAX_MSG, "%s: cooldown cannot be "
+				_sprintf(out, MAX_MSG, "%s: interval cannot be "
 						"negative", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -63,19 +63,19 @@ int CmdHandler::addrec(char *out, struct command *c)
 		_sprintf(out, MAX_MSG, "%s: interval must be a multiple "
 				"of 5 mins", c->argv[0]);
 		return EXIT_FAILURE;
-	}
-	else if (cooldown > 3600) {
+	} else if (cooldown > 3600) {
 		_sprintf(out, MAX_MSG, "%s: interval cannot be longer "
 				"than 60 mins", c->argv[0]);
 		return EXIT_FAILURE;
 	}
+
 	if (l_optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
 
 	argvcat(msg, c->argc, c->argv, l_optind, 1);
-	if (!m_evtp->addMessage(msg, cooldown))
+	if (!m_evtp->addmsg(msg, cooldown))
 		_sprintf(out, MAX_MSG, "%s: limit of 5 recurring "
 				"messages reached", c->argv[0]);
 	else

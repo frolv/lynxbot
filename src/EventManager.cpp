@@ -8,57 +8,62 @@
 EventManager::EventManager(ConfigReader *cfgr)
 	: m_cfgr(cfgr), m_msg(false)
 {
-	readFile();
+	read_messages();
 	m_msg = m_messages.size() > 0;
 }
 
 EventManager::~EventManager() {}
 
-/* messagesActive: return true if recurring messages are active */
-bool EventManager::messagesActive()
+/* active: return true if recurring messages are active */
+bool EventManager::active()
 {
 	return m_msg;
 }
 
-/* activateMessages: enable recurring messages */
-void EventManager::activateMessages()
+/* activate: enable recurring messages */
+void EventManager::activate()
 {
 	m_msg = true;
 }
 
-/* deactivateMessages: disable recurring messages */
-void EventManager::deactivateMessages()
+/* deactivate: disable recurring messages */
+void EventManager::deactivate()
 {
 	m_msg = false;
 }
 
-/* addMessage: add a recurring message */
-bool EventManager::addMessage(const std::string &message,
-	time_t cooldown, bool write)
+/* addmsg: add a recurring message */
+bool EventManager::addmsg(const char *msg, time_t cd, bool write)
 {
-	if (m_messages.size() >= 5 || cooldown % 300 != 0 || cooldown > 3600)
+	if (m_messages.size() >= 5 || cd % 300 != 0 || cd > 3600)
 		return false;
-	m_messages.push_back({ message, cooldown });
-	reloadMessages();
+	m_messages.push_back({ std::string(msg), cd });
+	reload_messages();
 	if (write)
-		writeFile();
+		write_messages();
 	return true;
 }
 
-/* delMessage: delete a recurring message */
-bool EventManager::delMessage(size_t id)
+/* delmsg: delete a recurring message */
+bool EventManager::delmsg(size_t id)
 {
 	if (id < 1 || id > m_messages.size())
 		return false;
 	auto it = m_messages.begin() + (id - 1);
 	m_messages.erase(it);
-	reloadMessages();
-	writeFile();
+	reload_messages();
+	write_messages();
 	return true;
 }
 
-/* messageList: return a formatted string of all messages and intervals */
-std::string EventManager::messageList() const
+/* editmsg: modify recurring message id */
+bool editmsg(size_t id, const char *msg, time_t cd)
+{
+	return true;
+}
+
+/* msglist: return a formatted string of all messages and intervals */
+std::string EventManager::msglist() const
 {
 	std::string output = "(";
 	output += m_msg ? "active" : "inactive";
@@ -96,8 +101,8 @@ std::vector<std::pair<std::string, time_t>> *EventManager::messages()
 	return &m_messages;
 }
 
-/* readFile: read recurring messages from file */
-void EventManager::readFile()
+/* read_messages: read recurring messages from file */
+void EventManager::read_messages()
 {
 	size_t i, max;
 	bool error, valid;
@@ -130,7 +135,8 @@ void EventManager::readFile()
 		if (valid) {
 			if (!utils::parseInt(cd, map["period"], err)) {
 				valid = false;
-			} else if (!addMessage(map["message"], cd * 60, false)) {
+			} else if (!addmsg(map["message"].c_str(),
+						cd * 60, false)) {
 				err = "cooldown must be multiple of 5 minutes "
 					"and no longer than 60 minutes";
 				valid = false;
@@ -149,8 +155,8 @@ void EventManager::readFile()
 		WAIT_INPUT();
 }
 
-/* writeFile: write recurring messages to file */
-void EventManager::writeFile()
+/* write_messages: write recurring messages to file */
+void EventManager::write_messages()
 {
 	std::vector<std::unordered_map<std::string, std::string>> &recurring =
 		m_cfgr->olist()["recurring"];
@@ -164,8 +170,8 @@ void EventManager::writeFile()
 	m_cfgr->write();
 }
 
-/* reloadMessages: load all messages into timer */
-void EventManager::reloadMessages()
+/* reload_messages: load all messages into timer */
+void EventManager::reload_messages()
 {
 	for (std::vector<std::string>::size_type i = 0;
 			i < m_messages.size(); ++i) {
