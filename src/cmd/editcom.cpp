@@ -25,11 +25,11 @@ static int set;
 /* command cooldown */
 time_t cooldown;
 
-static int edit(char *out, CustomHandler *cch, struct command *c,
-		TimerManager *tm);
+static int edit(char *out, CustomHandler *cch, struct command *c);
 static int rename(char *out, CustomHandler *cch, struct command *c);
 static int cmdsed(char *out, CustomHandler *cch, struct command *c,
 		const char *sedcmd);
+static void outputmsg(char *out, struct command *c, char *resp);
 
 /* editcom: modify a custom command */
 int CmdHandler::editcom(char *out, struct command *c)
@@ -137,22 +137,20 @@ int CmdHandler::editcom(char *out, struct command *c)
 			status = rename(out, m_customCmds, c);
 		}
 	} else {
-		status = edit(out, m_customCmds, c, &m_cooldowns);
+		status = edit(out, m_customCmds, c);
 	}
 	return status;
 }
 
 /* edit: edit a custom command */
-static int edit(char *out, CustomHandler *cch, struct command *c,
-		TimerManager *tm)
+static int edit(char *out, CustomHandler *cch, struct command *c)
 {
-	int cd, resp;
+	int resp;
 	char response[MAX_MSG];
 	char buf[MAX_MSG];
 	Json::Value *com;
 
 	/* determine which parts are being changed */
-	cd = cooldown != -1;
 	resp = l_optind != c->argc - 1;
 
 	argvcat(response, c->argc, c->argv, l_optind + 1, 1);
@@ -173,46 +171,19 @@ static int edit(char *out, CustomHandler *cch, struct command *c,
 				cch->error().c_str());
 		return EXIT_FAILURE;
 	}
-	if (!cd && !resp && !set) {
+	if (cooldown == -1 && !resp && !set) {
 		_sprintf(out, MAX_MSG, "@%s, command $%s was unchanged",
 				c->nick, c->argv[l_optind]);
 		return EXIT_SUCCESS;
 	}
-
-	/* build an output string detailing changes */
-	_sprintf(out, MAX_MSG, "@%s, command $%s has been",
-			c->nick, c->argv[l_optind]);
-	if (set) {
-		if (set == ON) {
-			if (!cch->activate(c->argv[l_optind])) {
-				_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
-						cch->error().c_str());
-				return EXIT_FAILURE;
-			}
-			strcat(out, " activated");
-		} else {
-			cch->deactivate(c->argv[l_optind]);
-			strcat(out, " deactivated");
-		}
+	if (set == ON && !cch->activate(c->argv[l_optind])) {
+		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+				cch->error().c_str());
+		return EXIT_FAILURE;
+	} else if (set == OFF) {
+		cch->deactivate(c->argv[l_optind]);
 	}
-	if (resp || cd) {
-		if (set)
-			strcat(out, " and");
-		strcat(out, " changed to ");
-		out = strchr(out, '\0');
-		if (resp) {
-			_sprintf(out, MAX_MSG, "\"%s\"%s", response,
-					cd ? ", with " : "");
-			out = strchr(out, '\0');
-		}
-		if (cd) {
-			/* reset cooldown in TimerManager */
-			tm->remove(c->argv[l_optind]);
-			tm->add(c->argv[l_optind], cooldown);
-			_sprintf(out, MAX_MSG, "a %lds cooldown", cooldown);
-		}
-	}
-	strcat(out, ".");
+	outputmsg(out, c, resp ? response : NULL);
 	return EXIT_SUCCESS;
 }
 
@@ -257,7 +228,42 @@ static int cmdsed(char *out, CustomHandler *cch, struct command *c,
 				cch->error().c_str());
 		return EXIT_FAILURE;
 	}
-	_sprintf(out, MAX_MSG, "@%s, command $%s has been changed to \"%s\"",
-			c->nick, c->argv[l_optind], buf);
+	if (set == ON && !cch->activate(c->argv[l_optind])) {
+		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+				cch->error().c_str());
+		return EXIT_FAILURE;
+	} else if (set == OFF) {
+		cch->deactivate(c->argv[l_optind]);
+	}
+	outputmsg(out, c, buf);
 	return EXIT_SUCCESS;
+}
+
+static void outputmsg(char *out, struct command *c, char *resp)
+{
+	int cd;
+
+	cd = cooldown != -1;
+	_sprintf(out, MAX_MSG, "@%s, command $%s has been",
+			c->nick, c->argv[l_optind]);
+	if (set == ON)
+		strcat(out, " activated");
+	else if (set == OFF)
+		strcat(out, " deactivated");
+
+	if (resp || cd) {
+		if (set)
+			strcat(out, " and");
+		strcat(out, " changed to ");
+		out = strchr(out, '\0');
+		if (resp) {
+			_sprintf(out, MAX_MSG, "\"%s\"%s", resp,
+					cd ? ", with " : "");
+			out = strchr(out, '\0');
+		}
+		if (cd) {
+			_sprintf(out, MAX_MSG, "a %lds cooldown", cooldown);
+		}
+	}
+	strcat(out, ".");
 }
