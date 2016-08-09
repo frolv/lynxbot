@@ -4,7 +4,6 @@
 #include "../option.h"
 #include "../sed.h"
 #include "../stringparse.h"
-#include "../TimerManager.h"
 
 #define ON  1
 #define OFF 2
