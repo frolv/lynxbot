@@ -22,7 +22,7 @@ static int app;
 /* active setting */
 static int set;
 /* command cooldown */
-time_t cooldown;
+static time_t cooldown;
 
 static int edit(char *out, CustomHandler *cch, struct command *c);
 static int rename(char *out, CustomHandler *cch, struct command *c);
