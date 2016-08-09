@@ -70,7 +70,8 @@ static int parsecmd(struct sedinfo *s, char *cmd)
 	}
 	t = s->regex;
 	for (t = s->regex; *t; ++t) {
-		if (*t == '(' || *t == '[') {
+		if ((*t == '(' || *t == '[')
+				&& (t == s->regex || *(t - 1) != '\\')) {
 			if (!(t = readbrackets(t))) {
 				s->error = UNTERM;
 				return 0;
@@ -143,7 +144,7 @@ static char *readbrackets(char *s)
 	end = *s == '(' ? ')' : ']';
 	for (++s; *s && *s != end; ++s) {
 		if (*s == '\\' && s[1] == end)
-			shift_l(s);
+			++s;
 	}
 	return *s ? s : NULL;
 }
