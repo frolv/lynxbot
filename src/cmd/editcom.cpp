@@ -33,8 +33,8 @@ static void outputmsg(char *out, struct command *c, char *resp);
 /* editcom: modify a custom command */
 int CmdHandler::editcom(char *out, struct command *c)
 {
-	int ren, sed, status;
-	char sedcmd[MAX_MSG];
+	int ren, status;
+	char *sedcmd;
 
 	int opt;
 	static struct l_option long_opts[] = {
@@ -60,7 +60,8 @@ int CmdHandler::editcom(char *out, struct command *c)
 
 	opt_init();
 	cooldown = -1;
-	set = ren = app = sed = 0;
+	set = ren = app = 0;
+	sedcmd = NULL;
 	status = EXIT_SUCCESS;
 	while ((opt = l_getopt_long(c->argc, c->argv, "A:ac:rs:", long_opts))
 			!= EOF) {
@@ -99,8 +100,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 			ren = 1;
 			break;
 		case 's':
-			sed = 1;
-			strcpy(sedcmd, l_optarg);
+			sedcmd = l_optarg;
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", l_opterr());
@@ -115,7 +115,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (sed) {
+	if (sedcmd) {
 		if (app || ren) {
 			_sprintf(out, MAX_MSG, "%s: cannot use -a or -r "
 					"with -s", c->argv[0]);
@@ -128,7 +128,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 			status = cmdsed(out, m_customCmds, c, sedcmd);
 		}
 	} else if (ren) {
-		if (app || cooldown != -1 || set || sed) {
+		if (app || cooldown != -1 || set || sedcmd) {
 			_sprintf(out, MAX_MSG, "%s: cannot use other flags "
 					"with -r", c->argv[0]);
 			status = EXIT_FAILURE;

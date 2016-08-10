@@ -29,8 +29,8 @@ int CmdHandler::status(char *out, struct command *c)
 		{ "Authorization", "OAuth " + std::string(m_token) }};
 
 	char buf[MAX_MSG];
-	char sedcmd[MAX_MSG];
-	int append, sedflag;
+	char *sedcmd;
+	int append;
 
 	int opt;
 	static struct l_option long_opts[] = {
@@ -46,7 +46,8 @@ int CmdHandler::status(char *out, struct command *c)
 	}
 
 	opt_init();
-	append = sedflag = 0;
+	append = 0;
+	sedcmd = NULL;
 	buf[0] = '\0';
 	while ((opt = l_getopt_long(c->argc, c->argv, "as:", long_opts)) != EOF) {
 		switch (opt) {
@@ -57,8 +58,7 @@ int CmdHandler::status(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case 's':
-			sedflag = 1;
-			strcpy(sedcmd, l_optarg);
+			sedcmd = l_optarg;
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", l_opterr());
@@ -68,14 +68,14 @@ int CmdHandler::status(char *out, struct command *c)
 		}
 	}
 
-	if (append && sedflag) {
+	if (append && sedcmd) {
 		_sprintf(out, MAX_MSG, "%s: cannot combine -s and -a",
 				c->argv[0]);
 		return EXIT_FAILURE;
 	}
 
 	/* get the current status if no arg provided, appending or sed */
-	if (l_optind == c->argc || append || sedflag) {
+	if (l_optind == c->argc || append || sedcmd) {
 		if (!curr_status(buf, m_channel, &head)) {
 			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 			return EXIT_FAILURE;
@@ -87,7 +87,7 @@ int CmdHandler::status(char *out, struct command *c)
 			_sprintf(out, MAX_MSG, "%s: no text to append",
 					c->argv[0]);
 			return EXIT_FAILURE;
-		} else if (sedflag) {
+		} else if (sedcmd) {
 			if (!sed(buf, MAX_MSG, buf, sedcmd)) {
 				_sprintf(out, MAX_MSG, "%s: %s",
 						c->argv[0], buf);
@@ -98,7 +98,7 @@ int CmdHandler::status(char *out, struct command *c)
 					"is \"%s\".", m_channel, buf);
 			return EXIT_SUCCESS;
 		}
-	} else if (sedflag) {
+	} else if (sedcmd) {
 		_sprintf(out, MAX_MSG, "%s: cannot provide status with -s",
 				c->argv[0]);
 		return EXIT_FAILURE;

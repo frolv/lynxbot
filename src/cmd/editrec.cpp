@@ -21,9 +21,9 @@ static int edit_recurring(char *out, EventManager *evt, int id,
 /* editrec: modify a recurring message */
 int CmdHandler::editrec(char *out, struct command *c)
 {
-	int app, sedflag;
+	int app;
 	int64_t id;
-	char sedcmd[MAX_MSG];
+	char *sedcmd;
 	char response[MAX_MSG];
 
 	int opt;
@@ -42,8 +42,9 @@ int CmdHandler::editrec(char *out, struct command *c)
 	}
 
 	opt_init();
-	app = sedflag = 0;
+	app = 0;
 	interval = -1;
+	sedcmd = NULL;
 	response[0] = '\0';
 	while ((opt = l_getopt_long(c->argc, c->argv, "ac:s:", long_opts))
 			!= EOF) {
@@ -69,8 +70,7 @@ int CmdHandler::editrec(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case 's':
-			sedflag = 1;
-			strcpy(sedcmd, l_optarg);
+			sedcmd = l_optarg;
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", l_opterr());
@@ -84,7 +84,7 @@ int CmdHandler::editrec(char *out, struct command *c)
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
 	}
-	if (app && sedflag) {
+	if (app && sedcmd) {
 		_sprintf(out, MAX_MSG, "%s: cannot use -a with -s", c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -111,10 +111,10 @@ int CmdHandler::editrec(char *out, struct command *c)
 		}
 	}
 
-	if (app || sedflag)
+	if (app || sedcmd)
 		strcpy(response, m_evtp->messages()->at(id - 1).first.c_str());
 
-	if (sedflag) {
+	if (sedcmd) {
 		if (l_optind != c->argc - 1) {
 			_sprintf(out, MAX_MSG, "%s: cannot provide message "
 					"with -s", c->argv[0]);
