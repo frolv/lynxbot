@@ -19,7 +19,8 @@ class Moderator {
 		bool whitelist(const std::string &site);
 		bool delurl(const std::string &site);
 		void permit(char *nick, int amt);
-		std::string getFormattedWhitelist() const;
+		std::string fmt_whitelist() const;
+		bool paste() const;
 	private:
 		URLParser *m_parsep;
 		ConfigReader *m_cfgr;
@@ -33,6 +34,7 @@ class Moderator {
 		uint32_t m_max_char;
 		uint32_t m_cap_len;
 		double m_cap_ratio;
+		bool m_pastefmt;
 		bool checkWhitelist() const;
 		bool checkSpam(const std::string &msg) const;
 		bool checkString(const std::string &msg,

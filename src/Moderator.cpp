@@ -15,6 +15,7 @@ Moderator::Moderator(URLParser *urlp, ConfigReader *cfgr)
 
 	invalid = false;
 	utils::split(m_cfgr->get("whitelist"), '\n', m_whitelist);
+	m_pastefmt = m_cfgr->get("whitelist").length() > 300;
 	if (!utils::parseBool(m_active, m_cfgr->get("enable_moderation"), err)) {
 		std::cerr << m_cfgr->path() << ": enable_moderation: " << err
 			<< " (defaulting to false)" << std::endl;
@@ -127,6 +128,7 @@ bool Moderator::whitelist(const std::string &site)
 	m_whitelist.push_back(site);
 	wl = m_cfgr->get("whitelist");
 	wl += '\n' + site;
+	m_pastefmt = wl.length() > 300;
 	m_cfgr->set("whitelist", wl);
 	m_cfgr->write();
 	return true;
@@ -144,6 +146,7 @@ bool Moderator::delurl(const std::string &site)
 
 	/* remove the newline too */
 	wl.erase(i, site.length() + 1);
+	m_pastefmt = wl.length() > 300;
 	m_whitelist.erase(std::remove(m_whitelist.begin(), m_whitelist.end(),
 				site), m_whitelist.end());
 	m_cfgr->set("whitelist", wl);
@@ -161,15 +164,25 @@ void Moderator::permit(char *nick, int amt)
 	m_perm[nick] = amt;
 }
 
-/* getFormattedWhitelist: return a formatted string of all whitelisted sites */
-std::string Moderator::getFormattedWhitelist() const
+/* fmt_whitelist: return a formatted string of all whitelisted sites */
+std::string Moderator::fmt_whitelist() const
 {
-	std::string output = "Whitelisted sites: ";
+	std::string output = "Whitelisted sites:";
+
+	if (m_pastefmt)
+		return output + "\n\n" + m_cfgr->get("whitelist");
+
+	output += ' ';
 	for (auto itr = m_whitelist.begin(); itr != m_whitelist.end(); ++itr) {
 		/* add commas after all but last */
 		output += *itr + (itr == m_whitelist.end() - 1 ? "." : ", ");
 	}
 	return output;
+}
+
+bool Moderator::paste() const
+{
+	return m_pastefmt;
 }
 
 /* checkWhitelist: check if last parsed URL is whitelisted */

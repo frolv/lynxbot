@@ -1,4 +1,5 @@
 #include <string.h>
+#include <utils.h>
 #include "command.h"
 #include "../CmdHandler.h"
 #include "../option.h"
@@ -55,9 +56,13 @@ int CmdHandler::whitelist(char *out, struct command *c)
 			_sprintf(out, MAX_MSG, "%s: no website specified",
 					c->argv[0]);
 			status = EXIT_FAILURE;
+		} else if (m_modp->paste()) {
+			_sprintf(out, MAX_MSG, "[WHITELIST] %s",
+					utils::upload(m_modp->
+						fmt_whitelist()).c_str());
 		} else {
 			_sprintf(out, MAX_MSG, "[WHITELIST] %s",
-					m_modp->getFormattedWhitelist().c_str());
+					m_modp->fmt_whitelist().c_str());
 		}
 		return status;
 	}
