@@ -54,7 +54,7 @@ int CmdHandler::delrec(char *out, struct command *c)
 		}
 		while (!m_evtp->messages()->empty())
 			m_evtp->delmsg(1);
-		_sprintf(out, MAX_MSG, "@%s, all recurring message deleted",
+		_sprintf(out, MAX_MSG, "@%s, all recurring messages deleted.",
 				c->nick);
 		return EXIT_SUCCESS;
 	}

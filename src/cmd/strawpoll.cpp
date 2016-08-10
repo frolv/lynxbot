@@ -129,7 +129,8 @@ static int create_poll(char *out, char *pollbuf, struct command *c)
 	_sprintf(buf, MAX_MSG, "%s%s", STRAWPOLL_HOST, STRAWPOLL_API);
 	resp = cpr::Post(cpr::Url(buf), cpr::Body(fw.write(poll)), cpr::Header{
 			{ "Connection", "close" },
-			{ "Content-Type", "application/json" }});
+			{ "Content-Type", "application/json" }
+		});
 
 	/* read id from response */
 	if (reader.parse(resp.text, response)) {

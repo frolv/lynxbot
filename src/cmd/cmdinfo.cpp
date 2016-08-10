@@ -9,7 +9,7 @@
 #define MAX_PRINT 128
 
 /* full name of the command */
-CMDNAME("command");
+CMDNAME("cmdinfo");
 /* description of the command */
 CMDDESCR("show information about a custom command");
 /* command usage synopsis */

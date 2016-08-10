@@ -37,10 +37,10 @@ int l_getopt(int argc, char **argv, const char *optstr);
 
 /*
  * l_getopt_long: parse command options with suppport
- * for l_ong options starting with '--'
+ * for long options starting with '--'
  */
 int l_getopt_long(int argc, char **argv, const char *optstr,
-		const struct l_option *l_ongopts);
+		const struct l_option *longopts);
 
 /* l_opterr: return string describing getopt error */
 char *l_opterr();
