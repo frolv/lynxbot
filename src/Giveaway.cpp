@@ -17,7 +17,6 @@
 # include <unistd.h>
 #endif
 
-#define MAX_PATH 4096
 #define MAX_LABL 256
 
 static std::string mkimg(const std::string &item);

@@ -22,7 +22,10 @@
 	_BOT_VER_PATCH _BOT_VER_SUF
 
 /* maximum length of chat message */
-#define MAX_MSG 1024
+#define MAX_MSG	1024
+
+/* maximum path length */
+#define MAX_PATH 4096
 
 /* buffer size for RSN fetching */
 #define RSN_BUF 64

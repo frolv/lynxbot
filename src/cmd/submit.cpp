@@ -4,8 +4,6 @@
 #include "../CmdHandler.h"
 #include "../option.h"
 
-#define MAX_PATH 512
-
 /* full name of the command */
 CMDNAME("submit");
 /* description of the command */
