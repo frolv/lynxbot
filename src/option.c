@@ -135,7 +135,7 @@ static int parselong(int argc, char **argv,
 		}
 		if (!next) {
 			if (++l_optind == argc) {
-				_sprintf(error, ERR_SIZE, "%s: option '%s' "
+				_sprintf(error, ERR_SIZE, "%s: option '--%s' "
 						"requires an argument",
 						argv[0], lopt);
 				return '?';
