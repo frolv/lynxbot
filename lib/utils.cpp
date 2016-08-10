@@ -27,6 +27,7 @@ static std::unordered_map<std::string, std::string> configs = {
 	{ "twitter", "/twitter" },
 	{ "config", "/config" },
 	{ "submit", "/submitted" },
+	{ "modlog", "/modlog" }
 };
 
 static const std::string PB = "https://ptpb.pw/";

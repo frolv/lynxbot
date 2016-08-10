@@ -4,6 +4,9 @@
 #include "config.h"
 #include "URLParser.h"
 
+#define TIMEOUT	0
+#define BAN	1
+
 class ConfigReader;
 class URLParser;
 
@@ -13,14 +16,16 @@ class Moderator {
 		Moderator(URLParser *urlp, ConfigReader *cfgr);
 		~Moderator();
 		bool active() const;
-		bool isValidMsg(const std::string &msg,
+		bool validmsg(const std::string &msg,
 				const std::string &nick, std::string &reason);
-		uint8_t getOffenses(const std::string &nick) const;
+		uint8_t offenses(const std::string &nick) const;
 		bool whitelist(const std::string &site);
 		bool delurl(const std::string &site);
 		void permit(char *nick, int amt);
 		std::string fmt_whitelist() const;
 		bool paste() const;
+		bool log(int type, const char *user, const char *by,
+				const char *reason);
 	private:
 		URLParser *m_parsep;
 		ConfigReader *m_cfgr;
@@ -35,9 +40,9 @@ class Moderator {
 		uint32_t m_cap_len;
 		double m_cap_ratio;
 		bool m_pastefmt;
-		bool checkWhitelist() const;
-		bool checkSpam(const std::string &msg) const;
-		bool checkString(const std::string &msg,
+		bool check_wl() const;
+		bool check_spam(const std::string &msg) const;
+		bool check_str(const std::string &msg,
 				std::string &reason) const;
 
 };

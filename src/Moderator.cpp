@@ -72,8 +72,8 @@ bool Moderator::active() const
 	return m_active;
 }
 
-/* isValidMsg: check if msg is valid according to moderation settings */
-bool Moderator::isValidMsg(const std::string &msg,
+/* validmsg: check if msg is valid according to moderation settings */
+bool Moderator::validmsg(const std::string &msg,
 		const std::string &nick, std::string &reason)
 {
 	bool valid = true;
@@ -82,7 +82,7 @@ bool Moderator::isValidMsg(const std::string &msg,
 		reason = "message too long!";
 		valid = false;
 	}
-	if (valid && m_ban_urls && m_parsep->wasModified() && checkWhitelist()) {
+	if (valid && m_ban_urls && m_parsep->wasModified() && check_wl()) {
 		if (m_perm.find(nick) != m_perm.end() && m_perm[nick] != 0) {
 			/* -1 indicates session long permission */
 			if (m_perm[nick] != -1)
@@ -92,11 +92,11 @@ bool Moderator::isValidMsg(const std::string &msg,
 			valid = false;
 		}
 	}
-	if (valid && checkSpam(msg)) {
+	if (valid && check_spam(msg)) {
 		reason = "no spamming words!";
 		valid = false;
 	}
-	if (valid && checkString(msg, reason))
+	if (valid && check_str(msg, reason))
 		valid = false;
 	if (!valid) {
 		/* update user's offenses if message is invalid */
@@ -110,8 +110,8 @@ bool Moderator::isValidMsg(const std::string &msg,
 	return valid;
 }
 
-/* getOffenses: return how many offenses nick has committed */
-uint8_t Moderator::getOffenses(const std::string &nick) const
+/* offenses: return how many offenses nick has committed */
+uint8_t Moderator::offenses(const std::string &nick) const
 {
 	auto it = m_offenses.find(nick);
 	return it == m_offenses.end() ? 0 : it->second;
@@ -185,8 +185,40 @@ bool Moderator::paste() const
 	return m_pastefmt;
 }
 
-/* checkWhitelist: check if last parsed URL is whitelisted */
-bool Moderator::checkWhitelist() const
+bool Moderator::log(int type, const char *user, const char *by,
+		const char *reason)
+{
+	FILE *f;
+	char path[MAX_PATH];
+	char buf[MAX_MSG];
+	struct tm modtm;
+	time_t t;
+
+	_sprintf(path, MAX_PATH, "%s%s", utils::configdir().c_str(),
+			utils::config("modlog").c_str());
+	if (!(f = fopen(path, "a"))) {
+		perror(path);
+		return false;
+	}
+	t = time(nullptr);
+
+#ifdef __linux__
+	modtm = *localtime(&t);
+#endif
+#ifdef _WIN32
+	localtime_s(&modtm, &t);
+#endif
+	strftime(buf, MAX_MSG, "%Y-%m-%d %R", &modtm);
+	fprintf(f, "[%s] %s %s by %s. Reason: %s\n", buf, user,
+			type == BAN ? "banned" : "timed out",
+			by, reason ? reason : "none");
+
+	fclose(f);
+	return true;
+}
+
+/* check_wl: check if last parsed URL is whitelisted */
+bool Moderator::check_wl() const
 {
 	std::string domain, sub;
 
@@ -198,8 +230,8 @@ bool Moderator::checkWhitelist() const
 		m_whitelist.end(), sub) == m_whitelist.end();
 }
 
-/* checkSpam: check if msg contains word spam */
-bool Moderator::checkSpam(const std::string &msg) const
+/* check_spam: check if msg contains word spam */
+bool Moderator::check_spam(const std::string &msg) const
 {
 	std::regex spamRegex("(.{2,}\\b)\\1{"
 			+ std::to_string(m_max_pattern - 1) + ",}");
@@ -207,8 +239,8 @@ bool Moderator::checkSpam(const std::string &msg) const
 	return std::regex_search(msg.begin(), msg.end(), match, spamRegex);
 }
 
-/* checkString: check if msg contains excess caps or character spam */
-bool Moderator::checkString(const std::string &msg, std::string &reason) const
+/* check_str: check if msg contains excess caps or character spam */
+bool Moderator::check_str(const std::string &msg, std::string &reason) const
 {
 	unsigned int caps, repeated, len;
 	char last;

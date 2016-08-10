@@ -361,8 +361,8 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 	char out[MAX_MSG];
 	int offenses, t;
 
-	if (!m_mod.isValidMsg(msg, nick, reason)) {
-		offenses = m_mod.getOffenses(nick);
+	if (!m_mod.validmsg(msg, nick, reason)) {
+		offenses = m_mod.offenses(nick);
 		if (offenses < 4) {
 			/* timeout for 2^(offenses - 1) minutes */
 			t = 60 * (int)pow(2, offenses - 1);
