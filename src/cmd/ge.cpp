@@ -29,10 +29,11 @@ int CmdHandler::ge(char *out, struct command *c)
 	char num[RSN_BUF];
 	char *s;
 
-	int opt;
+	int opt, hex;
 	static struct l_option long_opts[] = {
 		{ "amount", REQ_ARG, 'n' },
 		{ "help", NO_ARG, 'h' },
+		{ "hex", NO_ARG, 'z' },
 		{ 0, 0, 0 }
 	};
 
@@ -43,6 +44,7 @@ int CmdHandler::ge(char *out, struct command *c)
 
 	opt_init();
 	amt = 1;
+	hex = 0;
 	while ((opt = l_getopt_long(c->argc, c->argv, "n:", long_opts)) != EOF) {
 		switch (opt) {
 		case 'h':
@@ -59,6 +61,9 @@ int CmdHandler::ge(char *out, struct command *c)
 						"negative", c->argv[0]);
 				return EXIT_FAILURE;
 			}
+			break;
+		case 'z':
+			hex = 1;
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", l_opterr());
@@ -98,13 +103,21 @@ int CmdHandler::ge(char *out, struct command *c)
 	strcpy(out, "[GE] ");
 	out = strchr(out, '\0');
 	if (amt != 1) {
-		_sprintf(buf, RSN_BUF, "%ld", amt);
-		fmtnum(out, RSN_BUF, buf);
+		if (hex) {
+			_sprintf(out, RSN_BUF, "%lX", amt);
+		} else {
+			_sprintf(buf, RSN_BUF, "%ld", amt);
+			fmtnum(out, RSN_BUF, buf);
+		}
 		strcat(out, "x ");
 		out = strchr(out, '\0');
 	}
-	_sprintf(buf, RSN_BUF, "%ld", amt * price);
-	fmtnum(num, RSN_BUF, buf);
+	if (hex) {
+		_sprintf(num, RSN_BUF, "0x%lX", (uint64_t)(amt * price));
+	} else {
+		_sprintf(buf, RSN_BUF, "%ld", amt * price);
+		fmtnum(num, RSN_BUF, buf);
+	}
 	_sprintf(out, MAX_MSG, "%s: %s gp", item["name"].asCString(), num);
 
 	return EXIT_SUCCESS;
