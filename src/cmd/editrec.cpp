@@ -10,7 +10,7 @@ CMDNAME("editrec");
 /* description of the command */
 CMDDESCR("modify a recurring message");
 /* command usage synopsis */
-CMDUSAGE("editrec [-c INTERVAL] [-s SEDCMD] ID [MSG]");
+CMDUSAGE("editrec [-a] [-c INTERVAL] [-s SEDCMD] ID [MSG]");
 
 /* interval of command */
 static time_t interval;
