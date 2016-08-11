@@ -145,16 +145,18 @@ void launchBot(struct botset *b, ConfigReader *cfgr)
 /* twitchAuth: interactively authorize LynxBot with a Twitch account */
 void twitchAuth(struct botset *b)
 {
-	char c;
-	int status;
+	int c, status;
 	std::string token, user;
 
 	printf("In order for the $status command to work, %s must be authorized"
 			" to update your Twitch channel settings.\nWould you "
 			"like to authorize %s now? (y/n) ", BOT_NAME, BOT_NAME);
-	while ((c = getchar()) != 'n' && c != 'y')
+	while ((c = getchar()) != EOF && c != 'n' && c != 'y')
 		;
-	if (c == 'n') {
+	if (c == EOF) {
+		putchar('\n');
+		exit(0);
+	} else if (c == 'n') {
 		b->access_token = "NULL";
 		return;
 	}
@@ -232,8 +234,10 @@ void checkupdates()
 		printf("A new version of %s (%s) is available.\nWould you like "
 				"to open the download page? (y/n)\n", BOT_NAME,
 				js["tag_name"].asCString());
-		while ((c = getchar()) != 'y' && c != 'n')
+		while ((c = getchar()) != EOF && c != 'y' && c != 'n')
 			;
+		if (c == EOF)
+			exit(0);
 		if (c == 'n')
 			return;
 #ifdef __linux__
