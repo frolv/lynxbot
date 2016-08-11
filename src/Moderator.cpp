@@ -6,8 +6,10 @@
 #include "lynxbot.h"
 #include "Moderator.h"
 
-Moderator::Moderator(URLParser *urlp, ConfigReader *cfgr)
-	:m_parsep(urlp), m_cfgr(cfgr)
+#define LOG_LEN 256
+
+Moderator::Moderator(const char *name, URLParser *urlp, ConfigReader *cfgr)
+	: m_name(name), m_parsep(urlp), m_cfgr(cfgr)
 {
 	std::string err;
 	bool invalid;
@@ -73,13 +75,18 @@ bool Moderator::active() const
 }
 
 /* validmsg: check if msg is valid according to moderation settings */
-bool Moderator::validmsg(const std::string &msg,
-		const std::string &nick, std::string &reason)
+bool Moderator::validmsg(const std::string &msg, const char *nick,
+		std::string &reason)
 {
+	char logmsg[LOG_LEN];
 	bool valid = true;
+	uint8_t off;
 
 	if (msg.length() > m_max_message_len) {
 		reason = "message too long!";
+		_sprintf(logmsg, LOG_LEN, "message length of %lu characters "
+				"exceeded limit of %u", msg.length(),
+				m_max_message_len);
 		valid = false;
 	}
 	if (valid && m_ban_urls && m_parsep->wasModified() && check_wl()) {
@@ -89,22 +96,29 @@ bool Moderator::validmsg(const std::string &msg,
 				m_perm[nick]--;
 		} else {
 			reason = "no posting links!";
+			_sprintf(logmsg, LOG_LEN, "posted unauthorized link: %s",
+					m_parsep->getLast()->full.c_str());
 			valid = false;
 		}
 	}
 	if (valid && check_spam(msg)) {
 		reason = "no spamming words!";
+		_sprintf(logmsg, LOG_LEN, "pattern repeated in message "
+				"more than limit of %u times", m_max_pattern);
 		valid = false;
 	}
-	if (valid && check_str(msg, reason))
+	if (valid && check_str(msg, reason, logmsg))
 		valid = false;
 	if (!valid) {
 		/* update user's offenses if message is invalid */
 		auto it = m_offenses.find(nick);
-		if (it == m_offenses.end())
+		if (it == m_offenses.end()) {
+			off = 1;
 			m_offenses.insert({ nick, 1 });
-		else
-			it->second++;
+		} else {
+			off = ++(it->second);
+		}
+		log(off > 3 ? BAN : TIMEOUT, nick, m_name, logmsg);
 	}
 	/* if none of the above are found, the message is valid */
 	return valid;
@@ -185,6 +199,7 @@ bool Moderator::paste() const
 	return m_pastefmt;
 }
 
+/* log: write a message detailing moderation action to log file */
 bool Moderator::log(int type, const char *user, const char *by,
 		const char *reason)
 {
@@ -240,10 +255,12 @@ bool Moderator::check_spam(const std::string &msg) const
 }
 
 /* check_str: check if msg contains excess caps or character spam */
-bool Moderator::check_str(const std::string &msg, std::string &reason) const
+bool Moderator::check_str(const std::string &msg, std::string &reason,
+		char *logmsg) const
 {
 	unsigned int caps, repeated, len;
 	char last;
+	double ratio;
 
 	caps = repeated = len = 0;
 	last = '\0';
@@ -259,13 +276,20 @@ bool Moderator::check_str(const std::string &msg, std::string &reason) const
 		}
 		if (repeated == m_max_char) {
 			reason = "no spamming characters!";
+			_sprintf(logmsg, LOG_LEN, "character '%c' repeated in "
+					"message over limit of %u times",
+					c, m_max_char);
 			return true;
 		}
 		caps += (c >= 'A' && c <= 'Z') ? 1 : 0;
 	}
 	/* messages longer than cap_len with over cap_ratio% caps are invalid */
-	if (msg.length() > m_cap_len && (caps / (double)len > m_cap_ratio)) {
+	ratio = caps / (double)len;
+	if (msg.length() > m_cap_len && (ratio > m_cap_ratio)) {
 		reason = "turn off your caps lock!";
+		_sprintf(logmsg, LOG_LEN, "%u out of %u non-whitespace "
+				"characters in message were uppercase",
+				caps, len);
 		return true;
 	}
 	return false;

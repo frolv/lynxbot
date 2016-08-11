@@ -22,7 +22,7 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 			&m_giveaway, cfgr, &m_auth),
 	m_cfgr(cfgr), m_event(cfgr),
 	m_giveaway(channel + 1, time(nullptr), cfgr),
-	m_mod(&m_parser, cfgr)
+	m_mod(name, &m_parser, cfgr)
 {
 	std::string err;
 	bool error;
@@ -361,7 +361,7 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 	char out[MAX_MSG];
 	int offenses, t;
 
-	if (!m_mod.validmsg(msg, nick, reason)) {
+	if (!m_mod.validmsg(msg, nick.c_str(), reason)) {
 		offenses = m_mod.offenses(nick);
 		if (offenses < 4) {
 			/* timeout for 2^(offenses - 1) minutes */

@@ -13,11 +13,11 @@ class URLParser;
 class Moderator {
 
 	public:
-		Moderator(URLParser *urlp, ConfigReader *cfgr);
+		Moderator(const char *name, URLParser *urlp, ConfigReader *cfgr);
 		~Moderator();
 		bool active() const;
-		bool validmsg(const std::string &msg,
-				const std::string &nick, std::string &reason);
+		bool validmsg(const std::string &msg, const char *nick,
+				std::string &reason);
 		uint8_t offenses(const std::string &nick) const;
 		bool whitelist(const std::string &site);
 		bool delurl(const std::string &site);
@@ -27,6 +27,7 @@ class Moderator {
 		bool log(int type, const char *user, const char *by,
 				const char *reason);
 	private:
+		const char *m_name;
 		URLParser *m_parsep;
 		ConfigReader *m_cfgr;
 		std::unordered_map<std::string, uint8_t> m_offenses;
@@ -42,7 +43,7 @@ class Moderator {
 		bool m_pastefmt;
 		bool check_wl() const;
 		bool check_spam(const std::string &msg) const;
-		bool check_str(const std::string &msg,
-				std::string &reason) const;
+		bool check_str(const std::string &msg, std::string &reason,
+				char *logmsg) const;
 
 };
