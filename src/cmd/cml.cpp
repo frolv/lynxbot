@@ -6,9 +6,6 @@
 #include "../skills.h"
 #include "../strfmt.h"
 
-#define NP 0
-#define SC 1
-#define VH 2
 #define MAX_URL 128
 
 /* full name of the command */
@@ -31,7 +28,8 @@ static int read_current_top(char *out, int id);
 /* cml: interact with crystalmathlabs trackers */
 int CmdHandler::cml(char *out, struct command *c)
 {
-	int usenick, update, page, id, status;
+	int usenick, update, id, status;
+	const char *page;
 	char buf[RSN_BUF];
 	char err[RSN_BUF];
 
@@ -48,7 +46,7 @@ int CmdHandler::cml(char *out, struct command *c)
 
 	opt_init();
 	usenick = update = 0;
-	page = NP;
+	page = NULL;
 	id = -1;
 	status = EXIT_SUCCESS;
 	while ((opt = l_getopt_long(c->argc, c->argv, "nst:uv", long_opts))
@@ -61,7 +59,7 @@ int CmdHandler::cml(char *out, struct command *c)
 			usenick = 1;
 			break;
 		case 's':
-			page = SC;
+			page = CML_SCALC;
 			break;
 		case 't':
 			if (strcmp(l_optarg, "ehp") == 0) {
@@ -78,7 +76,7 @@ int CmdHandler::cml(char *out, struct command *c)
 			update = 1;
 			break;
 		case 'v':
-			page = VH;
+			page = CML_VHS;
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", l_opterr());
@@ -93,11 +91,11 @@ int CmdHandler::cml(char *out, struct command *c)
 			if (update || usenick || id != -1) {
 				_sprintf(out, MAX_MSG, "%s: cannot use other "
 						"options with %s", c->argv[0],
-						page == SC ? "-s" : "-v");
+						page == CML_VHS ? "-v" : "-s");
 				status = EXIT_FAILURE;
 			} else {
-				_sprintf(out, MAX_MSG, "[CML] %s%s", CML_HOST,
-						page == SC ? CML_SCALC : CML_VHS);
+				_sprintf(out, MAX_MSG, "[CML] %s%s",
+						CML_HOST, page);
 			}
 		} else if (id != -1) {
 			status = read_current_top(out, id);
