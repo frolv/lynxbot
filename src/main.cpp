@@ -222,7 +222,7 @@ void checkupdates()
 	Json::Reader reader;
 	int c;
 
-	if (strstr(BOT_VERSION, "-beta"))
+	if (strchr(BOT_VERSION, '-'))
 		return;
 
 	resp = cpr::Get(cpr::Url(RELEASE_API),
