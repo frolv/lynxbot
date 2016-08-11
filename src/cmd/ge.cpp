@@ -104,7 +104,7 @@ int CmdHandler::ge(char *out, struct command *c)
 	out = strchr(out, '\0');
 	if (amt != 1) {
 		if (hex) {
-			_sprintf(out, RSN_BUF, "%lX", amt);
+			_sprintf(out, RSN_BUF, "0x%lX", amt);
 		} else {
 			_sprintf(buf, RSN_BUF, "%ld", amt);
 			fmtnum(out, RSN_BUF, buf);
