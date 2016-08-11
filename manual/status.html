@@ -38,7 +38,8 @@
         <p>status - set channel status</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$status [-a] [<u>STATUS</u>]</code></pre>
+        <pre><code><strong>$status</strong> [<strong>-a</strong>] [<u>STATUS</u>...]</code></pre>
+        <pre><code><strong>$status -s</strong> <u>SEDCMD</u></code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>status</strong> changes the status of the Twitch stream if
@@ -58,6 +59,9 @@
           <dd>append the argument to the end of the current status</dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
+          <dt><b>-s, --sed=<u>SEDCMD</u></b></dt>
+          <dd>perform the sed substitution command given<br>
+          by <u>SEDCMD</u> on the current channel status</dd>
         </dl>
 
         <h3>EXAMPLES</h3>
@@ -69,6 +73,10 @@
 
         <p>Appends "| $newvid" to the current status:</p>
         <pre><code>$status -a | $newvid</code></pre>
+
+        <p>Encloses the first occurrence of the string 'abc' in the current
+        status in quotations:</p>
+        <pre><code>$status -s 's/abc/"&amp;"/'</code></pre>
 
         <h3>SEE ALSO</h3>
         <p><a href="twitch-authorization.html">Twitch Authorization(3)</a></p>
