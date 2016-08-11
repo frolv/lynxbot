@@ -4,12 +4,9 @@
  */
 
 #include <cpr/cpr.h>
-#include <cstdio>
-#include <cstring>
-#include <fstream>
 #include <iostream>
-#include <regex>
 #include <string>
+#include <string.h>
 #include <utils.h>
 #include "config.h"
 #include "lynxbot.h"
