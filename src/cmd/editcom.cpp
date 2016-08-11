@@ -24,10 +24,8 @@ static int set;
 /* command cooldown */
 static time_t cooldown;
 
-static int edit(char *out, CustomHandler *cch, struct command *c);
+static int edit(char *out, CustomHandler *cch, struct command *c, char *resp);
 static int rename(char *out, CustomHandler *cch, struct command *c);
-static int cmdsed(char *out, CustomHandler *cch, struct command *c,
-		const char *sedcmd);
 static void outputmsg(char *out, struct command *c, char *resp);
 
 /* editcom: modify a custom command */
@@ -35,6 +33,9 @@ int CmdHandler::editcom(char *out, struct command *c)
 {
 	int ren, status;
 	char *sedcmd;
+	char buf[MAX_MSG];
+	char response[MAX_MSG];
+	Json::Value *com;
 
 	int opt;
 	static struct l_option long_opts[] = {
@@ -115,6 +116,12 @@ int CmdHandler::editcom(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
+	if ((com = m_customCmds->getcom(c->argv[l_optind]))->empty()) {
+		_sprintf(out, MAX_MSG, "%s: not a command: $%s",
+				c->argv[0], c->argv[l_optind]);
+		return EXIT_FAILURE;
+	}
+
 	if (sedcmd) {
 		if (app || ren) {
 			_sprintf(out, MAX_MSG, "%s: cannot use -a or -r "
@@ -124,9 +131,13 @@ int CmdHandler::editcom(char *out, struct command *c)
 			_sprintf(out, MAX_MSG, "%s: cannot provide reponse"
 					"with -s flag", c->argv[0]);
 			status = EXIT_FAILURE;
-		} else {
-			status = cmdsed(out, m_customCmds, c, sedcmd);
+		} else if (!sed(response, MAX_MSG, (*com)["response"]
+					.asCString(), sedcmd)) {
+			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], response);
+			status = EXIT_FAILURE;
 		}
+		if (status)
+			return status;
 	} else if (ren) {
 		if (app || cooldown != -1 || set || sedcmd) {
 			_sprintf(out, MAX_MSG, "%s: cannot use other flags "
@@ -135,37 +146,22 @@ int CmdHandler::editcom(char *out, struct command *c)
 		} else {
 			status = rename(out, m_customCmds, c);
 		}
+		return status;
 	} else {
-		status = edit(out, m_customCmds, c);
+		argvcat(response, c->argc, c->argv, l_optind + 1, 1);
+		if (app) {
+			strcpy(buf, response);
+			_sprintf(response, MAX_MSG, "%s %s",
+					(*com)["response"].asCString(), buf);
+		}
 	}
-	return status;
+	return edit(out, m_customCmds, c, *response ? response : NULL);
 }
 
 /* edit: edit a custom command */
-static int edit(char *out, CustomHandler *cch, struct command *c)
+static int edit(char *out, CustomHandler *cch, struct command *c, char *resp)
 {
-	int resp;
-	char response[MAX_MSG];
-	char buf[MAX_MSG];
-	Json::Value *com;
-
-	/* determine which parts are being changed */
-	resp = l_optind != c->argc - 1;
-
-	argvcat(response, c->argc, c->argv, l_optind + 1, 1);
-
-	if (app) {
-		if ((com = cch->getcom(c->argv[l_optind]))->empty()) {
-			_sprintf(out, MAX_MSG, "%s: not a command: $%s",
-					c->argv[0], c->argv[l_optind]);
-			return EXIT_FAILURE;
-		}
-		strcpy(buf, response);
-		_sprintf(response, MAX_MSG, "%s %s",
-				(*com)["response"].asCString(), buf);
-	}
-
-	if (!cch->editcom(c->argv[l_optind], response, cooldown)) {
+	if (!cch->editcom(c->argv[l_optind], resp, cooldown)) {
 		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());
 		return EXIT_FAILURE;
@@ -182,7 +178,7 @@ static int edit(char *out, CustomHandler *cch, struct command *c)
 	} else if (set == OFF) {
 		cch->deactivate(c->argv[l_optind]);
 	}
-	outputmsg(out, c, resp ? response : NULL);
+	outputmsg(out, c, resp);
 	return EXIT_SUCCESS;
 }
 
@@ -205,38 +201,6 @@ static int rename(char *out, CustomHandler *cch, struct command *c)
 		status = EXIT_SUCCESS;
 	}
 	return status;
-}
-
-/* cmdsed: perform a sed operation on command response */
-static int cmdsed(char *out, CustomHandler *cch, struct command *c,
-		const char *sedcmd)
-{
-	Json::Value *com;
-	char buf[MAX_MSG];
-
-	if ((com = cch->getcom(c->argv[l_optind]))->empty()) {
-		_sprintf(out, MAX_MSG, "%s: not a command: $%s",
-				c->argv[0], c->argv[l_optind]);
-		return EXIT_FAILURE;
-	}
-	if (!sed(buf, MAX_MSG, (*com)["response"].asCString(), sedcmd)) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
-		return EXIT_FAILURE;
-	}
-	if (!cch->editcom(c->argv[l_optind], buf, cooldown)) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
-				cch->error().c_str());
-		return EXIT_FAILURE;
-	}
-	if (set == ON && !cch->activate(c->argv[l_optind])) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
-				cch->error().c_str());
-		return EXIT_FAILURE;
-	} else if (set == OFF) {
-		cch->deactivate(c->argv[l_optind]);
-	}
-	outputmsg(out, c, buf);
-	return EXIT_SUCCESS;
 }
 
 /* outputmsg: write a message to out detailing command changes */
