@@ -17,8 +17,6 @@ CMDUSAGE("$editcom [-A on|off] [-a] [-c CD] [-r] [-s SEDCMD] CMD [RESPONSE]");
 /* rename flag usage */
 static const char *RUSAGE = "$editcom -r OLD NEW";
 
-/* whether to append to existing response */
-static int app;
 /* active setting */
 static int set;
 /* command cooldown */
@@ -31,7 +29,7 @@ static void outputmsg(char *out, struct command *c, char *resp);
 /* editcom: modify a custom command */
 int CmdHandler::editcom(char *out, struct command *c)
 {
-	int ren, status;
+	int app, ren, status;
 	char *sedcmd;
 	char buf[MAX_MSG];
 	char response[MAX_MSG];
