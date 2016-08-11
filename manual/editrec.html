@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>showrec(2) - LynxBot</title>
+    <title>editrec(2) - LynxBot</title>
   </head>
 
   <body>
@@ -32,37 +32,47 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>showrec(2) - LynxBot manual</h2>
+        <h2>editrec(2) - LynxBot manual</h2>
 
         <h3>NAME</h3>
-        <p>showrec - show recurring messages</p>
+        <p>editrec - modify a recurring message</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code><strong>$showrec</strong> [<u>ID</u>]</code></pre>
+        <pre><code><strong>$editrec</strong> [<strong>-a</strong>] [<strong>-c</strong> <u>INT</u>] <u>ID</u> [<u>MSG</u>...]</code></pre>
+        <pre><code><strong>$editrec -s</strong> <u>SEDCMD</u> [<strong>-c</strong> <u>INT</u>] <u>ID</u></code></pre>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>showrec</strong> prints the specified recurring message(s)
-        with their intervals.</p>
+        <p><strong>editrec</strong> is used to modify recurring messages.</p>
+
+        <p><u>ID</u> is the ID of the recurring message as given by the
+        <strong>showrec</strong> command.</p>
+
+        <p>The optional argument <u>MSG</u> is the new text of the
+        recurring message.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
+          <dt><b>-a, --append</b></dt>
+          <dd>append <u>MSG</u> to the existing message</dd>
+          <dt><b>-c, --cooldown, --interval=<u>INT</u></b></dt>
+          <dd>change the interval of the message to <u>INT</u> minutes</dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
+          <dt><b>-s, --sed=<u>SEDCMD</u></b></dt>
+          <dd>perform the sed substitution command given<br>
+          by <u>SEDCMD</u> on the recurring message</dd>
         </dl>
 
         <h3>EXAMPLES</h3>
-        <p>Shows all recurring messages:</p>
-        <pre><code>$showrec</code></pre>
-
-        <p>Shows the second recurring message:</p>
-        <pre><code>$showrec 2</code></pre>
+        <p>Changes recurring message 2 to "Follow @Hexis on Twitter"</p>
+        <pre><code>$editrec 2 Follow @Hexis on Twitter</code></pre>
 
         <h3>SEE ALSO</h3>
-        <p><a href="addrec">addrec(2)</a>,
+        <p><a href="addrec.html">addrec(2)</a>,
         <a href="delrec.html">delrec(2)</a>,
-        <a href="editrec.html">editrec(2)</a>,
+        <a href="showrec.html">showrec(2)</a>,
         <a href="setrec.html">setrec(2)</a>,
-        <a href="recurring-messages.html">Recurring Messages(3)</a>,
+        <a href="recurring-messages">Recurring Messages(3)</a>,
         <a href="config-rec.html">recurring(4)</a>,
         <a href="config.html">config(4)</a></p>
 
