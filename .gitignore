@@ -2,3 +2,5 @@ obj/
 doc
 lynxbot*
 itemgen
+Makefile
+*.swp

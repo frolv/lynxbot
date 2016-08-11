@@ -38,8 +38,9 @@
         <p>editcom - modify a custom command</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code>$editcom [-A on|off] [-a] [-c <u>CD</u>] <u>CMD</u> [<u>RESPONSE</u>]</code></pre>
-        <pre><code>$editcom -r <u>OLD</u> <u>NEW</u></code></pre>
+        <pre><code><strong>$editcom</strong> [<strong>-A on|off</strong>] [<strong>-a</strong>] [<strong>-c</strong> <u>CD</u>] <u>CMD</u> [<u>RESPONSE</u>...]</code></pre>
+        <pre><code><strong>$editcom -r</strong> <u>OLD</u> <u>NEW</u></code></pre>
+        <pre><code><strong>$editcom -s</strong> <u>SEDCMD</u> [<strong>-A on|off</strong>] [<strong>-c</strong> <u>CD</u>] <u>CMD</u></code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>editcom</strong> is used to modify custom LynxBot
@@ -48,8 +49,8 @@
         <p><u>CMD</u> is the keyword that activates the command,
         <u>without</u> the leading dollar sign <strong>$</strong>.</p>
 
-        <p>At least one of <u>CD</u>, <u>RESPONSE</u> or the <strong>-A</strong>
-        option must be given.</p>
+        <p>The optional argument <u>RESPONSE</u> is the new response for the
+        command.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
@@ -59,10 +60,13 @@
           <dd>append <u>RESPONSE</u> to the existing command response</dd>
           <dt><b>-c, --cooldown=<u>CD</u></b></dt>
           <dd>set the cooldown of the command to <u>CD</u> seconds</dd>
-          <dt><b>-r, --rename</b></dt>
-          <dd>change the keyword of command <u>OLD</u> to <u>NEW</u></dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
+          <dt><b>-r, --rename</b></dt>
+          <dd>change the keyword of command <u>OLD</u> to <u>NEW</u></dd>
+          <dt><b>-s, --sed=<u>SEDCMD</u></b></dt>
+          <dd>perform the sed substitution command given<br>
+          by <u>SEDCMD</u> on the response of <u>CMD</u></dd>
         </dl>
 
         <h3>EXAMPLES</h3>
@@ -77,10 +81,14 @@
         <pre><code>$editcom -c 60 hi hey wassup hello</code></pre>
 
         <p>Deactivates the command $hi:</p>
-        <pre><code>$editcom -a off hi</code></pre>
+        <pre><code>$editcom -A off hi</code></pre>
 
         <p>Renames the command $hi to $hello:</p>
         <pre><code>$editcom -r hi hello</code></pre>
+
+        <p>Replaces all occurrences of the string 'hello' in the response of the
+        command $hi with the string 'goodbye' and enables the command:</p>
+        <pre><code>$editcom -s s/hello/goodbye/g -A on hi</code></pre>
 
         <h3>SEE ALSO</h3>
         <p><a href="addcom.html">addcom(2)</a>,
