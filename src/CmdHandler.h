@@ -161,9 +161,7 @@ class CustomHandler {
 		bool addcom(const std::string &cmd, std::string response,
 				const std::string &nick, time_t cooldown);
 		bool delcom(const std::string &cmd);
-		bool editcom(const std::string &cmd,
-				std::string newResp = "",
-				time_t newcd = -1);
+		bool editcom(const char *cmd, const char *resp, time_t newcd);
 		bool activate(const std::string &cmd);
 		bool deactivate(const std::string &cmd);
 		bool rename(const std::string &cmd, const std::string &newcmd);

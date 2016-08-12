@@ -88,20 +88,18 @@ bool CustomHandler::delcom(const std::string &cmd)
 }
 
 /* editCom: modify the command cmd with newResp and newcd */
-bool CustomHandler::editcom(const std::string &cmd,
-		std::string newResp, time_t newcd)
+bool CustomHandler::editcom(const char *cmd, const char *resp, time_t newcd)
 {
-	auto *com = getcom(cmd);
-	if (com->empty()) {
-		m_error = "not a command: $" + cmd;
+	Json::Value *com;
+	if ((com = getcom(cmd))->empty()) {
+		m_error = "not a command: $" + std::string(cmd);
 		return false;
 	}
-	if (!valid_resp(newResp, m_error))
-		return false;
-	if (!newResp.empty()) {
-		if (newResp[0] == '/')
-			newResp = " " + newResp;
-		(*com)["response"] = newResp;
+	if (resp) {
+		if (!valid_resp(resp, m_error))
+			return false;
+		(*com)["response"] = (resp[0] == '/' ? " " : "")
+			+ std::string(resp);
 	}
 	if (newcd != -1) {
 		(*com)["cooldown"] = (Json::Int64)newcd;
