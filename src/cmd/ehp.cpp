@@ -13,11 +13,11 @@ CMDNAME("ehp");
 /* description of the command */
 CMDDESCR("view players' ehp");
 /* command usage synopsis */
-CMDUSAGE("$ehp [-n] [RSN]");
+CMDUSAGE("$ehp [-f|-i] [-n] [RSN]");
 
 static const char *CML_HOST = "https://crystalmathlabs.com";
 static const char *EHP_API = "/tracker/api.php?type="
-	"virtualhiscoresatplayer&page=timeplayed&player=";
+	"virtualhiscoresatplayer&page=timeplayed";
 
 static const char *EHP_DESC = "[EHP] EHP stands for efficient hours "
 "played. You earn 1 EHP whenever you gain a certain amount of experience in "
@@ -25,32 +25,46 @@ static const char *EHP_DESC = "[EHP] EHP stands for efficient hours "
 "http://crystalmathlabs.com/tracker/suppliescalc.php . Watch a video "
 "explaining EHP: https://www.youtube.com/watch?v=rhxHlO8mvpc";
 
-static int lookup_player(char *out, const char *rsn);
+static int lookup_player(char *out, const char *rsn,
+		const char *fil, const char *type);
 
 /* ehp: view players' ehp */
 int CmdHandler::ehp(char *out, struct command *c)
 {
 	int usenick, status;
 	char buf[RSN_BUF];
+	const char *fil, *type;
 
 	int opt;
 	static struct l_option long_opts[] = {
+		{ "f2p", NO_ARG, 'f' },
 		{ "help", NO_ARG, 'h' },
+		{ "ironman", NO_ARG, 'i' },
 		{ "nick", NO_ARG, 'n' },
 		{ 0, 0, 0 }
 	};
 
 	usenick = 0;
 	status = EXIT_SUCCESS;
+	type = fil = "";
 	opt_init();
-	while ((opt = l_getopt_long(c->argc, c->argv, "n", long_opts)) != EOF) {
+	while ((opt = l_getopt_long(c->argc, c->argv, "fin", long_opts))
+			!= EOF) {
 		switch (opt) {
-		case 'n':
-			usenick = 1;
+		case 'f':
+			fil = "f2p&filter=f2p";
+			type = "-F2P";
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
+		case 'i':
+			fil = "im&filter=ironman";
+			type = "-IM";
+			break;
+		case 'n':
+			usenick = 1;
+			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
@@ -79,18 +93,19 @@ int CmdHandler::ehp(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	return lookup_player(out, buf);
+	return lookup_player(out, buf, fil, type);
 }
 
 /* lookup_player: look up rsn on cml, write EHP data to out */
-static int lookup_player(char *out, const char *rsn)
+static int lookup_player(char *out, const char *rsn,
+		const char *fil, const char *type)
 {
 	cpr::Response resp;
 	char buf[MAX_URL];
 	char num[MAX_URL];
 	char *name, *rank, *ehp, *week, *s;
 
-	_sprintf(buf, MAX_URL, "%s%s%s", CML_HOST, EHP_API, rsn);
+	_sprintf(buf, MAX_URL, "%s%s%s&player=%s", CML_HOST, EHP_API, fil, rsn);
 	resp = cpr::Get(cpr::Url(buf), cpr::Header{{ "Connection", "close" }});
 	strcpy(buf, resp.text.c_str());
 
@@ -100,8 +115,15 @@ static int lookup_player(char *out, const char *rsn)
 		return EXIT_FAILURE;
 	}
 	if (strcmp(buf, "-1") == 0) {
-		_sprintf(out, MAX_MSG, "%s: player '%s' does not exist or has "
-				"not been tracked on CML", CMDNAME, rsn);
+		if (*fil) {
+			fil = strchr(fil, '=') + 1;
+			_sprintf(out, MAX_MSG, "%s: player '%s' not found under"
+					" %s filter", CMDNAME, rsn, fil);
+		} else {
+			_sprintf(out, MAX_MSG, "%s: player '%s' does not exist "
+					"or has not been tracked on CML",
+					CMDNAME, rsn);
+		}
 		return EXIT_FAILURE;
 	}
 
@@ -111,13 +133,17 @@ static int lookup_player(char *out, const char *rsn)
 	*name++ = '\0';
 	ehp = strchr(name, ',');
 	*ehp++ = '\0';
-	week = strchr(ehp, ',');
-	*week++ = '\0';
+	if ((week = strchr(ehp, ',')))
+		*week++ = '\0';
 	if ((s = strchr(ehp, '.')))
 		s[3] = '\0';
 	fmtnum(num, MAX_URL, ehp);
 
-	_sprintf(out, MAX_MSG, "[EHP] Name: %s, Rank: %s, EHP: %s (+%s this "
-			"week)", name, rank, num, *week ? week : "0.00");
+	_sprintf(out, MAX_MSG, "[EHP%s] Name: %s, Rank: %s, EHP: %s", type,
+			name, rank, num);
+	if (!*type) {
+		out = strchr(out, '\0');
+		_sprintf(out, MAX_MSG, " (+%s this week)", *week ? week : "0.00");
+	}
 	return EXIT_SUCCESS;
 }
