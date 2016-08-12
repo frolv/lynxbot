@@ -40,7 +40,7 @@
         <h3>SYNOPSIS</h3>
         <pre><code><strong>$cml</strong> [<strong>-s</strong>|<strong>-v</strong>]</code></pre>
         <pre><code><strong>$cml</strong> [<strong>-nu</strong>] <u>RSN</u></code></pre>
-        <pre><code><strong>$cml</strong> <strong>-t</strong> <u>SKILL</u></code></pre>
+        <pre><code><strong>$cml</strong> <strong>-t</strong> [<strong>-c</strong> <u>AMT</u>] [<strong>-p</strong> <u>PERIOD</u>] <u>SKILL</u></code></pre>
 
         <h3>DESCRIPTION</h3>
         <p><strong>cml</strong> is used to interact with players'
@@ -63,15 +63,22 @@
 
         <h3>OPTIONS</h3>
         <dl compact="">
+          <dt><b>-c, --count=<u>AMT</u></b></dt>
+          <dd>with <strong>-t</strong>: display <u>AMT</u> players
+          (between 1 and 7)</dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
           <dt><b>-n, --nick</b></dt>
           <dd>search using a Twitch nick rather than a RSN. When set, the
           argument <u>RSN</u> is interpreted as a Twitch username
           and its corresponding RSN is looked up.</dd>
+          <dt><b>-p, --period=<u>PERIOD</u></b></dt>
+          <dd>with <strong>-t</strong>: show current top players for
+          <u>PERIOD</u>. Can be <strong>day</strong>, <strong>week</strong>
+          or <strong>month</strong>.</dd>
           <dt><b>-s, --supplies-calc</b></dt>
           <dd>link to the CML supplies calc</dd>
-          <dt><b>-t, --current-top=<u>SKILL</u></b></dt>
+          <dt><b>-t, --current-top</b></dt>
           <dd>look up current top players in <u>SKILL</u></dd>
           <dt><b>-u, --update</b></dt>
           <dd>update the CML tracker of the player <u>RSN</u></dd>
@@ -97,8 +104,11 @@
         user randalicious:</p>
         <pre><code>$cml -nu randalicious</code></pre>
 
-        <p>Looks up current top players in Farming:</p>
+        <p>Displays the 5 current top players in Farming this week:</p>
         <pre><code>$cml -t farming</code></pre>
+
+        <p>Displays the 3 top players in EHP this month:</p>
+        <pre><code>$cml -t -c 3 -p month ehp</code></pre>
 
         <h3>SEE ALSO</h3>
         <p><a href="ehp.html">ehp(1)</a>, <a href="rsn.html">rsn(1)</a>,
