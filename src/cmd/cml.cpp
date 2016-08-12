@@ -118,7 +118,7 @@ int CmdHandler::cml(char *out, struct command *c)
 
 	if (l_optind == c->argc) {
 		if (page) {
-			if (update || usenick || id != -1) {
+			if (update || usenick || id) {
 				_sprintf(out, MAX_MSG, "%s: cannot use other "
 						"options with %s", c->argv[0],
 						page == CML_VHS ? "-v" : "-s");
