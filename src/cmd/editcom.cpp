@@ -114,6 +114,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
+	/* check if given command exists */
 	if ((com = m_customCmds->getcom(c->argv[l_optind]))->empty()) {
 		_sprintf(out, MAX_MSG, "%s: not a command: $%s",
 				c->argv[0], c->argv[l_optind]);
@@ -148,6 +149,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 	} else {
 		argvcat(response, c->argc, c->argv, l_optind + 1, 1);
 		if (app) {
+			/* append arguments to current command response */
 			strcpy(buf, response);
 			_sprintf(response, MAX_MSG, "%s %s",
 					(*com)["response"].asCString(), buf);
