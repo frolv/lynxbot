@@ -127,7 +127,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 					"with -s", c->argv[0]);
 			status = EXIT_FAILURE;
 		} else if (l_optind != c->argc - 1) {
-			_sprintf(out, MAX_MSG, "%s: cannot provide reponse"
+			_sprintf(out, MAX_MSG, "%s: cannot provide response "
 					"with -s flag", c->argv[0]);
 			status = EXIT_FAILURE;
 		} else if (!sed(response, MAX_MSG, (*com)["response"]
