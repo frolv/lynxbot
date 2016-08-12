@@ -5,6 +5,7 @@
 #include "../option.h"
 #include "../skills.h"
 #include "../strfmt.h"
+#include "../stringparse.h"
 
 #define MAX_URL 128
 
@@ -13,64 +14,87 @@ CMDNAME("cml");
 /* description of the command */
 CMDDESCR("interact with crystalmathlabs trackers");
 /* command usage synopsis */
-CMDUSAGE("$cml [-s|-v] [-nu] [-t SKILL] [RSN]");
+CMDUSAGE("$cml [-s|-v] [-nu] [RSN]");
+/* -t flag usage */
+static const char *TUSAGE = "$cml -t [-c AMT] [-p PERIOD] SKILL";
 
 static const char *CML_HOST = "https://crystalmathlabs.com";
 static const char *CML_USER = "/tracker/track.php?player=";
 static const char *CML_SCALC = "/tracker/suppliescalc.php";
 static const char *CML_VHS = "/tracker/virtualhiscores.php?page=timeplayed";
 static const char *CML_UPDATE = "/tracker/api.php?type=update&player=";
-static const char *CML_CTOP = "/tracker/api.php?type=currenttop&count=5&skill=";
+static const char *CML_CTOP = "/tracker/api.php?type=currenttop";
 
 static int updatecml(char *rsn, char *err);
-static int read_current_top(char *out, int id);
+static int read_current_top(char *out, int id, int count, const char *period);
+static int parse_period(char *s, const char **period);
 
 /* cml: interact with crystalmathlabs trackers */
 int CmdHandler::cml(char *out, struct command *c)
 {
-	int usenick, update, id, status;
-	const char *page;
+	int usenick, update, id, status, set;
+	int64_t count;
+	const char *page, *period;
 	char buf[RSN_BUF];
 	char err[RSN_BUF];
 
 	int opt;
 	static struct l_option long_opts[] = {
+		{ "count", REQ_ARG, 'c' },
 		{ "help", NO_ARG, 'h' },
 		{ "nick", NO_ARG, 'n' },
+		{ "period", REQ_ARG, 'p' },
 		{ "supplies-calc", NO_ARG, 's' },
-		{ "current-top", REQ_ARG, 't' },
+		{ "current-top", NO_ARG, 't' },
 		{ "update", NO_ARG, 'u' },
 		{ "virtual-hiscores", NO_ARG, 'v' },
 		{ 0, 0, 0 }
 	};
 
 	opt_init();
-	usenick = update = 0;
+	usenick = update = id = set = 0;
 	page = NULL;
-	id = -1;
 	status = EXIT_SUCCESS;
-	while ((opt = l_getopt_long(c->argc, c->argv, "nst:uv", long_opts))
+
+	/* display 5 current top players for week by default */
+	count = 5;
+	period = "week";
+
+	while ((opt = l_getopt_long(c->argc, c->argv, "c:np:stuv", long_opts))
 			!= EOF) {
 		switch (opt) {
+		case 'c':
+			if (!parsenum(l_optarg, &count)) {
+				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+						c->argv[0], l_optarg);
+				return EXIT_FAILURE;
+			}
+			if (count < 1 || count > 7) {
+				_sprintf(out, MAX_MSG, "%s: count must be "
+						"between 1 and 7", c->argv[0]);
+				return EXIT_FAILURE;
+			}
+			set = 1;
+			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case 'n':
 			usenick = 1;
 			break;
+		case 'p':
+			if (!parse_period(l_optarg, &period)) {
+				_sprintf(out, MAX_MSG, "%s: invalid period: %s",
+						c->argv[0], l_optarg);
+				return EXIT_FAILURE;
+			}
+			set = 1;
+			break;
 		case 's':
 			page = CML_SCALC;
 			break;
 		case 't':
-			if (strcmp(l_optarg, "ehp") == 0) {
-				id = 99;
-				break;
-			}
-			if ((id = skill_id(l_optarg)) == -1) {
-				_sprintf(out, MAX_MSG, "%s: invalid skill "
-						"name: %s", c->argv[0], l_optarg);
-				return EXIT_FAILURE;
-			}
+			id = 1;
 			break;
 		case 'u':
 			update = 1;
@@ -86,6 +110,12 @@ int CmdHandler::cml(char *out, struct command *c)
 		}
 	}
 
+	if (set && !id) {
+		_sprintf(out, MAX_MSG, "%s: -c and -p don't make sense "
+				"without -t", c->argv[0]);
+		return EXIT_FAILURE;
+	}
+
 	if (l_optind == c->argc) {
 		if (page) {
 			if (update || usenick || id != -1) {
@@ -97,8 +127,9 @@ int CmdHandler::cml(char *out, struct command *c)
 				_sprintf(out, MAX_MSG, "[CML] %s%s",
 						CML_HOST, page);
 			}
-		} else if (id != -1) {
-			status = read_current_top(out, id);
+		} else if (id) {
+			USAGEMSG(out, CMDNAME, TUSAGE);
+			status = EXIT_FAILURE;
 		} else if (update) {
 			_sprintf(out, MAX_MSG, "%s: must provide RSN to update",
 					c->argv[0]);
@@ -111,9 +142,25 @@ int CmdHandler::cml(char *out, struct command *c)
 			_sprintf(out, MAX_MSG, "[CML] %s", CML_HOST);
 		}
 		return status;
-	} else if (l_optind != c->argc - 1 || page || id != -1) {
+	} else if (l_optind != c->argc - 1 || page) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		return EXIT_FAILURE;
+	}
+
+	if (id) {
+		if (usenick || update || page) {
+			USAGEMSG(out, CMDNAME, TUSAGE);
+			return EXIT_FAILURE;
+		}
+		if (strcmp(c->argv[l_optind], "ehp") == 0) {
+			id = 99;
+		} else if ((id = skill_id(c->argv[l_optind])) == -1) {
+			_sprintf(out, MAX_MSG, "%s: invalid skill "
+					"name: %s", c->argv[0],
+					c->argv[l_optind]);
+			return EXIT_FAILURE;
+		}
+		return read_current_top(out, id, count, period);
 	}
 
 	/* get the rsn of the queried player */
@@ -175,8 +222,8 @@ static int updatecml(char *rsn, char *err)
 	return i;
 }
 
-/* current_top: get 5 current top players for skill id */
-static int read_current_top(char *out, int id)
+/* current_top: get count current top players for skill id */
+static int read_current_top(char *out, int id, int count, const char *period)
 {
 	cpr::Response resp;
 	int i;
@@ -184,7 +231,8 @@ static int read_current_top(char *out, int id)
 	char url[MAX_URL];
 	char text[MAX_URL];
 
-	_sprintf(url, MAX_URL, "%s%s%d", CML_HOST, CML_CTOP, id);
+	_sprintf(url, MAX_URL, "%s%s&count=%d&skill=%d&timeperiod=%s",
+			CML_HOST, CML_CTOP, count, id, period);
 	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
 	strcpy(text, resp.text.c_str());
 
@@ -194,18 +242,16 @@ static int read_current_top(char *out, int id)
 		return EXIT_FAILURE;
 	}
 
-	i = 0;
 	nick = text;
 	orig = out;
-	_sprintf(out, MAX_MSG, "[CML] Current top players in %s: ",
-			id == 99 ? "EHP" : skill_name(id).c_str());
+	_sprintf(out, MAX_MSG, "[CML] Current top players in %s (%s): ",
+			id == 99 ? "EHP" : skill_name(id).c_str(), period);
 	out += strlen(out);
-	while ((score = strchr(nick, ','))) {
-		++i;
+	for (i = 0; i < count && (score = strchr(nick, ',')); ++i) {
 		*score++ = '\0';
 		if ((s = strchr(score, '\n')))
 			*s = '\0';
-		_sprintf(out, MAX_MSG - 50 * i, "%d. %s (+", i, nick);
+		_sprintf(out, MAX_MSG - 50 * i, "%d. %s (+", i + 1, nick);
 		out += strlen(out);
 		if (id == 99) {
 			strcat(out, score);
@@ -214,16 +260,35 @@ static int read_current_top(char *out, int id)
 			strcat(out, " xp");
 		}
 		strcat(out, ")");
-		if (i != 5) {
+		if (i != count - 1) {
 			nick = s + 1;
 			strcat(out, ", ");
 		}
 		out += strlen(out);
 	}
 
-	if (i != 5) {
+	if (i != count) {
 		_sprintf(orig, MAX_MSG, "%s: could not read current top", CMDNAME);
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
+}
+
+static int parse_period(char *s, const char **period)
+{
+	if (strcmp(s, "day") == 0 || strcmp(s, "d") == 0) {
+		*period = "day";
+		return 1;
+	}
+	if (strcmp(s, "week") == 0 || strcmp(s, "w") == 0) {
+		*period = "week";
+		return 1;
+	}
+	if (strcmp(s, "month") == 0 || strcmp(s, "m") == 0) {
+		*period = "month";
+		return 1;
+	}
+
+	*period = NULL;
+	return 0;
 }
