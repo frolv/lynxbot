@@ -23,8 +23,8 @@ CmdHandler::CmdHandler(const char *name, const char *channel,
 	m_customCmds = new CustomHandler(&m_defaultCmds, &m_cooldowns,
 			m_wheel.cmd(), name, channel);
 	if (!m_customCmds->isActive()) {
-		std::cerr << "Custom commands will be disabled "
-			"for this session." << std::endl;
+		fprintf(stderr, "Custom commands will be "
+				"disabled for this session\n");
 		WAIT_INPUT();
 	}
 
@@ -36,8 +36,8 @@ CmdHandler::CmdHandler(const char *name, const char *channel,
 			m_cooldowns.add('_' + val["name"].asString(),
 				val["cooldown"].asInt());
 	} else {
-		std::cerr << "Failed to read responses.json. "
-			"Responses disabled for this session.";
+		fprintf(stderr, "Failed to read responses.json. "
+				"Responses disabled for this session\n");
 		WAIT_INPUT();
 	}
 
@@ -51,7 +51,7 @@ CmdHandler::CmdHandler(const char *name, const char *channel,
 
 	/* read fashion.json */
 	if (!utils::readJSON("fashion.json", m_fashion))
-		std::cerr << "Could not read fashion.json" << std::endl;
+		fprintf(stderr, "Could not read fashion.json\n");
 
 	populate_help();
 }
