@@ -124,8 +124,8 @@ void EventManager::read_messages()
 	max = recurring.size();
 	if (max > 5) {
 		max = 5;
-		std::cout << m_cfgr->path() << ": only reading first five "
-			<< "messages" << std::endl;
+		printf("%s: only reading first five messages\n",
+				m_cfgr->path().c_str());
 	}
 
 	error = false;
@@ -155,9 +155,10 @@ void EventManager::read_messages()
 
 		if (!valid) {
 			error = true;
-			std::cerr << m_cfgr->path() << ": recurring message "
-				<< i + 1 << ": " << err << std::endl;
-			std::cerr << "skipping message" << std::endl;
+			fprintf(stderr, "%s: recurring message %ld: %s\n"
+					"skipping message\n",
+					m_cfgr->path().c_str(),
+					i + 1, err.c_str());
 			continue;
 		}
 	}

@@ -10,17 +10,17 @@ SelectionWheel::SelectionWheel()
 
 	srand(static_cast<uint32_t>(time(nullptr)));
 	if (!utils::readJSON("wheel.json", m_data)) {
-		std::cerr << "Could not read wheel.json. Wheel will be "
-			"disabled for this session." << std::endl;
+		fprintf(stderr, "Could not read wheel.json. Wheel will "
+				"be disabled for this session\n");
 		m_active = false;
 		WAIT_INPUT();
 	} else {
 		for (auto &s : reqs) {
 			if (!m_data.isMember("wheel" + s)) {
-				std::cerr << "wheel" << s << " variable is "
-					"missing from wheel.json. Wheel will "
-					"be disabled for this session."
-					<< std::endl;
+				fprintf(stderr, "wheel%s variable is missing "
+						"from wheel.json. Wheel will "
+						"be disabled for this session\n",
+						s.c_str());
 				m_active = false;
 				WAIT_INPUT();
 				return;
@@ -70,8 +70,8 @@ const char *SelectionWheel::choose(const char *nick, const char *category)
 
 	Json::Value &arr = m_data["categories"][category];
 	if (!arr.isArray()) {
-		std::cerr << "wheel.json is improperly configured. "
-			"Wheel will be disabled.";
+		fprintf(stderr, "wheel.json is improperly configured. "
+				"Wheel will be disabled.\n");
 		m_active = false;
 		return "";
 	}

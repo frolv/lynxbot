@@ -11,9 +11,8 @@ static int json_bsearch(const Json::Value &a, const std::string &s,
 GEReader::GEReader()
 {
 	if (!(m_active = utils::readJSON("itemids.json", m_itemIDs))) {
-		std::cerr << "Failed to read RS Item IDs" << std::endl;
-		std::cerr << "$ge command will be disabled for this "
-			"session" << std::endl;
+		fprintf(stderr, "Failed to read itemids.json\n$ge command "
+				"will be disabled for this session\n");
 		return;
 	}
 	readNicks();
