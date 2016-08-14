@@ -37,7 +37,7 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime,
 	init(initTime, true);
 	if (!readGiveaway()) {
 		if (m_active) {
-			std::cout << "nothing to give away!" << std::endl;
+			printf("Nothing to give away!\n");
 			WAIT_INPUT();
 		}
 	}
@@ -154,8 +154,7 @@ bool Giveaway::checkConditions(time_t curr)
 		/* followers */
 		m_lastRequest = curr;
 		uint32_t fol = getFollowers();
-		std::cout << "Followers: " << fol << "(" << m_currFollowers
-			+ m_followerLimit << ")\n" << std::endl;
+		printf("Followers: %d (%d)\n", m_currFollowers, m_followerLimit);
 		if (fol >= m_currFollowers + m_followerLimit) {
 			m_currFollowers += m_followerLimit;
 			m_reason = 1;
@@ -275,8 +274,8 @@ uint32_t Giveaway::getFollowers() const
 	Json::Reader reader;
 	Json::Value val;
 	if (!reader.parse(resp.text, val)) {
-		std::cerr << "Failed to get followers for #" + m_channel
-			+ "." << std::endl;
+		fprintf(stderr, "Failed to get followers for #%s.",
+				m_channel.c_str());
 		return 0;
 	}
 	return val["_total"].asInt();
@@ -285,23 +284,24 @@ uint32_t Giveaway::getFollowers() const
 /* interactiveFollowers: continuously prompt user to read followers */
 void Giveaway::interactiveFollowers()
 {
+	int c;
+
 	while (!(m_currFollowers = getFollowers())) {
-		char c;
-		std::cout << "Try again? (y/n) ";
-		while (std::cin >> c) {
+		printf("Try again? (y/n) ");
+		while ((c = getchar()) != EOF) {
 			if (c == 'y' || c == 'Y') {
 				break;
 			} else if (c == 'n' || c == 'N') {
 				m_type[1] = false;
-				std::cout << "Follower giveaways will be "
-					"disabled for this session.\n"
-					<< std::endl;
+				printf("Follower giveaways will be disabled "
+						"for this session\n\n");
 				return;
 			} else {
-				std::cout << "Invalid option.\n"
-					"Try again? (y/n) ";
+				printf("Invalid option.\nTry again? (y/n) ");
 			}
 		}
+		if (c == EOF)
+			exit(0);
 	}
 }
 
@@ -314,46 +314,48 @@ bool Giveaway::readSettings()
 
 	valid = true;
 	if (!utils::parseBool(m_active, m_cfgr->get("giveaway_active"), err)) {
-		std::cerr << m_cfgr->path() << ": giveaway_active: " << err
-			<< " (defaulting to false)" << std::endl;
+		fprintf(stderr, "%s: giveaway_active: %s (defaulting to "
+				"false)\n", m_cfgr->path().c_str(), err.c_str());
 		m_active = false;
 		valid = false;
 	}
 	if (!utils::parseBool(m_images, m_cfgr->get("image_giveaways"), err)) {
-		std::cerr << m_cfgr->path() << ": image_giveaways: " << err
-			<< " (defaulting to false)" << std::endl;
+		fprintf(stderr, "%s: image_giveaways: %s (defaulting to "
+				"false)\n", m_cfgr->path().c_str(), err.c_str());
 		m_images = false;
 		valid = false;
 	}
 #ifdef _WIN32
 	if (m_images) {
-		std::cout << "Image-based giveaways are not available on "
-			"Windows systems" << std::endl;
+		printf("Image-based giveaways are not available "
+				"on Windows systems\n");
 		m_images = false;
 	}
 #endif
 	if (!utils::parseBool(m_type[1], m_cfgr->get("follower_giveaway"), err)) {
-		std::cerr << m_cfgr->path() << ": follower_giveaway: " << err
-			<< " (defaulting to false)" << std::endl;
+		fprintf(stderr, "%s: follower_giveaway: %s (defaulting to "
+				"false)\n", m_cfgr->path().c_str(), err.c_str());
 		m_type[1] = false;
 		valid = false;
 	}
 	if (!utils::parseInt(m_followerLimit, m_cfgr->get("follower_limit"), err)) {
-		std::cerr << m_cfgr->path() << ": follower_limit: " << err
-			<< " (follower giveaways disabled)" << std::endl;
+		fprintf(stderr, "%s: follower_limit: %s (follower giveaways "
+				"disabled\n", m_cfgr->path().c_str(),
+				err.c_str());
 		m_type[1] = false;
 		m_followerLimit = 10;
 		valid = false;
 	}
 	if (!utils::parseBool(m_type[2], m_cfgr->get("timed_giveaway"), err)) {
-		std::cerr << m_cfgr->path() << ": timed_giveaway: " << err
-			<< " (defaulting to false)" << std::endl;
+		fprintf(stderr, "%s: timed_giveaway: %s (defaulting to false)\n",
+				m_cfgr->path().c_str(), err.c_str());
 		m_type[2] = false;
 		valid = false;
 	}
 	if (!utils::parseInt(interval, m_cfgr->get("time_interval"), err)) {
-		std::cerr << m_cfgr->path() << ": time_interval: " << err
-			<< " (timed giveaways disabled)" << std::endl;
+		fprintf(stderr, "%s: time_interval: %s (timed giveaways "
+				"disabled)\n", m_cfgr->path().c_str(),
+				err.c_str());
 		m_type[2] = false;
 		interval = 15;
 		valid = false;
@@ -368,14 +370,14 @@ bool Giveaway::readGiveaway()
 	std::string path = utils::configdir() + utils::config("giveaway");
 	std::ifstream reader(path);
 	if (!reader.is_open()) {
-		std::cerr << "could not read " << path << std::endl;
+		fprintf(stderr, "Could not read %s\n", path.c_str());
 		return false;
 	}
 	std::string line;
 	while (std::getline(reader, line)) {
 		if (line.length() > MAX_LABL - 7) {
-			std::cerr << "giveaway item too long: " << line
-				<< std::endl;
+			fprintf(stderr, "%s: giveaway item too long: %s\n",
+					path.c_str(), line.c_str());
 			continue;
 		} else {
 			m_items.push_back(line);
@@ -435,8 +437,8 @@ std::string Giveaway::getItem()
 static std::string mkimg(const std::string &item)
 {
 #ifdef _WIN32
-	std::cerr << "image-based giveaways are not available on Windows "
-		"systems" << std::endl;
+	fprintf(stderr, "image-based giveaways are not available "
+			"on Windows systems\n");
 	return item;
 #endif
 
