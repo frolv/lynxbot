@@ -38,6 +38,7 @@ bool SelectionWheel::isActive()
 	return m_active;
 }
 
+/* valid: return true if category is valid */
 bool SelectionWheel::valid(const char *category) const
 {
 	return m_data["categories"].isMember(category);
@@ -63,6 +64,7 @@ const char *SelectionWheel::usage() const
 	return m_data["wheelusage"].asCString();
 }
 
+/* choose: select an item from category for user nick */
 const char *SelectionWheel::choose(const char *nick, const char *category)
 {
 	int ind;
@@ -84,12 +86,14 @@ const char *SelectionWheel::choose(const char *nick, const char *category)
 	return selection;
 }
 
+/* ready: check if nick can make another selection */
 bool SelectionWheel::ready(const char *nick) const
 {
 	return m_stored.find(nick) == m_stored.end()
 		|| time(nullptr) - lastUsed(nick) >= m_cooldown;
 }
 
+/* add: add a selection to stored map */
 void SelectionWheel::add(const std::string &nick, const std::string &selection)
 {
 	if (m_stored.find(nick) != m_stored.end()) {
@@ -105,6 +109,7 @@ void SelectionWheel::add(const std::string &nick, const std::string &selection)
 	}
 }
 
+/* selection: get nick's current selection */
 const char *SelectionWheel::selection(const char *nick) const
 {
 	if (m_stored.find(nick) == m_stored.end())
