@@ -33,7 +33,7 @@ SelectionWheel::SelectionWheel()
 
 SelectionWheel::~SelectionWheel() {}
 
-bool SelectionWheel::isActive()
+bool SelectionWheel::active()
 {
 	return m_active;
 }

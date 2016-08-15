@@ -19,6 +19,12 @@ int CmdHandler::wheel(char *out, struct command *c)
 		{ 0, 0, 0 }
 	};
 
+	if (!m_wheel.active()) {
+		_sprintf(out, MAX_MSG, "%s: wheel is not currently active",
+				c->argv[0]);
+		return EXIT_FAILURE;
+	}
+
 	opt_init();
 	while ((opt = l_getopt_long(c->argc, c->argv, "", long_opts)) != EOF) {
 		switch (opt) {

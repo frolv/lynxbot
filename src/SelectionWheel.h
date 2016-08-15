@@ -12,7 +12,7 @@ class SelectionWheel {
 	public:
 		SelectionWheel();
 		~SelectionWheel();
-		bool isActive();
+		bool active();
 		const char *name() const;
 		const char *cmd() const;
 		const char *desc() const;
