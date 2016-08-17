@@ -15,7 +15,6 @@
 #include "URLParser.h"
 
 class Authenticator;
-class Client;
 class CmdHandler;
 class ConfigReader;
 class EventManager;
