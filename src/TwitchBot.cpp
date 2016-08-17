@@ -88,10 +88,11 @@ bool TwitchBot::connect()
 	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/tags");
 	send_raw(buf);
 
-	/* send join and part information */
+	/* receive join and part information */
 	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/membership");
 	send_raw(buf);
 
+	/* allow access to additional twitch commands */
 	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/commands");
 	send_raw(buf);
 
@@ -197,14 +198,16 @@ void TwitchBot::process_data(char *data)
 		process_privmsg(data);
 	} else if (strstr(data, "PING")) {
 		pong(data);
+	} else if (strstr(data, "JOIN")) {
+	} else if (strstr(data, "PART")) {
+	} else if (strstr(data, "353")) {
+		extract_names_list(data);
 	} else if (strstr(data, "Error log") || strstr(data, "Login unsuccess")) {
 		disconnect();
 		fprintf(stderr, "\nCould not login to Twitch IRC.\nMake sure "
 				"%s is configured correctly\n",
 				utils::config("config").c_str());
 		WAIT_INPUT();
-	} else if (strstr(data, "353")) {
-		extract_names_list(data);
 	}
 }
 
@@ -225,6 +228,10 @@ bool TwitchBot::process_privmsg(char *privmsg)
 		fprintf(stderr, "error: failed to extract data from message\n");
 		return false;
 	}
+
+	/* JOIN and PART messages on Twitch are not sent immediately */
+	/* add everyone who sends a message to names to keep it up to date */
+	m_names[nick] = 1;
 
 	/* check if message contains a URL */
 	m_parser.parse(msg);
