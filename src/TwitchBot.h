@@ -4,6 +4,7 @@
 #include <string>
 #include <thread>
 #include <tw/authenticator.h>
+#include <unordered_map>
 #include "client.h"
 #include "CmdHandler.h"
 #include "config.h"
@@ -56,6 +57,7 @@ class TwitchBot {
 		std::thread m_tick;
 		bool m_urltitles;
 		bool m_familiarity;
+		std::unordered_map<std::string, int> m_names;
 
 		bool send_raw(char *data);
 		bool send_msg(const char *msg);
@@ -66,6 +68,8 @@ class TwitchBot {
 		bool parse_privmsg(char *privmsg, char **nick,
 				char **msg, perm_t *p);
 		bool process_submsg(char *out, char *submsg);
+		void extract_names_list(char *data);
+		void read_names(char *names);
 		bool moderate(const std::string &nick, const std::string &msg);
 		void tick();
 		void parseSubMsg(std::string &fmt, const std::string &which);

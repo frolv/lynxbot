@@ -22,7 +22,7 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 			&m_giveaway, cfgr, &m_auth),
 	m_cfgr(cfgr), m_event(cfgr),
 	m_giveaway(channel + 1, time(nullptr), cfgr),
-	m_mod(name, &m_parser, cfgr)
+	m_mod(name, &m_parser, cfgr, &m_names)
 {
 	std::string err;
 	bool error;
@@ -120,17 +120,31 @@ void TwitchBot::disconnect()
 /* server_loop: continously receive and process data */
 void TwitchBot::server_loop()
 {
-	char buf[MAX_MSG];
+	char buf[MAX_MSG * 4];
+	char *pos;
+	int bytes;
+	size_t len;
 
+	pos = buf;
+	len = 0;
 	/* continously receive data from server */
 	while (1) {
-		if (cread(&m_client, buf, MAX_MSG) <= 0) {
+		if ((bytes = cread(&m_client, pos, 4 * MAX_MSG - len)) <= 0) {
 			fprintf(stderr, "No data received. Exiting.\n");
 			disconnect();
 			break;
 		}
+		pos += bytes;
+		len += bytes;
+		/* keep reading until full message has been received */
+		if (*(pos - 1) != '\n' && *(pos - 2) != '\r')
+			continue;
+
 		printf("[RECV] %s\n", buf);
 		process_data(buf);
+		pos = buf;
+		len = 0;
+
 		if (!m_connected)
 			break;
 	}
@@ -189,6 +203,8 @@ void TwitchBot::process_data(char *data)
 				"%s is configured correctly\n",
 				utils::config("config").c_str());
 		WAIT_INPUT();
+	} else if (strstr(data, "353")) {
+		extract_names_list(data);
 	}
 }
 
@@ -355,6 +371,38 @@ bool TwitchBot::process_submsg(char *out, char *submsg)
 	}
 	_sprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, s).c_str());
 	return true;
+}
+
+/* extract_names_list: extract names from data into m_names */
+void TwitchBot::extract_names_list(char *data)
+{
+	char *s;
+
+	for (s = data; s; data = s + 1) {
+		if ((s = strchr(data, '\n')))
+			*s = '\0';
+		/* 353 signifies names list */
+		if (strstr(data, "353")) {
+			read_names(data);
+			continue;
+		}
+		/* 366 signifies end of names list */
+		if (strstr(data, "366"))
+			break;
+	}
+}
+
+void TwitchBot::read_names(char *names)
+{
+	char *s;
+
+	s = names + 1;
+	names = strchr(s, ':') + 1;
+	for (; s; names = s + 1) {
+		if ((s = strchr(names, ' ')))
+			*s = '\0';
+		m_names[names] = 1;
+	}
 }
 
 /* moderate: check if message is valid; penalize nick if not */

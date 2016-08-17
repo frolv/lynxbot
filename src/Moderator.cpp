@@ -8,8 +8,9 @@
 
 #define LOG_LEN 256
 
-Moderator::Moderator(const char *name, URLParser *urlp, ConfigReader *cfgr)
-	: m_name(name), m_parsep(urlp), m_cfgr(cfgr)
+Moderator::Moderator(const char *name, URLParser *urlp, ConfigReader *cfgr,
+		std::unordered_map<std::string, int> *names)
+	: m_name(name), m_parsep(urlp), m_cfgr(cfgr), m_names(names)
 {
 	std::string err;
 	bool invalid;

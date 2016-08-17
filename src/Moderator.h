@@ -13,7 +13,8 @@ class URLParser;
 class Moderator {
 
 	public:
-		Moderator(const char *name, URLParser *urlp, ConfigReader *cfgr);
+		Moderator(const char *name, URLParser *urlp, ConfigReader *cfgr,
+				std::unordered_map<std::string, int> *names);
 		~Moderator();
 		bool active() const;
 		bool validmsg(const std::string &msg, const char *nick,
@@ -26,10 +27,13 @@ class Moderator {
 		bool paste() const;
 		bool log(int type, const char *user, const char *by,
 				const char *reason);
+		bool timeout(const char *name);
+		bool ban(const char *name);
 	private:
 		const char *m_name;
 		URLParser *m_parsep;
 		ConfigReader *m_cfgr;
+		std::unordered_map<std::string, int> *m_names;
 		std::unordered_map<std::string, uint8_t> m_offenses;
 		std::vector<std::string> m_whitelist;
 		std::unordered_map<std::string, int> m_perm;
