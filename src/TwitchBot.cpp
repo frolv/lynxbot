@@ -198,10 +198,12 @@ void TwitchBot::process_data(char *data)
 		process_privmsg(data);
 	} else if (strstr(data, "PING")) {
 		pong(data);
-	} else if (strstr(data, "JOIN")) {
-	} else if (strstr(data, "PART")) {
 	} else if (strstr(data, "353")) {
 		extract_names_list(data);
+	} else if (strstr(data, "JOIN")) {
+		process_user(data, 0);
+	} else if (strstr(data, "PART")) {
+		process_user(data, 1);
 	} else if (strstr(data, "Error log") || strstr(data, "Login unsuccess")) {
 		disconnect();
 		fprintf(stderr, "\nCould not login to Twitch IRC.\nMake sure "
@@ -409,6 +411,31 @@ void TwitchBot::read_names(char *names)
 		if ((s = strchr(names, ' ')))
 			*s = '\0';
 		m_names[names] = 1;
+	}
+}
+
+/* process_user: read joins and parts into m_names */
+void TwitchBot::process_user(char *data, int part)
+{
+	char *s, *t;
+	const char *type = part ? "PART" : "JOIN";
+
+	for (s = data; s; data = s + 1) {
+		if ((s = strchr(data, '\n')))
+			*s = '\0';
+		if (!(strstr(data, type)))
+			continue;
+
+		/* confirm join channel is bot's channel */
+		if (!(t = strchr(data, '#')) ||
+				strncmp(t, m_channel, strlen(m_channel)) != 0)
+			continue;
+
+		if (!(t = strchr(data, '!')))
+			continue;
+		*t = '\0';
+
+		m_names[++data] = !part;
 	}
 }
 
