@@ -30,6 +30,11 @@ int CmdHandler::mod(char *out, struct command *c)
 		{ 0, 0, 0 }
 	};
 
+	if (!P_ALMOD(c->privileges)) {
+		PERM_DENIED(out, c->nick, c->argv[0]);
+		return EXIT_FAILURE;
+	}
+
 	opt_init();
 	action = lenflag = 0;
 	len = 300;
