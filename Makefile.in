@@ -116,7 +116,7 @@ install: $(PROGNAME)
 	-install -g 0 -o 0 $(FMODE) misc/$(MANFILE) $(PREFIX)/man/man1
 	-gzip -f $(PREFIX)/man/man1/$(MANFILE)
 	-mandb -f $(PREFIX)/man/man1/$(MANFILE)
-	[ -d $(COMPDIR) ] && cp misc/_lynxbot $(COMPDIR)
+	-[ -d $(COMPDIR) ] && cp misc/_lynxbot $(COMPDIR)
 	install -d -g $(USR) -o $(USR) $(DMODE) $(CONFDIR)\
 		$(CONFDIR)/json $(CONFDIR)/img
 	[ -f $(CONFDIR)/config ] || install $(USRGRP) $(FMODE)\
