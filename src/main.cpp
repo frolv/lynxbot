@@ -56,7 +56,6 @@ int main(int argc, char **argv)
 	std::string path;
 	int update;
 
-	update = 1;
 	int c;
 	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
@@ -66,6 +65,7 @@ int main(int argc, char **argv)
 	};
 
 	opt_init();
+	update = 1;
 	while ((c = l_getopt_long(argc, argv, "hv", long_opts)) != EOF) {
 		switch (c) {
 		case 'h':

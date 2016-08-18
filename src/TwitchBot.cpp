@@ -54,9 +54,9 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 		error = true;
 	}
 	if (!utils::parseBool(m_disable, m_cfgr->get("auto_disable"), err)) {
-		fprintf(stderr, "%s: auto_disable: %s (defaulting to false)\n",
+		fprintf(stderr, "%s: auto_disable: %s (defaulting to true)\n",
 				m_cfgr->path().c_str(), err.c_str());
-		m_disable = false;
+		m_disable = true;
 		error = true;
 	}
 	if (error)

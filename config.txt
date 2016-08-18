@@ -85,7 +85,7 @@ time_interval = 15
 
 # If true, recurring messages will automatically be disabled when
 # the stream goes offline (and enabled when it comes on)
-auto_disable = false
+auto_disable = true
 
 # List of all recurring messages
 # Each recurring message has a period in mins and a message
