@@ -159,8 +159,6 @@ void TwitchBot::server_loop()
 /* processData: send data to designated function */
 void TwitchBot::process_data(char *data)
 {
-	char out[MAX_MSG];
-
 	if (strstr(data, "PRIVMSG")) {
 		process_privmsg(data);
 	} else if (strstr(data, "PING")) {
@@ -172,7 +170,7 @@ void TwitchBot::process_data(char *data)
 	} else if (strstr(data, "PART")) {
 		process_user(data, 1);
 	} else if (strstr(data, "USERNOTICE")) {
-		process_resub(out, data);
+		process_resub(data);
 	} else if (strstr(data, "Error log") || strstr(data, "Login unsuccess")) {
 		disconnect();
 		fprintf(stderr, "\nCould not login to Twitch IRC.\nMake sure "
@@ -341,9 +339,27 @@ bool TwitchBot::process_submsg(char *out, char *submsg)
 	return true;
 }
 
-/* process_resub: extract data from resub message and write to out */
-bool TwitchBot::process_resub(char *out, char *resubmsg)
+/* process_resub: extract data from resub message send response */
+bool TwitchBot::process_resub(char *resubmsg)
 {
+	char *nick, *months, *s;
+	const char *msg;
+	char out[MAX_MSG];
+
+	if (!strstr(resubmsg, "msg-id=resub"))
+		return false;
+
+	nick = strstr(resubmsg, "display-name") + 13;
+	s = strchr(nick, ';');
+	*s = '\0';
+
+	months = strstr(s + 1, "msg-param-months") + 17;
+	s = strchr(months, ';');
+	*s = '\0';
+	msg = m_resubMsg.c_str();
+
+	_sprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, months).c_str());
+	send_msg(&m_client, m_channel, out);
 	return true;
 }
 
