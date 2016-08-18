@@ -25,7 +25,7 @@ class Moderator {
 		uint8_t offenses(const std::string &nick) const;
 		bool whitelist(const std::string &site);
 		bool delurl(const std::string &site);
-		void permit(char *nick, int amt);
+		bool permit(char *nick, int amt);
 		std::string fmt_whitelist() const;
 		bool paste() const;
 		bool log(int type, const char *user, const char *by,

@@ -62,7 +62,12 @@ int CmdHandler::permit(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	m_modp->permit(c->argv[l_optind], amt);
+	if (!m_modp->permit(c->argv[l_optind], amt)) {
+		_sprintf(out, MAX_MSG, "%s: user '%s' is not currently in the "
+				"channel", c->argv[0], c->argv[l_optind]);
+		return EXIT_FAILURE;
+	}
+
 	if (amt == -1)
 		_sprintf(out, MAX_MSG, "[PERMIT] %s has been granted permission"
 				" to post links for the duration of this "

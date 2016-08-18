@@ -172,13 +172,23 @@ bool Moderator::delurl(const std::string &site)
 }
 
 /* permit: permit nick to post amt links */
-void Moderator::permit(char *nick, int amt)
+bool Moderator::permit(char *nick, int amt)
 {
 	char *s;
 
 	for (s = nick; *s; ++s)
 		*s = tolower(*s);
+
+	try {
+		if (!m_names->at(nick))
+			return false;
+	} catch (std::out_of_range) {
+		(*m_names)[nick] = 0;
+		return false;
+	}
+
 	m_perm[nick] = amt;
+	return true;
 }
 
 /* fmt_whitelist: return a formatted string of all whitelisted sites */
