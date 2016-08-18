@@ -7,16 +7,16 @@
 /* full name of the command */
 CMDNAME("mod");
 /* description of the command */
-CMDDESCR("perform moderation commands");
+CMDDESCR("perform moderation actions");
 /* command usage synopsis */
-CMDUSAGE("$mod <-b|-t> USER");
+CMDUSAGE("$mod <-b|-t> [-l LEN] USER [REASON...]");
 
 /* mod: perform moderation commands */
 int CmdHandler::mod(char *out, struct command *c)
 {
 	char *s;
 	const char *t;
-	int action;
+	int action, lenflag;
 	int64_t len;
 	char reason[MAX_MSG];
 	char name[RSN_BUF];
@@ -31,7 +31,7 @@ int CmdHandler::mod(char *out, struct command *c)
 	};
 
 	opt_init();
-	action = 0;
+	action = lenflag = 0;
 	len = 300;
 	while ((opt = l_getopt_long(c->argc, c->argv, "bl:t", long_opts))
 			!= EOF) {
@@ -58,6 +58,7 @@ int CmdHandler::mod(char *out, struct command *c)
 						"negative", c->argv[0]);
 				return EXIT_FAILURE;
 			}
+			lenflag = 1;
 			break;
 		case 't':
 			if (action) {
@@ -77,6 +78,12 @@ int CmdHandler::mod(char *out, struct command *c)
 
 	if (!action || l_optind == c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
+		return EXIT_FAILURE;
+	}
+
+	if (lenflag && action != TIMEOUT) {
+		_sprintf(out, MAX_MSG, "%s: specifying length doesn't "
+				"make sense for a ban", c->nick);
 		return EXIT_FAILURE;
 	}
 
@@ -106,9 +113,13 @@ int CmdHandler::mod(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	_sprintf(out, MAX_MSG, "@%s, user '%s' has been %s for %s.",
+	_sprintf(out, MAX_MSG, "@%s, user '%s' has been %s",
 			c->nick, c->argv[l_optind],
-			action == BAN ? "banned" : "timed out",
-			reason);
+			action == BAN ? "banned" : "timed out");
+	if (*reason) {
+		strcat(out, " for ");
+		strcat(out, reason);
+	}
+	strcat(out, ".");
 	return EXIT_SUCCESS;
 }
