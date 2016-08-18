@@ -65,6 +65,7 @@ class TwitchBot {
 		bool parse_privmsg(char *privmsg, char **nick,
 				char **msg, perm_t *p);
 		bool process_submsg(char *out, char *submsg);
+		bool process_resub(char *out, char *resubmsg);
 		void extract_names_list(char *data);
 		void process_user(char *data, int part);
 		void read_names(char *names);

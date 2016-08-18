@@ -159,6 +159,8 @@ void TwitchBot::server_loop()
 /* processData: send data to designated function */
 void TwitchBot::process_data(char *data)
 {
+	char out[MAX_MSG];
+
 	if (strstr(data, "PRIVMSG")) {
 		process_privmsg(data);
 	} else if (strstr(data, "PING")) {
@@ -169,6 +171,8 @@ void TwitchBot::process_data(char *data)
 		process_user(data, 0);
 	} else if (strstr(data, "PART")) {
 		process_user(data, 1);
+	} else if (strstr(data, "USERNOTICE")) {
+		process_resub(out, data);
 	} else if (strstr(data, "Error log") || strstr(data, "Login unsuccess")) {
 		disconnect();
 		fprintf(stderr, "\nCould not login to Twitch IRC.\nMake sure "
@@ -317,7 +321,7 @@ bool TwitchBot::process_submsg(char *out, char *submsg)
 	char *nick, *s, *t;
 	const char *msg;
 
-	if (!strstr(submsg, "subscribed")) {
+	if (!strstr(submsg, "subscribed!")) {
 		*out = '\0';
 		return false;
 	}
@@ -331,19 +335,15 @@ bool TwitchBot::process_submsg(char *out, char *submsg)
 	nick = t + 2;
 	t = strchr(nick, ' ');
 	*t = '\0';
+	msg = m_subMsg.c_str();
 
-	if ((s = strstr(t + 1, "for"))) {
-		s += 4;
-		t = strchr(s, ' ');
-		*t = '\0';
-		msg = m_resubMsg.c_str();
-	} else {
-		s = submsg;
-		*s = '1';
-		s[1] = '\0';
-		msg = m_subMsg.c_str();
-	}
-	_sprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, s).c_str());
+	_sprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, "1").c_str());
+	return true;
+}
+
+/* process_resub: extract data from resub message and write to out */
+bool TwitchBot::process_resub(char *out, char *resubmsg)
+{
 	return true;
 }
 
