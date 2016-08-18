@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 
-    <title>permit(2) - LynxBot</title>
+    <title>mod(2) - LynxBot</title>
   </head>
 
   <body>
@@ -32,45 +32,54 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
 
-        <h2>permit(2) - LynxBot manual</h2>
+        <h2>mod(2) - LynxBot manual</h2>
 
         <h3>NAME</h3>
-        <p>permit - grant user permission to post urls</p>
+        <p>mod - perform moderation actions</p>
 
         <h3>SYNOPSIS</h3>
-        <pre><code><strong>$permit</strong> [<strong>-n</strong> <u>AMT</u>] [<strong>-s</strong>] <u>USER</u></code></pre>
+        <pre><code><strong>$mod -b</strong> <u>USER</u> [<u>REASON</u>...]</code></pre>
+        <pre><code><strong>$mod -t</strong> [<strong>-l</strong> <u>LEN</u>] <u>USER</u> [<u>REASON</u>...]</code></pre>
 
         <h3>DESCRIPTION</h3>
-        <p><strong>permit</strong> grants a user permission to post a single
-        URL in the chat without being timed out. The permission expires after
-        the user has posted a URL that is not on the bot's whitelist.</p>
+        <p>The <strong>mod</strong> command is used to perform chat moderation
+        actions.</p>
 
-        <p><u>USER</u> is the Twitch username of the user being permitted. If
-        the user is not currently in the channel, the command will fail.</p>
+        <p>People can either be timed out or banned, through the
+        <strong>-t</strong> and <strong>-b</strong> operations, respectively.<p>
+
+        <p>All moderation actions performed through the <strong>mod</strong>
+        command are recorded in the file <strong>$CONFIGDIR/modlog</strong>.</p>
+
+        <p><u>USER</u> is the Twitch username of the offender. If the user is
+        not currently in the channel, the command will fail.</p>
+
+        <p>The optional argument <u>REASON</u> can be used to provide a reason
+        for the action. This will be recorded in the modlog.</p>
 
         <h3>OPTIONS</h3>
         <dl compact="">
+          <dt><b>-b, --ban</b></dt>
+          <dd>ban <u>USER</u> from the channel</dd>
           <dt><b>--help</b></dt>
           <dd>print brief description and usage information</dd>
-          <dt><b>-n, --amount=<u>AMT</u></b></dt>
-          <dd>grant user permission to post <u>AMT</u> links</dd>
-          <dt><b>-s, --session</b></dt>
-          <dd>grant user permission to post URLs for duration of session</dd>
+          <dt><b>-l, --length=<u>LEN</u></b></dt>
+          <dd>with <strong>-t</strong>: timeout for <u>LEN</u> seconds</dd>
+          <dt><b>-t, --timeout</b></dt>
+          <dd>timeout <u>USER</u> from the channel</dd>
         </dl>
 
         <h3>EXAMPLES</h3>
-        <p>Permits the user 00rsn to post a link:</p>
-        <pre><code>$permit 00rsn</code></pre>
+        <p>Bans the user exitsmells from the channel:</p>
+        <pre><code>$mod -b exitsmells</code></pre>
 
-        <p>Permits the user osrs_airport to post 3 links:</p>
-        <pre><code>$permit -n 3 osrs_airport</code></pre>
+        <p>Timeout the user andrewwigins for 120 seconds (reason: spamming):</p>
+        <pre><code>$mod -t -l 120 andrewwigins spamming</code></pre>
 
         <h3>SEE ALSO</h3>
-        <p><a href="mod.html">mod(2)</a>,
+        <p><a href="permit.html">permit(2)</a>,
         <a href="whitelist.html">whitelist(2)</a>,
-        <a href="moderation.html">Moderation(3)</a>,
-        <a href="config.html">config(4)</a>,
-        <a href="config-wl.html">whitelist(4)</a></p>
+        <a href="moderation.html">Moderation(3)</a></p>
 
       </section>
     </div>
