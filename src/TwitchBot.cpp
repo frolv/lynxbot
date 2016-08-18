@@ -22,7 +22,7 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 			&m_giveaway, cfgr, &m_auth),
 	m_cfgr(cfgr), m_event(cfgr),
 	m_giveaway(channel + 1, time(nullptr), cfgr),
-	m_mod(name, &m_parser, cfgr, &m_names)
+	m_mod(name, channel, &m_parser, cfgr, &m_client, &m_names)
 {
 	std::string err;
 	bool error;
@@ -78,23 +78,23 @@ bool TwitchBot::connect()
 
 	/* send required IRC data: PASS, NICK, USER */
 	_sprintf(buf, MAX_MSG, "PASS %s", m_password);
-	send_raw(buf);
+	send_raw(&m_client, buf);
 	_sprintf(buf, MAX_MSG, "NICK %s", m_nick);
-	send_raw(buf);
+	send_raw(&m_client, buf);
 	_sprintf(buf, MAX_MSG, "USER %s", m_nick);
-	send_raw(buf);
+	send_raw(&m_client, buf);
 
 	/* enable tags in PRIVMSGs */
 	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/tags");
-	send_raw(buf);
+	send_raw(&m_client, buf);
 
 	/* receive join and part information */
 	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/membership");
-	send_raw(buf);
+	send_raw(&m_client, buf);
 
 	/* allow access to additional twitch commands */
 	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/commands");
-	send_raw(buf);
+	send_raw(&m_client, buf);
 
 	if (strlen(m_channel) > 32) {
 		fprintf(stderr, "error: channel name too long\n");
@@ -104,7 +104,7 @@ bool TwitchBot::connect()
 
 	/* join channel */
 	_sprintf(buf, MAX_MSG, "JOIN %s", m_channel);
-	send_raw(buf);
+	send_raw(&m_client, buf);
 
 	m_tick = std::thread(&TwitchBot::tick, this);
 	return true;
@@ -151,53 +151,13 @@ void TwitchBot::server_loop()
 	}
 }
 
-/* send_raw: format data and send to client */
-bool TwitchBot::send_raw(char *data)
-{
-	size_t end;
-	int bytes;
-
-	if ((end = strlen(data)) > MAX_MSG - 3) {
-		fprintf(stderr, "Message too long: %s\n", data);
-		return false;
-	}
-
-	if (data[end - 1] != '\n' && data[end - 2] != '\r')
-		strcpy(data + end, "\r\n");
-
-	/* send formatted data */
-	bytes = cwrite(&m_client, data);
-	printf("%s %s\n", bytes > 0 ? "[SENT]" : "Failed to send:", data);
-
-	/* return true iff data was sent succesfully */
-	return bytes > 0;
-}
-
-/* send_msg: send a PRIVMSG to the connected channel */
-bool TwitchBot::send_msg(const char *msg)
-{
-	char buf[MAX_MSG + 64];
-
-	_sprintf(buf, MAX_MSG + 64, "PRIVMSG %s :%s", m_channel, msg);
-	return send_raw(buf);
-}
-
-/* sendPong: send an IRC PONG */
-bool TwitchBot::pong(char *ping)
-{
-	/* first six chars are "PING :", server name starts after */
-	strcpy(++ping, "PONG");
-	ping[4] = ' ';
-	return send_raw(ping);
-}
-
 /* processData: send data to designated function */
 void TwitchBot::process_data(char *data)
 {
 	if (strstr(data, "PRIVMSG")) {
 		process_privmsg(data);
 	} else if (strstr(data, "PING")) {
-		pong(data);
+		pong(&m_client, data);
 	} else if (strstr(data, "353")) {
 		extract_names_list(data);
 	} else if (strstr(data, "JOIN")) {
@@ -222,7 +182,7 @@ bool TwitchBot::process_privmsg(char *privmsg)
 
 	if (strstr(privmsg, ":twitchnotify") == privmsg) {
 		if (process_submsg(out, privmsg))
-			send_msg(out);
+			send_msg(&m_client, m_channel, out);
 		return true;
 	}
 
@@ -244,7 +204,7 @@ bool TwitchBot::process_privmsg(char *privmsg)
 
 	if ((msg[0] == '$' || (m_familiarity && msg[0] == '!')) && msg[1]) {
 		m_cmdhnd.process_cmd(out, nick, msg + 1, p);
-		send_msg(out);
+		send_msg(&m_client, m_channel, out);
 		return true;
 	}
 
@@ -259,14 +219,14 @@ bool TwitchBot::process_privmsg(char *privmsg)
 		if (!process_url(out))
 			return false;
 		if (*out) {
-			send_msg(out);
+			send_msg(&m_client, m_channel, out);
 			return true;
 		}
 	}
 
 	/* check for responses */
 	if (m_cmdhnd.process_resp(out, msg, nick))
-		send_msg(out);
+		send_msg(&m_client, m_channel, out);
 
 	return true;
 }
@@ -453,16 +413,16 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 			/* timeout for 2^(offenses - 1) minutes */
 			t = 60 * (int)pow(2, offenses - 1);
 			_sprintf(out, MAX_MSG, "/timeout %s %d", nick.c_str(), t);
-			send_msg(out);
+			send_msg(&m_client, m_channel, out);
 			warning = warnings[offenses - 1] + " warning";
 		} else {
 			_sprintf(out, MAX_MSG, "/ban %s", nick.c_str());
-			send_msg(out);
+			send_msg(&m_client, m_channel, out);
 			warning = "Permanently banned";
 		}
 		_sprintf(out, MAX_MSG, "%s - %s (%s)", nick.c_str(),
 				reason.c_str(), warning.c_str());
-		send_msg(out);
+		send_msg(&m_client, m_channel, out);
 		return true;
 	}
 
@@ -478,7 +438,8 @@ void TwitchBot::tick()
 				i < m_event.messages()->size(); ++i) {
 			if (m_event.ready("msg" + std::to_string(i))) {
 				if (m_event.active())
-					send_msg(((*m_event.messages())[i])
+					send_msg(&m_client, m_channel,
+							((*m_event.messages())[i])
 							.first.c_str());
 				m_event.setUsed("msg" + std::to_string(i));
 				break;
@@ -486,7 +447,8 @@ void TwitchBot::tick()
 		}
 		if (m_giveaway.active() && m_event.ready("checkgiveaway")) {
 			if (m_giveaway.checkConditions(time(nullptr)))
-				send_msg(m_giveaway.giveaway().c_str());
+				send_msg(&m_client, m_channel,
+						m_giveaway.giveaway().c_str());
 			m_event.setUsed("checkgiveaway");
 		}
 		if (m_event.ready("checkuptime")) {

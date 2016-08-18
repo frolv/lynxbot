@@ -13,8 +13,8 @@
 # include <WS2tcpip.h>
 #endif
 
-#include <stdio.h>
 #include "client.h"
+#include "lynxbot.h"
 
 #ifdef __linux__
 static int connect_unix(struct client *cl, const char *serv, const char *port);
@@ -83,6 +83,46 @@ int cread(struct client *cl, char *buf, size_t sz)
 	if (bytes >= 0)
 		buf[bytes] = '\0';
 	return bytes;
+}
+
+/* send_raw: send a raw network message to cl server */
+int send_raw(struct client *cl, char *data)
+{
+	size_t end;
+	int bytes;
+
+	if ((end = strlen(data)) > MAX_MSG - 3) {
+		fprintf(stderr, "Message too long: %s\n", data);
+		return 0;
+	}
+
+	if (data[end - 1] != '\n' && data[end - 2] != '\r')
+		strcpy(data + end, "\r\n");
+
+	/* send formatted data */
+	bytes = cwrite(cl, data);
+	printf("%s %s\n", bytes > 0 ? "[SENT]" : "Failed to send:", data);
+
+	/* return true iff data was sent succesfully */
+	return bytes > 0;
+}
+
+/* send_msg: send a privmsg to channel on cl server */
+int send_msg(struct client *cl, const char *channel, const char *msg)
+{
+	char buf[MAX_MSG + 64];
+
+	_sprintf(buf, MAX_MSG + 64, "PRIVMSG %s :%s", channel, msg);
+	return send_raw(cl, buf);
+}
+
+/* send_pong: respond to ping with a pong */
+int pong(struct client *cl, char *ping)
+{
+	/* first six chars are "PING :", server name starts after */
+	strcpy(++ping, "PONG");
+	ping[4] = ' ';
+	return send_raw(cl, ping);
 }
 
 #ifdef __linux__

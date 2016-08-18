@@ -58,9 +58,6 @@ class TwitchBot {
 		bool m_familiarity;
 		std::unordered_map<std::string, int> m_names;
 
-		bool send_raw(char *data);
-		bool send_msg(const char *msg);
-		bool pong(char *ping);
 		void process_data(char *data);
 		bool process_privmsg(char *privmsg);
 		bool process_url(char *out);

@@ -38,6 +38,15 @@ int cwrite(struct client *cl, const char *msg);
 /* cread: read data from cl server */
 int cread(struct client *cl, char *buf, size_t sz);
 
+/* send_raw: send a raw network message to cl server */
+int send_raw(struct client *cl, char *data);
+
+/* send_msg: send a privmsg to channel on cl server */
+int send_msg(struct client *cl, const char *channel, const char *msg);
+
+/* send_pong: respond to ping with a pong */
+int pong(struct client *cl, char *ping);
+
 #ifdef __cplusplus
 }
 #endif
