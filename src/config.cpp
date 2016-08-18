@@ -46,9 +46,13 @@ static struct setting settings[] = {
 		true },
 	{ "time_interval", STRING, "Interval in minutes at which timed "
 		"giveaways occur", true },
-	{ "recurring", OLIST, "each recurring message has a period in mins and "
-		"a message\nperiod must be multiple of 5 and less than 60\n"
-		"maximum of 5 recurring messages", true },
+	{ "auto_disable", STRING, "If true, recurring messages will "
+		"automatically be disabled when\nthe stream goes "
+		"offline (and enabled when it comes on)", true },
+	{ "recurring", OLIST, "List of all recurring messages\nEach recurring "
+		"message has a period in mins and a message\nThe period must "
+		"be a multiple of 5 and less than 60\nA maximum of 5 "
+		"recurring messages are allowed", true },
 	{ "familiarity_mode", STRING, "If set to true, chat messages starting "
 		"with a ! will also be processed\nas commands in addition to "
 		"those starting with a $", true },
@@ -220,6 +224,7 @@ void ConfigReader::write()
 	/* recurring */
 	writer << std::endl << "#### Recurring messages ####" << std::endl
 		<< std::endl;
+	writeSetting(writer, set++);
 	writeSetting(writer, set++);
 
 	/* other */

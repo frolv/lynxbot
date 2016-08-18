@@ -83,9 +83,14 @@ time_interval = 15
 
 #### Recurring messages ####
 
-# each recurring message has a period and a message
-# period must be multiple of 5 and less than 60
-# maximum of 5 recurring messages
+# If true, recurring messages will automatically be disabled when
+# the stream goes offline (and enabled when it comes on)
+auto_disable = false
+
+# List of all recurring messages
+# Each recurring message has a period in mins and a message
+# The period must be multiple of 5 and less than 60
+# A maximum of 5 recurring messages are allowed
 recurring = {
 	{
 		period = 5

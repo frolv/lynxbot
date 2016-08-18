@@ -39,8 +39,7 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 	parseSubMsg(m_resubMsg, "resubmessage");
 
 	error = false;
-	if (!utils::parseBool(m_urltitles, m_cfgr->get("url_titles"),
-				err)) {
+	if (!utils::parseBool(m_urltitles, m_cfgr->get("url_titles"), err)) {
 		fprintf(stderr, "%s: url_titles: %s (defaulting to true)\n",
 				m_cfgr->path().c_str(), err.c_str());
 		m_urltitles = true;
@@ -52,6 +51,12 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 				"(defaulting to false)\n",
 				m_cfgr->path().c_str(), err.c_str());
 		m_familiarity = false;
+		error = true;
+	}
+	if (!utils::parseBool(m_disable, m_cfgr->get("auto_disable"), err)) {
+		fprintf(stderr, "%s: auto_disable: %s (defaulting to false)\n",
+				m_cfgr->path().c_str(), err.c_str());
+		m_disable = false;
 		error = true;
 	}
 	if (error)
@@ -454,6 +459,12 @@ void TwitchBot::tick()
 		if (m_event.ready("checkuptime")) {
 			check_channel(m_channel + 1);
 			m_event.setUsed("checkuptime");
+			if (m_disable) {
+				if (channel_uptime())
+					m_event.activate();
+				else
+					m_event.deactivate();
+			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}

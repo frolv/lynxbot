@@ -56,6 +56,7 @@ class TwitchBot {
 		std::thread m_tick;
 		bool m_urltitles;
 		bool m_familiarity;
+		bool m_disable;
 		std::unordered_map<std::string, int> m_names;
 
 		void process_data(char *data);
