@@ -267,6 +267,7 @@ void CmdHandler::populate_cmd()
 	m_defaultCmds["editcom"] = &CmdHandler::editcom;
 	m_defaultCmds["er"] = &CmdHandler::editrec;
 	m_defaultCmds["editrec"] = &CmdHandler::editrec;
+	m_defaultCmds["mod"] = &CmdHandler::mod;
 	m_defaultCmds["permit"] = &CmdHandler::permit;
 	m_defaultCmds["setgiv"] = &CmdHandler::setgiv;
 	m_defaultCmds["setrec"] = &CmdHandler::setrec;

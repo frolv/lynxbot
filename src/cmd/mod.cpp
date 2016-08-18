@@ -14,7 +14,8 @@ CMDUSAGE("$mod <-b|-t> USER");
 /* mod: perform moderation commands */
 int CmdHandler::mod(char *out, struct command *c)
 {
-	char *s, *t;
+	char *s;
+	const char *t;
 	int action;
 	int64_t len;
 	char reason[MAX_MSG];
@@ -31,6 +32,7 @@ int CmdHandler::mod(char *out, struct command *c)
 
 	opt_init();
 	action = 0;
+	len = 300;
 	while ((opt = l_getopt_long(c->argc, c->argv, "bl:t", long_opts))
 			!= EOF) {
 		switch (opt) {
@@ -79,9 +81,9 @@ int CmdHandler::mod(char *out, struct command *c)
 	}
 
 	/* convert names to lower for lookup */
-	s = m_name;
-	t = name;
-	while ((*t++ = tolower(*s++)))
+	s = name;
+	t = m_name;
+	while ((*s++ = tolower(*t++)))
 		;
 	for (s = c->argv[l_optind]; *s; ++s)
 		*s = tolower(*s);
@@ -96,15 +98,17 @@ int CmdHandler::mod(char *out, struct command *c)
 	}
 
 	argvcat(reason, c->argc, c->argv, l_optind + 1, 1);
-	if (!m_modp->mod_action(action, c->argv[l_optind], c->nick, reason)) {
+	/* attempt to perform the moderation action */
+	if (!m_modp->mod_action(action, c->argv[l_optind],
+				c->nick, reason, len)) {
 		_sprintf(out, MAX_MSG, "%s: user '%s' is not currently in the "
 				"channel", c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 
-	printf("%s\n", reason);
-	_sprintf(out, MAX_MSG, "@%s, user '%s' has been %s.",
+	_sprintf(out, MAX_MSG, "@%s, user '%s' has been %s for %s.",
 			c->nick, c->argv[l_optind],
-			action == BAN ? "banned" : "timed out");
+			action == BAN ? "banned" : "timed out",
+			reason);
 	return EXIT_SUCCESS;
 }

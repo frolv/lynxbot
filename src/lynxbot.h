@@ -21,8 +21,10 @@
 #define BOT_VERSION "v" _BOT_VER_MAJOR "." _BOT_VER_MINOR "."\
 	_BOT_VER_PATCH _BOT_VER_SUF
 
+#ifndef MAX_MSG
 /* maximum length of chat message */
-#define MAX_MSG	1024
+# define MAX_MSG 1024
+#endif
 
 /* maximum path length */
 #define MAX_PATH 4096

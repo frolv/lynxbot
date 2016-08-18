@@ -15,7 +15,7 @@ CMDDESCR("show information about a custom command");
 /* command usage synopsis */
 CMDUSAGE("$cmdinfo [-aCcmu] CMD");
 
-static int mod;
+static int modified;
 static int atime, crtime, creator, mtime, uses;
 
 static void putinfo(char *out, Json::Value *cmd);
@@ -36,27 +36,27 @@ int CmdHandler::cmdinfo(char *out, struct command *c)
 
 	opt_init();
 	status = EXIT_SUCCESS;
-	atime = crtime = creator = mtime = uses = mod = 0;
+	atime = crtime = creator = mtime = uses = modified = 0;
 	while ((opt = l_getopt_long(c->argc, c->argv, "aCcmu", long_opts))
 			!= EOF) {
 		switch (opt) {
 		case 'a':
-			mod = atime = 1;
+			modified = atime = 1;
 			break;
 		case 'C':
-			mod = creator = 1;
+			modified = creator = 1;
 			break;
 		case 'c':
-			mod = crtime = 1;
+			modified = crtime = 1;
 			break;
 		case 'h':
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case 'm':
-			mod = mtime = 1;
+			modified = mtime = 1;
 			break;
 		case 'u':
-			mod = uses = 1;
+			modified = uses = 1;
 			break;
 		case '?':
 			_sprintf(out, MAX_MSG, "%s", l_opterr());
@@ -65,7 +65,7 @@ int CmdHandler::cmdinfo(char *out, struct command *c)
 			return EXIT_FAILURE;
 		}
 	}
-	if (!mod)
+	if (!modified)
 		atime = crtime = creator = mtime = uses = 1;
 
 	if (l_optind != c->argc - 1) {
@@ -138,7 +138,7 @@ static void putinfo(char *out, Json::Value *cmd)
 		end = strchr(end, '\0');
 	}
 	if (mtime) {
-		if ((!mod && ct != mt) || mod) {
+		if ((!modified && ct != mt) || modified) {
 			strcat(end, " Last modified at ");
 			end = strchr(end, '\0');
 			strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &mtm);
@@ -159,7 +159,7 @@ static void putinfo(char *out, Json::Value *cmd)
 					utils::conv_time(time(nullptr) - at)
 					.c_str());
 			end = strchr(end, '\0');
-		} else if (mod) {
+		} else if (modified) {
 			strcat(end, " Never used.");
 			end = strchr(end, '\0');
 		}

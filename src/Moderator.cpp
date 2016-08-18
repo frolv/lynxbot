@@ -8,9 +8,11 @@
 
 #define LOG_LEN 256
 
-Moderator::Moderator(const char *name, URLParser *urlp, ConfigReader *cfgr,
+Moderator::Moderator(const char *name, const char *channel, URLParser *urlp,
+		ConfigReader *cfgr, struct client *cl,
 		std::unordered_map<std::string, int> *names)
-	: m_name(name), m_parsep(urlp), m_cfgr(cfgr), m_names(names)
+	: m_name(name), m_channel(channel), m_parsep(urlp), m_cfgr(cfgr),
+	m_client(cl), m_names(names)
 {
 	std::string err;
 	bool invalid;
@@ -230,6 +232,30 @@ bool Moderator::log(int type, const char *user, const char *by,
 			by, reason ? reason : "none");
 
 	fclose(f);
+	return true;
+}
+
+/* mod_action: perform a moderation action on name */
+bool Moderator::mod_action(int type, const char *name,
+		const char *by, const char *reason, int len)
+{
+	char msg[MAX_MSG];
+
+	try {
+		if (!m_names->at(name))
+			return false;
+	} catch (std::out_of_range) {
+		(*m_names)[name] = 0;
+		return false;
+	}
+
+	if (type == TIMEOUT)
+		_sprintf(msg, MAX_MSG, "/timeout %s %d", name, len);
+	else
+		_sprintf(msg, MAX_MSG, "/ban %s", name);
+
+	send_msg(m_client, m_channel, msg);
+	log(type, name, by, *reason ? reason : NULL);
 	return true;
 }
 

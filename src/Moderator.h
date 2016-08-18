@@ -1,11 +1,12 @@
 #pragma once
 
 #include <unordered_map>
+#include "client.h"
 #include "config.h"
 #include "URLParser.h"
 
-#define TIMEOUT	0
-#define BAN	1
+#define TIMEOUT	1
+#define BAN	2
 
 class ConfigReader;
 class URLParser;
@@ -13,7 +14,9 @@ class URLParser;
 class Moderator {
 
 	public:
-		Moderator(const char *name, URLParser *urlp, ConfigReader *cfgr,
+		Moderator(const char *name, const char *channel,
+				URLParser *urlp, ConfigReader *cfgr,
+				struct client *cl,
 				std::unordered_map<std::string, int> *names);
 		~Moderator();
 		bool active() const;
@@ -27,12 +30,14 @@ class Moderator {
 		bool paste() const;
 		bool log(int type, const char *user, const char *by,
 				const char *reason);
-		bool timeout(const char *name);
-		bool ban(const char *name);
+		bool mod_action(int type, const char *name, const char *by,
+				const char *reason, int len);
 	private:
 		const char *m_name;
+		const char *m_channel;
 		URLParser *m_parsep;
 		ConfigReader *m_cfgr;
+		struct client *m_client;
 		std::unordered_map<std::string, int> *m_names;
 		std::unordered_map<std::string, uint8_t> m_offenses;
 		std::vector<std::string> m_whitelist;

@@ -132,6 +132,7 @@ class CmdHandler {
 		int delrec(char *out, struct command *c);
 		int editcom(char *out, struct command *c);
 		int editrec(char *out, struct command *c);
+		int mod(char *out, struct command *c);
 		int permit(char *out, struct command *c);
 		int setgiv(char *out, struct command *c);
 		int setrec(char *out, struct command *c);
