@@ -2,8 +2,8 @@
  * strfmt.h: functions to format strings
  */
 
-#ifndef _STRFMT_H
-#define _STRFMT_H
+#ifndef STRFMT_H
+#define STRFMT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,4 +16,4 @@ void fmtnum(char *out, size_t size, const char *num);
 } /* extern "C" */
 #endif
 
-#endif
+#endif /* STRFMT_H */

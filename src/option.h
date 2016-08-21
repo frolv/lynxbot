@@ -2,8 +2,8 @@
  * option.h: command option parsing functions
  */
 
-#ifndef _OPTION_H
-#define _OPTION_H
+#ifndef OPTION_H
+#define OPTION_H
 
 #ifndef EOF
 # define EOF (-1)
@@ -49,4 +49,4 @@ char *l_opterr();
 } /* extern "C" */
 #endif
 
-#endif
+#endif /* OPTION_H */

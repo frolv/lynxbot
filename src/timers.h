@@ -2,8 +2,8 @@
  * timers.h: functions to check bot and stream uptimes
  */
 
-#ifndef _TIMERS_H
-#define _TIMERS_H
+#ifndef TIMERS_H
+#define TIMERS_H
 
 #include <time.h>
 
@@ -19,4 +19,4 @@ time_t bot_uptime();
 /* channel_uptime: return how long stream has been live */
 time_t channel_uptime();
 
-#endif
+#endif /* TIMERS_H */

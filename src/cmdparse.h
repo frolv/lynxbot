@@ -3,8 +3,8 @@
  * into an array of arguments for a command
  */
 
-#ifndef _CMDPARSE_H
-#define _CMDPARSE_H
+#ifndef CMDPARSE_H
+#define CMDPARSE_H
 
 #include "cmd/command.h"
 
@@ -25,4 +25,4 @@ char *cmderr();
 } /* extern "C" */
 #endif
 
-#endif
+#endif /* CMDPARSE_H */

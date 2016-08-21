@@ -2,8 +2,8 @@
  * stringparse.h: functions to manipulate and parse data from C strings
  */
 
-#ifndef _STRINGPARSE_H
-#define _STRINGPARSE_H
+#ifndef STRINGPARSE_H
+#define STRINGPARSE_H
 
 #include <stdint.h>
 
@@ -27,4 +27,4 @@ int parsenum_mult(const char *s, int64_t *amt);
 } /* extern "C" */
 #endif
 
-#endif
+#endif /* STRINGPARSE_H */

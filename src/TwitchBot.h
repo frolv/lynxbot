@@ -1,5 +1,5 @@
-#ifndef _TWITCHBOT_H
-#define _TWITCHBOT_H
+#ifndef TWITCHBOT_H
+#define TWITCHBOT_H
 
 #include <string>
 #include <thread>
@@ -77,4 +77,4 @@ class TwitchBot {
 
 };
 
-#endif
+#endif /* TWITCHBOT_H */

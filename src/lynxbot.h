@@ -2,8 +2,8 @@
  * lynxbot.h: bot information and general purpose definitions
  */
 
-#ifndef _LYNXBOT_H
-#define _LYNXBOT_H
+#ifndef LYNXBOT_H
+#define LYNXBOT_H
 
 #include <stdio.h>
 
@@ -42,4 +42,4 @@
 /* wait for user to press return */
 #define WAIT_INPUT() while (getchar() != '\n');
 
-#endif
+#endif /* LYNXBOT_H */

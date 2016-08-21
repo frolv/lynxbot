@@ -3,8 +3,8 @@
  * for connecting, sending and recieving data through a socket
  */
 
-#ifndef _CLIENT_H
-#define _CLIENT_H
+#ifndef CLIENT_H
+#define CLIENT_H
 
 #ifdef _WIN32
 # include <Winsock2.h>
@@ -51,4 +51,4 @@ int pong(struct client *cl, char *ping);
 }
 #endif
 
-#endif
+#endif /* CLIENT_H */

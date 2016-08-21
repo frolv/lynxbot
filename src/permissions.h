@@ -1,5 +1,5 @@
-#ifndef _PERMISSIONS_H
-#define _PERMISSIONS_H
+#ifndef PERMISSIONS_H
+#define PERMISSIONS_H
 
 /* permission bits */
 #define _REG 0x0
@@ -24,4 +24,4 @@ typedef unsigned char perm_t;
 #define P_ALSUB(p) ((p) != _REG)
 #define P_ALMOD(p) (((p) >> 1) != _REG)
 
-#endif
+#endif /* PERMISSIONS_H */
