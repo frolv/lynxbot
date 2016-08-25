@@ -74,7 +74,7 @@ int CmdHandler::xp(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (!parsenum(c->argv[l_optind], &x)) {
+	if (!parsenum_mult(c->argv[l_optind], &x)) {
 		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
 				c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
@@ -91,7 +91,8 @@ int CmdHandler::xp(char *out, struct command *c)
 					c->argv[0]);
 			status = EXIT_FAILURE;
 		} else {
-			fmtnum(num, RSN_BUF, c->argv[l_optind]);
+			_sprintf(out, MAX_MSG, "%ld", x);
+			fmtnum(num, RSN_BUF, out);
 			_sprintf(out, MAX_MSG, "[XP] %s xp: level %d",
 					num, xptolvl(x));
 		}
