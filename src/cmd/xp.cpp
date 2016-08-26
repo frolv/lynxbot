@@ -166,7 +166,7 @@ static int xprange(char *out, struct command *c)
 		b = c->argv[l_optind + 1];
 	}
 
-	if (!parsenum(a, &x)) {
+	if (!parsenum_mult(a, &x)) {
 		_sprintf(out, MAX_MSG, "%s: invalid number: %s", c->argv[0], a);
 		return EXIT_FAILURE;
 	}
@@ -175,7 +175,7 @@ static int xprange(char *out, struct command *c)
 				c->argv[0]);
 		return EXIT_FAILURE;
 	}
-	if (!parsenum(b, &y)) {
+	if (!parsenum_mult(b, &y)) {
 		_sprintf(out, MAX_MSG, "%s: invalid number: %s", c->argv[0], b);
 		return EXIT_FAILURE;
 	}
