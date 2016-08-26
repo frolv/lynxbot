@@ -60,9 +60,9 @@ int CmdHandler::about(char *out, struct command *c)
 				type == REL ? RELEASE : SOURCE);
 		break;
 	default:
-		_sprintf(out, MAX_MSG, "[ABOUT] %s is running %s %s. "
-				"Find out more at %s", m_name, BOT_NAME,
-				BOT_VERSION, BOT_WEBSITE);
+		_sprintf(out, MAX_MSG, "[ABOUT] %s is running " BOT_NAME
+				" " BOT_VERSION ". Find out more at "
+				BOT_WEBSITE, m_name);
 		break;
 	}
 	return EXIT_SUCCESS;

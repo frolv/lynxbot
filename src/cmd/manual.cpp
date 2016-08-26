@@ -37,6 +37,6 @@ int CmdHandler::manual(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	_sprintf(out, MAX_MSG, "[MANUAL] %s/manual/index.html", BOT_WEBSITE);
+	_sprintf(out, MAX_MSG, "[MANUAL] " BOT_WEBSITE "/manual/index.html");
 	return EXIT_SUCCESS;
 }

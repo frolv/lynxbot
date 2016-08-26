@@ -39,11 +39,11 @@ int CmdHandler::man(char *out, struct command *c)
 	}
 
 	if (l_optind != c->argc - 1) {
-		USAGEMSG(out, CMDNAME, CMDUSAGE);
+		_sprintf(out, MAX_MSG, "What manual page do you want?");
 		return EXIT_FAILURE;
 	}
 
-	_sprintf(url, MAX_URL, "%s/manual/", BOT_WEBSITE);
+	_sprintf(url, MAX_URL, BOT_WEBSITE "/manual/");
 	if (m_help.find(c->argv[l_optind]) != m_help.end())
 		_sprintf(out, MAX_MSG, "[MAN] %s%s.html", url,
 				m_help[c->argv[l_optind]].c_str());
