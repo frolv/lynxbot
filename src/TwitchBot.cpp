@@ -119,9 +119,12 @@ bool TwitchBot::connect()
 /* disconnect: disconnect from Twitch server */
 void TwitchBot::disconnect()
 {
-	cdisconnect(&m_client);
-	m_connected = false;
-	m_tick.join();
+	if (m_connected) {
+		cdisconnect(&m_client);
+		m_connected = false;
+	}
+	if (m_tick.joinable())
+		m_tick.join();
 }
 
 /* server_loop: continously receive and process data */
