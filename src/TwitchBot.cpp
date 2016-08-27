@@ -27,7 +27,6 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 	std::string err;
 	bool error;
 
-	init_timers(m_channel + 1);
 	/* create uptime checking event */
 	m_event.add("checkuptime", 60, time(nullptr));
 
@@ -112,6 +111,8 @@ bool TwitchBot::connect()
 	send_raw(&m_client, buf);
 
 	m_tick = std::thread(&TwitchBot::tick, this);
+	init_timers(m_channel + 1);
+
 	return true;
 }
 
