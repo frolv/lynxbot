@@ -105,7 +105,12 @@ int CmdHandler::process_resp(char *out, char *msg, char *nick)
 		name = '_' + val["name"].asString();
 		regex = val["regex"].asString();
 
-		respreg = std::regex(regex, std::regex::icase);
+		try {
+			respreg = std::regex(regex, std::regex::icase);
+		} catch (std::regex_error) {
+			fprintf(stderr, "invalid regex: %s\n", regex.c_str());
+			continue;
+		}
 		if (std::regex_search(message.begin(), message.end(), match,
 				respreg) && m_cooldowns.ready(name)) {
 			m_cooldowns.setUsed(name);
