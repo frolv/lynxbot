@@ -139,10 +139,13 @@ void TwitchBot::server_loop()
 	len = 0;
 	/* continously receive data from server */
 	while (1) {
-		if ((bytes = cread(&m_client, pos, 4 * MAX_MSG - len)) <= 0) {
-			fprintf(stderr, "No data received. Exiting.\n");
+		if ((bytes = cread(&m_client, pos, 4 * MAX_MSG - len)) < 0) {
+			perror("read");
+			fprintf(stderr, "LynxBot exiting.\n");
 			disconnect();
 			break;
+		} else if (bytes == 0) {
+			continue;
 		}
 		pos += bytes;
 		len += bytes;
@@ -169,10 +172,8 @@ void TwitchBot::process_data(char *data)
 		pong(&m_client, data);
 	} else if (strstr(data, "353")) {
 		extract_names_list(data);
-	} else if (strstr(data, "JOIN")) {
-		process_user(data, 0);
-	} else if (strstr(data, "PART")) {
-		process_user(data, 1);
+	} else if (strstr(data, "JOIN") || strstr(data, "PART")) {
+		process_user(data);
 	} else if (strstr(data, "USERNOTICE")) {
 		process_resub(data);
 	} else if (strstr(data, "Error log") || strstr(data, "Login unsuccess")) {
@@ -386,6 +387,7 @@ void TwitchBot::extract_names_list(char *data)
 	}
 }
 
+/* read_names: read channel names list and add to m_names */
 void TwitchBot::read_names(char *names)
 {
 	char *s;
@@ -400,15 +402,20 @@ void TwitchBot::read_names(char *names)
 }
 
 /* process_user: read joins and parts into m_names */
-void TwitchBot::process_user(char *data, int part)
+void TwitchBot::process_user(char *data)
 {
 	char *s, *t;
-	const char *type = part ? "PART" : "JOIN";
+	int type;
 
 	for (s = data; s; data = s + 1) {
 		if ((s = strchr(data, '\n')))
 			*s = '\0';
-		if (!(strstr(data, type)))
+
+		if (strstr(data, "JOIN"))
+			type = 1;
+		else if (strstr(data, "PART"))
+			type = 0;
+		else
 			continue;
 
 		/* confirm join channel is bot's channel */
@@ -420,7 +427,7 @@ void TwitchBot::process_user(char *data, int part)
 			continue;
 		*t = '\0';
 
-		m_names[++data] = !part;
+		m_names[++data] = type;
 	}
 }
 

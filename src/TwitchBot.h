@@ -67,7 +67,7 @@ class TwitchBot {
 		bool process_submsg(char *out, char *submsg);
 		bool process_resub(char *resubmsg);
 		void extract_names_list(char *data);
-		void process_user(char *data, int part);
+		void process_user(char *data);
 		void read_names(char *names);
 		bool moderate(const std::string &nick, const std::string &msg);
 		void tick();
