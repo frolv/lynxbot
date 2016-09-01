@@ -10,7 +10,7 @@
 
 #ifdef _WIN32
 # include <sdkddkver.h>
-# include <WS2tcpip.h>
+# include <ws2tcpip.h>
 #endif
 
 #include "client.h"
@@ -62,7 +62,7 @@ int cwrite(struct client *cl, const char *msg)
 	return write(cl->fd, msg, strlen(msg));
 #endif
 #ifdef _WIN32
-	return send(cl->sock, msg, strlen(msg), NULL);
+	return send(cl->sock, msg, strlen(msg), 0);
 #endif
 }
 
@@ -164,7 +164,7 @@ static int connect_win(struct client *cl, const char *serv, const char *port)
 
 	cl->connected = 0;
 	if ((error = WSAStartup(MAKEWORD(2, 2), &cl->wsa))) {
-		fprintf(stderr, "WSAStartup failed. Error %d: %s\n",
+		fprintf(stderr, "WSAStartup failed. Error %d: %d\n",
 				error, WSAGetLastError());
 		return 1;
 	}
@@ -175,21 +175,21 @@ static int connect_win(struct client *cl, const char *serv, const char *port)
 	hints.ai_protocol = IPPROTO_TCP;
 
 	if ((error = getaddrinfo(serv, port, &hints, &servinfo))) {
-		fprintf(stderr, "getaddrinfo failed. Error %d: %s\n",
+		fprintf(stderr, "getaddrinfo failed. Error %d: %d\n",
 				error, WSAGetLastError());
 		return 1;
 	}
 
 	if ((cl->sock = socket(servinfo->ai_family, servinfo->ai_socktype,
 		servinfo->ai_protocol)) == INVALID_SOCKET) {
-		fprintf(stderr, "Could not open socket. Error: %s\n",
+		fprintf(stderr, "Could not open socket. Error: %d\n",
 				WSAGetLastError());
 		return 1;
 	}
 
 	if (connect(cl->sock, servinfo->ai_addr, servinfo->ai_addrlen)
 		== SOCKET_ERROR) {
-		fprintf(stderr, "Could not connect to socket. Error: %s\n",
+		fprintf(stderr, "Could not connect to socket. Error: %d\n",
 				WSAGetLastError());
 		closesocket(cl->sock);
 		return 1;

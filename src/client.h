@@ -7,7 +7,7 @@
 #define CLIENT_H
 
 #ifdef _WIN32
-# include <Winsock2.h>
+# include <winsock2.h>
 #endif
 
 /* a simple networking client */

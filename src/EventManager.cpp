@@ -155,7 +155,7 @@ void EventManager::read_messages()
 
 		if (!valid) {
 			error = true;
-			fprintf(stderr, "%s: recurring message %ld: %s\n"
+			fprintf(stderr, "%s: recurring message %lu: %s\n"
 					"skipping message\n",
 					m_cfgr->path().c_str(),
 					i + 1, err.c_str());

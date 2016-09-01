@@ -2,8 +2,12 @@
 #
 # configure - generate a Makefile for lynxbot
 
-prefix=/usr/local
 debug=false
+prefix="/usr/local"
+target="linux-x86_64"
+cross_prefix=
+progname=lynxbot
+LDFLAGS='-lcurl -lpthread -lcrypto'
 
 while [ "$1" ]; do
 	case "$1" in
@@ -20,10 +24,22 @@ while [ "$1" ]; do
 			echo "        show this help information"
 			echo "    --prefix=PATH"
 			echo "        set installation prefix to PATH"
+			echo "    --target=TARG"
+			echo "        set target system to TARG"
+			echo "        accepted values: linux-x86_64, win64"
 			exit 0
 			;;
 		--prefix=*)
 			prefix=`echo "$1" | sed 's/--prefix=//'`
+			shift
+			;;
+		--target=*)
+			target=`echo "$1" | sed 's/--target=//'`
+			if [ ! $target = "linux-x86_64" -a ! $target = "win64" ]; then
+				echo "invalid target: $target" >&2
+				echo "see ./configure --help for details" >&2
+				exit 1
+			fi
 			shift
 			;;
 		-*) echo invalid option "$1" >&2; exit 1;;
@@ -34,17 +50,25 @@ done
 echo generating Makefile...
 echo PREFIX=$prefix > Makefile
 if $debug; then
-	echo PROGNAME=lynxbot-d >> Makefile
+	progname="${progname}-d"
 	echo OBJ=obj/dbg >> Makefile
 	echo CFLAGS+=-DDEBUG -g >> Makefile
 	echo CXXFLAGS+=-DDEBUG -g >> Makefile
 else
-	echo PROGNAME=lynxbot >> Makefile
 	echo OBJ=obj/rel >> Makefile
 	echo CFLAGS+=-O2 >> Makefile
 	echo CXXFLAGS+=-O2 >> Makefile
 fi
+if [ $target = "win64" ]; then
+	progname="${progname}.exe"
+	cross_prefix="x86_64-w64-mingw32-"
+	LDFLAGS="-L/usr/x86_64-w64-mingw32/lib -lws2_32 -static-libgcc -static-libstdc++ $LDFLAGS"
+fi
+echo "CC=${cross_prefix}gcc" >> Makefile
+echo "CXX=${cross_prefix}g++" >> Makefile
+echo "LDFLAGS=$LDFLAGS" >> Makefile
 
+echo PROGNAME=$progname >> Makefile
 echo USR=$USER >> Makefile
 echo CONFDIR=$HOME/.lynxbot >> Makefile
 

@@ -276,9 +276,9 @@ static int open_linux(const char *url)
 /* open_win: launch browser on windows systems */
 static int open_win(const char *url)
 {
-	int i;
+	HINSTANCE ret;
 
-	i = (int)ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
-	return i <= 32;
+	ret = ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
+	return *(int *)&ret <= 32;
 }
 #endif
