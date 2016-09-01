@@ -4,7 +4,7 @@
 
 debug=false
 prefix="/usr/local"
-target="linux-x86_64"
+target="native"
 cross_prefix=
 progname=lynxbot
 LDFLAGS='-lcurl -lpthread -lcrypto'
@@ -26,8 +26,8 @@ while [ "$1" ]; do
 			echo "    --prefix=PATH"
 			echo "        set installation prefix to PATH"
 			echo "    --target=TARG"
-			echo "        set target system to TARG"
-			echo "        accepted values: linux-x86_64, win64"
+			echo "        set target architecture to TARG"
+			echo "        accepted values: native, linux-x86_64, mingw64"
 			exit 0
 			;;
 		--prefix=*)
@@ -36,7 +36,8 @@ while [ "$1" ]; do
 			;;
 		--target=*)
 			target=`echo "$1" | sed 's/--target=//'`
-			if [ ! $target = "linux-x86_64" -a ! $target = "win64" ]; then
+			if [ ! $target = "linux-x86_64" -a ! $target = "mingw64" \
+				-a ! $target = "native" ]; then
 				echo "invalid target: $target" >&2
 				echo "see ./configure --help for details" >&2
 				exit 1
@@ -48,7 +49,6 @@ while [ "$1" ]; do
 	esac
 done
 
-echo generating Makefile...
 echo PREFIX=$prefix > Makefile
 if $debug; then
 	progname="${progname}-d"
@@ -60,14 +60,19 @@ else
 	echo CFLAGS+=-O2 >> Makefile
 	echo CXXFLAGS+=-O2 >> Makefile
 fi
-if [ $target = "win64" ]; then
+if [ $target = "mingw64" ]; then
 	progname="${progname}.exe"
 	cross_prefix="x86_64-w64-mingw32-"
 	LDFLAGS="-L/usr/x86_64-w64-mingw32/lib -lws2_32 -static-libgcc -static-libstdc++ $LDFLAGS"
 	winbuild=1
 	echo "RES=${cross_prefix}windres" >> Makefile
 	echo "RESFLAGS=-O coff" >> Makefile
+elif [ $target = "linux-x86_64" ]; then
+	cross_prefix="x86_64-pc-linux-gnu-"
+else
+	target="$target (`uname -s` `uname -m`)"
 fi
+
 echo "CC=${cross_prefix}gcc" >> Makefile
 echo "CXX=${cross_prefix}g++" >> Makefile
 echo "LDFLAGS=$LDFLAGS" >> Makefile
@@ -78,4 +83,9 @@ echo USR=$USER >> Makefile
 echo CONFDIR=$HOME/.lynxbot >> Makefile
 
 cat Makefile.in >> Makefile
-echo configuration complete, type make to build
+echo "LynxBot configured"
+echo "Target architecture:	$target"
+echo "Debugging symbols:	$debug"
+echo "Output file:		$progname"
+echo "Installation prefix:	$prefix"
+echo Type \'make\' to build
