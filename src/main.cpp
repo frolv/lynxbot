@@ -148,9 +148,10 @@ void twitchAuth(struct botset *b)
 	int c, status;
 	std::string token, user;
 
-	printf("In order for the $status command to work, %s must be authorized"
-			" to update your Twitch channel settings.\nWould you "
-			"like to authorize %s now? (y/n) ", BOT_NAME, BOT_NAME);
+	printf("In order for the certain bot commands to work, %s must be "
+			"authorized to update your Twitch channel settings.\n"
+			"Would you like to authorize %s now? (y/n) ",
+			BOT_NAME, BOT_NAME);
 	while ((c = getchar()) != EOF && c != 'n' && c != 'y')
 		;
 	if (c == EOF) {
