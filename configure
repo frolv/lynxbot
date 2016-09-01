@@ -8,6 +8,7 @@ target="linux-x86_64"
 cross_prefix=
 progname=lynxbot
 LDFLAGS='-lcurl -lpthread -lcrypto'
+winbuild=0
 
 while [ "$1" ]; do
 	case "$1" in
@@ -63,10 +64,14 @@ if [ $target = "win64" ]; then
 	progname="${progname}.exe"
 	cross_prefix="x86_64-w64-mingw32-"
 	LDFLAGS="-L/usr/x86_64-w64-mingw32/lib -lws2_32 -static-libgcc -static-libstdc++ $LDFLAGS"
+	winbuild=1
+	echo "RES=${cross_prefix}windres" >> Makefile
+	echo "RESFLAGS=-O coff" >> Makefile
 fi
 echo "CC=${cross_prefix}gcc" >> Makefile
 echo "CXX=${cross_prefix}g++" >> Makefile
 echo "LDFLAGS=$LDFLAGS" >> Makefile
+echo "WINBUILD=$winbuild" >> Makefile
 
 echo PROGNAME=$progname >> Makefile
 echo USR=$USER >> Makefile

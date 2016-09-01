@@ -62,6 +62,10 @@ _TWH=oauth.h base64.h authenticator.h reader.h
 TWH=$(patsubst %,include/tw/%,$(_TWH))
 TWD=$(LIBD)/tw
 
+ifeq ($(WINBUILD), 1)
+	WINRES=misc/lynxbot.res
+endif
+
 # lynxbot source
 $(OBJ)/%.o: $(SRC)/%.cpp $(LBH) $(LIBH)
 	$(CXX) $(CXXFLAGS) -o $@ $<
@@ -93,11 +97,14 @@ $(OBJ)/tw_%.o: $(TWD)/%.cpp $(TWH)
 
 all: objdir binary
 
+misc/lynxbot.res: misc/lynxbot.rc
+	$(RES) $^ -o $@ $(RESFLAGS)
+
 # create directory for .o files
 objdir:
 	@mkdir -p $(OBJ)/cmd
 
-binary: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(LYNXC) $(COMMANDS) $(TW)
+binary: $(CPR) $(JSONCPP) $(LYNXBOT) $(LIBS) $(LYNXC) $(COMMANDS) $(TW) $(WINRES)
 	$(CXX) -o $(PROGNAME) $^ $(LDFLAGS)
 
 FMODE=-m 0644
@@ -135,4 +142,4 @@ install: $(PROGNAME)
 	done
 
 clean:
-	rm -f $(PROGNAME) $(OBJ)/*.o $(OBJ)/cmd/*.o
+	rm -f $(PROGNAME) $(OBJ)/*.o $(OBJ)/cmd/*.o $(WINRES)
