@@ -8,10 +8,10 @@
 #include <time.h>
 
 /* init_timers: initialize bot and channel start timers */
-void init_timers(const char *channel);
+void init_timers(const char *channel, const char *token);
 
 /* check_channel: update stream start timer */
-void check_channel(const char *channel);
+void check_channel(const char *channel, const char *token);
 
 /* bot_uptime: return how long bot has been running */
 time_t bot_uptime();

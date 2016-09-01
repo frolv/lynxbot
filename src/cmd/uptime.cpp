@@ -62,9 +62,12 @@ static int chan_uptime(char *out, const char *channel)
 {
 	time_t up;
 
-	if (!(up = channel_uptime()))
+	if ((up = channel_uptime()) == 0)
 		_sprintf(out, MAX_MSG, "[UPTIME] %s is not currently live.",
 				channel);
+	else if (up == -1)
+		_sprintf(out, MAX_MSG, "%s: Twitch authorization required",
+				CMDNAME);
 	else
 		_sprintf(out, MAX_MSG, "[UPTIME] %s has been live "
 				"for %s.", channel,

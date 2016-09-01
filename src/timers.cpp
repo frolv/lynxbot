@@ -13,14 +13,14 @@ static time_t bot_time;
 static time_t chan_time;
 
 /* init_timers: initialize bot and channel start timers */
-void init_timers(const char *channel)
+void init_timers(const char *channel, const char *token)
 {
 	bot_time = time(NULL);
-	check_channel(channel);
+	check_channel(channel, token);
 }
 
 /* check_channel: update stream start timer */
-void check_channel(const char *channel)
+void check_channel(const char *channel, const char *token)
 {
 	cpr::Response resp;
 	Json::Reader reader;
@@ -28,9 +28,16 @@ void check_channel(const char *channel)
 	char url[MAX_URL];
 	struct tm start;
 	std::istringstream ss;
+	const cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
+		{ "Authorization", "OAuth " + std::string(token) }};
+
+	if (strcmp(token, "NULL") == 0) {
+		chan_time = -1;
+		return;
+	}
 
 	_sprintf(url, MAX_URL, "%s%s", UPTIME_API, channel);
-	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
+	resp = cpr::Get(cpr::Url(url), head);
 
 	if (!reader.parse(resp.text, val)) {
 		fprintf(stderr, "could not parse uptime response\n");
@@ -63,8 +70,8 @@ time_t bot_uptime()
 /* channel_uptime: return how long stream has been live */
 time_t channel_uptime()
 {
-	if (chan_time == 0)
-		return 0;
+	if (chan_time == 0 || chan_time == -1)
+		return chan_time;
 
 	time_t now;
 	struct tm curr;

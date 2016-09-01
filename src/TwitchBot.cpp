@@ -28,7 +28,8 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 	bool error;
 
 	/* create uptime checking event */
-	m_event.add("checkuptime", 60, time(nullptr));
+	if (strcmp(token, "NULL") != 0)
+		m_event.add("checkuptime", 60, time(nullptr));
 
 	/* create giveaway checking event */
 	m_event.add("checkgiveaway", 10, time(nullptr));
@@ -111,7 +112,7 @@ bool TwitchBot::connect()
 	send_raw(&m_client, buf);
 
 	m_tick = std::thread(&TwitchBot::tick, this);
-	init_timers(m_channel + 1);
+	init_timers(m_channel + 1, m_token);
 
 	return true;
 }
@@ -484,7 +485,7 @@ void TwitchBot::tick()
 			m_event.setUsed("checkgiveaway");
 		}
 		if (m_event.ready("checkuptime")) {
-			check_channel(m_channel + 1);
+			check_channel(m_channel + 1, m_token);
 			m_event.setUsed("checkuptime");
 			if (m_disable) {
 				if (channel_uptime())

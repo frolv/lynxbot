@@ -19,6 +19,9 @@ void TimerManager::remove(const std::string &name)
 
 bool TimerManager::ready(const std::string &cmd) const
 {
+	if (m_timers.find(cmd) == m_timers.end())
+		return false;
+
 	return time(nullptr) - lastUsed(cmd) >= cooldown(cmd);
 }
 

@@ -1,11 +1,13 @@
 obj
 doc
 win-release
+old-releases
 lynxbot
 lynxbot-d
 lynxbot.exe
 lynxbot-d.exe
 *.o
 *.swp
+mkwinrel
 itemgen
 Makefile
