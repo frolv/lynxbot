@@ -50,16 +50,6 @@ while [ "$1" ]; do
 done
 
 echo PREFIX=$prefix > Makefile
-if $debug; then
-	progname="${progname}-d"
-	echo OBJ=obj/dbg >> Makefile
-	echo CFLAGS+=-DDEBUG -g >> Makefile
-	echo CXXFLAGS+=-DDEBUG -g >> Makefile
-else
-	echo OBJ=obj/rel >> Makefile
-	echo CFLAGS+=-O2 >> Makefile
-	echo CXXFLAGS+=-O2 >> Makefile
-fi
 if [ $target = "mingw64" ]; then
 	progname="${progname}.exe"
 	cross_prefix="x86_64-w64-mingw32-"
@@ -70,7 +60,17 @@ if [ $target = "mingw64" ]; then
 elif [ $target = "linux-x86_64" ]; then
 	cross_prefix="x86_64-pc-linux-gnu-"
 else
-	target="$target (`uname -s` `uname -m`)"
+	target=`uname -sm | tr ' ' - | tr [:upper:] [:lower:]`
+fi
+if $debug; then
+	progname="${progname}-d"
+	echo OBJ=obj/$target/dbg >> Makefile
+	echo CFLAGS+=-DDEBUG -g >> Makefile
+	echo CXXFLAGS+=-DDEBUG -g >> Makefile
+else
+	echo OBJ=obj/$target/rel >> Makefile
+	echo CFLAGS+=-O2 >> Makefile
+	echo CXXFLAGS+=-O2 >> Makefile
 fi
 
 echo "CC=${cross_prefix}gcc" >> Makefile
