@@ -6,8 +6,8 @@ SRC=src
 LIBD=lib
 
 INC=-I./include
-CXXFLAGS=$(INC) -Wall -Wextra -c -std=c++14
-CFLAGS=$(INC) -Wall -Wextra -c -std=c99
+CXXFLAGS+=$(INC) -Wall -Wextra -c -std=c++14
+CFLAGS+=$(INC) -Wall -Wextra -c -std=c99
 
 COMPDIR=/usr/share/zsh/site-functions
 
