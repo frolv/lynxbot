@@ -28,7 +28,7 @@ int CmdHandler::eightball(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -41,11 +41,11 @@ int CmdHandler::eightball(char *out, struct command *c)
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		status = EXIT_FAILURE;
 	} else if (*last != '?') {
-		_sprintf(out, MAX_MSG, "[8 BALL] Ask me a question.");
+		snprintf(out, MAX_MSG, "[8 BALL] Ask me a question.");
 		status = EXIT_FAILURE;
 	} else {
 		std::uniform_int_distribution<> dis(0, m_eightball.size());
-		_sprintf(out, MAX_MSG, "[8 BALL] @%s, %s.", c->nick,
+		snprintf(out, MAX_MSG, "[8 BALL] @%s, %s.", c->nick,
 				m_eightball[dis(m_gen)].c_str());
 	}
 	return status;

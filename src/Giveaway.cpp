@@ -513,7 +513,7 @@ static int mergeimg(const char *conf)
 
 	s = strcpy(back, conf) + strlen(conf);
 	i = rand() % 5;
-	_sprintf(s, MAX_PATH, "/img/back%d.jpg", i);
+	snprintf(s, MAX_PATH, "/img/back%d.jpg", i);
 
 	switch (fork()) {
 	case -1:
@@ -576,4 +576,4 @@ static std::string upload(const char *conf)
 		return std::string(s);
 	}
 }
-#endif
+#endif /* __linux__ */

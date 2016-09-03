@@ -59,7 +59,7 @@ int CmdHandler::cmdinfo(char *out, struct command *c)
 			modified = uses = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -75,14 +75,14 @@ int CmdHandler::cmdinfo(char *out, struct command *c)
 
 	switch (source(c->argv[l_optind])) {
 	case DEFAULT:
-		_sprintf(out, MAX_MSG, "[CMDINFO] %s is a default command",
+		snprintf(out, MAX_MSG, "[CMDINFO] %s is a default command",
 				c->argv[l_optind]);
 		break;
 	case CUSTOM:
 		putinfo(out, m_customCmds->getcom(c->argv[l_optind]));
 		break;
 	default:
-		_sprintf(out, MAX_MSG, "%s: command not found: %s",
+		snprintf(out, MAX_MSG, "%s: command not found: %s",
 				c->argv[0], c->argv[l_optind]);
 		status = EXIT_FAILURE;
 		break;
@@ -104,33 +104,29 @@ static void putinfo(char *out, Json::Value *cmd)
 	ct = (time_t)(*cmd)["ctime"].asInt64();
 	mt = (time_t)(*cmd)["mtime"].asInt64();
 
-#ifdef __linux__
 	atm = *localtime(&at);
 	ctm = *localtime(&ct);
 	mtm = *localtime(&mt);
-#endif
-#ifdef _WIN32
-	localtime_s(&atm, &at);
-	localtime_s(&ctm, &ct);
-	localtime_s(&mtm, &mt);
-#endif
+	printf("%d %d %d\n", ctm.tm_hour, ctm.tm_min, ctm.tm_sec);
 
-	_sprintf(out, MAX_MSG, "[CMDINFO] %s: ", (*cmd)["cmd"].asCString());
+	snprintf(out, MAX_MSG, "[CMDINFO] %s: ", (*cmd)["cmd"].asCString());
 	end = out + strlen(out);
 	if (crtime || creator) {
 		strcat(end, " Created");
 		end = strchr(end, '\0');
 		if (creator) {
-			_sprintf(end, MAX_PRINT, " by %s",
+			snprintf(end, MAX_PRINT, " by %s",
 					(*cmd)["creator"].asCString());
 			end = strchr(end, '\0');
 		}
 		if (crtime) {
 			strcat(end, " at ");
 			end = strchr(end, '\0');
-			strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &ctm);
+			/* strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &ctm); */
+			if (!strftime(end, MAX_PRINT, "%d", &ctm))
+				perror("strftime");
 			end = strchr(end, '\0');
-			_sprintf(end, MAX_PRINT, " (%s ago)",
+			snprintf(end, MAX_PRINT, " (%s ago)",
 					utils::conv_time(time(nullptr) - ct)
 					.c_str());
 		}
@@ -143,7 +139,7 @@ static void putinfo(char *out, Json::Value *cmd)
 			end = strchr(end, '\0');
 			strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &mtm);
 			end = strchr(end, '\0');
-			_sprintf(end, MAX_PRINT, " (%s ago).",
+			snprintf(end, MAX_PRINT, " (%s ago).",
 					utils::conv_time(time(nullptr) - mt)
 					.c_str());
 			end = strchr(end, '\0');
@@ -155,7 +151,7 @@ static void putinfo(char *out, Json::Value *cmd)
 			end = strchr(end, '\0');
 			strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &atm);
 			end = strchr(end, '\0');
-			_sprintf(end, MAX_PRINT, " (%s ago).",
+			snprintf(end, MAX_PRINT, " (%s ago).",
 					utils::conv_time(time(nullptr) - at)
 					.c_str());
 			end = strchr(end, '\0');
@@ -165,7 +161,7 @@ static void putinfo(char *out, Json::Value *cmd)
 		}
 	}
 	if (uses)
-		_sprintf(end, MAX_PRINT, " Used %d time%s.",
+		snprintf(end, MAX_PRINT, " Used %d time%s.",
 				(*cmd)["uses"].asInt(),
 				(*cmd)["uses"].asInt() == 1 ? "" : "s");
 }

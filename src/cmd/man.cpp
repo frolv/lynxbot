@@ -31,7 +31,7 @@ int CmdHandler::man(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -39,21 +39,21 @@ int CmdHandler::man(char *out, struct command *c)
 	}
 
 	if (l_optind != c->argc - 1) {
-		_sprintf(out, MAX_MSG, "What manual page do you want?");
+		snprintf(out, MAX_MSG, "What manual page do you want?");
 		return EXIT_FAILURE;
 	}
 
-	_sprintf(url, MAX_URL, BOT_WEBSITE "/manual/");
+	snprintf(url, MAX_URL, BOT_WEBSITE "/manual/");
 	if (m_help.find(c->argv[l_optind]) != m_help.end())
-		_sprintf(out, MAX_MSG, "[MAN] %s%s.html", url,
+		snprintf(out, MAX_MSG, "[MAN] %s%s.html", url,
 				m_help[c->argv[l_optind]].c_str());
 	else if (m_defaultCmds.find(c->argv[l_optind]) != m_defaultCmds.end())
-		_sprintf(out, MAX_MSG, "[MAN] %s%s.html", url, c->argv[l_optind]);
+		snprintf(out, MAX_MSG, "[MAN] %s%s.html", url, c->argv[l_optind]);
 	else if (!(ccmd = m_customCmds->getcom(c->argv[l_optind]))->empty())
-		_sprintf(out, MAX_MSG, "[MAN] '%s' is a custom command",
+		snprintf(out, MAX_MSG, "[MAN] '%s' is a custom command",
 				c->argv[l_optind]);
 	else
-		_sprintf(out, MAX_MSG, "%s: no manual entry for '%s'",
+		snprintf(out, MAX_MSG, "%s: no manual entry for '%s'",
 				c->argv[0], c->argv[l_optind]);
 
 	return EXIT_SUCCESS;

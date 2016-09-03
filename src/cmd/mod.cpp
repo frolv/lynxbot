@@ -43,7 +43,7 @@ int CmdHandler::mod(char *out, struct command *c)
 		switch (opt) {
 		case 'b':
 			if (action) {
-				_sprintf(out, MAX_MSG, "%s: cannot both timeout"
+				snprintf(out, MAX_MSG, "%s: cannot both timeout"
 						" and ban", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -54,12 +54,12 @@ int CmdHandler::mod(char *out, struct command *c)
 			return EXIT_SUCCESS;
 		case 'l':
 			if (!parsenum(l_optarg, &len)) {
-				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				snprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (len < 0) {
-				_sprintf(out, MAX_MSG, "%s: length cannot be "
+				snprintf(out, MAX_MSG, "%s: length cannot be "
 						"negative", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -67,14 +67,14 @@ int CmdHandler::mod(char *out, struct command *c)
 			break;
 		case 't':
 			if (action) {
-				_sprintf(out, MAX_MSG, "%s: cannot both timeout"
+				snprintf(out, MAX_MSG, "%s: cannot both timeout"
 						" and ban", c->argv[0]);
 				return EXIT_FAILURE;
 			}
 			action = TIMEOUT;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -87,7 +87,7 @@ int CmdHandler::mod(char *out, struct command *c)
 	}
 
 	if (lenflag && action != TIMEOUT) {
-		_sprintf(out, MAX_MSG, "%s: specifying length doesn't "
+		snprintf(out, MAX_MSG, "%s: specifying length doesn't "
 				"make sense for a ban", c->nick);
 		return EXIT_FAILURE;
 	}
@@ -101,11 +101,11 @@ int CmdHandler::mod(char *out, struct command *c)
 		*s = tolower(*s);
 
 	if (strcmp(c->argv[l_optind], name) == 0) {
-		_sprintf(out, MAX_MSG, "@%s, I'd rather not.", c->nick);
+		snprintf(out, MAX_MSG, "@%s, I'd rather not.", c->nick);
 		return EXIT_SUCCESS;
 	}
 	if (strcmp(c->argv[l_optind], c->nick) == 0) {
-		_sprintf(out, MAX_MSG, "@%s, don't be silly!", c->nick);
+		snprintf(out, MAX_MSG, "@%s, don't be silly!", c->nick);
 		return EXIT_SUCCESS;
 	}
 
@@ -113,12 +113,12 @@ int CmdHandler::mod(char *out, struct command *c)
 	/* attempt to perform the moderation action */
 	if (!m_modp->mod_action(action, c->argv[l_optind],
 				c->nick, reason, len)) {
-		_sprintf(out, MAX_MSG, "%s: user '%s' is not currently in the "
+		snprintf(out, MAX_MSG, "%s: user '%s' is not currently in the "
 				"channel", c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 
-	_sprintf(out, MAX_MSG, "@%s, user '%s' has been %s",
+	snprintf(out, MAX_MSG, "@%s, user '%s' has been %s",
 			c->nick, c->argv[l_optind],
 			action == BAN ? "banned" : "timed out");
 	if (*reason) {

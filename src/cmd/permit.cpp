@@ -36,12 +36,12 @@ int CmdHandler::permit(char *out, struct command *c)
 			return EXIT_SUCCESS;
 		case 'n':
 			if (!parsenum(l_optarg, &amt)) {
-				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				snprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (amt < 1) {
-				_sprintf(out, MAX_MSG, "%s: amount must be a "
+				snprintf(out, MAX_MSG, "%s: amount must be a "
 						"positive integer", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -50,7 +50,7 @@ int CmdHandler::permit(char *out, struct command *c)
 			amt = -1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -63,17 +63,17 @@ int CmdHandler::permit(char *out, struct command *c)
 	}
 
 	if (!m_modp->permit(c->argv[l_optind], amt)) {
-		_sprintf(out, MAX_MSG, "%s: user '%s' is not currently in the "
+		snprintf(out, MAX_MSG, "%s: user '%s' is not currently in the "
 				"channel", c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 
 	if (amt == -1)
-		_sprintf(out, MAX_MSG, "[PERMIT] %s has been granted permission"
+		snprintf(out, MAX_MSG, "[PERMIT] %s has been granted permission"
 				" to post links for the duration of this "
 				"session.", c->argv[l_optind]);
 	else
-		_sprintf(out, MAX_MSG, "[PERMIT] %s has been granted permission"
+		snprintf(out, MAX_MSG, "[PERMIT] %s has been granted permission"
 				" to post %ld link%s.", c->argv[l_optind], amt,
 				amt == 1 ? "" : "s");
 	return EXIT_SUCCESS;

@@ -27,7 +27,7 @@ int CmdHandler::active(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -40,8 +40,8 @@ int CmdHandler::active(char *out, struct command *c)
 	}
 
 	if (!*m_poll)
-		_sprintf(out, MAX_MSG, "[ACTIVE] no poll has been created");
+		snprintf(out, MAX_MSG, "[ACTIVE] no poll has been created");
 	else
-		_sprintf(out, MAX_MSG, "[ACTIVE] %s/%s", SP_HOST, m_poll);
+		snprintf(out, MAX_MSG, "[ACTIVE] %s/%s", SP_HOST, m_poll);
 	return EXIT_SUCCESS;
 }

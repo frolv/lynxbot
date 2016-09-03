@@ -44,7 +44,7 @@ int CmdHandler::whitelist(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -53,15 +53,15 @@ int CmdHandler::whitelist(char *out, struct command *c)
 
 	if (l_optind == c->argc) {
 		if (del) {
-			_sprintf(out, MAX_MSG, "%s: no website specified",
+			snprintf(out, MAX_MSG, "%s: no website specified",
 					c->argv[0]);
 			status = EXIT_FAILURE;
 		} else if (m_modp->paste()) {
-			_sprintf(out, MAX_MSG, "[WHITELIST] %s",
+			snprintf(out, MAX_MSG, "[WHITELIST] %s",
 					utils::upload(m_modp->
 						fmt_whitelist()).c_str());
 		} else {
-			_sprintf(out, MAX_MSG, "[WHITELIST] %s",
+			snprintf(out, MAX_MSG, "[WHITELIST] %s",
 					m_modp->fmt_whitelist().c_str());
 		}
 		return status;
@@ -72,31 +72,31 @@ int CmdHandler::whitelist(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	_sprintf(out, MAX_MSG, "@%s, ", c->nick);
+	snprintf(out, MAX_MSG, "@%s, ", c->nick);
 	s = strchr(out, '\0');
 	if (m_parsep->parse(c->argv[l_optind])) {
 		/* extract domain and add to whitelist */
-		_sprintf(url, MAX_URL, "%s%s",
+		snprintf(url, MAX_URL, "%s%s",
 				m_parsep->getLast()->subdomain.c_str(),
 				m_parsep->getLast()->domain.c_str());
 		if (del) {
 			if (m_modp->delurl(url))
-				_sprintf(s, MAX_MSG, "%s has been removed "
+				snprintf(s, MAX_MSG, "%s has been removed "
 						"from the whitelist.", url);
 			else
-				_sprintf(s, MAX_MSG, "%s is not on the "
+				snprintf(s, MAX_MSG, "%s is not on the "
 						"whitelist.", url);
 			return status;
 		}
 		if (m_modp->whitelist(url))
-			_sprintf(s, MAX_MSG, "%s has beed whitelisted.", url);
+			snprintf(s, MAX_MSG, "%s has beed whitelisted.", url);
 		else
-			_sprintf(s, MAX_MSG, "%s is already on the whitelist.",
+			snprintf(s, MAX_MSG, "%s is already on the whitelist.",
 					url);
 		return status;
 	}
 
-	_sprintf(out, MAX_MSG, "%s: invalid URL: %s", c->argv[0],
+	snprintf(out, MAX_MSG, "%s: invalid URL: %s", c->argv[0],
 			c->argv[l_optind]);
 	return EXIT_FAILURE;
 }

@@ -69,7 +69,7 @@ void CmdHandler::process_cmd(char *out, char *nick, char *cmdstr, perm_t p)
 	c.nick = nick;
 	c.privileges = p;
 	if (!parse_cmd(cmdstr, &c)) {
-		_sprintf(out, MAX_MSG, "%s", cmderr());
+		snprintf(out, MAX_MSG, "%s", cmderr());
 		return;
 	}
 
@@ -81,7 +81,7 @@ void CmdHandler::process_cmd(char *out, char *nick, char *cmdstr, perm_t p)
 		process_custom(out, &c);
 		break;
 	default:
-		_sprintf(out, MAX_MSG, "/w %s not a bot command: %s",
+		snprintf(out, MAX_MSG, "/w %s not a bot command: %s",
 				nick, c.argv[0]);
 		break;
 	}
@@ -114,7 +114,7 @@ int CmdHandler::process_resp(char *out, char *msg, char *nick)
 		if (std::regex_search(message.begin(), message.end(), match,
 				respreg) && m_cooldowns.ready(name)) {
 			m_cooldowns.setUsed(name);
-			_sprintf(out, MAX_MSG, "@%s, %s", nick,
+			snprintf(out, MAX_MSG, "@%s, %s", nick,
 					val["response"].asCString());
 			return 1;
 		}
@@ -152,7 +152,7 @@ void CmdHandler::process_default(char *out, struct command *c)
 		m_status = (this->*m_defaultCmds[c->argv[0]])(out, c);
 		m_cooldowns.setUsed(c->argv[0]);
 	} else {
-		_sprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
+		snprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
 				c->nick, c->argv[0]);
 		m_status = EXIT_FAILURE;
 	}
@@ -169,7 +169,7 @@ void CmdHandler::process_custom(char *out, struct command *c)
 		/* set access time and increase uses */
 		(*ccmd)["atime"] = (Json::Int64)time(nullptr);
 		(*ccmd)["uses"] = (*ccmd)["uses"].asInt() + 1;
-		_sprintf(out, MAX_MSG, "%s",
+		snprintf(out, MAX_MSG, "%s",
 				m_customCmds->format(ccmd, c->nick).c_str());
 		m_cooldowns.setUsed((*ccmd)["cmd"].asString());
 		m_customCmds->write();
@@ -177,12 +177,12 @@ void CmdHandler::process_custom(char *out, struct command *c)
 		return;
 	}
 	if (!(*ccmd)["active"].asBool()) {
-		_sprintf(out, MAX_MSG, "/w %s command is currently inactive: %s",
+		snprintf(out, MAX_MSG, "/w %s command is currently inactive: %s",
 				c->nick, c->argv[0]);
 		m_status = EXIT_FAILURE;
 		return;
 	}
-	_sprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
+	snprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
 			c->nick, c->argv[0]);
 	m_status = EXIT_FAILURE;
 }
@@ -209,13 +209,13 @@ int CmdHandler::getrsn(char *out, size_t len, const char *text,
 
 	if (username) {
 		if (!(rsn = m_rsns.rsn(text))) {
-			_sprintf(out, len, "no RSN set for user %s", text);
+			snprintf(out, len, "no RSN set for user %s", text);
 			return 0;
 		}
 	} else {
 		if (strcmp(text, ".") == 0) {
 			if (!(rsn = m_rsns.rsn(nick))) {
-				_sprintf(out, len, "no RSN set for user %s",
+				snprintf(out, len, "no RSN set for user %s",
 						nick);
 				return 0;
 			}
@@ -223,7 +223,7 @@ int CmdHandler::getrsn(char *out, size_t len, const char *text,
 			rsn = text;
 		}
 	}
-	_sprintf(out, len, "%s", rsn);
+	snprintf(out, len, "%s", rsn);
 	while ((s = strchr(out, ' ')))
 		*s = '_';
 	return 1;

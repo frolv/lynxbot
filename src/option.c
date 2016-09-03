@@ -97,7 +97,7 @@ static int parseopt(int argc, char **argv, const char *optstr, int c)
 	case REQ_ARG:
 		if (!*(l_optarg = next)) {
 			if (++l_optind == argc) {
-				_sprintf(error, ERR_SIZE, "%s: option requires "
+				snprintf(error, ERR_SIZE, "%s: option requires "
 						"an argument -- '%c'",
 						argv[0], c);
 				return '?';
@@ -108,7 +108,7 @@ static int parseopt(int argc, char **argv, const char *optstr, int c)
 		next = NULL;
 		return c;
 	default:
-		_sprintf(error, ERR_SIZE, "%s: invalid option -- '%c'",
+		snprintf(error, ERR_SIZE, "%s: invalid option -- '%c'",
 				argv[0], c);
 		return '?';
 	}
@@ -126,7 +126,7 @@ static int parselong(int argc, char **argv,
 			continue;
 		if (longopts->type == NO_ARG) {
 			if (next) {
-				_sprintf(error, ERR_SIZE, "%s: option '--%s'"
+				snprintf(error, ERR_SIZE, "%s: option '--%s'"
 						" doesn't allow an argument",
 						argv[0], lopt);
 				return '?';
@@ -135,7 +135,7 @@ static int parselong(int argc, char **argv,
 		}
 		if (!next) {
 			if (++l_optind == argc) {
-				_sprintf(error, ERR_SIZE, "%s: option '--%s' "
+				snprintf(error, ERR_SIZE, "%s: option '--%s' "
 						"requires an argument",
 						argv[0], lopt);
 				return '?';
@@ -147,7 +147,7 @@ static int parselong(int argc, char **argv,
 		next = NULL;
 		return longopts->val;
 	}
-	_sprintf(error, ERR_SIZE, "%s: unrecognized option '--%s'",
+	snprintf(error, ERR_SIZE, "%s: unrecognized option '--%s'",
 			argv[0], lopt);
 	return '?';
 }

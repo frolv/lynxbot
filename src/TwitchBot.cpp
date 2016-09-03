@@ -82,23 +82,23 @@ bool TwitchBot::connect()
 		return false;
 
 	/* send required IRC data: PASS, NICK, USER */
-	_sprintf(buf, MAX_MSG, "PASS %s", m_password);
+	snprintf(buf, MAX_MSG, "PASS %s", m_password);
 	send_raw(&m_client, buf);
-	_sprintf(buf, MAX_MSG, "NICK %s", m_nick);
+	snprintf(buf, MAX_MSG, "NICK %s", m_nick);
 	send_raw(&m_client, buf);
-	_sprintf(buf, MAX_MSG, "USER %s", m_nick);
+	snprintf(buf, MAX_MSG, "USER %s", m_nick);
 	send_raw(&m_client, buf);
 
 	/* enable tags in PRIVMSGs */
-	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/tags");
+	snprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/tags");
 	send_raw(&m_client, buf);
 
 	/* receive join and part information */
-	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/membership");
+	snprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/membership");
 	send_raw(&m_client, buf);
 
 	/* allow access to additional twitch commands */
-	_sprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/commands");
+	snprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/commands");
 	send_raw(&m_client, buf);
 
 	if (strlen(m_channel) > 32) {
@@ -108,7 +108,7 @@ bool TwitchBot::connect()
 	}
 
 	/* join channel */
-	_sprintf(buf, MAX_MSG, "JOIN %s", m_channel);
+	snprintf(buf, MAX_MSG, "JOIN %s", m_channel);
 	send_raw(&m_client, buf);
 
 	m_tick = std::thread(&TwitchBot::tick, this);
@@ -131,7 +131,7 @@ void TwitchBot::disconnect()
 /* server_loop: continously receive and process data */
 void TwitchBot::server_loop()
 {
-	char buf[MAX_MSG * 4];
+	char buf[MAX_MSG * 8];
 	char *pos;
 	int bytes;
 	size_t len;
@@ -140,7 +140,7 @@ void TwitchBot::server_loop()
 	len = 0;
 	/* continously receive data from server */
 	while (1) {
-		if ((bytes = cread(&m_client, pos, 4 * MAX_MSG - len)) < 0) {
+		if ((bytes = cread(&m_client, pos, 8 * MAX_MSG - len)) < 0) {
 			perror("read");
 			fprintf(stderr, "LynxBot exiting.\n");
 			disconnect();
@@ -150,9 +150,13 @@ void TwitchBot::server_loop()
 		}
 		pos += bytes;
 		len += bytes;
-		/* keep reading until full message has been received */
-		if (*(pos - 1) != '\n' && *(pos - 2) != '\r')
-			continue;
+		if (len < 8 * MAX_LEN - 2) {
+			/* keep reading until full message has been received */
+			if (*(pos - 1) != '\n' && *(pos - 2) != '\r')
+				continue;
+		} else {
+			/* end string at last newline, shift rest to front */
+		}
 
 		printf("[RECV] %s\n", buf);
 		process_data(buf);
@@ -257,7 +261,7 @@ bool TwitchBot::process_url(char *out)
 		/* print info about twitter statuses */
 		tw::Reader twr(&m_auth);
 		if (twr.read_tweet(url->tweetID)) {
-			_sprintf(out, MAX_MSG, "%s", twr.result().c_str());
+			snprintf(out, MAX_MSG, "%s", twr.result().c_str());
 			return true;
 		}
 		fprintf(stderr, "could not read tweet\n");
@@ -270,7 +274,7 @@ bool TwitchBot::process_url(char *out)
 		strcat(buf, url->subdomain.c_str());
 		strcat(buf, url->domain.c_str());
 		if (!(title = urltitle(resp.text)).empty()) {
-			_sprintf(out, MAX_MSG, "[URL] %s (at %s)",
+			snprintf(out, MAX_MSG, "[URL] %s (at %s)",
 					title.c_str(), buf);
 			return true;
 		}
@@ -341,7 +345,7 @@ bool TwitchBot::process_submsg(char *out, char *submsg)
 	*t = '\0';
 	msg = m_subMsg.c_str();
 
-	_sprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, "1").c_str());
+	snprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, "1").c_str());
 	return true;
 }
 
@@ -364,7 +368,7 @@ bool TwitchBot::process_resub(char *resubmsg)
 	*s = '\0';
 	msg = m_resubMsg.c_str();
 
-	_sprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, months).c_str());
+	snprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, months).c_str());
 	send_msg(&m_client, m_channel, out);
 	return true;
 }
@@ -445,15 +449,15 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 		if (offenses < 4) {
 			/* timeout for 2^(offenses - 1) minutes */
 			t = 60 * (int)pow(2, offenses - 1);
-			_sprintf(out, MAX_MSG, "/timeout %s %d", nick.c_str(), t);
+			snprintf(out, MAX_MSG, "/timeout %s %d", nick.c_str(), t);
 			send_msg(&m_client, m_channel, out);
 			warning = warnings[offenses - 1] + " warning";
 		} else {
-			_sprintf(out, MAX_MSG, "/ban %s", nick.c_str());
+			snprintf(out, MAX_MSG, "/ban %s", nick.c_str());
 			send_msg(&m_client, m_channel, out);
 			warning = "Permanently banned";
 		}
-		_sprintf(out, MAX_MSG, "%s - %s (%s)", nick.c_str(),
+		snprintf(out, MAX_MSG, "%s - %s (%s)", nick.c_str(),
 				reason.c_str(), warning.c_str());
 		send_msg(&m_client, m_channel, out);
 		return true;

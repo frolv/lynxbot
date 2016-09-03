@@ -36,7 +36,7 @@ int CmdHandler::uptime(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -49,7 +49,7 @@ int CmdHandler::uptime(char *out, struct command *c)
 	}
 
 	if (bot) {
-		_sprintf(out, MAX_MSG, "[UPTIME] %s has been running for %s.",
+		snprintf(out, MAX_MSG, "[UPTIME] %s has been running for %s.",
 				m_name, utils::conv_time(bot_uptime()).c_str());
 		return EXIT_SUCCESS;
 	}
@@ -63,13 +63,13 @@ static int chan_uptime(char *out, const char *channel)
 	time_t up;
 
 	if ((up = channel_uptime()) == 0)
-		_sprintf(out, MAX_MSG, "[UPTIME] %s is not currently live.",
+		snprintf(out, MAX_MSG, "[UPTIME] %s is not currently live.",
 				channel);
 	else if (up == -1)
-		_sprintf(out, MAX_MSG, "%s: Twitch authorization required",
+		snprintf(out, MAX_MSG, "%s: Twitch authorization required",
 				CMDNAME);
 	else
-		_sprintf(out, MAX_MSG, "[UPTIME] %s has been live "
+		snprintf(out, MAX_MSG, "[UPTIME] %s has been live "
 				"for %s.", channel,
 				utils::conv_time(channel_uptime()).c_str());
 	return EXIT_SUCCESS;

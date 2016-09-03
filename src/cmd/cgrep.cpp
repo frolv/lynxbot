@@ -68,7 +68,7 @@ int CmdHandler::cgrep(char *out, struct command *c)
 			ign = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -101,7 +101,7 @@ static int findcmds(char *out, const CmdHandler::commandMap *cmdmap,
 		else
 			reg = std::regex(pat);
 	} catch (std::regex_error) {
-		_sprintf(out, MAX_MSG, "%s: invalid regular expression",
+		snprintf(out, MAX_MSG, "%s: invalid regular expression",
 				CMDNAME);
 		return EXIT_FAILURE;
 	}
@@ -141,7 +141,7 @@ static int findcmds(char *out, const CmdHandler::commandMap *cmdmap,
 	cus[j] = NULL;
 
 	if (!nmatch) {
-		_sprintf(out, MAX_MSG, "[CGREP] no matches found for '%s'", pat);
+		snprintf(out, MAX_MSG, "[CGREP] no matches found for '%s'", pat);
 		return EXIT_FAILURE;
 	}
 
@@ -151,13 +151,13 @@ static int findcmds(char *out, const CmdHandler::commandMap *cmdmap,
 	/* check if message is too long for twitch and upload */
 	if (cmdlen > 260) {
 		ul = (char *)malloc((cmdlen * 4 + 128) * sizeof(*ul));
-		_sprintf(ul, MAX_MSG, "%d command%s found for '%s':",
+		snprintf(ul, MAX_MSG, "%d command%s found for '%s':",
 				nmatch, nmatch == 1 ? "" : "s", pat);
 		format_ul(ul, def, cus);
-		_sprintf(out, MAX_MSG, "[CGREP] %s", utils::upload(ul).c_str());
+		snprintf(out, MAX_MSG, "[CGREP] %s", utils::upload(ul).c_str());
 		free(ul);
 	} else {
-		_sprintf(out, MAX_MSG, "[CGREP] %d command%s found for '%s':",
+		snprintf(out, MAX_MSG, "[CGREP] %d command%s found for '%s':",
 				nmatch, nmatch == 1 ? "" : "s", pat);
 		format(out, def, cus);
 	}
@@ -175,7 +175,7 @@ static void format(char *out, const char **def, const char **cus)
 		strcat(out, " (DEFAULT)");
 	end = out + strlen(out);
 	for (; *def; ++def) {
-		_sprintf(end, 48, " \"%s\",", *def);
+		snprintf(end, 48, " \"%s\",", *def);
 		end = strchr(end, '\0');
 	}
 	if (end[-1] == ',')
@@ -187,7 +187,7 @@ static void format(char *out, const char **def, const char **cus)
 		end = strchr(end, '\0');
 	}
 	for (; *cus; ++cus) {
-		_sprintf(end, 48, " \"%s\",", *cus);
+		snprintf(end, 48, " \"%s\",", *cus);
 		end = strchr(end, '\0');
 	}
 	if (end[-1] == ',')
@@ -203,7 +203,7 @@ static void format_ul(char *out, const char **def, const char **cus)
 		strcat(out, "\n\nDEFAULT:\n\n");
 	end = out + strlen(out);
 	for (; *def; ++def) {
-		_sprintf(end, 48, " \"%s\"\n", *def);
+		snprintf(end, 48, " \"%s\"\n", *def);
 		end = strchr(end, '\0');
 	}
 	if (*cus) {
@@ -213,7 +213,7 @@ static void format_ul(char *out, const char **def, const char **cus)
 		end = strchr(end, '\0');
 	}
 	for (; *cus; ++cus) {
-		_sprintf(end, 48, " \"%s\"\n", *cus);
+		snprintf(end, 48, " \"%s\"\n", *cus);
 		end = strchr(end, '\0');
 	}
 }

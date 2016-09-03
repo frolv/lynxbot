@@ -58,7 +58,7 @@ int CmdHandler::strawpoll(char *out, struct command *c)
 			multi = true;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -88,14 +88,14 @@ static int create_poll(char *out, char *pollbuf, struct command *c)
 	quest = buf;
 	if (!(s = strchr(quest, '|'))) {
 		if (!binary) {
-			_sprintf(out, MAX_MSG, "%s: poll must have a question "
+			snprintf(out, MAX_MSG, "%s: poll must have a question "
 					"and at least two answers", c->argv[0]);
 			return EXIT_FAILURE;
 		}
 	} else {
 		*s = '\0';
 		if (binary) {
-			_sprintf(out, MAX_MSG, "%s: cannot provide answers "
+			snprintf(out, MAX_MSG, "%s: cannot provide answers "
 					"for binary poll", c->argv[0]);
 			return EXIT_FAILURE;
 		}
@@ -114,7 +114,7 @@ static int create_poll(char *out, char *pollbuf, struct command *c)
 	}
 
 	if (options.size() < 2) {
-		_sprintf(out, MAX_MSG, "%s: poll must have a question "
+		snprintf(out, MAX_MSG, "%s: poll must have a question "
 				"and at least two answers", c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -126,7 +126,7 @@ static int create_poll(char *out, char *pollbuf, struct command *c)
 	poll["multi"] = multi;
 
 	/* format and post the poll */
-	_sprintf(buf, MAX_MSG, "%s%s", STRAWPOLL_HOST, STRAWPOLL_API);
+	snprintf(buf, MAX_MSG, "%s%s", STRAWPOLL_HOST, STRAWPOLL_API);
 	resp = cpr::Post(cpr::Url(buf), cpr::Body(fw.write(poll)), cpr::Header{
 			{ "Connection", "close" },
 			{ "Content-Type", "application/json" }
@@ -135,15 +135,15 @@ static int create_poll(char *out, char *pollbuf, struct command *c)
 	/* read id from response */
 	if (reader.parse(resp.text, response)) {
 		if (!response.isMember("id")) {
-			_sprintf(out, MAX_MSG, "%s: poll could not be created",
+			snprintf(out, MAX_MSG, "%s: poll could not be created",
 					c->argv[0]);
 			return EXIT_FAILURE;
 		}
-		_sprintf(pollbuf, MAX_LEN, "%d", response["id"].asInt());
-		_sprintf(out, MAX_MSG, "[STRAWPOLL] %s/%s",
+		snprintf(pollbuf, MAX_LEN, "%d", response["id"].asInt());
+		snprintf(out, MAX_MSG, "[STRAWPOLL] %s/%s",
 				STRAWPOLL_HOST, pollbuf);
 		return EXIT_SUCCESS;
 	}
-	_sprintf(out, MAX_MSG, "%s: could not parse response", c->argv[0]);
+	snprintf(out, MAX_MSG, "%s: could not parse response", c->argv[0]);
 	return EXIT_FAILURE;
 }

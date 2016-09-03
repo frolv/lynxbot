@@ -31,7 +31,7 @@ int CmdHandler::twitter(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		case 'r':
 			recent = 1;
@@ -47,13 +47,13 @@ int CmdHandler::twitter(char *out, struct command *c)
 	}
 
 	if (!reader.read_user(c->argv[l_optind])) {
-		_sprintf(out, MAX_MSG, "%s: could not read user '%s'",
+		snprintf(out, MAX_MSG, "%s: could not read user '%s'",
 				c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 	if (recent)
 		reader.read_recent();
 
-	_sprintf(out, MAX_MSG, "[TWITTER] %s", reader.result().c_str());
+	snprintf(out, MAX_MSG, "[TWITTER] %s", reader.result().c_str());
 	return EXIT_SUCCESS;
 }

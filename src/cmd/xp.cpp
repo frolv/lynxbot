@@ -51,7 +51,7 @@ int CmdHandler::xp(char *out, struct command *c)
 			range = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -60,7 +60,7 @@ int CmdHandler::xp(char *out, struct command *c)
 
 	if (range) {
 		if (inv) {
-			_sprintf(out, MAX_MSG, "%s: cannot use -i with -r",
+			snprintf(out, MAX_MSG, "%s: cannot use -i with -r",
 					c->argv[0]);
 			status = EXIT_FAILURE;
 		} else {
@@ -75,38 +75,38 @@ int CmdHandler::xp(char *out, struct command *c)
 	}
 
 	if (!parsenum_mult(c->argv[l_optind], &x)) {
-		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+		snprintf(out, MAX_MSG, "%s: invalid number: %s",
 				c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 	if (x < 0) {
-		_sprintf(out, MAX_MSG, "%s: number cannot be "
+		snprintf(out, MAX_MSG, "%s: number cannot be "
 				"negative", c->argv[0]);
 		return EXIT_FAILURE;
 	}
 
 	if (inv) {
 		if (x > MAX_XP) {
-			_sprintf(out, MAX_MSG, "%s: xp cannot exceed 200m",
+			snprintf(out, MAX_MSG, "%s: xp cannot exceed 200m",
 					c->argv[0]);
 			status = EXIT_FAILURE;
 		} else {
-			_sprintf(out, MAX_MSG, "%ld", x);
+			snprintf(out, MAX_MSG, "%ld", x);
 			fmtnum(num, RSN_BUF, out);
-			_sprintf(out, MAX_MSG, "[XP] %s xp: level %d",
+			snprintf(out, MAX_MSG, "[XP] %s xp: level %d",
 					num, xptolvl(x));
 		}
 		return status;
 	}
 
 	if (x < 1 || x > 126) {
-		_sprintf(out, MAX_MSG, "%s: level must be between 1-126",
+		snprintf(out, MAX_MSG, "%s: level must be between 1-126",
 				c->argv[0]);
 		status = EXIT_FAILURE;
 	} else {
-		_sprintf(out, MAX_MSG, "%d", lvltoxp(x));
+		snprintf(out, MAX_MSG, "%d", lvltoxp(x));
 		fmtnum(num, RSN_BUF, out);
-		_sprintf(out, MAX_MSG, "[XP] level %ld: ", x);
+		snprintf(out, MAX_MSG, "[XP] level %ld: ", x);
 		strcat(out, num);
 		strcat(out, " xp");
 	}
@@ -157,7 +157,7 @@ static int xprange(char *out, struct command *c)
 	a = c->argv[l_optind];
 	if (l_optind == c->argc - 1) {
 		if (!(b = strchr(a, '-')) || !b[1]) {
-			_sprintf(out, MAX_MSG, "%s: must provide two levels",
+			snprintf(out, MAX_MSG, "%s: must provide two levels",
 					c->argv[0]);
 			return EXIT_FAILURE;
 		}
@@ -167,34 +167,34 @@ static int xprange(char *out, struct command *c)
 	}
 
 	if (!parsenum_mult(a, &x)) {
-		_sprintf(out, MAX_MSG, "%s: invalid number: %s", c->argv[0], a);
+		snprintf(out, MAX_MSG, "%s: invalid number: %s", c->argv[0], a);
 		return EXIT_FAILURE;
 	}
 	if (x < 1 || x > 126) {
-		_sprintf(out, MAX_MSG, "%s: level must be between 1-126",
+		snprintf(out, MAX_MSG, "%s: level must be between 1-126",
 				c->argv[0]);
 		return EXIT_FAILURE;
 	}
 	if (!parsenum_mult(b, &y)) {
-		_sprintf(out, MAX_MSG, "%s: invalid number: %s", c->argv[0], b);
+		snprintf(out, MAX_MSG, "%s: invalid number: %s", c->argv[0], b);
 		return EXIT_FAILURE;
 	}
 	if (y < 1 || y > 126) {
-		_sprintf(out, MAX_MSG, "%s: level must be between 1-126",
+		snprintf(out, MAX_MSG, "%s: level must be between 1-126",
 				c->argv[0]);
 		return EXIT_FAILURE;
 	}
 
 	if (x > y) {
-		_sprintf(out, MAX_MSG, "%s: invalid range", c->argv[0]);
+		snprintf(out, MAX_MSG, "%s: invalid range", c->argv[0]);
 		return EXIT_FAILURE;
 	}
 
 	x = lvltoxp(x);
 	y = lvltoxp(y);
 
-	_sprintf(out, MAX_MSG, "%ld", y - x);
+	snprintf(out, MAX_MSG, "%ld", y - x);
 	fmtnum(num, RSN_BUF, out);
-	_sprintf(out, MAX_MSG, "[XP] level %s-%s: %s xp", a, b, num);
+	snprintf(out, MAX_MSG, "[XP] level %s-%s: %s xp", a, b, num);
 	return EXIT_SUCCESS;
 }

@@ -25,7 +25,7 @@ int CmdHandler::manual(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -37,6 +37,6 @@ int CmdHandler::manual(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	_sprintf(out, MAX_MSG, "[MANUAL] " BOT_WEBSITE "/manual/index.html");
+	snprintf(out, MAX_MSG, "[MANUAL] " BOT_WEBSITE "/manual/index.html");
 	return EXIT_SUCCESS;
 }

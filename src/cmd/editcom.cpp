@@ -52,7 +52,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 	}
 
 	if (!m_customCmds->isActive()) {
-		_sprintf(out, MAX_MSG, "%s: custom commands are currently "
+		snprintf(out, MAX_MSG, "%s: custom commands are currently "
 				"disabled", c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -71,7 +71,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 			} else if (strcmp(l_optarg, "off") == 0) {
 				set = OFF;
 			} else {
-				_sprintf(out, MAX_MSG, "%s: -A setting must "
+				snprintf(out, MAX_MSG, "%s: -A setting must "
 						"be on/off", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -82,12 +82,12 @@ int CmdHandler::editcom(char *out, struct command *c)
 		case 'c':
 			/* user provided a cooldown */
 			if (!parsenum(l_optarg, &cooldown)) {
-				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				snprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (cooldown < 0) {
-				_sprintf(out, MAX_MSG, "%s: cooldown cannot be "
+				snprintf(out, MAX_MSG, "%s: cooldown cannot be "
 						"negative", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -102,7 +102,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 			sedcmd = l_optarg;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -116,30 +116,30 @@ int CmdHandler::editcom(char *out, struct command *c)
 
 	/* check if given command exists */
 	if ((com = m_customCmds->getcom(c->argv[l_optind]))->empty()) {
-		_sprintf(out, MAX_MSG, "%s: not a command: $%s",
+		snprintf(out, MAX_MSG, "%s: not a command: $%s",
 				c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 
 	if (sedcmd) {
 		if (app || ren) {
-			_sprintf(out, MAX_MSG, "%s: cannot use -a or -r "
+			snprintf(out, MAX_MSG, "%s: cannot use -a or -r "
 					"with -s", c->argv[0]);
 			status = EXIT_FAILURE;
 		} else if (l_optind != c->argc - 1) {
-			_sprintf(out, MAX_MSG, "%s: cannot provide response "
+			snprintf(out, MAX_MSG, "%s: cannot provide response "
 					"with -s flag", c->argv[0]);
 			status = EXIT_FAILURE;
 		} else if (!sed(response, MAX_MSG, (*com)["response"]
 					.asCString(), sedcmd)) {
-			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], response);
+			snprintf(out, MAX_MSG, "%s: %s", c->argv[0], response);
 			status = EXIT_FAILURE;
 		}
 		if (status)
 			return status;
 	} else if (ren) {
 		if (app || cooldown != -1 || set || sedcmd) {
-			_sprintf(out, MAX_MSG, "%s: cannot use other flags "
+			snprintf(out, MAX_MSG, "%s: cannot use other flags "
 					"with -r", c->argv[0]);
 			status = EXIT_FAILURE;
 		} else {
@@ -151,7 +151,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 		if (app) {
 			/* append arguments to current command response */
 			strcpy(buf, response);
-			_sprintf(response, MAX_MSG, "%s %s",
+			snprintf(response, MAX_MSG, "%s %s",
 					(*com)["response"].asCString(), buf);
 		}
 	}
@@ -162,17 +162,17 @@ int CmdHandler::editcom(char *out, struct command *c)
 static int edit(char *out, CustomHandler *cch, struct command *c, char *resp)
 {
 	if (!cch->editcom(c->argv[l_optind], resp, cooldown)) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());
 		return EXIT_FAILURE;
 	}
 	if (cooldown == -1 && !resp && !set) {
-		_sprintf(out, MAX_MSG, "@%s, command $%s was unchanged",
+		snprintf(out, MAX_MSG, "@%s, command $%s was unchanged",
 				c->nick, c->argv[l_optind]);
 		return EXIT_SUCCESS;
 	}
 	if (set == ON && !cch->activate(c->argv[l_optind])) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());
 		return EXIT_FAILURE;
 	} else if (set == OFF) {
@@ -191,11 +191,11 @@ static int rename(char *out, CustomHandler *cch, struct command *c)
 		USAGEMSG(out, CMDNAME, RUSAGE);
 		status = EXIT_FAILURE;
 	} else if (!cch->rename(c->argv[l_optind], c->argv[l_optind + 1])) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());
 		status = EXIT_FAILURE;
 	} else {
-		_sprintf(out, MAX_MSG, "@%s, command $%s has been renamed "
+		snprintf(out, MAX_MSG, "@%s, command $%s has been renamed "
 				"to $%s", c->nick, c->argv[l_optind],
 				c->argv[l_optind + 1]);
 		status = EXIT_SUCCESS;
@@ -209,7 +209,7 @@ static void outputmsg(char *out, struct command *c, char *resp)
 	int cd;
 
 	cd = cooldown != -1;
-	_sprintf(out, MAX_MSG, "@%s, command $%s has been",
+	snprintf(out, MAX_MSG, "@%s, command $%s has been",
 			c->nick, c->argv[l_optind]);
 	if (set == ON)
 		strcat(out, " activated");
@@ -222,12 +222,12 @@ static void outputmsg(char *out, struct command *c, char *resp)
 		strcat(out, " changed to ");
 		out = strchr(out, '\0');
 		if (resp) {
-			_sprintf(out, MAX_MSG, "\"%s\"%s", resp,
+			snprintf(out, MAX_MSG, "\"%s\"%s", resp,
 					cd ? ", with " : "");
 			out = strchr(out, '\0');
 		}
 		if (cd) {
-			_sprintf(out, MAX_MSG, "a %lds cooldown", cooldown);
+			snprintf(out, MAX_MSG, "a %lds cooldown", cooldown);
 		}
 	}
 	strcat(out, ".");

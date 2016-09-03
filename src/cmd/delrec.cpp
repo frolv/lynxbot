@@ -40,7 +40,7 @@ int CmdHandler::delrec(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -54,7 +54,7 @@ int CmdHandler::delrec(char *out, struct command *c)
 		}
 		while (!m_evtp->messages()->empty())
 			m_evtp->delmsg(1);
-		_sprintf(out, MAX_MSG, "@%s, all recurring messages deleted.",
+		snprintf(out, MAX_MSG, "@%s, all recurring messages deleted.",
 				c->nick);
 		return EXIT_SUCCESS;
 	}
@@ -65,17 +65,17 @@ int CmdHandler::delrec(char *out, struct command *c)
 	}
 
 	if (!parsenum(c->argv[l_optind], &id)) {
-		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+		snprintf(out, MAX_MSG, "%s: invalid number: %s",
 				c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
 
 	if (!m_evtp->delmsg(id)) {
-		_sprintf(out, MAX_MSG, "%s: invalid ID provided", c->argv[0]);
+		snprintf(out, MAX_MSG, "%s: invalid ID provided", c->argv[0]);
 		return EXIT_FAILURE;
 	}
 
-	_sprintf(out, MAX_MSG, "@%s, recurring message %ld deleted.",
+	snprintf(out, MAX_MSG, "@%s, recurring message %ld deleted.",
 			c->nick, id);
 	return EXIT_SUCCESS;
 }

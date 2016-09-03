@@ -32,7 +32,7 @@ int CmdHandler::rsn(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -81,38 +81,38 @@ static int rsn_action(char *out, RSNList *rsns, struct command *c)
 	status = EXIT_SUCCESS;
 	if (strcmp(c->argv[l_optind], "set") == 0) {
 		if (!rsns->add(c->nick, rsn)) {
-			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+			snprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 					rsns->err());
 			status = EXIT_FAILURE;
 		} else {
-			_sprintf(out, MAX_MSG, "[RSN] The name '%s' has been "
+			snprintf(out, MAX_MSG, "[RSN] The name '%s' has been "
 					"set for %s.", rsn, c->nick);
 		}
 	} else if (strcmp(c->argv[l_optind], "del") == 0) {
 		if (!rsns->del(c->nick)) {
-			_sprintf(out, MAX_MSG, "%s: no RSN set", c->argv[0]);
+			snprintf(out, MAX_MSG, "%s: no RSN set", c->argv[0]);
 			status = EXIT_FAILURE;
 		} else {
-			_sprintf(out, MAX_MSG, "[RSN] Stored RSN for "
+			snprintf(out, MAX_MSG, "[RSN] Stored RSN for "
 					"%s deleted.", c->nick);
 		}
 	} else if (strcmp(c->argv[l_optind], "change") == 0) {
 		if (!rsns->edit(c->nick, rsn)) {
-			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+			snprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 					rsns->err());
 			status = EXIT_FAILURE;
 		} else {
-			_sprintf(out, MAX_MSG, "[RSN] RSN for %s changed to"
+			snprintf(out, MAX_MSG, "[RSN] RSN for %s changed to"
 					"'%s'.", c->nick, rsn);
 		}
 	} else {
 		/* check own nick or the one that was given */
 		nick = c->argc == 2 ? c->nick : rsn;
 		if (!(crsn = rsns->rsn(nick))) {
-			_sprintf(out, MAX_MSG, "[RSN] No RSN set for %s", nick);
+			snprintf(out, MAX_MSG, "[RSN] No RSN set for %s", nick);
 			status = EXIT_FAILURE;
 		} else {
-			_sprintf(out, MAX_MSG, "[RSN] The RSN '%s' is currently"
+			snprintf(out, MAX_MSG, "[RSN] The RSN '%s' is currently"
 					" set for %s.", crsn, nick);
 		}
 	}

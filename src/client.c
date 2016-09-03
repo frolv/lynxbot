@@ -112,7 +112,7 @@ int send_msg(struct client *cl, const char *channel, const char *msg)
 {
 	char buf[MAX_MSG + 64];
 
-	_sprintf(buf, MAX_MSG + 64, "PRIVMSG %s :%s", channel, msg);
+	snprintf(buf, MAX_MSG + 64, "PRIVMSG %s :%s", channel, msg);
 	return send_raw(cl, buf);
 }
 

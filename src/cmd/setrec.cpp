@@ -32,7 +32,7 @@ int CmdHandler::setrec(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -44,11 +44,11 @@ int CmdHandler::setrec(char *out, struct command *c)
 		status = EXIT_FAILURE;
 	} else if (strcmp(c->argv[l_optind], "on") == 0) {
 		m_evtp->activate();
-		_sprintf(out, MAX_MSG, "@%s, recurring mesasges enabled.",
+		snprintf(out, MAX_MSG, "@%s, recurring mesasges enabled.",
 				c->nick);
 	} else if (strcmp(c->argv[l_optind], "off") == 0) {
 		m_evtp->deactivate();
-		_sprintf(out, MAX_MSG, "@%s, recurring mesasges disabled.",
+		snprintf(out, MAX_MSG, "@%s, recurring mesasges disabled.",
 				c->nick);
 	} else {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);

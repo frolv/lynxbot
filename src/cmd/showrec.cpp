@@ -33,7 +33,7 @@ int CmdHandler::showrec(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -41,7 +41,7 @@ int CmdHandler::showrec(char *out, struct command *c)
 	}
 
 	if (l_optind == c->argc) {
-		_sprintf(out, MAX_MSG, "%s", m_evtp->msglist().c_str());
+		snprintf(out, MAX_MSG, "%s", m_evtp->msglist().c_str());
 		return status;
 	}
 
@@ -52,15 +52,15 @@ int CmdHandler::showrec(char *out, struct command *c)
 
 	/* show a single message */
 	if (!parsenum(c->argv[l_optind], &id)) {
-		_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+		snprintf(out, MAX_MSG, "%s: invalid number: %s",
 				c->argv[0], c->argv[l_optind]);
 		status = EXIT_FAILURE;
 	} else if (id < 1 || (size_t)id > m_evtp->messages()->size()) {
-		_sprintf(out, MAX_MSG, "%s: recurring message %ld "
+		snprintf(out, MAX_MSG, "%s: recurring message %ld "
 				"doesn't exist", c->argv[0], id);
 		status = EXIT_FAILURE;
 	} else {
-		_sprintf(out, MAX_MSG, "%s", m_evtp->message(id - 1).c_str());
+		snprintf(out, MAX_MSG, "%s", m_evtp->message(id - 1).c_str());
 	}
 	return status;
 }

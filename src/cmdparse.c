@@ -70,11 +70,11 @@ static int escseq(char *s)
 	static const char *esc = " \\'\"";
 
 	if (!s[1]) {
-		_sprintf(err, ERR_LEN, "error: unexpected end of line");
+		snprintf(err, ERR_LEN, "error: unexpected end of line");
 		return 0;
 	}
 	if (!strchr(esc, s[1])) {
-		_sprintf(err, ERR_LEN, "error: unrecognized "
+		snprintf(err, ERR_LEN, "error: unrecognized "
 				"escape sequence \\%c", s[1]);
 		return 0;
 	}
@@ -94,7 +94,7 @@ static char *readquotes(char *s)
 			shift_l(s);
 	}
 	if (!*s) {
-		_sprintf(err, ERR_LEN, "error: unterminated quote");
+		snprintf(err, ERR_LEN, "error: unterminated quote");
 		return NULL;
 	}
 	shift_l(s);

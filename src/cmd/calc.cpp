@@ -32,7 +32,7 @@ int CmdHandler::calc(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -52,13 +52,13 @@ int CmdHandler::calc(char *out, struct command *c)
 	try {
 		ExpressionParser exp(expr);
 		exp.tokenizeExpr();
-		_sprintf(out, MAX_MSG, "[CALC] %f", exp.eval());
+		snprintf(out, MAX_MSG, "[CALC] %f", exp.eval());
 	} catch (std::runtime_error &e) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], e.what());
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0], e.what());
 		return EXIT_FAILURE;
 	}
 	if (strstr(out, "inf") || strstr(out, "-nan(ind)"))
-		_sprintf(out, MAX_MSG, "%s: division by 0", c->argv[0]);
+		snprintf(out, MAX_MSG, "%s: division by 0", c->argv[0]);
 
 	/* remove trailing zeros */
 	if (strchr(out, '.')) {

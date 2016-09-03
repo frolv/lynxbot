@@ -32,13 +32,6 @@
 /* buffer size for RSN fetching */
 #define RSN_BUF 64
 
-#ifdef __linux__
-# define _sprintf snprintf
-#endif
-#ifdef _WIN32
-# define _sprintf sprintf_s
-#endif
-
 /* wait for user to press return */
 #define WAIT_INPUT() while (getchar() != '\n');
 

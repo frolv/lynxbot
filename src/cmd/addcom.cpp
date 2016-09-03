@@ -32,7 +32,7 @@ int CmdHandler::addcom(char *out, struct command *c)
 	}
 
 	if (!m_customCmds->isActive()) {
-		_sprintf(out, MAX_MSG, "%s: custom commands are "
+		snprintf(out, MAX_MSG, "%s: custom commands are "
 				"currently disabled", c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -44,12 +44,12 @@ int CmdHandler::addcom(char *out, struct command *c)
 		case 'c':
 			/* user provided a cooldown */
 			if (!parsenum(l_optarg, &cooldown)) {
-				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				snprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (cooldown < 0) {
-				_sprintf(out, MAX_MSG, "%s: cooldown cannot be "
+				snprintf(out, MAX_MSG, "%s: cooldown cannot be "
 						"negative", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -58,7 +58,7 @@ int CmdHandler::addcom(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -70,7 +70,7 @@ int CmdHandler::addcom(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 	if (l_optind == c->argc - 1) {
-		_sprintf(out, MAX_MSG, "%s: no response provided for "
+		snprintf(out, MAX_MSG, "%s: no response provided for "
 				"command $%s", c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
 	}
@@ -88,11 +88,11 @@ static int create(char *out, CustomHandler *cch, struct command *c,
 	cmd = c->argv[l_optind];
 	argvcat(resp, c->argc, c->argv, ++l_optind, 1);
 	if (!cch->addcom(cmd, resp, c->nick, cooldown)) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0],
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0],
 				cch->error().c_str());
 		return EXIT_FAILURE;
 	}
-	_sprintf(out, MAX_MSG, "@%s, command $%s has been added with a %ld"
+	snprintf(out, MAX_MSG, "@%s, command $%s has been added with a %ld"
 			"s cooldown", c->nick, cmd, cooldown);
 	return EXIT_SUCCESS;
 }

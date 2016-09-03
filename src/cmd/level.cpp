@@ -61,7 +61,7 @@ int CmdHandler::level(char *out, struct command *c)
 			type = ULT;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -73,10 +73,10 @@ int CmdHandler::level(char *out, struct command *c)
 		status = EXIT_FAILURE;
 	} else if (!getrsn(buf, RSN_BUF, c->argv[l_optind + 1],
 				c->nick, usenick)) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 		status = EXIT_FAILURE;
 	} else if ((id = skill_id(c->argv[l_optind])) == -1) {
-		_sprintf(out, MAX_MSG, "%s: invalid skill name: %s",
+		snprintf(out, MAX_MSG, "%s: invalid skill name: %s",
 				c->argv[0], c->argv[l_optind]);
 		status = EXIT_FAILURE;
 	} else {
@@ -110,7 +110,7 @@ static int get_hiscores(char *out, struct command *c, const char *rsn,
 	strcpy(buf, resp.text.c_str());
 
 	if (strstr(buf, "404 - Page not found")) {
-		_sprintf(out, MAX_MSG, "%s: player '%s' not found on "
+		snprintf(out, MAX_MSG, "%s: player '%s' not found on "
 				"%shiscores", c->argv[0], rsn,
 				type == REG ? "" : type == IRON ? "ironman "
 				: "ultimate ironman ");
@@ -129,11 +129,11 @@ static int get_hiscores(char *out, struct command *c, const char *rsn,
 		*u++ = '\0';
 	fmtnum(rnk, RSN_BUF, s);
 	fmtnum(exp, RSN_BUF, u);
-	_sprintf(nick, 8, "%s", skill_nick(id).c_str());
+	snprintf(nick, 8, "%s", skill_nick(id).c_str());
 	for (i = 0; nick[i]; ++i)
 		nick[i] = toupper(nick[i]);
 
-	_sprintf(out, MAX_MSG, "[%s]%s Name: %s, Level: %s, Exp: %s, Rank: %s",
+	snprintf(out, MAX_MSG, "[%s]%s Name: %s, Level: %s, Exp: %s, Rank: %s",
 			nick, type == REG ? "" : type == IRON ? " (iron)"
 			: " (ult)", rsn, t, exp, rnk);
 	return EXIT_SUCCESS;

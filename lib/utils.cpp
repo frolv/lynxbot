@@ -260,12 +260,7 @@ std::string utils::parse_time(const std::string &ftime, bool since)
 	t = std::mktime(&tm);
 
 	now = time(NULL);
-#ifdef __linux__
 	curr = *std::gmtime(&now);
-#endif
-#ifdef _WIN32
-	gmtime_s(&curr, &now);
-#endif
 	curr.tm_isdst = 0;
 	now = std::mktime(&curr);
 

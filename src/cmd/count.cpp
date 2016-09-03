@@ -37,7 +37,7 @@ int CmdHandler::count(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -52,32 +52,32 @@ int CmdHandler::count(char *out, struct command *c)
 	if (strcmp(c->argv[l_optind], "start") == 0) {
 		/* begin a new count */
 		if (m_counting) {
-			_sprintf(out, MAX_MSG, "%s: count is already running",
+			snprintf(out, MAX_MSG, "%s: count is already running",
 					c->argv[0]);
 			return EXIT_FAILURE;
 		}
 		m_usersCounted.clear();
 		m_messageCounts.clear();
 		m_counting = true;
-		_sprintf(out, MAX_MSG, "Message counting has begun. Prepend "
+		snprintf(out, MAX_MSG, "Message counting has begun. Prepend "
 				"your message with a '+' to have it counted.");
 	} else if (strcmp(c->argv[l_optind], "stop") == 0) {
 		/* end the current count */
 		if (!m_counting) {
-			_sprintf(out, MAX_MSG, "%s: no active count",
+			snprintf(out, MAX_MSG, "%s: no active count",
 					c->argv[0]);
 			return EXIT_FAILURE;
 		}
 		m_counting = false;
-		_sprintf(out, MAX_MSG, "Count ended. Use \"$count display\" "
+		snprintf(out, MAX_MSG, "Count ended. Use \"$count display\" "
 				"to view results.");
 	} else if (strcmp(c->argv[l_optind], "display") == 0) {
 		/* display results from last count */
 		if (m_counting)
-			_sprintf(out, MAX_MSG, "%s: end count before "
+			snprintf(out, MAX_MSG, "%s: end count before "
 					"viewing results", c->argv[0]);
 		else if (m_messageCounts.empty())
-			_sprintf(out, MAX_MSG, "%s: nothing to display",
+			snprintf(out, MAX_MSG, "%s: nothing to display",
 					c->argv[0]);
 		else
 			getresults(out, &m_messageCounts);
@@ -101,14 +101,14 @@ static void getresults(char *out, countmap *count)
 				return a.second > b.second;
 			});
 
-	_sprintf(out, MAX_MSG, "[RESULTS] ");
+	snprintf(out, MAX_MSG, "[RESULTS] ");
 	out = strchr(out, '\0');
 	/* get top 10 results */
 	max = pairs.size() > 10 ? 10 : pairs.size();
 	for (i = 0; i < max; ++i) {
 		mcount &pair = pairs[i];
 		/* print rank and number of votes */
-		_sprintf(out, MAX_MSG - 40 * i, "%lu. %s (%d)%s", i + 1,
+		snprintf(out, MAX_MSG - 40 * i, "%lu. %s (%d)%s", i + 1,
 				pair.first.c_str(), pair.second,
 				i == max - 1 ? "" : ", ");
 		out = strchr(out, '\0');

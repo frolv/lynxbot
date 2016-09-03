@@ -21,16 +21,16 @@
 #define CMDUSAGE(x) static const char *CMDUSAGE = x
 
 /* print usage synposis, brief description and link to man page */
-#define HELPMSG(buf,NAME,USAGE,DESC) _sprintf(buf, MAX_MSG, "usage: %s | "\
+#define HELPMSG(buf,NAME,USAGE,DESC) snprintf(buf, MAX_MSG, "usage: %s | "\
 		"%s - %s | read more: %s/manual/%s.html", USAGE, NAME, DESC,\
 		BOT_WEBSITE, NAME)
 
 /* print error with usage synopsis */
-#define USAGEMSG(buf,NAME,USAGE) _sprintf(buf, MAX_MSG, "%s: invalid syntax. "\
+#define USAGEMSG(buf,NAME,USAGE) snprintf(buf, MAX_MSG, "%s: invalid syntax. "\
 		"usage: %s", NAME, USAGE)
 
 /* send user permission denied message */
-#define PERM_DENIED(buf,NAME,CMD) _sprintf(buf, MAX_MSG, "/w %s %s: "\
+#define PERM_DENIED(buf,NAME,CMD) snprintf(buf, MAX_MSG, "/w %s %s: "\
 		"permission denied", NAME, CMD)
 
 struct command {

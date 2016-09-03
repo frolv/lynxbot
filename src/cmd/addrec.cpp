@@ -37,12 +37,12 @@ int CmdHandler::addrec(char *out, struct command *c)
 		case 'c':
 			/* user provided a cooldown */
 			if (!parsenum(l_optarg, &cooldown)) {
-				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				snprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (cooldown < 0) {
-				_sprintf(out, MAX_MSG, "%s: interval cannot be "
+				snprintf(out, MAX_MSG, "%s: interval cannot be "
 						"negative", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -52,7 +52,7 @@ int CmdHandler::addrec(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -60,11 +60,11 @@ int CmdHandler::addrec(char *out, struct command *c)
 	}
 
 	if (cooldown % 300 != 0) {
-		_sprintf(out, MAX_MSG, "%s: interval must be a multiple "
+		snprintf(out, MAX_MSG, "%s: interval must be a multiple "
 				"of 5 mins", c->argv[0]);
 		return EXIT_FAILURE;
 	} else if (cooldown > 3600) {
-		_sprintf(out, MAX_MSG, "%s: interval cannot be longer "
+		snprintf(out, MAX_MSG, "%s: interval cannot be longer "
 				"than 60 mins", c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -76,10 +76,10 @@ int CmdHandler::addrec(char *out, struct command *c)
 
 	argvcat(msg, c->argc, c->argv, l_optind, 1);
 	if (!m_evtp->addmsg(msg, cooldown))
-		_sprintf(out, MAX_MSG, "%s: limit of 5 recurring "
+		snprintf(out, MAX_MSG, "%s: limit of 5 recurring "
 				"messages reached", c->argv[0]);
 	else
-		_sprintf(out, MAX_MSG, "@%s, recurring message \"%s\" has been "
+		snprintf(out, MAX_MSG, "@%s, recurring message \"%s\" has been "
 				"added at a %ld min interval", c->nick, msg,
 				cooldown / 60);
 	return EXIT_SUCCESS;

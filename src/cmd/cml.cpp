@@ -65,12 +65,12 @@ int CmdHandler::cml(char *out, struct command *c)
 		switch (opt) {
 		case 'c':
 			if (!parsenum(l_optarg, &count)) {
-				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				snprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (count < 1 || count > 7) {
-				_sprintf(out, MAX_MSG, "%s: count must be "
+				snprintf(out, MAX_MSG, "%s: count must be "
 						"between 1 and 7", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -84,7 +84,7 @@ int CmdHandler::cml(char *out, struct command *c)
 			break;
 		case 'p':
 			if (!parse_period(l_optarg, &period)) {
-				_sprintf(out, MAX_MSG, "%s: invalid period: %s",
+				snprintf(out, MAX_MSG, "%s: invalid period: %s",
 						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
@@ -103,7 +103,7 @@ int CmdHandler::cml(char *out, struct command *c)
 			page = CML_VHS;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -111,7 +111,7 @@ int CmdHandler::cml(char *out, struct command *c)
 	}
 
 	if (set && !id) {
-		_sprintf(out, MAX_MSG, "%s: -c and -p don't make sense "
+		snprintf(out, MAX_MSG, "%s: -c and -p don't make sense "
 				"without -t", c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -119,27 +119,27 @@ int CmdHandler::cml(char *out, struct command *c)
 	if (l_optind == c->argc) {
 		if (page) {
 			if (update || usenick || id) {
-				_sprintf(out, MAX_MSG, "%s: cannot use other "
+				snprintf(out, MAX_MSG, "%s: cannot use other "
 						"options with %s", c->argv[0],
 						page == CML_VHS ? "-v" : "-s");
 				status = EXIT_FAILURE;
 			} else {
-				_sprintf(out, MAX_MSG, "[CML] %s%s",
+				snprintf(out, MAX_MSG, "[CML] %s%s",
 						CML_HOST, page);
 			}
 		} else if (id) {
 			USAGEMSG(out, CMDNAME, TUSAGE);
 			status = EXIT_FAILURE;
 		} else if (update) {
-			_sprintf(out, MAX_MSG, "%s: must provide RSN to update",
+			snprintf(out, MAX_MSG, "%s: must provide RSN to update",
 					c->argv[0]);
 			status = EXIT_FAILURE;
 		} else if (usenick) {
-			_sprintf(out, MAX_MSG, "%s: no Twitch nick given",
+			snprintf(out, MAX_MSG, "%s: no Twitch nick given",
 					c->argv[0]);
 			status = EXIT_FAILURE;
 		} else {
-			_sprintf(out, MAX_MSG, "[CML] %s", CML_HOST);
+			snprintf(out, MAX_MSG, "[CML] %s", CML_HOST);
 		}
 		return status;
 	} else if (l_optind != c->argc - 1 || page) {
@@ -155,7 +155,7 @@ int CmdHandler::cml(char *out, struct command *c)
 		if (strcmp(c->argv[l_optind], "ehp") == 0) {
 			id = 99;
 		} else if ((id = skill_id(c->argv[l_optind])) == -1) {
-			_sprintf(out, MAX_MSG, "%s: invalid skill "
+			snprintf(out, MAX_MSG, "%s: invalid skill "
 					"name: %s", c->argv[0],
 					c->argv[l_optind]);
 			return EXIT_FAILURE;
@@ -165,20 +165,20 @@ int CmdHandler::cml(char *out, struct command *c)
 
 	/* get the rsn of the queried player */
 	if (!getrsn(buf, RSN_BUF, c->argv[l_optind], c->nick, usenick)) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 		return EXIT_FAILURE;
 	}
 
 	if (update) {
 		if (updatecml(buf, err) == 1) {
-			_sprintf(out, MAX_MSG, "@%s, %s's CML tracker has "
+			snprintf(out, MAX_MSG, "@%s, %s's CML tracker has "
 					"been updated", c->nick, buf);
 		} else {
-			_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], err);
+			snprintf(out, MAX_MSG, "%s: %s", c->argv[0], err);
 			status = EXIT_FAILURE;
 		}
 	} else {
-		_sprintf(out, MAX_MSG, "[CML] %s%s%s", CML_HOST, CML_USER, buf);
+		snprintf(out, MAX_MSG, "[CML] %s%s%s", CML_HOST, CML_USER, buf);
 	}
 	return status;
 }
@@ -190,7 +190,7 @@ static int updatecml(char *rsn, char *err)
 	char url[MAX_URL];
 	cpr::Response resp;
 
-	_sprintf(url, MAX_URL, "%s%s%s", CML_HOST, CML_UPDATE, rsn);
+	snprintf(url, MAX_URL, "%s%s%s", CML_HOST, CML_UPDATE, rsn);
 	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
 
 	switch ((i = atoi(resp.text.c_str()))) {
@@ -198,25 +198,25 @@ static int updatecml(char *rsn, char *err)
 		/* success */
 		break;
 	case 2:
-		_sprintf(err, RSN_BUF, "'%s' could not be found "
+		snprintf(err, RSN_BUF, "'%s' could not be found "
 				"on the hiscores", rsn);
 		break;
 	case 3:
-		_sprintf(err, RSN_BUF, "'%s' has had a negative "
+		snprintf(err, RSN_BUF, "'%s' has had a negative "
 				"XP gain", rsn);
 		break;
 	case 4:
-		_sprintf(err, RSN_BUF, "unknown error, try again");
+		snprintf(err, RSN_BUF, "unknown error, try again");
 		break;
 	case 5:
-		_sprintf(err, RSN_BUF, "'%s' has been updated within "
+		snprintf(err, RSN_BUF, "'%s' has been updated within "
 				"the last 30s", rsn);
 		break;
 	case 6:
-		_sprintf(err, RSN_BUF, "'%s' is an invalid RSN", rsn);
+		snprintf(err, RSN_BUF, "'%s' is an invalid RSN", rsn);
 		break;
 	default:
-		_sprintf(err, RSN_BUF, "could not reach CML API, try again");
+		snprintf(err, RSN_BUF, "could not reach CML API, try again");
 		break;
 	}
 	return i;
@@ -231,27 +231,27 @@ static int read_current_top(char *out, int id, int count, const char *period)
 	char url[MAX_URL];
 	char text[MAX_URL];
 
-	_sprintf(url, MAX_URL, "%s%s&count=%d&skill=%d&timeperiod=%s",
+	snprintf(url, MAX_URL, "%s%s&count=%d&skill=%d&timeperiod=%s",
 			CML_HOST, CML_CTOP, count, id, period);
 	resp = cpr::Get(cpr::Url(url), cpr::Header{{ "Connection", "close" }});
 	strcpy(text, resp.text.c_str());
 
 	if (strcmp(text, "-3") == 0 || strcmp(text, "-4") == 0) {
-		_sprintf(out, MAX_MSG, "%s: could not reach CML API, try again",
+		snprintf(out, MAX_MSG, "%s: could not reach CML API, try again",
 				CMDNAME);
 		return EXIT_FAILURE;
 	}
 
 	nick = text;
 	orig = out;
-	_sprintf(out, MAX_MSG, "[CML] Current top players in %s (%s): ",
+	snprintf(out, MAX_MSG, "[CML] Current top players in %s (%s): ",
 			id == 99 ? "EHP" : skill_name(id).c_str(), period);
 	out += strlen(out);
 	for (i = 0; i < count && (score = strchr(nick, ',')); ++i) {
 		*score++ = '\0';
 		if ((s = strchr(score, '\n')))
 			*s = '\0';
-		_sprintf(out, MAX_MSG - 50 * i, "%d. %s (+", i + 1, nick);
+		snprintf(out, MAX_MSG - 50 * i, "%d. %s (+", i + 1, nick);
 		out += strlen(out);
 		if (id == 99) {
 			strcat(out, score);
@@ -268,7 +268,7 @@ static int read_current_top(char *out, int id, int count, const char *period)
 	}
 
 	if (i != count) {
-		_sprintf(orig, MAX_MSG, "%s: could not read current top", CMDNAME);
+		snprintf(orig, MAX_MSG, "%s: could not read current top", CMDNAME);
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;

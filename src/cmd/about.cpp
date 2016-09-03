@@ -41,7 +41,7 @@ int CmdHandler::about(char *out, struct command *c)
 			type = SRC;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -56,11 +56,11 @@ int CmdHandler::about(char *out, struct command *c)
 	switch (type) {
 	case REL:
 	case SRC:
-		_sprintf(out, MAX_MSG, "[ABOUT] %s",
+		snprintf(out, MAX_MSG, "[ABOUT] %s",
 				type == REL ? RELEASE : SOURCE);
 		break;
 	default:
-		_sprintf(out, MAX_MSG, "[ABOUT] %s is running " BOT_NAME
+		snprintf(out, MAX_MSG, "[ABOUT] %s is running " BOT_NAME
 				" " BOT_VERSION ". Find out more at "
 				BOT_WEBSITE, m_name);
 		break;

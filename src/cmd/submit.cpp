@@ -33,7 +33,7 @@ int CmdHandler::submit(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -45,10 +45,10 @@ int CmdHandler::submit(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	_sprintf(path, MAX_PATH, "%s%s", utils::configdir().c_str(),
+	snprintf(path, MAX_PATH, "%s%s", utils::configdir().c_str(),
 			utils::config("submit").c_str());
 	if (!(f = fopen(path, "a"))) {
-		_sprintf(out, MAX_MSG, "%s: could not open submission file",
+		snprintf(out, MAX_MSG, "%s: could not open submission file",
 				c->argv[0]);
 		perror(path);
 		return EXIT_FAILURE;
@@ -56,19 +56,14 @@ int CmdHandler::submit(char *out, struct command *c)
 
 	t = time(nullptr);
 
-#ifdef __linux__
 	msgtm = *localtime(&t);
-#endif
-#ifdef _WIN32
-	localtime_s(&msgtm, &t);
-#endif
 	strftime(buf, MAX_MSG, "%Y-%m-%d %R", &msgtm);
 	fprintf(f, "[%s] ", buf);
 	argvcat(buf, c->argc, c->argv, l_optind, 1);
 	fprintf(f, "%s: %s\n", c->nick, buf);
 	fclose(f);
 
-	_sprintf(out, MAX_MSG, "@%s, your topic has been submitted. Thank you.",
+	snprintf(out, MAX_MSG, "@%s, your topic has been submitted. Thank you.",
 			c->nick);
 	return EXIT_SUCCESS;
 }

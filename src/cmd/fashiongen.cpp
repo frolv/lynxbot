@@ -34,7 +34,7 @@ int CmdHandler::fashiongen(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -45,12 +45,12 @@ int CmdHandler::fashiongen(char *out, struct command *c)
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		status = EXIT_FAILURE;
 	} else if (m_fashion.empty()) {
-		_sprintf(out, MAX_MSG, "%s: could not read item database",
+		snprintf(out, MAX_MSG, "%s: could not read item database",
 				c->argv[0]);
 		status = EXIT_FAILURE;
 	} else {
 		gen_fashion(fashion, m_fashion);
-		_sprintf(out, MAX_MSG, "[FASHIONGEN] %s",
+		snprintf(out, MAX_MSG, "[FASHIONGEN] %s",
 				utils::upload(fashion).c_str());
 	}
 	return status;
@@ -63,13 +63,13 @@ static void gen_fashion(char *out, const Json::Value &items)
 	srand(static_cast<uint32_t>(time(nullptr)));
 	int ind;
 
-	_sprintf(out, MAX_MSG, "Generated FashionScape\n"
+	snprintf(out, MAX_MSG, "Generated FashionScape\n"
 			"======================\n\n");
 	categories = items.getMemberNames();
 	for (const std::string &cat : categories) {
 		ind = rand() % items[cat].size();
 		out = strchr(out, '\0');
-		_sprintf(out, MAX_MSG, "%c%s:\t%s\n", toupper(cat[0]),
+		snprintf(out, MAX_MSG, "%c%s:\t%s\n", toupper(cat[0]),
 				cat.substr(1).c_str(),
 				items[cat][ind].asCString());
 	}

@@ -29,7 +29,7 @@ int CmdHandler::duck(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -42,6 +42,6 @@ int CmdHandler::duck(char *out, struct command *c)
 	}
 
 	argvcat(query, c->argc, c->argv, l_optind, 1);
-	_sprintf(out, MAX_MSG, "%s%s", DDG_QUERY, tw::pencode(query).c_str());
+	snprintf(out, MAX_MSG, "%s%s", DDG_QUERY, tw::pencode(query).c_str());
 	return EXIT_SUCCESS;
 }

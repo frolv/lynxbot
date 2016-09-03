@@ -38,7 +38,7 @@ int CmdHandler::ge(char *out, struct command *c)
 	};
 
 	if (!m_GEReader.active()) {
-		_sprintf(out, MAX_MSG, "%s: GE reader is inactive", c->argv[0]);
+		snprintf(out, MAX_MSG, "%s: GE reader is inactive", c->argv[0]);
 		return EXIT_FAILURE;
 	}
 
@@ -52,12 +52,12 @@ int CmdHandler::ge(char *out, struct command *c)
 			return EXIT_SUCCESS;
 		case 'n':
 			if (!parsenum_mult(l_optarg, &amt)) {
-				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				snprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (amt < 0) {
-				_sprintf(out, MAX_MSG, "%s: amount cannot be "
+				snprintf(out, MAX_MSG, "%s: amount cannot be "
 						"negative", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -66,7 +66,7 @@ int CmdHandler::ge(char *out, struct command *c)
 			hex = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -84,18 +84,18 @@ int CmdHandler::ge(char *out, struct command *c)
 
 	/* find item in database */
 	if ((item = m_GEReader.getItem(buf)).empty()) {
-		_sprintf(out, MAX_MSG, "%s: item not found: %s",
+		snprintf(out, MAX_MSG, "%s: item not found: %s",
 				c->argv[0], buf);
 		return EXIT_FAILURE;
 	}
 
 	/* read ge api and extract data */
-	_sprintf(buf, MAX_MSG, "%s%d", EXCHANGE_API, item["id"].asInt());
+	snprintf(buf, MAX_MSG, "%s%d", EXCHANGE_API, item["id"].asInt());
 	resp = cpr::Get(cpr::Url(buf), cpr::Header{{ "Connection", "close" }});
 	strcpy(buf, resp.text.c_str());
 
 	if ((price = extract_price(buf)) == -1) {
-		_sprintf(out, MAX_MSG, "%s: could not extract price",
+		snprintf(out, MAX_MSG, "%s: could not extract price",
 				c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -104,21 +104,21 @@ int CmdHandler::ge(char *out, struct command *c)
 	out = strchr(out, '\0');
 	if (amt != 1) {
 		if (hex) {
-			_sprintf(out, RSN_BUF, "0x%lX", amt);
+			snprintf(out, RSN_BUF, "0x%lX", amt);
 		} else {
-			_sprintf(buf, RSN_BUF, "%ld", amt);
+			snprintf(buf, RSN_BUF, "%ld", amt);
 			fmtnum(out, RSN_BUF, buf);
 		}
 		strcat(out, "x ");
 		out = strchr(out, '\0');
 	}
 	if (hex) {
-		_sprintf(num, RSN_BUF, "0x%lX", (uint64_t)(amt * price));
+		snprintf(num, RSN_BUF, "0x%lX", (uint64_t)(amt * price));
 	} else {
-		_sprintf(buf, RSN_BUF, "%ld", amt * price);
+		snprintf(buf, RSN_BUF, "%ld", amt * price);
 		fmtnum(num, RSN_BUF, buf);
 	}
-	_sprintf(out, MAX_MSG, "%s: %s gp", item["name"].asCString(), num);
+	snprintf(out, MAX_MSG, "%s: %s gp", item["name"].asCString(), num);
 
 	return EXIT_SUCCESS;
 }

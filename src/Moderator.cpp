@@ -87,7 +87,7 @@ bool Moderator::validmsg(const std::string &msg, const char *nick,
 
 	if (msg.length() > m_max_message_len) {
 		reason = "message too long!";
-		_sprintf(logmsg, LOG_LEN, "message length of %lu characters "
+		snprintf(logmsg, LOG_LEN, "message length of %lu characters "
 				"exceeded limit of %u", msg.length(),
 				m_max_message_len);
 		valid = false;
@@ -99,14 +99,14 @@ bool Moderator::validmsg(const std::string &msg, const char *nick,
 				m_perm[nick]--;
 		} else {
 			reason = "no posting links!";
-			_sprintf(logmsg, LOG_LEN, "posted unauthorized link: %s",
+			snprintf(logmsg, LOG_LEN, "posted unauthorized link: %s",
 					m_parsep->getLast()->full.c_str());
 			valid = false;
 		}
 	}
 	if (valid && check_spam(msg)) {
 		reason = "no spamming words!";
-		_sprintf(logmsg, LOG_LEN, "pattern repeated in message "
+		snprintf(logmsg, LOG_LEN, "pattern repeated in message "
 				"more than limit of %u times", m_max_pattern);
 		valid = false;
 	}
@@ -222,7 +222,7 @@ bool Moderator::log(int type, const char *user, const char *by,
 	struct tm modtm;
 	time_t t;
 
-	_sprintf(path, MAX_PATH, "%s%s", utils::configdir().c_str(),
+	snprintf(path, MAX_PATH, "%s%s", utils::configdir().c_str(),
 			utils::config("modlog").c_str());
 	if (!(f = fopen(path, "a"))) {
 		perror(path);
@@ -230,12 +230,7 @@ bool Moderator::log(int type, const char *user, const char *by,
 	}
 	t = time(nullptr);
 
-#ifdef __linux__
 	modtm = *localtime(&t);
-#endif
-#ifdef _WIN32
-	localtime_s(&modtm, &t);
-#endif
 	strftime(buf, MAX_MSG, "%Y-%m-%d %R", &modtm);
 	fprintf(f, "[%s] %s %s by %s. Reason: %s\n", buf, user,
 			type == BAN ? "banned" : "timed out",
@@ -260,9 +255,9 @@ bool Moderator::mod_action(int type, const char *name,
 	}
 
 	if (type == TIMEOUT)
-		_sprintf(msg, MAX_MSG, "/timeout %s %d", name, len);
+		snprintf(msg, MAX_MSG, "/timeout %s %d", name, len);
 	else
-		_sprintf(msg, MAX_MSG, "/ban %s", name);
+		snprintf(msg, MAX_MSG, "/ban %s", name);
 
 	send_msg(m_client, m_channel, msg);
 	log(type, name, by, *reason ? reason : NULL);
@@ -313,7 +308,7 @@ bool Moderator::check_str(const std::string &msg, std::string &reason,
 		}
 		if (repeated == m_max_char) {
 			reason = "no spamming characters!";
-			_sprintf(logmsg, LOG_LEN, "character '%c' repeated in "
+			snprintf(logmsg, LOG_LEN, "character '%c' repeated in "
 					"message over limit of %u times",
 					c, m_max_char);
 			return true;
@@ -324,7 +319,7 @@ bool Moderator::check_str(const std::string &msg, std::string &reason,
 	ratio = caps / (double)len;
 	if (msg.length() > m_cap_len && (ratio > m_cap_ratio)) {
 		reason = "turn off your caps lock!";
-		_sprintf(logmsg, LOG_LEN, "%u out of %u non-whitespace "
+		snprintf(logmsg, LOG_LEN, "%u out of %u non-whitespace "
 				"characters in message were uppercase",
 				caps, len);
 		return true;

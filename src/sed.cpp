@@ -37,13 +37,13 @@ int sed(char *s, size_t max, const char *input, const char *sedcmd)
 		else
 			pattern = std::regex(sedbuf.regex, std::regex::icase);
 	} catch (std::regex_error) {
-		_sprintf(s, max, "sed: invalid regex");
+		snprintf(s, max, "sed: invalid regex");
 		return 0;
 	}
 
 	if (!sedbuf.global)
 		type |= std::regex_constants::format_first_only;
-	_sprintf(s, max, "%s", std::regex_replace(input, pattern,
+	snprintf(s, max, "%s", std::regex_replace(input, pattern,
 				sedbuf.replace, type).c_str());
 	return 1;
 }
@@ -122,13 +122,13 @@ static void puterr(char *out, size_t max, struct sedinfo *s)
 {
 	switch (s->error) {
 	case INVCMD:
-		_sprintf(out, max, "sed: invalid command '%c'", s->errtok);
+		snprintf(out, max, "sed: invalid command '%c'", s->errtok);
 		break;
 	case UNTERM:
-		_sprintf(out, max, "sed: unterminated 's' command");
+		snprintf(out, max, "sed: unterminated 's' command");
 		break;
 	case BADOPT:
-		_sprintf(out, max, "sed: unkown option to 's' command "
+		snprintf(out, max, "sed: unkown option to 's' command "
 				"-- '%c'", s->errtok);
 		break;
 	default:

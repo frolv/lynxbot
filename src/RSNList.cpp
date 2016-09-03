@@ -104,7 +104,7 @@ int RSNList::valid(const char *rsn)
 
 	for (s = rsn; *s; ++s) {
 		if (!isalnum(*s) && *s != '_' && *s != '-') {
-			_sprintf(m_error, 256, "'%s' contains invalid "
+			snprintf(m_error, 256, "'%s' contains invalid "
 					"characters", rsn);
 			return 0;
 		}
@@ -118,7 +118,7 @@ int RSNList::valid(const char *rsn)
 		return 0;
 	}
 	if (!(t = find_nick(rsn))->empty()) {
-		_sprintf(m_error, 256, "the RSN '%s' is already taken by %s",
+		snprintf(m_error, 256, "the RSN '%s' is already taken by %s",
 				rsn, (*t)["nick"].asCString());
 		return 0;
 	}

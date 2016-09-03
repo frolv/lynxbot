@@ -42,7 +42,7 @@ int CmdHandler::delcom(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -50,7 +50,7 @@ int CmdHandler::delcom(char *out, struct command *c)
 	}
 
 	if (!m_customCmds->isActive()) {
-		_sprintf(out, MAX_MSG, "%s: custom commands are "
+		snprintf(out, MAX_MSG, "%s: custom commands are "
 				"currently disabled", c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -87,19 +87,19 @@ static void formatoutput(char *out, const char **del, const char **inv)
 	size_t i;
 
 	if (nd) {
-		_sprintf(out, MAX_MSG, "deleted: ");
+		snprintf(out, MAX_MSG, "deleted: ");
 		out = strchr(out, '\0');
 		for (i = 0; i < nd; ++i) {
-			_sprintf(out, MAX_MSG, "$%s%s", del[i],
+			snprintf(out, MAX_MSG, "$%s%s", del[i],
 					i == nd - 1 ? "" : " ");
 			out = strchr(out, '\0');
 		}
 	}
 	if (ni) {
-		_sprintf(out, MAX_MSG, "%snot found: ", nd ? " | " : "");
+		snprintf(out, MAX_MSG, "%snot found: ", nd ? " | " : "");
 		out = strchr(out, '\0');
 		for (i = 0; i < ni; ++i) {
-			_sprintf(out, MAX_MSG, "$%s%s", inv[i],
+			snprintf(out, MAX_MSG, "$%s%s", inv[i],
 					i == ni - 1 ? "" : " ");
 			out = strchr(out, '\0');
 		}

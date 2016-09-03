@@ -66,7 +66,7 @@ int CmdHandler::ehp(char *out, struct command *c)
 			usenick = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -75,11 +75,11 @@ int CmdHandler::ehp(char *out, struct command *c)
 
 	if (l_optind == c->argc) {
 		if (usenick) {
-			_sprintf(out, MAX_MSG, "%s: no Twitch name given",
+			snprintf(out, MAX_MSG, "%s: no Twitch name given",
 					c->argv[0]);
 			status = EXIT_FAILURE;
 		} else {
-			_sprintf(out, MAX_MSG, "%s", EHP_DESC);
+			snprintf(out, MAX_MSG, "%s", EHP_DESC);
 		}
 		return status;
 	}
@@ -89,7 +89,7 @@ int CmdHandler::ehp(char *out, struct command *c)
 	}
 
 	if (!getrsn(buf, RSN_BUF, c->argv[l_optind], c->nick, usenick)) {
-		_sprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 		return EXIT_FAILURE;
 	}
 
@@ -105,22 +105,23 @@ static int lookup_player(char *out, const char *rsn,
 	char num[MAX_URL];
 	char *name, *rank, *ehp, *week, *s;
 
-	_sprintf(buf, MAX_URL, "%s%s%s&player=%s", CML_HOST, EHP_API, fil, rsn);
-	resp = cpr::Get(cpr::Url(buf), cpr::Header{{ "Connection", "close" }});
+	snprintf(buf, MAX_URL, "%s%s%s&player=%s", CML_HOST, EHP_API, fil, rsn);
+	resp = cpr::Get(cpr::Url(buf));
 	strcpy(buf, resp.text.c_str());
 
-	if (strcmp(buf, "-3") == 0 || strcmp(buf, "-4") == 0) {
-		_sprintf(out, MAX_MSG, "%s: could not reach CML API, try again",
+	if (strlen(buf) == 0 || strcmp(buf, "-3") == 0
+			|| strcmp(buf, "-4") == 0) {
+		snprintf(out, MAX_MSG, "%s: could not reach CML API, try again",
 				CMDNAME);
 		return EXIT_FAILURE;
 	}
 	if (strcmp(buf, "-1") == 0) {
 		if (*fil) {
 			fil = strchr(fil, '=') + 1;
-			_sprintf(out, MAX_MSG, "%s: player '%s' not found under"
+			snprintf(out, MAX_MSG, "%s: player '%s' not found under"
 					" %s filter", CMDNAME, rsn, fil);
 		} else {
-			_sprintf(out, MAX_MSG, "%s: player '%s' does not exist "
+			snprintf(out, MAX_MSG, "%s: player '%s' does not exist "
 					"or has not been tracked on CML",
 					CMDNAME, rsn);
 		}
@@ -139,11 +140,11 @@ static int lookup_player(char *out, const char *rsn,
 		s[3] = '\0';
 	fmtnum(num, MAX_URL, ehp);
 
-	_sprintf(out, MAX_MSG, "[EHP%s] Name: %s, Rank: %s, EHP: %s", type,
+	snprintf(out, MAX_MSG, "[EHP%s] Name: %s, Rank: %s, EHP: %s", type,
 			name, rank, num);
 	if (!*type) {
 		out = strchr(out, '\0');
-		_sprintf(out, MAX_MSG, " (+%s this week)", *week ? week : "0.00");
+		snprintf(out, MAX_MSG, " (+%s this week)", *week ? week : "0.00");
 	}
 	return EXIT_SUCCESS;
 }

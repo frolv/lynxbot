@@ -36,7 +36,7 @@ void check_channel(const char *channel, const char *token)
 		return;
 	}
 
-	_sprintf(url, MAX_URL, "%s%s", UPTIME_API, channel);
+	snprintf(url, MAX_URL, "%s%s", UPTIME_API, channel);
 	resp = cpr::Get(cpr::Url(url), head);
 
 	if (!reader.parse(resp.text, val)) {
@@ -77,12 +77,7 @@ time_t channel_uptime()
 	struct tm curr;
 
 	now = time(NULL);
-#ifdef __linux__
-	curr = *std::gmtime(&now);
-#endif
-#ifdef _WIN32
-	gmtime_s(&curr, &now);
-#endif
+	curr = *gmtime(&now);
 	curr.tm_isdst = 0;
 	now = std::mktime(&curr);
 

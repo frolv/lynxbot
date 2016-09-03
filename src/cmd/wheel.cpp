@@ -20,7 +20,7 @@ int CmdHandler::wheel(char *out, struct command *c)
 	};
 
 	if (!m_wheel.active()) {
-		_sprintf(out, MAX_MSG, "%s: wheel is not currently active",
+		snprintf(out, MAX_MSG, "%s: wheel is not currently active",
 				c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -32,7 +32,7 @@ int CmdHandler::wheel(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -40,7 +40,7 @@ int CmdHandler::wheel(char *out, struct command *c)
 	}
 
 	if (l_optind == c->argc) {
-		_sprintf(out, MAX_MSG, "%s: %s %s", m_wheel.name(),
+		snprintf(out, MAX_MSG, "%s: %s %s", m_wheel.name(),
 				m_wheel.desc(), m_wheel.usage());
 		return EXIT_SUCCESS;
 	}
@@ -55,18 +55,18 @@ int CmdHandler::wheel(char *out, struct command *c)
 	if (strcmp(c->argv[l_optind], "check") == 0) {
 		/* return the current selection */
 		if (m_wheel.ready(c->nick))
-			_sprintf(out, MAX_MSG, "@%s, you are not currently "
+			snprintf(out, MAX_MSG, "@%s, you are not currently "
 					"assigned anything.", c->nick);
 		else
-			_sprintf(out, MAX_MSG, "@%s, you are currently "
+			snprintf(out, MAX_MSG, "@%s, you are currently "
 					"assigned %s.", c->nick,
 					m_wheel.selection(c->nick));
 	} else if (!m_wheel.ready(c->nick)) {
-		_sprintf(out, MAX_MSG, "@%s, you have already been "
+		snprintf(out, MAX_MSG, "@%s, you have already been "
 				"assigned something!", c->nick);
 	} else {
 		/* make a new selection */
-		_sprintf(out, MAX_MSG, "@%s, for entertainment for "
+		snprintf(out, MAX_MSG, "@%s, for entertainment for "
 				"tonight is %s.", c->nick,
 				m_wheel.choose(c->nick, c->argv[l_optind]));
 	}

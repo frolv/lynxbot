@@ -52,12 +52,12 @@ int CmdHandler::setgiv(char *out, struct command *c)
 			break;
 		case 'n':
 			if (!parsenum(l_optarg, &amt)) {
-				_sprintf(out, MAX_MSG, "%s: invalid number: %s",
+				snprintf(out, MAX_MSG, "%s: invalid number: %s",
 						c->argv[0], l_optarg);
 				return EXIT_FAILURE;
 			}
 			if (amt < 1) {
-				_sprintf(out, MAX_MSG, "%s: amount must be a "
+				snprintf(out, MAX_MSG, "%s: amount must be a "
 						"postive integer", c->argv[0]);
 				return EXIT_FAILURE;
 			}
@@ -66,7 +66,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 			settimer = 1;
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -75,7 +75,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 
 	if ((setfollowers && settimer) || (setfollowers && setimages)
 			|| (setimages && settimer)) {
-		_sprintf(out, MAX_MSG, "%s: cannot combine -f, -i and -t flags",
+		snprintf(out, MAX_MSG, "%s: cannot combine -f, -i and -t flags",
 				c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -89,7 +89,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 
 #ifdef _WIN32
 	if (setimages) {
-		_sprintf(out, MAX_MSG, "%s: image-based giveaways are not "
+		snprintf(out, MAX_MSG, "%s: image-based giveaways are not "
 				"available on Windows systems", c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -104,7 +104,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 		type = IMAGE;
 
 	if (strcmp(c->argv[l_optind], "check") == 0) {
-		_sprintf(out, MAX_MSG, "@%s, %s", c->nick,
+		snprintf(out, MAX_MSG, "@%s, %s", c->nick,
 				m_givp->currentSettings(type).c_str());
 		return EXIT_SUCCESS;
 	}
@@ -124,51 +124,51 @@ static int process(char *out, Giveaway *g, struct command *c,
 {
 	char *s;
 
-	_sprintf(out, MAX_MSG, "@%s, ", c->nick);
+	snprintf(out, MAX_MSG, "@%s, ", c->nick);
 	s = strchr(out, '\0');
 
 	if (strcmp(c->argv[l_optind], "on") == 0) {
 		switch (type) {
 		case FOLLOW:
 			g->setFollowers(true, amt);
-			_sprintf(s, MAX_MSG, "giveaways set to occur every "
+			snprintf(s, MAX_MSG, "giveaways set to occur every "
 					"%d followers.", g->followers());
 			break;
 		case TIMED:
 			g->setTimer(true, (time_t)amt * 60);
-			_sprintf(s, MAX_MSG, "giveaways set to occur every "
+			snprintf(s, MAX_MSG, "giveaways set to occur every "
 					"%d minutes.", amt);
 			break;
 		case IMAGE:
 			g->setImages(true);
-			_sprintf(s, MAX_MSG, "image-based giveaways enabled.");
+			snprintf(s, MAX_MSG, "image-based giveaways enabled.");
 			break;
 		default:
 			if (!g->activate(time(nullptr))) {
-				_sprintf(out, MAX_MSG, "%s: %s",
+				snprintf(out, MAX_MSG, "%s: %s",
 						c->argv[0], g->err());
 				return EXIT_FAILURE;
 			}
-			_sprintf(s, MAX_MSG, "giveaways have been activated");
+			snprintf(s, MAX_MSG, "giveaways have been activated");
 			break;
 		}
 	} else {
 		switch (type) {
 		case FOLLOW:
 			g->setFollowers(false);
-			_sprintf(s, MAX_MSG, "follower giveaways disabled.");
+			snprintf(s, MAX_MSG, "follower giveaways disabled.");
 			break;
 		case TIMED:
 			g->setTimer(false);
-			_sprintf(s, MAX_MSG, "timed giveaways disabled.");
+			snprintf(s, MAX_MSG, "timed giveaways disabled.");
 			break;
 		case IMAGE:
 			g->setImages(false);
-			_sprintf(s, MAX_MSG, "image-based giveaways disabled.");
+			snprintf(s, MAX_MSG, "image-based giveaways disabled.");
 			break;
 		default:
 			g->deactivate();
-			_sprintf(s, MAX_MSG, "giveaways deactivated.");
+			snprintf(s, MAX_MSG, "giveaways deactivated.");
 			break;
 		}
 	}

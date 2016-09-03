@@ -39,7 +39,7 @@ int CmdHandler::age(char *out, struct command *c)
 	while ((opt = l_getopt_long(c->argc, c->argv, "fs", long_opts)) != EOF) {
 		switch (opt) {
 		case 'f':
-			_sprintf(url, MAX_MSG, "%s/users/%s/follows/channels/%s",
+			snprintf(url, MAX_MSG, "%s/users/%s/follows/channels/%s",
 					TWITCH_API, c->nick, m_channel);
 			msg = "following";
 			break;
@@ -47,12 +47,12 @@ int CmdHandler::age(char *out, struct command *c)
 			HELPMSG(out, CMDNAME, CMDUSAGE, CMDDESCR);
 			return EXIT_SUCCESS;
 		case 's':
-			_sprintf(url, MAX_MSG, "%s/channels/%s/subscriptions/%s",
+			snprintf(url, MAX_MSG, "%s/channels/%s/subscriptions/%s",
 					TWITCH_API, m_channel, c->nick);
 			msg = "subscribed to";
 			break;
 		case '?':
-			_sprintf(out, MAX_MSG, "%s", l_opterr());
+			snprintf(out, MAX_MSG, "%s", l_opterr());
 			return EXIT_FAILURE;
 		default:
 			return EXIT_FAILURE;
@@ -67,12 +67,12 @@ int CmdHandler::age(char *out, struct command *c)
 	resp = cpr::Get(cpr::Url(url), head);
 
 	if (!reader.parse(resp.text, response))
-		_sprintf(out, MAX_MSG, "%s: could not parse response", CMDNAME);
+		snprintf(out, MAX_MSG, "%s: could not parse response", CMDNAME);
 	else if (!response.isMember("created_at"))
-		_sprintf(out, MAX_MSG, "@%s, you are not %s %s.",
+		snprintf(out, MAX_MSG, "@%s, you are not %s %s.",
 				c->nick, msg, m_channel);
 	else
-		_sprintf(out, MAX_MSG, "@%s, you have been %s %s for %s.",
+		snprintf(out, MAX_MSG, "@%s, you have been %s %s for %s.",
 				c->nick, msg, m_channel,
 				utils::parse_time(response["created_at"]
 					.asString(), true).c_str());
