@@ -7,7 +7,11 @@ prefix="/usr/local"
 target="native"
 cross_prefix=
 progname=lynxbot
-LDFLAGS='-lcurl -lpthread -lcrypto'
+LDFLAGS="-lcurl -lpthread -lcrypto"
+INC="-I./include"
+CFLAGS="$INC -Wall -Wextra -c -std=c99"
+CXXFLAGS="$INC -Wall -Wextra -c -std=c++14"
+OBJDIR=obj
 winbuild=0
 
 while [ "$1" ]; do
@@ -64,19 +68,22 @@ else
 fi
 if $debug; then
 	progname="${progname}-d"
-	echo OBJ=obj/$target/dbg >> Makefile
-	echo CFLAGS+=-DDEBUG -g >> Makefile
-	echo CXXFLAGS+=-DDEBUG -g >> Makefile
+	CFLAGS="$CFLAGS -DDEBUG -g"
+	CXXFLAGS="$CXXFLAGS -DDEBUG -g"
+	OBJDIR="$OBJDIR/$target/dbg"
 else
-	echo OBJ=obj/$target/rel >> Makefile
-	echo CFLAGS+=-O2 >> Makefile
-	echo CXXFLAGS+=-O2 >> Makefile
+	CFLAGS="$CFLAGS -O2"
+	CXXFLAGS="$CXXFLAGS -O2"
+	OBJDIR="$OBJDIR/$target/rel"
 fi
 
 echo "CC=${cross_prefix}gcc" >> Makefile
 echo "CXX=${cross_prefix}g++" >> Makefile
+echo "CFLAGS=$CFLAGS" >> Makefile
+echo "CXXFLAGS=$CXXFLAGS" >> Makefile
 echo "LDFLAGS=$LDFLAGS" >> Makefile
 echo "WINBUILD=$winbuild" >> Makefile
+echo "OBJDIR=$OBJDIR" >> Makefile
 
 echo PROGNAME=$progname >> Makefile
 echo USR=$USER >> Makefile
