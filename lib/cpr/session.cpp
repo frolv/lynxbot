@@ -29,7 +29,7 @@ class Session::Impl {
     void SetMultipart(Multipart&& multipart);
     void SetMultipart(const Multipart& multipart);
     void SetRedirect(const bool& redirect);
-    void SetMaxRedirects(const long& max_redirects);
+    void SetMaxRedirects(const MaxRedirects& max_redirects);
     void SetCookies(const Cookies& cookies);
     void SetBody(Body&& body);
     void SetBody(const Body& body);
@@ -67,6 +67,9 @@ Session::Impl::Impl() {
         curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
         curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_->error);
         curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
+#ifdef CPR_CURL_NOSIGNAL
+        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+#endif
 #ifdef INSECURE_CURL
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
@@ -221,14 +224,14 @@ void Session::Impl::SetMultipart(const Multipart& multipart) {
 void Session::Impl::SetRedirect(const bool& redirect) {
     auto curl = curl_->handle;
     if (curl) {
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, long(redirect));
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, std::int32_t(redirect));
     }
 }
 
-void Session::Impl::SetMaxRedirects(const long& max_redirects) {
+void Session::Impl::SetMaxRedirects(const MaxRedirects& max_redirects) {
     auto curl = curl_->handle;
     if (curl) {
-        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, max_redirects);
+        curl_easy_setopt(curl, CURLOPT_MAXREDIRS, max_redirects.number_of_redirects);
     }
 }
 
@@ -271,6 +274,7 @@ Response Session::Impl::Delete() {
 Response Session::Impl::Get() {
     auto curl = curl_->handle;
     if (curl) {
+        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, NULL);
         curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
         curl_easy_setopt(curl, CURLOPT_POST, 0L);
         curl_easy_setopt(curl, CURLOPT_NOBODY, 0L);
@@ -373,7 +377,8 @@ Response Session::Impl::makeRequest(CURL* curl) {
 
     auto header = cpr::util::parseHeader(header_string);
     response_string = cpr::util::parseResponse(response_string);
-    return Response{response_code, response_string, header, raw_url, elapsed, cookies, error};
+    return Response{static_cast<std::int32_t>(response_code),
+        response_string, header, raw_url, elapsed, cookies, error};
 }
 
 // clang-format off
@@ -393,7 +398,7 @@ void Session::SetProxies(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxi
 void Session::SetMultipart(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
 void Session::SetMultipart(Multipart&& multipart) { pimpl_->SetMultipart(std::move(multipart)); }
 void Session::SetRedirect(const bool& redirect) { pimpl_->SetRedirect(redirect); }
-void Session::SetMaxRedirects(const long& max_redirects) { pimpl_->SetMaxRedirects(max_redirects); }
+void Session::SetMaxRedirects(const MaxRedirects& max_redirects) { pimpl_->SetMaxRedirects(max_redirects); }
 void Session::SetCookies(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
 void Session::SetBody(const Body& body) { pimpl_->SetBody(body); }
 void Session::SetBody(Body&& body) { pimpl_->SetBody(std::move(body)); }
@@ -411,7 +416,7 @@ void Session::SetOption(Proxies&& proxies) { pimpl_->SetProxies(std::move(proxie
 void Session::SetOption(const Multipart& multipart) { pimpl_->SetMultipart(multipart); }
 void Session::SetOption(Multipart&& multipart) { pimpl_->SetMultipart(std::move(multipart)); }
 void Session::SetOption(const bool& redirect) { pimpl_->SetRedirect(redirect); }
-void Session::SetOption(const long& max_redirects) { pimpl_->SetMaxRedirects(max_redirects); }
+void Session::SetOption(const MaxRedirects& max_redirects) { pimpl_->SetMaxRedirects(max_redirects); }
 void Session::SetOption(const Cookies& cookies) { pimpl_->SetCookies(cookies); }
 void Session::SetOption(const Body& body) { pimpl_->SetBody(body); }
 void Session::SetOption(Body&& body) { pimpl_->SetBody(std::move(body)); }

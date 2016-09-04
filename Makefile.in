@@ -8,8 +8,8 @@ _CPR=auth.o cookies.o cprtypes.o digest.o error.o multipart.o parameters.o\
     payload.o proxies.o session.o util.o
 CPR=$(patsubst %,$(OBJDIR)/cpr_%,$(_CPR))
 _CPRH=api.h auth.h body.h cookies.h cpr.h cprtypes.h curlholder.h defines.h\
-     digest.h error.h multipart.h parameters.h payload.h proxies.h response.h\
-     session.h timeout.h util.h
+     digest.h error.h max_redirects.h multipart.h parameters.h payload.h\
+     proxies.h response.h session.h timeout.h util.h
 CPRH=$(patsubst %,include/cpr/%,$(_CPRH))
 CPRD=$(LIBD)/cpr
 
