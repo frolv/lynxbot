@@ -231,7 +231,7 @@ bool Moderator::log(int type, const char *user, const char *by,
 	t = time(nullptr);
 
 	modtm = *localtime(&t);
-	strftime(buf, MAX_MSG, "%Y-%m-%d %R", &modtm);
+	strftime(buf, MAX_MSG, "%Y-%m-%d %H:%M", &modtm);
 	fprintf(f, "[%s] %s %s by %s. Reason: %s\n", buf, user,
 			type == BAN ? "banned" : "timed out",
 			by, reason ? reason : "none");

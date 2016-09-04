@@ -7,6 +7,7 @@
 #include "../option.h"
 
 #define MAX_PRINT 128
+#define TIME_FMT "%d/%m/%Y at %H:%M %Z"
 
 /* full name of the command */
 CMDNAME("cmdinfo");
@@ -120,11 +121,9 @@ static void putinfo(char *out, Json::Value *cmd)
 			end = strchr(end, '\0');
 		}
 		if (crtime) {
-			strcat(end, " at ");
+			strcat(end, " on ");
 			end = strchr(end, '\0');
-			/* strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &ctm); */
-			if (!strftime(end, MAX_PRINT, "%d", &ctm))
-				perror("strftime");
+			strftime(end, MAX_PRINT, TIME_FMT, &ctm);
 			end = strchr(end, '\0');
 			snprintf(end, MAX_PRINT, " (%s ago)",
 					utils::conv_time(time(nullptr) - ct)
@@ -135,9 +134,9 @@ static void putinfo(char *out, Json::Value *cmd)
 	}
 	if (mtime) {
 		if ((!modified && ct != mt) || modified) {
-			strcat(end, " Last modified at ");
+			strcat(end, " Last modified on ");
 			end = strchr(end, '\0');
-			strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &mtm);
+			strftime(end, MAX_PRINT, TIME_FMT, &ctm);
 			end = strchr(end, '\0');
 			snprintf(end, MAX_PRINT, " (%s ago).",
 					utils::conv_time(time(nullptr) - mt)
@@ -147,9 +146,9 @@ static void putinfo(char *out, Json::Value *cmd)
 	}
 	if (atime) {
 		if (at) {
-			strcat(end, " Last used at ");
+			strcat(end, " Last used on ");
 			end = strchr(end, '\0');
-			strftime(end, MAX_PRINT, "%R %Z %d/%m/%Y", &atm);
+			strftime(end, MAX_PRINT, TIME_FMT, &ctm);
 			end = strchr(end, '\0');
 			snprintf(end, MAX_PRINT, " (%s ago).",
 					utils::conv_time(time(nullptr) - at)

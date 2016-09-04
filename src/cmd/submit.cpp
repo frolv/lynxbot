@@ -57,7 +57,7 @@ int CmdHandler::submit(char *out, struct command *c)
 	t = time(nullptr);
 
 	msgtm = *localtime(&t);
-	strftime(buf, MAX_MSG, "%Y-%m-%d %R", &msgtm);
+	strftime(buf, MAX_MSG, "%Y-%m-%d %H:%M", &msgtm);
 	fprintf(f, "[%s] ", buf);
 	argvcat(buf, c->argc, c->argv, l_optind, 1);
 	fprintf(f, "%s: %s\n", c->nick, buf);
