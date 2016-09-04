@@ -134,7 +134,7 @@ static int curr_status(char *buf, const char *channel, const cpr::Header *head)
 		snprintf(buf, MAX_MSG, "%s", response["status"].asCString());
 		return 1;
 	}
-	snprintf(buf, MAX_MSG, "could not parse channel data", CMDNAME);
+	snprintf(buf, MAX_MSG, "could not parse channel data");
 	return 0;
 }
 
