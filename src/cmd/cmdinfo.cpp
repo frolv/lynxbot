@@ -108,7 +108,6 @@ static void putinfo(char *out, Json::Value *cmd)
 	atm = *localtime(&at);
 	ctm = *localtime(&ct);
 	mtm = *localtime(&mt);
-	printf("%d %d %d\n", ctm.tm_hour, ctm.tm_min, ctm.tm_sec);
 
 	snprintf(out, MAX_MSG, "[CMDINFO] %s: ", (*cmd)["cmd"].asCString());
 	end = out + strlen(out);
