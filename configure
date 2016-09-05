@@ -5,6 +5,7 @@
 debug=false
 prefix="/usr/local"
 target="native"
+arch=
 cross_prefix=
 progname=lynxbot
 LDFLAGS="-lcurl -lpthread -lcrypto"
@@ -53,30 +54,36 @@ while [ "$1" ]; do
 	esac
 done
 
-echo PREFIX=$prefix > Makefile
-if [ $target = "mingw64" ]; then
+if [ $target = "native" ]; then
+	arch=`uname -sm | tr ' ' - | tr [:upper:] [:lower:]`
+	target="$target ($arch)"
+else
+	arch=$target
+fi
+
+if [ $arch = "mingw64" ]; then
 	progname="${progname}.exe"
 	cross_prefix="x86_64-w64-mingw32-"
 	LDFLAGS="-L/usr/x86_64-w64-mingw32/lib -lws2_32 -static-libgcc -static-libstdc++ $LDFLAGS"
 	winbuild=1
 	echo "RES=${cross_prefix}windres" >> Makefile
 	echo "RESFLAGS=-O coff" >> Makefile
-elif [ $target = "linux-x86_64" ]; then
+elif [ $arch = "linux-x86_64" ]; then
 	cross_prefix="x86_64-pc-linux-gnu-"
-else
-	target=`uname -sm | tr ' ' - | tr [:upper:] [:lower:]`
 fi
+
 if $debug; then
 	progname="${progname}-d"
 	CFLAGS="$CFLAGS -DDEBUG -g"
 	CXXFLAGS="$CXXFLAGS -DDEBUG -g"
-	OBJDIR="$OBJDIR/$target/dbg"
+	OBJDIR="$OBJDIR/$arch/dbg"
 else
 	CFLAGS="$CFLAGS -O2"
 	CXXFLAGS="$CXXFLAGS -O2"
-	OBJDIR="$OBJDIR/$target/rel"
+	OBJDIR="$OBJDIR/$arch/rel"
 fi
 
+echo PREFIX=$prefix > Makefile
 echo "CC=${cross_prefix}gcc" >> Makefile
 echo "CXX=${cross_prefix}g++" >> Makefile
 echo "CFLAGS=$CFLAGS" >> Makefile
