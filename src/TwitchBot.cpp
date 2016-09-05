@@ -8,6 +8,8 @@
 #include "timers.h"
 #include "TwitchBot.h"
 
+#define BUFFER_SIZE (MAX_MSG * 4)
+
 static const char *TWITCH_SERV = "irc.twitch.tv";
 static const char *TWITCH_PORT = "80";
 
@@ -131,7 +133,7 @@ void TwitchBot::disconnect()
 /* server_loop: continously receive and process data */
 void TwitchBot::server_loop()
 {
-	char buf[MAX_MSG * 4];
+	char buf[BUFFER_SIZE];
 	char *pos, *s;
 	int bytes, shift;
 	size_t len;
@@ -141,7 +143,7 @@ void TwitchBot::server_loop()
 	/* continously receive data from server */
 	while (1) {
 		shift = 0;
-		if ((bytes = cread(&m_client, pos, 4 * MAX_MSG - len)) < 0) {
+		if ((bytes = cread(&m_client, pos, BUFFER_SIZE - len)) < 0) {
 			perror("read");
 			fprintf(stderr, "LynxBot exiting.\n");
 			disconnect();
@@ -151,7 +153,7 @@ void TwitchBot::server_loop()
 		}
 		pos += bytes;
 		len += bytes;
-		if (len < 4 * MAX_MSG - 1) {
+		if (len < BUFFER_SIZE - 1) {
 			/* keep reading until full message has been received */
 			if (*(pos - 1) != '\n' && *(pos - 2) != '\r')
 				continue;
@@ -168,7 +170,7 @@ void TwitchBot::server_loop()
 		process_data(buf);
 		if (shift) {
 			strcpy(buf, s + 1);
-			len = 4 * MAX_MSG - len - 1;
+			len = BUFFER_SIZE - len - 1;
 			pos = buf + len;
 		} else {
 			pos = buf;
