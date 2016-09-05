@@ -131,16 +131,17 @@ void TwitchBot::disconnect()
 /* server_loop: continously receive and process data */
 void TwitchBot::server_loop()
 {
-	char buf[MAX_MSG * 8];
-	char *pos;
-	int bytes;
+	char buf[MAX_MSG * 4];
+	char *pos, *s;
+	int bytes, shift;
 	size_t len;
 
 	pos = buf;
 	len = 0;
 	/* continously receive data from server */
 	while (1) {
-		if ((bytes = cread(&m_client, pos, 8 * MAX_MSG - len)) < 0) {
+		shift = 0;
+		if ((bytes = cread(&m_client, pos, 4 * MAX_MSG - len)) < 0) {
 			perror("read");
 			fprintf(stderr, "LynxBot exiting.\n");
 			disconnect();
@@ -150,18 +151,29 @@ void TwitchBot::server_loop()
 		}
 		pos += bytes;
 		len += bytes;
-		if (len < 8 * MAX_LEN - 2) {
+		if (len < 4 * MAX_MSG - 1) {
 			/* keep reading until full message has been received */
 			if (*(pos - 1) != '\n' && *(pos - 2) != '\r')
 				continue;
 		} else {
 			/* end string at last newline, shift rest to front */
+			s = pos;
+			while (*--s != '\n')
+				--len;
+			*s = '\0';
+			shift = 1;
 		}
 
 		printf("[RECV] %s\n", buf);
 		process_data(buf);
-		pos = buf;
-		len = 0;
+		if (shift) {
+			strcpy(buf, s + 1);
+			len = 8 * MAX_MSG - len - 1;
+			pos = buf + len;
+		} else {
+			pos = buf;
+			len = 0;
+		}
 
 		if (!m_connected)
 			break;
