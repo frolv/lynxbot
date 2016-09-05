@@ -244,7 +244,9 @@
       "Steel platebody (t)",
       "Monk's robe top (g)",
       "Golden apron",
-      "Crier coat"
+      "Crier coat",
+      "Evil chicken wings",
+      "Elder chaos top"
    ],
    "boots" : [
       "Pink boots",
@@ -306,7 +308,8 @@
       "Samurai boots",
       "Mummy's feet",
       "Ankou socks",
-      "Boots of darkness"
+      "Boots of darkness",
+      "Evil chicken feet"
    ],
    "cape" : [
       "Red cape",
@@ -717,7 +720,9 @@
       "Golden chef's hat",
       "Black leprechaun hat",
       "Black unicorn mask",
-      "White unicorn mask"
+      "White unicorn mask",
+      "Evil chicken head",
+      "Elder chaos hood"
    ],
    "legs" : [
       "Priest gown",
@@ -913,7 +918,9 @@
       "Steel plateskirt (g)",
       "Steel platelegs (t)",
       "Steel plateskirt (t)",
-      "Monk's robe (g)"
+      "Monk's robe (g)",
+      "Evil chicken legs",
+      "Elder chaos robe"
    ],
    "shield" : [
       "Wooden shield",
@@ -1381,6 +1388,7 @@
       "Hosidius banner",
       "Lovakengj banner",
       "Piscarilius banner",
-      "Shayzien banner"
+      "Shayzien banner",
+      "Stale baguette"
    ]
 }
