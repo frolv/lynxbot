@@ -29,7 +29,8 @@ void check_channel(const char *channel, const char *token)
 	struct tm start;
 	std::istringstream ss;
 	const cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
-		{ "Authorization", "OAuth " + std::string(token) }};
+		{ "Authorization", "OAuth " + std::string(token) },
+		{ "Connection", "close" }};
 
 	if (strcmp(token, "NULL") == 0) {
 		chan_time = -1;
@@ -50,15 +51,9 @@ void check_channel(const char *channel, const char *token)
 	}
 
 	ss = std::istringstream(val["stream"]["created_at"].asString());
-#ifdef __linux__
-	ss.imbue(std::locale("en_US.utf-8"));
-#endif
-#ifdef _WIN32
-	ss.imbue(std::locale("en-US"));
-#endif
 	ss >> std::get_time(&start, "%Y-%m-%dT%H:%M:%S");
 	start.tm_isdst = 0;
-	chan_time = std::mktime(&start);
+	chan_time = mktime(&start);
 }
 
 /* bot_uptime: return how long bot has been running */

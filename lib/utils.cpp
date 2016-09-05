@@ -249,12 +249,6 @@ std::string utils::parse_time(const std::string &ftime, bool since)
 	std::ostringstream out;
 	std::istringstream ss(ftime);
 
-#ifdef __linux__
-	ss.imbue(std::locale("en_US.utf-8"));
-#endif
-#ifdef _WIN32
-	ss.imbue(std::locale("en-US"));
-#endif
 	ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
 	tm.tm_isdst = 0;
 	t = std::mktime(&tm);
