@@ -66,8 +66,6 @@ if [ $arch = "mingw64" ]; then
 	cross_prefix="x86_64-w64-mingw32-"
 	LDFLAGS="-L/usr/x86_64-w64-mingw32/lib -lws2_32 -static-libgcc -static-libstdc++ $LDFLAGS"
 	winbuild=1
-	echo "RES=${cross_prefix}windres" >> Makefile
-	echo "RESFLAGS=-O coff" >> Makefile
 elif [ $arch = "linux-x86_64" ]; then
 	cross_prefix="x86_64-pc-linux-gnu-"
 fi
@@ -91,6 +89,10 @@ echo "CXXFLAGS=$CXXFLAGS" >> Makefile
 echo "LDFLAGS=$LDFLAGS" >> Makefile
 echo "WINBUILD=$winbuild" >> Makefile
 echo "OBJDIR=$OBJDIR" >> Makefile
+if [ $arch = "mingw64" ]; then
+	echo "RES=${cross_prefix}windres" >> Makefile
+	echo "RESFLAGS=-O coff" >> Makefile
+fi
 
 echo PROGNAME=$progname >> Makefile
 echo USR=$USER >> Makefile
