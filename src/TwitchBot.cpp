@@ -158,7 +158,7 @@ void TwitchBot::server_loop()
 		} else {
 			/* end string at last newline, shift rest to front */
 			s = pos;
-			while (*--s != '\n')
+			while (*--s != '\n' && len)
 				--len;
 			*s = '\0';
 			shift = 1;
@@ -168,7 +168,7 @@ void TwitchBot::server_loop()
 		process_data(buf);
 		if (shift) {
 			strcpy(buf, s + 1);
-			len = 8 * MAX_MSG - len - 1;
+			len = 4 * MAX_MSG - len - 1;
 			pos = buf + len;
 		} else {
 			pos = buf;
