@@ -149,7 +149,7 @@ static int process(char *out, Giveaway *g, struct command *c,
 						c->argv[0], g->err());
 				return EXIT_FAILURE;
 			}
-			snprintf(s, MAX_MSG, "giveaways have been activated");
+			snprintf(s, MAX_MSG, "giveaways have been activated.");
 			break;
 		}
 	} else {
