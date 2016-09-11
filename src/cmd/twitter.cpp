@@ -14,7 +14,7 @@ CMDUSAGE("$twitter [-r] USER");
 int CmdHandler::twitter(char *out, struct command *c)
 {
 	int recent;
-	tw::Reader reader(m_auth);
+	tw::Reader reader(tw_auth);
 
 	int opt;
 	static struct l_option long_opts[] = {

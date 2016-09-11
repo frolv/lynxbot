@@ -52,8 +52,8 @@ int CmdHandler::delrec(char *out, struct command *c)
 			USAGEMSG(out, CMDNAME, AUSAGE);
 			return EXIT_FAILURE;
 		}
-		while (!m_evtp->messages()->empty())
-			m_evtp->delmsg(1);
+		while (!evtman->messages()->empty())
+			evtman->delmsg(1);
 		snprintf(out, MAX_MSG, "@%s, all recurring messages deleted.",
 				c->nick);
 		return EXIT_SUCCESS;
@@ -70,7 +70,7 @@ int CmdHandler::delrec(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (!m_evtp->delmsg(id)) {
+	if (!evtman->delmsg(id)) {
 		snprintf(out, MAX_MSG, "%s: invalid ID provided", c->argv[0]);
 		return EXIT_FAILURE;
 	}

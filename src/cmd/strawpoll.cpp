@@ -70,7 +70,7 @@ int CmdHandler::strawpoll(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	return create_poll(out, m_poll, c);
+	return create_poll(out, poll, c);
 }
 
 /* create_poll: create a strawpoll, return id */

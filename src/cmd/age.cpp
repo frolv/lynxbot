@@ -18,7 +18,7 @@ static const char *TWITCH_API = "https://api.twitch.tv/kraken";
 int CmdHandler::age(char *out, struct command *c)
 {
 	static cpr::Header head{{ "Accept","application/vnd.twitchtv.v3+json" },
-		{ "Authorization", "OAuth " + std::string(m_token) }};
+		{ "Authorization", "OAuth " + std::string(twitch_token) }};
 	cpr::Response resp;
 	Json::Reader reader;
 	Json::Value response;
@@ -40,7 +40,7 @@ int CmdHandler::age(char *out, struct command *c)
 		switch (opt) {
 		case 'f':
 			snprintf(url, MAX_MSG, "%s/users/%s/follows/channels/%s",
-					TWITCH_API, c->nick, m_channel);
+					TWITCH_API, c->nick, bot_channel);
 			msg = "following";
 			break;
 		case 'h':
@@ -48,7 +48,7 @@ int CmdHandler::age(char *out, struct command *c)
 			return EXIT_SUCCESS;
 		case 's':
 			snprintf(url, MAX_MSG, "%s/channels/%s/subscriptions/%s",
-					TWITCH_API, m_channel, c->nick);
+					TWITCH_API, bot_channel, c->nick);
 			msg = "subscribed to";
 			break;
 		case '?':
@@ -70,10 +70,10 @@ int CmdHandler::age(char *out, struct command *c)
 		snprintf(out, MAX_MSG, "%s: could not parse response", CMDNAME);
 	else if (!response.isMember("created_at"))
 		snprintf(out, MAX_MSG, "@%s, you are not %s %s.",
-				c->nick, msg, m_channel);
+				c->nick, msg, bot_channel);
 	else
 		snprintf(out, MAX_MSG, "@%s, you have been %s %s for %s.",
-				c->nick, msg, m_channel,
+				c->nick, msg, bot_channel,
 				utils::parse_time(response["created_at"]
 					.asString(), true).c_str());
 	return EXIT_SUCCESS;

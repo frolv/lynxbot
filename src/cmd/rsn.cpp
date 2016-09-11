@@ -44,7 +44,7 @@ int CmdHandler::rsn(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	return rsn_action(out, &m_rsns, c);
+	return rsn_action(out, &stored_rsns, c);
 }
 
 /* invalidargs: check if command arguments are invalid */

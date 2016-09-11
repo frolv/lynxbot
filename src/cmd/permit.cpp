@@ -62,7 +62,7 @@ int CmdHandler::permit(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (!m_modp->permit(c->argv[l_optind], amt)) {
+	if (!moderator->permit(c->argv[l_optind], amt)) {
 		snprintf(out, MAX_MSG, "%s: user '%s' is not currently in the "
 				"channel", c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;

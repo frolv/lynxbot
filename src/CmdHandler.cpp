@@ -8,32 +8,30 @@
 #include "CmdHandler.h"
 #include "lynxbot.h"
 
-CmdHandler::CmdHandler(const char *name, const char *channel,
-		const char *token, Moderator *mod, URLParser *urlp,
-		EventManager *evtp, Giveaway *givp, ConfigReader *cfgr,
-		tw::Authenticator *auth)
-	: m_name(name), m_channel(channel), m_token(token), m_modp(mod),
-	m_parsep(urlp), m_customCmds(NULL), m_evtp(evtp), m_givp(givp),
-	m_cfgr(cfgr), m_auth(auth), m_counting(false), m_gen(m_rd()),
-	m_status(EXIT_SUCCESS)
+CmdHandler::CmdHandler(const char *name, const char *channel, const char *token,
+		Moderator *mod, URLParser *urlp, EventManager *evt,
+		Giveaway *giv, ConfigReader *cfgr, tw::Authenticator *auth)
+	: bot_name(name), bot_channel(channel), twitch_token(token),
+	moderator(mod), urlparser(urlp), custom_cmds(NULL), evtman(evt),
+	giveaway(giv), cfg(cfgr), tw_auth(auth), count_active(false), gen(rd()),
+	return_status(EXIT_SUCCESS)
 {
-	populate_cmd();
-	m_poll[0] = '\0';
+	add_commands();
+	poll[0] = '\0';
 
-	m_customCmds = new CustomHandler(&m_defaultCmds, &m_cooldowns,
-			m_wheel.cmd(), name, channel);
-	if (!m_customCmds->isActive()) {
+	custom_cmds = new CustomHandler(&default_cmds, &cooldowns,
+			swheel.cmd(), name, channel);
+	if (!custom_cmds->active()) {
 		fprintf(stderr, "Custom commands will be "
 				"disabled for this session\n");
 		WAIT_INPUT();
 	}
 
 	/* read all responses from file */
-	m_responding = utils::readJSON("responses.json", m_responses);
-	if (m_responding) {
+	if ((responding = utils::readJSON("responses.json", responses))) {
 		/* add response cooldowns to TimerManager */
-		for (auto &val : m_responses["responses"])
-			m_cooldowns.add('_' + val["name"].asString(),
+		for (auto &val : responses["responses"])
+			cooldowns.add('_' + val["name"].asString(),
 				val["cooldown"].asInt());
 	} else {
 		fprintf(stderr, "Failed to read responses.json. "
@@ -41,16 +39,11 @@ CmdHandler::CmdHandler(const char *name, const char *channel,
 		WAIT_INPUT();
 	}
 
-	/* set all command cooldowns */
-	for (auto &p : m_defaultCmds)
-		m_cooldowns.add(p.first);
-	m_cooldowns.add(m_wheel.name());
-
 	/* read extra 8ball responses */
-	utils::split(m_cfgr->get("extra8ballresponses"), '\n', m_eightball);
+	utils::split(cfg->get("extra8ballresponses"), '\n', eightball_responses);
 
 	/* read fashion.json */
-	if (!utils::readJSON("fashion.json", m_fashion))
+	if (!utils::readJSON("fashion.json", fashion))
 		fprintf(stderr, "Could not read fashion.json\n");
 
 	populate_help();
@@ -58,7 +51,7 @@ CmdHandler::CmdHandler(const char *name, const char *channel,
 
 CmdHandler::~CmdHandler()
 {
-	delete m_customCmds;
+	delete custom_cmds;
 }
 
 /* process_cmd: run message as a bot command and store output in out */
@@ -97,11 +90,11 @@ int CmdHandler::process_resp(char *out, char *msg, char *nick)
 	std::string name, regex;
 
 	*out = '\0';
-	if (!m_responding)
+	if (!responding)
 		return 0;
 
 	/* test the message against all response regexes */
-	for (auto &val : m_responses["responses"]) {
+	for (auto &val : responses["responses"]) {
 		name = '_' + val["name"].asString();
 		regex = val["regex"].asString();
 
@@ -112,8 +105,8 @@ int CmdHandler::process_resp(char *out, char *msg, char *nick)
 			continue;
 		}
 		if (std::regex_search(message.begin(), message.end(), match,
-				respreg) && m_cooldowns.ready(name)) {
-			m_cooldowns.setUsed(name);
+				respreg) && cooldowns.ready(name)) {
+			cooldowns.setUsed(name);
 			snprintf(out, MAX_MSG, "@%s, %s", nick,
 					val["response"].asCString());
 			return 1;
@@ -125,7 +118,7 @@ int CmdHandler::process_resp(char *out, char *msg, char *nick)
 
 bool CmdHandler::counting() const
 {
-	return m_counting;
+	return count_active;
 }
 
 /* count: count message in m_messageCounts */
@@ -135,26 +128,26 @@ void CmdHandler::count(const char *nick, const char *message)
 	std::transform(msg.begin(), msg.end(), msg.begin(), tolower);
 
 	/* if nick is not found */
-	if (std::find(m_usersCounted.begin(), m_usersCounted.end(), nick)
-			== m_usersCounted.end()) {
-		m_usersCounted.push_back(nick);
-		if (m_messageCounts.find(msg) == m_messageCounts.end())
-			m_messageCounts.insert({ msg, 1 });
+	if (std::find(counted_users.begin(), counted_users.end(), nick)
+			== counted_users.end()) {
+		counted_users.push_back(nick);
+		if (message_counts.find(msg) == message_counts.end())
+			message_counts.insert({ msg, 1 });
 		else
-			m_messageCounts.find(msg)->second++;
+			message_counts.find(msg)->second++;
 	}
 }
 
 /* process_default: run a default command */
 void CmdHandler::process_default(char *out, struct command *c)
 {
-	if (P_ALSUB(c->privileges) || m_cooldowns.ready(c->argv[0])) {
-		m_status = (this->*m_defaultCmds[c->argv[0]])(out, c);
-		m_cooldowns.setUsed(c->argv[0]);
+	if (P_ALSUB(c->privileges) || cooldowns.ready(c->argv[0])) {
+		return_status = (this->*default_cmds[c->argv[0]])(out, c);
+		cooldowns.setUsed(c->argv[0]);
 	} else {
 		snprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
 				c->nick, c->argv[0]);
-		m_status = EXIT_FAILURE;
+		return_status = EXIT_FAILURE;
 	}
 }
 
@@ -163,40 +156,38 @@ void CmdHandler::process_custom(char *out, struct command *c)
 {
 	Json::Value *ccmd;
 
-	ccmd = m_customCmds->getcom(c->argv[0]);
+	ccmd = custom_cmds->getcom(c->argv[0]);
 	if ((*ccmd)["active"].asBool() && (P_ALSUB(c->privileges) ||
-				m_cooldowns.ready((*ccmd)["cmd"].asString()))) {
+				cooldowns.ready((*ccmd)["cmd"].asString()))) {
 		/* set access time and increase uses */
 		(*ccmd)["atime"] = (Json::Int64)time(nullptr);
 		(*ccmd)["uses"] = (*ccmd)["uses"].asInt() + 1;
-		snprintf(out, MAX_MSG, "%s",
-				m_customCmds->format(ccmd, c->nick).c_str());
-		m_cooldowns.setUsed((*ccmd)["cmd"].asString());
-		m_customCmds->write();
-		m_status = EXIT_SUCCESS;
+		snprintf(out, MAX_MSG, "%s", custom_cmds->format(ccmd, c->nick));
+		cooldowns.setUsed((*ccmd)["cmd"].asString());
+		custom_cmds->write();
+		return_status = EXIT_SUCCESS;
 		return;
 	}
 	if (!(*ccmd)["active"].asBool()) {
 		snprintf(out, MAX_MSG, "/w %s command is currently inactive: %s",
 				c->nick, c->argv[0]);
-		m_status = EXIT_FAILURE;
+		return_status = EXIT_FAILURE;
 		return;
 	}
 	snprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
 			c->nick, c->argv[0]);
-	m_status = EXIT_FAILURE;
+	return_status = EXIT_FAILURE;
 }
 
 /* source: determine whether cmd is a default or custom command */
 uint8_t CmdHandler::source(const char *cmd)
 {
-	if (m_defaultCmds.find(cmd) != m_defaultCmds.end())
+	Json::Value *c;
+
+	if (default_cmds.find(cmd) != default_cmds.end())
 		return DEFAULT;
-	if (m_customCmds->isActive()) {
-		Json::Value *c;
-		if (!(c = m_customCmds->getcom(cmd))->empty())
+	if (custom_cmds->active() && (c = custom_cmds->getcom(cmd)))
 			return CUSTOM;
-	}
 	return 0;
 }
 
@@ -208,13 +199,13 @@ int CmdHandler::getrsn(char *out, size_t len, const char *text,
 	char *s;
 
 	if (username) {
-		if (!(rsn = m_rsns.rsn(text))) {
+		if (!(rsn = stored_rsns.rsn(text))) {
 			snprintf(out, len, "no RSN set for user %s", text);
 			return 0;
 		}
 	} else {
 		if (strcmp(text, ".") == 0) {
-			if (!(rsn = m_rsns.rsn(nick))) {
+			if (!(rsn = stored_rsns.rsn(nick))) {
 				snprintf(out, len, "no RSN set for user %s",
 						nick);
 				return 0;
@@ -230,92 +221,97 @@ int CmdHandler::getrsn(char *out, size_t len, const char *text,
 }
 
 /* populateCmds: initialize pointers to all default commands */
-void CmdHandler::populate_cmd()
+void CmdHandler::add_commands()
 {
 	/* regular commands */
-	m_defaultCmds["8ball"] = &CmdHandler::eightball;
-	m_defaultCmds["about"] = &CmdHandler::about;
-	m_defaultCmds["active"] = &CmdHandler::active;
-	m_defaultCmds["age"] = &CmdHandler::age;
-	m_defaultCmds["calc"] = &CmdHandler::calc;
-	m_defaultCmds["cgrep"] = &CmdHandler::cgrep;
-	m_defaultCmds["cmdinfo"] = &CmdHandler::cmdinfo;
-	m_defaultCmds["cml"] = &CmdHandler::cml;
-	m_defaultCmds["commands"] = &CmdHandler::manual;
-	m_defaultCmds["duck"] = &CmdHandler::duck;
-	m_defaultCmds["ehp"] = &CmdHandler::ehp;
-	m_defaultCmds["fashiongen"] = &CmdHandler::fashiongen;
-	m_defaultCmds["ge"] = &CmdHandler::ge;
-	m_defaultCmds["help"] = &CmdHandler::man;
-	m_defaultCmds["level"] = &CmdHandler::level;
-	m_defaultCmds["lvl"] = &CmdHandler::level;
-	m_defaultCmds["man"] = &CmdHandler::man;
-	m_defaultCmds["manual"] = &CmdHandler::manual;
-	m_defaultCmds["rsn"] = &CmdHandler::rsn;
-	m_defaultCmds["submit"] = &CmdHandler::submit;
-	m_defaultCmds["twitter"] = &CmdHandler::twitter;
-	m_defaultCmds["uptime"] = &CmdHandler::uptime;
-	m_defaultCmds["xp"] = &CmdHandler::xp;
-	m_defaultCmds[m_wheel.cmd()] = &CmdHandler::wheel;
+	default_cmds["8ball"] = &CmdHandler::eightball;
+	default_cmds["about"] = &CmdHandler::about;
+	default_cmds["active"] = &CmdHandler::active;
+	default_cmds["age"] = &CmdHandler::age;
+	default_cmds["calc"] = &CmdHandler::calc;
+	default_cmds["cgrep"] = &CmdHandler::cgrep;
+	default_cmds["cmdinfo"] = &CmdHandler::cmdinfo;
+	default_cmds["cml"] = &CmdHandler::cml;
+	default_cmds["commands"] = &CmdHandler::manual;
+	default_cmds["duck"] = &CmdHandler::duck;
+	default_cmds["ehp"] = &CmdHandler::ehp;
+	default_cmds["fashiongen"] = &CmdHandler::fashiongen;
+	default_cmds["ge"] = &CmdHandler::ge;
+	default_cmds["help"] = &CmdHandler::man;
+	default_cmds["level"] = &CmdHandler::level;
+	default_cmds["lvl"] = &CmdHandler::level;
+	default_cmds["man"] = &CmdHandler::man;
+	default_cmds["manual"] = &CmdHandler::manual;
+	default_cmds["rsn"] = &CmdHandler::rsn;
+	default_cmds["submit"] = &CmdHandler::submit;
+	default_cmds["twitter"] = &CmdHandler::twitter;
+	default_cmds["uptime"] = &CmdHandler::uptime;
+	default_cmds["xp"] = &CmdHandler::xp;
+	default_cmds[swheel.cmd()] = &CmdHandler::wheel;
 
 	/* moderator commands */
-	m_defaultCmds["ac"] = &CmdHandler::addcom;
-	m_defaultCmds["addcom"] = &CmdHandler::addcom;
-	m_defaultCmds["addrec"] = &CmdHandler::addrec;
-	m_defaultCmds["ar"] = &CmdHandler::addrec;
-	m_defaultCmds["count"] = &CmdHandler::count;
-	m_defaultCmds["dc"] = &CmdHandler::delcom;
-	m_defaultCmds["delcom"] = &CmdHandler::delcom;
-	m_defaultCmds["delrec"] = &CmdHandler::delrec;
-	m_defaultCmds["dr"] = &CmdHandler::delrec;
-	m_defaultCmds["ec"] = &CmdHandler::editcom;
-	m_defaultCmds["editcom"] = &CmdHandler::editcom;
-	m_defaultCmds["er"] = &CmdHandler::editrec;
-	m_defaultCmds["editrec"] = &CmdHandler::editrec;
-	m_defaultCmds["mod"] = &CmdHandler::mod;
-	m_defaultCmds["permit"] = &CmdHandler::permit;
-	m_defaultCmds["setgiv"] = &CmdHandler::setgiv;
-	m_defaultCmds["setrec"] = &CmdHandler::setrec;
-	m_defaultCmds["showrec"] = &CmdHandler::showrec;
-	m_defaultCmds["sp"] = &CmdHandler::strawpoll;
-	m_defaultCmds["status"] = &CmdHandler::status;
-	m_defaultCmds["strawpoll"] = &CmdHandler::strawpoll;
-	m_defaultCmds["whitelist"] = &CmdHandler::whitelist;
+	default_cmds["ac"] = &CmdHandler::addcom;
+	default_cmds["addcom"] = &CmdHandler::addcom;
+	default_cmds["addrec"] = &CmdHandler::addrec;
+	default_cmds["ar"] = &CmdHandler::addrec;
+	default_cmds["count"] = &CmdHandler::count;
+	default_cmds["dc"] = &CmdHandler::delcom;
+	default_cmds["delcom"] = &CmdHandler::delcom;
+	default_cmds["delrec"] = &CmdHandler::delrec;
+	default_cmds["dr"] = &CmdHandler::delrec;
+	default_cmds["ec"] = &CmdHandler::editcom;
+	default_cmds["editcom"] = &CmdHandler::editcom;
+	default_cmds["er"] = &CmdHandler::editrec;
+	default_cmds["editrec"] = &CmdHandler::editrec;
+	default_cmds["mod"] = &CmdHandler::mod;
+	default_cmds["permit"] = &CmdHandler::permit;
+	default_cmds["setgiv"] = &CmdHandler::setgiv;
+	default_cmds["setrec"] = &CmdHandler::setrec;
+	default_cmds["showrec"] = &CmdHandler::showrec;
+	default_cmds["sp"] = &CmdHandler::strawpoll;
+	default_cmds["status"] = &CmdHandler::status;
+	default_cmds["strawpoll"] = &CmdHandler::strawpoll;
+	default_cmds["whitelist"] = &CmdHandler::whitelist;
+
+	/* set all command cooldowns */
+	for (auto &p : default_cmds)
+		cooldowns.add(p.first);
+	cooldowns.add(swheel.name());
 }
 
 /* populateHelp: fill m_help with manual page names */
 void CmdHandler::populate_help()
 {
-	m_help[m_wheel.cmd()] = "selection-wheel";
-	m_help["wheel"] = "selection-wheel";
-	m_help["ac"] = "addcom";
-	m_help["dc"] = "delcom";
-	m_help["ec"] = "editcom";
-	m_help["ar"] = "addrec";
-	m_help["dr"] = "delrec";
-	m_help["er"] = "editrec";
-	m_help["lvl"] = "level";
-	m_help["sp"] = "strawpoll";
-	m_help["automated-responses"] = "automated-responses";
-	m_help["responses"] = "automated-responses";
-	m_help["custom"] = "custom-commands";
-	m_help["custom-commands"] = "custom-commands";
-	m_help["giveaway"] = "giveaways";
-	m_help["giveaways"] = "giveaways";
-	m_help["help"] = "man";
-	m_help["moderation"] = "moderation";
-	m_help["moderator"] = "moderation";
-	m_help["recurring"] = "recurring-messages";
-	m_help["recurring-messages"] = "recurring-messages";
-	m_help["rsns"] = "rsn-management";
-	m_help["rsn-management"] = "rsn-management";
-	m_help["submessage"] = "subscriber-message";
-	m_help["tweet"] = "tweet-reader";
-	m_help["tweet-reader"] = "tweet-reader";
-	m_help["twitter"] = "tweet-reader";
-	m_help["twitch"] = "twitch-authorization";
-	m_help["twitchauth"] = "twitch-authorization";
-	m_help["twitch-autorization"] = "twitch-authorization";
-	m_help["auth"] = "twitch-authorization";
-	m_help["authorization"] = "twitch-authorization";
+	help[swheel.cmd()] = "selection-wheel";
+	help["wheel"] = "selection-wheel";
+	help["ac"] = "addcom";
+	help["dc"] = "delcom";
+	help["ec"] = "editcom";
+	help["ar"] = "addrec";
+	help["dr"] = "delrec";
+	help["er"] = "editrec";
+	help["lvl"] = "level";
+	help["sp"] = "strawpoll";
+	help["automated-responses"] = "automated-responses";
+	help["responses"] = "automated-responses";
+	help["custom"] = "custom-commands";
+	help["custom-commands"] = "custom-commands";
+	help["giveaway"] = "giveaways";
+	help["giveaways"] = "giveaways";
+	help["help"] = "man";
+	help["moderation"] = "moderation";
+	help["moderator"] = "moderation";
+	help["recurring"] = "recurring-messages";
+	help["recurring-messages"] = "recurring-messages";
+	help["rsns"] = "rsn-management";
+	help["rsn-management"] = "rsn-management";
+	help["submessage"] = "subscriber-message";
+	help["tweet"] = "tweet-reader";
+	help["tweet-reader"] = "tweet-reader";
+	help["twitter"] = "tweet-reader";
+	help["twitch"] = "twitch-authorization";
+	help["twitchauth"] = "twitch-authorization";
+	help["twitch-autorization"] = "twitch-authorization";
+	help["auth"] = "twitch-authorization";
+	help["authorization"] = "twitch-authorization";
 }

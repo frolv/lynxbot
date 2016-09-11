@@ -44,9 +44,10 @@ int CmdHandler::eightball(char *out, struct command *c)
 		snprintf(out, MAX_MSG, "[8 BALL] Ask me a question.");
 		status = EXIT_FAILURE;
 	} else {
-		std::uniform_int_distribution<> dis(0, m_eightball.size());
+		std::uniform_int_distribution<> dis(
+				0, eightball_responses.size());
 		snprintf(out, MAX_MSG, "[8 BALL] @%s, %s.", c->nick,
-				m_eightball[dis(m_gen)].c_str());
+				eightball_responses[dis(gen)].c_str());
 	}
 	return status;
 }

@@ -56,13 +56,13 @@ int CmdHandler::whitelist(char *out, struct command *c)
 			snprintf(out, MAX_MSG, "%s: no website specified",
 					c->argv[0]);
 			status = EXIT_FAILURE;
-		} else if (m_modp->paste()) {
+		} else if (moderator->paste()) {
 			snprintf(out, MAX_MSG, "[WHITELIST] %s",
-					utils::upload(m_modp->
+					utils::upload(moderator->
 						fmt_whitelist()).c_str());
 		} else {
 			snprintf(out, MAX_MSG, "[WHITELIST] %s",
-					m_modp->fmt_whitelist().c_str());
+					moderator->fmt_whitelist().c_str());
 		}
 		return status;
 	}
@@ -74,13 +74,13 @@ int CmdHandler::whitelist(char *out, struct command *c)
 
 	snprintf(out, MAX_MSG, "@%s, ", c->nick);
 	s = strchr(out, '\0');
-	if (m_parsep->parse(c->argv[l_optind])) {
+	if (urlparser->parse(c->argv[l_optind])) {
 		/* extract domain and add to whitelist */
 		snprintf(url, MAX_URL, "%s%s",
-				m_parsep->getLast()->subdomain.c_str(),
-				m_parsep->getLast()->domain.c_str());
+				urlparser->getLast()->subdomain.c_str(),
+				urlparser->getLast()->domain.c_str());
 		if (del) {
-			if (m_modp->delurl(url))
+			if (moderator->delurl(url))
 				snprintf(s, MAX_MSG, "%s has been removed "
 						"from the whitelist.", url);
 			else
@@ -88,7 +88,7 @@ int CmdHandler::whitelist(char *out, struct command *c)
 						"whitelist.", url);
 			return status;
 		}
-		if (m_modp->whitelist(url))
+		if (moderator->whitelist(url))
 			snprintf(s, MAX_MSG, "%s has beed whitelisted.", url);
 		else
 			snprintf(s, MAX_MSG, "%s is already on the whitelist.",

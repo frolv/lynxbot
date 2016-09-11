@@ -75,7 +75,7 @@ int CmdHandler::addrec(char *out, struct command *c)
 	}
 
 	argvcat(msg, c->argc, c->argv, l_optind, 1);
-	if (!m_evtp->addmsg(msg, cooldown))
+	if (!evtman->addmsg(msg, cooldown))
 		snprintf(out, MAX_MSG, "%s: limit of 5 recurring "
 				"messages reached", c->argv[0]);
 	else

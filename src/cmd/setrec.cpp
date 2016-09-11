@@ -43,11 +43,11 @@ int CmdHandler::setrec(char *out, struct command *c)
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		status = EXIT_FAILURE;
 	} else if (strcmp(c->argv[l_optind], "on") == 0) {
-		m_evtp->activate();
+		evtman->activate();
 		snprintf(out, MAX_MSG, "@%s, recurring mesasges enabled.",
 				c->nick);
 	} else if (strcmp(c->argv[l_optind], "off") == 0) {
-		m_evtp->deactivate();
+		evtman->deactivate();
 		snprintf(out, MAX_MSG, "@%s, recurring mesasges disabled.",
 				c->nick);
 	} else {

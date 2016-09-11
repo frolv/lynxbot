@@ -37,7 +37,7 @@ int CmdHandler::ge(char *out, struct command *c)
 		{ 0, 0, 0 }
 	};
 
-	if (!m_GEReader.active()) {
+	if (!gereader.active()) {
 		snprintf(out, MAX_MSG, "%s: GE reader is inactive", c->argv[0]);
 		return EXIT_FAILURE;
 	}
@@ -83,7 +83,7 @@ int CmdHandler::ge(char *out, struct command *c)
 		*s = ' ';
 
 	/* find item in database */
-	if ((item = m_GEReader.getItem(buf)).empty()) {
+	if ((item = gereader.getItem(buf)).empty()) {
 		snprintf(out, MAX_MSG, "%s: item not found: %s",
 				c->argv[0], buf);
 		return EXIT_FAILURE;

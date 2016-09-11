@@ -94,7 +94,7 @@ int CmdHandler::editrec(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (id < 1 || (size_t)id > m_evtp->messages()->size()) {
+	if (id < 1 || (size_t)id > evtman->messages()->size()) {
 		snprintf(out, MAX_MSG, "%s: invalid ID: %ld", c->argv[0], id);
 		return EXIT_FAILURE;
 	}
@@ -112,7 +112,7 @@ int CmdHandler::editrec(char *out, struct command *c)
 	}
 
 	if (app || sedcmd)
-		strcpy(response, m_evtp->messages()->at(id - 1).first.c_str());
+		strcpy(response, evtman->messages()->at(id - 1).first.c_str());
 
 	if (sedcmd) {
 		if (l_optind != c->argc - 1) {
@@ -136,7 +136,7 @@ int CmdHandler::editrec(char *out, struct command *c)
 	}
 	argvcat(response + strlen(response), c->argc, c->argv, l_optind + 1, 1);
 
-	return edit_recurring(out, m_evtp, id, c, response);
+	return edit_recurring(out, evtman, id, c, response);
 }
 
 /* edit_recurring: edit a recurring message */

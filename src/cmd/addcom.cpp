@@ -31,7 +31,7 @@ int CmdHandler::addcom(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (!m_customCmds->isActive()) {
+	if (!custom_cmds->active()) {
 		snprintf(out, MAX_MSG, "%s: custom commands are "
 				"currently disabled", c->argv[0]);
 		return EXIT_FAILURE;
@@ -75,7 +75,7 @@ int CmdHandler::addcom(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	return create(out, m_customCmds, c, cooldown);
+	return create(out, custom_cmds, c, cooldown);
 }
 
 /* create: create a custom command */
@@ -88,8 +88,7 @@ static int create(char *out, CustomHandler *cch, struct command *c,
 	cmd = c->argv[l_optind];
 	argvcat(resp, c->argc, c->argv, ++l_optind, 1);
 	if (!cch->addcom(cmd, resp, c->nick, cooldown)) {
-		snprintf(out, MAX_MSG, "%s: %s", c->argv[0],
-				cch->error().c_str());
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0], cch->error());
 		return EXIT_FAILURE;
 	}
 	snprintf(out, MAX_MSG, "@%s, command $%s has been added with a %ld"

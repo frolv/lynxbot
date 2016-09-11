@@ -39,9 +39,9 @@ int CmdHandler::active(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (!*m_poll)
+	if (!*poll)
 		snprintf(out, MAX_MSG, "[ACTIVE] no poll has been created");
 	else
-		snprintf(out, MAX_MSG, "[ACTIVE] %s/%s", SP_HOST, m_poll);
+		snprintf(out, MAX_MSG, "[ACTIVE] %s/%s", SP_HOST, poll);
 	return EXIT_SUCCESS;
 }

@@ -27,7 +27,7 @@ static int ign;
 /* which commands to search through */
 static int type;
 
-static int findcmds(char *out, const CmdHandler::commandMap *cmdmap,
+static int findcmds(char *out, const CmdHandler::cmdmap *cmap,
 		const Json::Value *customs, const char *pat);
 static void format(char *out, const char **def, const char **cus);
 static void format_ul(char *out, const char **def, const char **cus);
@@ -80,12 +80,12 @@ int CmdHandler::cgrep(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	return findcmds(out, &m_defaultCmds, m_customCmds->commands(),
+	return findcmds(out, &default_cmds, custom_cmds->commands(),
 				c->argv[l_optind]);
 }
 
 /* findcmds: find any bot commands that match pat */
-static int findcmds(char *out, const CmdHandler::commandMap *cmdmap,
+static int findcmds(char *out, const CmdHandler::cmdmap *cmap,
 		const Json::Value *customs, const char *pat)
 {
 	const char **def, **cus;
@@ -106,14 +106,14 @@ static int findcmds(char *out, const CmdHandler::commandMap *cmdmap,
 		return EXIT_FAILURE;
 	}
 
-	def = (const char **)malloc((cmdmap->size() + 1) * sizeof(*def));
+	def = (const char **)malloc((cmap->size() + 1) * sizeof(*def));
 	cus = (const char **)malloc(((*customs)["commands"].size() + 1)
 			* sizeof(*cus));
 
 	nmatch = cmdlen = i = j = 0;
 	/* search default commands */
 	if (type == ALL || type == DEFAULT) {
-		for (const auto &p : *cmdmap) {
+		for (const auto &p : *cmap) {
 			if (std::regex_search(p.first.begin(), p.first.end(),
 						match, reg)) {
 				++nmatch;

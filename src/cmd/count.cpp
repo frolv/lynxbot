@@ -51,36 +51,36 @@ int CmdHandler::count(char *out, struct command *c)
 
 	if (strcmp(c->argv[l_optind], "start") == 0) {
 		/* begin a new count */
-		if (m_counting) {
+		if (count_active) {
 			snprintf(out, MAX_MSG, "%s: count is already running",
 					c->argv[0]);
 			return EXIT_FAILURE;
 		}
-		m_usersCounted.clear();
-		m_messageCounts.clear();
-		m_counting = true;
+		counted_users.clear();
+		message_counts.clear();
+		count_active = true;
 		snprintf(out, MAX_MSG, "Message counting has begun. Prepend "
 				"your message with a '+' to have it counted.");
 	} else if (strcmp(c->argv[l_optind], "stop") == 0) {
 		/* end the current count */
-		if (!m_counting) {
+		if (!count_active) {
 			snprintf(out, MAX_MSG, "%s: no active count",
 					c->argv[0]);
 			return EXIT_FAILURE;
 		}
-		m_counting = false;
+		count_active = false;
 		snprintf(out, MAX_MSG, "Count ended. Use \"$count display\" "
 				"to view results.");
 	} else if (strcmp(c->argv[l_optind], "display") == 0) {
 		/* display results from last count */
-		if (m_counting)
+		if (count_active)
 			snprintf(out, MAX_MSG, "%s: end count before "
 					"viewing results", c->argv[0]);
-		else if (m_messageCounts.empty())
+		else if (message_counts.empty())
 			snprintf(out, MAX_MSG, "%s: nothing to display",
 					c->argv[0]);
 		else
-			getresults(out, &m_messageCounts);
+			getresults(out, &message_counts);
 	} else {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 	}

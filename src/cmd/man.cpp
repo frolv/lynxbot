@@ -44,12 +44,12 @@ int CmdHandler::man(char *out, struct command *c)
 	}
 
 	snprintf(url, MAX_URL, BOT_WEBSITE "/manual/");
-	if (m_help.find(c->argv[l_optind]) != m_help.end())
+	if (help.find(c->argv[l_optind]) != help.end())
 		snprintf(out, MAX_MSG, "[MAN] %s%s.html", url,
-				m_help[c->argv[l_optind]].c_str());
-	else if (m_defaultCmds.find(c->argv[l_optind]) != m_defaultCmds.end())
+				help[c->argv[l_optind]].c_str());
+	else if (default_cmds.find(c->argv[l_optind]) != default_cmds.end())
 		snprintf(out, MAX_MSG, "[MAN] %s%s.html", url, c->argv[l_optind]);
-	else if (!(ccmd = m_customCmds->getcom(c->argv[l_optind]))->empty())
+	else if ((ccmd = custom_cmds->getcom(c->argv[l_optind])))
 		snprintf(out, MAX_MSG, "[MAN] '%s' is a custom command",
 				c->argv[l_optind]);
 	else

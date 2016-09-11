@@ -62,7 +62,7 @@ int CmdHandler::about(char *out, struct command *c)
 	default:
 		snprintf(out, MAX_MSG, "[ABOUT] %s is running " BOT_NAME
 				" " BOT_VERSION ". Find out more at "
-				BOT_WEBSITE, m_name);
+				BOT_WEBSITE, bot_name);
 		break;
 	}
 	return EXIT_SUCCESS;

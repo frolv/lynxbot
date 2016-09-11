@@ -80,7 +80,7 @@ int CmdHandler::cmdinfo(char *out, struct command *c)
 				c->argv[l_optind]);
 		break;
 	case CUSTOM:
-		putinfo(out, m_customCmds->getcom(c->argv[l_optind]));
+		putinfo(out, custom_cmds->getcom(c->argv[l_optind]));
 		break;
 	default:
 		snprintf(out, MAX_MSG, "%s: command not found: %s",

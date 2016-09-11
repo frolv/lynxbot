@@ -1,19 +1,21 @@
-#pragma once
+#ifndef CMDHANDLER_H
+#define CMDHANDLER_H
 
-#include <unordered_map>
 #include <random>
 #include <string>
 #include <tw/authenticator.h>
-#include "Moderator.h"
-#include "GEReader.h"
-#include "TimerManager.h"
-#include "EventManager.h"
-#include "SelectionWheel.h"
-#include "URLParser.h"
-#include "Giveaway.h"
-#include "RSNList.h"
+#include <unordered_map>
 #include "config.h"
+#include "EventManager.h"
+#include "GEReader.h"
+#include "Giveaway.h"
+#include "lynxbot.h"
+#include "Moderator.h"
 #include "permissions.h"
+#include "RSNList.h"
+#include "SelectionWheel.h"
+#include "TimerManager.h"
+#include "URLParser.h"
 
 #define DEFAULT 1
 #define CUSTOM  2
@@ -32,15 +34,14 @@ class RSNList;
 class ConfigReader;
 
 class CmdHandler {
-
 	public:
 		typedef int(CmdHandler::*cmdfun)(char *, struct command *);
-		typedef std::unordered_map<std::string, cmdfun> commandMap;
+		typedef std::unordered_map<std::string, cmdfun> cmdmap;
 
 		CmdHandler(const char *name, const char *channel,
 				const char *token, Moderator *mod,
-				URLParser *urlp, EventManager *evtp,
-				Giveaway *givp, ConfigReader *cfgr,
+				URLParser *urlp, EventManager *evt,
+				Giveaway *giv, ConfigReader *cfgr,
 				tw::Authenticator *auth);
 		~CmdHandler();
 
@@ -50,33 +51,33 @@ class CmdHandler {
 		void count(const char *nick, const char *message);
 
 	private:
-		const char *m_name;
-		const char *m_channel;
-		const char *m_token;
-		Moderator *m_modp;
-		URLParser *m_parsep;
-		commandMap m_defaultCmds;
-		GEReader m_GEReader;
-		TimerManager m_cooldowns;
-		SelectionWheel m_wheel;
-		CustomHandler *m_customCmds;
-		EventManager *m_evtp;
-		Giveaway *m_givp;
-		RSNList m_rsns;
-		ConfigReader *m_cfgr;
-		tw::Authenticator *m_auth;
-		Json::Value m_responses;
-		Json::Value m_fashion;
-		bool m_responding;
-		bool m_counting;
-		std::vector<std::string> m_usersCounted;
-		std::unordered_map<std::string, uint16_t> m_messageCounts;
-		std::unordered_map<std::string, std::string> m_help;
-		std::random_device m_rd;
-		std::mt19937 m_gen;
-		char m_poll[MAX_LEN];
-		int m_status;
-		std::vector<std::string> m_eightball = {
+		const char *bot_name;
+		const char *bot_channel;
+		const char *twitch_token;
+		Moderator *moderator;
+		URLParser *urlparser;
+		cmdmap default_cmds;
+		GEReader gereader;
+		TimerManager cooldowns;
+		SelectionWheel swheel;
+		CustomHandler *custom_cmds;
+		EventManager *evtman;
+		Giveaway *giveaway;
+		RSNList stored_rsns;
+		ConfigReader *cfg;
+		tw::Authenticator *tw_auth;
+		Json::Value responses;
+		Json::Value fashion;
+		bool responding;
+		bool count_active;
+		std::vector<std::string> counted_users;
+		std::unordered_map<std::string, uint16_t> message_counts;
+		std::unordered_map<std::string, std::string> help;
+		std::random_device rd;
+		std::mt19937 gen;
+		char poll[MAX_LEN];
+		int return_status;
+		std::vector<std::string> eightball_responses = {
 			"It is certain",
 			"It is decidedly so",
 			"Without a doubt",
@@ -92,7 +93,8 @@ class CmdHandler {
 			"Better not tell you now",
 			"Cannot predict now",
 			"Concentrate and ask again",
-			"Don't count on it", "My reply is no",
+			"Don't count on it",
+			"My reply is no",
 			"My sources say no",
 			"Outlook not so good",
 			"Very doubtful"
@@ -145,46 +147,44 @@ class CmdHandler {
 		uint8_t source(const char *cmd);
 		int getrsn(char *out, size_t len, const char *text,
 				const char *nick, int username = 0);
-		void populate_cmd();
+		void add_commands();
 		void populate_help();
 };
 
 class CustomHandler {
-
 	public:
-		CustomHandler(CmdHandler::commandMap *defaultCmds,
-				TimerManager *tm,
-				const std::string &wheelCmd,
-				const std::string &name,
-				const std::string &channel);
+		CustomHandler(CmdHandler::cmdmap *cmap, TimerManager *tm,
+				const char *wheelcmd, const char *name,
+				const char *channel);
 		~CustomHandler();
-		bool isActive();
-		bool addcom(const std::string &cmd, std::string response,
-				const std::string &nick, time_t cooldown);
-		bool delcom(const std::string &cmd);
-		bool editcom(const char *cmd, const char *resp, time_t newcd);
-		bool activate(const std::string &cmd);
-		bool deactivate(const std::string &cmd);
-		bool rename(const std::string &cmd, const std::string &newcmd);
-		Json::Value *getcom(const std::string &cmd);
+		bool active();
+		bool addcom(const char *cmd, char *response, const char *nick,
+				time_t cooldown);
+		bool delcom(const char *cmd);
+		bool editcom(const char *cmd, const char *response,
+				time_t newcd);
+		bool activate(const char *cmd);
+		bool deactivate(const char *cmd);
+		bool rename(const char *cmd, const char *newcmd);
+		Json::Value *getcom(const char *cmd);
 		const Json::Value *commands();
 		size_t size();
-		bool validName(const std::string &cmd, bool loading = false);
+		bool valid_name(const char *cmd, bool loading = false);
 		void write();
-		std::string error() const;
-		std::string format(const Json::Value *cmd,
-				const std::string &nick) const;
+		char *error();
+		char *format(const Json::Value *cmd, const char *nick);
 
 	private:
-		bool m_active;
-		CmdHandler::commandMap *m_cmp;
-		TimerManager *m_tmp;
-		const std::string m_wheelCmd;
-		const std::string m_name;
-		const std::string m_channel;
-		Json::Value m_commands;
-		Json::Value m_emptyVal;
-		std::string m_error;
+		bool enabled;
+		CmdHandler::cmdmap *default_cmds;
+		TimerManager *cooldowns;
+		const char *wheel_cmd;
+		const char *bot_name;
+		const char *bot_channel;
+		Json::Value custom_cmds;
+		char fmtresp[MAX_MSG];
+		char err[MAX_LEN];
 		bool cmdcheck();
-
 };
+
+#endif /* CMDHANDLER_H */

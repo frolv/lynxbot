@@ -50,11 +50,11 @@ int CmdHandler::uptime(char *out, struct command *c)
 
 	if (bot) {
 		snprintf(out, MAX_MSG, "[UPTIME] %s has been running for %s.",
-				m_name, utils::conv_time(bot_uptime()).c_str());
+				bot_name, utils::conv_time(bot_uptime()).c_str());
 		return EXIT_SUCCESS;
 	}
 
-	return chan_uptime(out, m_channel);
+	return chan_uptime(out, bot_channel);
 }
 
 /* channel_uptime: get how long channel has been streaming */

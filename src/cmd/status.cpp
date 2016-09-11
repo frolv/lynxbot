@@ -26,7 +26,7 @@ static int set_status(char *out, const char *channel, const char *status,
 int CmdHandler::status(char *out, struct command *c)
 {
 	const cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
-		{ "Authorization", "OAuth " + std::string(m_token) }};
+		{ "Authorization", "OAuth " + std::string(twitch_token) }};
 
 	char buf[MAX_MSG];
 	char *sedcmd;
@@ -76,7 +76,7 @@ int CmdHandler::status(char *out, struct command *c)
 
 	/* get the current status if no arg provided, appending or sed */
 	if (l_optind == c->argc || append || sedcmd) {
-		if (!curr_status(buf, m_channel, &head)) {
+		if (!curr_status(buf, bot_channel, &head)) {
 			snprintf(out, MAX_MSG, "%s: %s", c->argv[0], buf);
 			return EXIT_FAILURE;
 		}
@@ -95,7 +95,7 @@ int CmdHandler::status(char *out, struct command *c)
 			}
 		} else {
 			snprintf(out, MAX_MSG, "[STATUS] Current status for %s "
-					"is \"%s\".", m_channel, buf);
+					"is \"%s\".", bot_channel, buf);
 			return EXIT_SUCCESS;
 		}
 	} else if (sedcmd) {
@@ -108,7 +108,7 @@ int CmdHandler::status(char *out, struct command *c)
 		strcat(buf, " ");
 	argvcat(buf + strlen(buf), c->argc, c->argv, l_optind, 1);
 
-	return set_status(out, m_channel, buf, &head);
+	return set_status(out, bot_channel, buf, &head);
 }
 
 /* curr_status: get current status of channel */

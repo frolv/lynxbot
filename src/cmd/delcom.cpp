@@ -49,7 +49,7 @@ int CmdHandler::delcom(char *out, struct command *c)
 		}
 	}
 
-	if (!m_customCmds->isActive()) {
+	if (!custom_cmds->active()) {
 		snprintf(out, MAX_MSG, "%s: custom commands are "
 				"currently disabled", c->argv[0]);
 		return EXIT_FAILURE;
@@ -60,11 +60,11 @@ int CmdHandler::delcom(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	del = (const char **)malloc(m_customCmds->size() * sizeof(*del));
-	inv = (const char **)malloc(m_customCmds->size() * sizeof(*inv));
+	del = (const char **)malloc(custom_cmds->size() * sizeof(*del));
+	inv = (const char **)malloc(custom_cmds->size() * sizeof(*inv));
 
 	for (; l_optind < c->argc; ++l_optind)
-		deletecom(m_customCmds, c->argv[l_optind], del, inv);
+		deletecom(custom_cmds, c->argv[l_optind], del, inv);
 	formatoutput(out, del, inv);
 	free(del);
 	free(inv);

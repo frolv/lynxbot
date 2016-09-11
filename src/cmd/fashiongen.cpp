@@ -19,7 +19,7 @@ static void gen_fashion(char *out, const Json::Value &items);
 /* fashiongen: generate an outfit */
 int CmdHandler::fashiongen(char *out, struct command *c)
 {
-	char fashion[F_SIZE];
+	char fbuf[F_SIZE];
 	int opt, status;
 	static struct l_option long_opts[] = {
 		{ "help", NO_ARG, 'h' },
@@ -44,14 +44,14 @@ int CmdHandler::fashiongen(char *out, struct command *c)
 	if (l_optind != c->argc) {
 		USAGEMSG(out, CMDNAME, CMDUSAGE);
 		status = EXIT_FAILURE;
-	} else if (m_fashion.empty()) {
+	} else if (fashion.empty()) {
 		snprintf(out, MAX_MSG, "%s: could not read item database",
 				c->argv[0]);
 		status = EXIT_FAILURE;
 	} else {
-		gen_fashion(fashion, m_fashion);
+		gen_fashion(fbuf, fashion);
 		snprintf(out, MAX_MSG, "[FASHIONGEN] %s",
-				utils::upload(fashion).c_str());
+				utils::upload(fbuf).c_str());
 	}
 	return status;
 }

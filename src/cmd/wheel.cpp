@@ -19,7 +19,7 @@ int CmdHandler::wheel(char *out, struct command *c)
 		{ 0, 0, 0 }
 	};
 
-	if (!m_wheel.active()) {
+	if (!swheel.active()) {
 		snprintf(out, MAX_MSG, "%s: wheel is not currently active",
 				c->argv[0]);
 		return EXIT_FAILURE;
@@ -40,35 +40,35 @@ int CmdHandler::wheel(char *out, struct command *c)
 	}
 
 	if (l_optind == c->argc) {
-		snprintf(out, MAX_MSG, "%s: %s %s", m_wheel.name(),
-				m_wheel.desc(), m_wheel.usage());
+		snprintf(out, MAX_MSG, "%s: %s %s", swheel.name(),
+				swheel.desc(), swheel.usage());
 		return EXIT_SUCCESS;
 	}
 
 	/* check if category is valid */
-	if (l_optind != c->argc - 1 || (!m_wheel.valid((c->argv[l_optind]))
+	if (l_optind != c->argc - 1 || (!swheel.valid((c->argv[l_optind]))
 				&& strcmp(c->argv[l_optind], "check") != 0)) {
-		USAGEMSG(out, c->argv[0], m_wheel.usage());
+		USAGEMSG(out, c->argv[0], swheel.usage());
 		return EXIT_FAILURE;
 	}
 
 	if (strcmp(c->argv[l_optind], "check") == 0) {
 		/* return the current selection */
-		if (m_wheel.ready(c->nick))
+		if (swheel.ready(c->nick))
 			snprintf(out, MAX_MSG, "@%s, you are not currently "
 					"assigned anything.", c->nick);
 		else
 			snprintf(out, MAX_MSG, "@%s, you are currently "
 					"assigned %s.", c->nick,
-					m_wheel.selection(c->nick));
-	} else if (!m_wheel.ready(c->nick)) {
+					swheel.selection(c->nick));
+	} else if (!swheel.ready(c->nick)) {
 		snprintf(out, MAX_MSG, "@%s, you have already been "
 				"assigned something!", c->nick);
 	} else {
 		/* make a new selection */
 		snprintf(out, MAX_MSG, "@%s, for entertainment for "
 				"tonight is %s.", c->nick,
-				m_wheel.choose(c->nick, c->argv[l_optind]));
+				swheel.choose(c->nick, c->argv[l_optind]));
 	}
 
 	return EXIT_SUCCESS;

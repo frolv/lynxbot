@@ -94,7 +94,7 @@ int CmdHandler::mod(char *out, struct command *c)
 
 	/* convert names to lower for lookup */
 	s = name;
-	t = m_name;
+	t = bot_name;
 	while ((*s++ = tolower(*t++)))
 		;
 	for (s = c->argv[l_optind]; *s; ++s)
@@ -111,7 +111,7 @@ int CmdHandler::mod(char *out, struct command *c)
 
 	argvcat(reason, c->argc, c->argv, l_optind + 1, 1);
 	/* attempt to perform the moderation action */
-	if (!m_modp->mod_action(action, c->argv[l_optind],
+	if (!moderator->mod_action(action, c->argv[l_optind],
 				c->nick, reason, len)) {
 		snprintf(out, MAX_MSG, "%s: user '%s' is not currently in the "
 				"channel", c->argv[0], c->argv[l_optind]);

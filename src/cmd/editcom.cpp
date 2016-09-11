@@ -51,7 +51,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	if (!m_customCmds->isActive()) {
+	if (!custom_cmds->active()) {
 		snprintf(out, MAX_MSG, "%s: custom commands are currently "
 				"disabled", c->argv[0]);
 		return EXIT_FAILURE;
@@ -115,7 +115,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 	}
 
 	/* check if given command exists */
-	if ((com = m_customCmds->getcom(c->argv[l_optind]))->empty()) {
+	if (!(com = custom_cmds->getcom(c->argv[l_optind]))) {
 		snprintf(out, MAX_MSG, "%s: not a command: $%s",
 				c->argv[0], c->argv[l_optind]);
 		return EXIT_FAILURE;
@@ -143,7 +143,7 @@ int CmdHandler::editcom(char *out, struct command *c)
 					"with -r", c->argv[0]);
 			status = EXIT_FAILURE;
 		} else {
-			status = rename(out, m_customCmds, c);
+			status = rename(out, custom_cmds, c);
 		}
 		return status;
 	} else {
@@ -155,15 +155,14 @@ int CmdHandler::editcom(char *out, struct command *c)
 					(*com)["response"].asCString(), buf);
 		}
 	}
-	return edit(out, m_customCmds, c, *response ? response : NULL);
+	return edit(out, custom_cmds, c, *response ? response : NULL);
 }
 
 /* edit: edit a custom command */
 static int edit(char *out, CustomHandler *cch, struct command *c, char *resp)
 {
 	if (!cch->editcom(c->argv[l_optind], resp, cooldown)) {
-		snprintf(out, MAX_MSG, "%s: %s", c->argv[0],
-				cch->error().c_str());
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0], cch->error());
 		return EXIT_FAILURE;
 	}
 	if (cooldown == -1 && !resp && !set) {
@@ -172,8 +171,7 @@ static int edit(char *out, CustomHandler *cch, struct command *c, char *resp)
 		return EXIT_SUCCESS;
 	}
 	if (set == ON && !cch->activate(c->argv[l_optind])) {
-		snprintf(out, MAX_MSG, "%s: %s", c->argv[0],
-				cch->error().c_str());
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0], cch->error());
 		return EXIT_FAILURE;
 	} else if (set == OFF) {
 		cch->deactivate(c->argv[l_optind]);
@@ -191,8 +189,7 @@ static int rename(char *out, CustomHandler *cch, struct command *c)
 		USAGEMSG(out, CMDNAME, RUSAGE);
 		status = EXIT_FAILURE;
 	} else if (!cch->rename(c->argv[l_optind], c->argv[l_optind + 1])) {
-		snprintf(out, MAX_MSG, "%s: %s", c->argv[0],
-				cch->error().c_str());
+		snprintf(out, MAX_MSG, "%s: %s", c->argv[0], cch->error());
 		status = EXIT_FAILURE;
 	} else {
 		snprintf(out, MAX_MSG, "@%s, command $%s has been renamed "

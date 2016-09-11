@@ -1,110 +1,121 @@
 #include <ctime>
 #include <json/json.h>
-#include <fstream>
-#include <iostream>
+#include <string.h>
 #include <utils.h>
 #include "CmdHandler.h"
+#include "strfmt.h"
 
-static bool valid_resp(const std::string &resp, std::string &err);
+static bool valid_resp(const char *resp, char *err);
 
-CustomHandler::CustomHandler(CmdHandler::commandMap *defaultCmds,
-		TimerManager *tm, const std::string &wheelCmd,
-		const std::string &name, const std::string &channel)
-	: m_cmp(defaultCmds), m_tmp(tm), m_wheelCmd(wheelCmd),
-	m_name(name), m_channel(channel)
+CustomHandler::CustomHandler(CmdHandler::cmdmap *cmap, TimerManager *tm,
+		const char *wheelcmd, const char *name, const char *channel)
+	: default_cmds(cmap), cooldowns(tm), wheel_cmd(wheelcmd),
+	bot_name(name), bot_channel(channel)
 {
-	if (!(m_active = utils::readJSON("customcmds.json", m_commands))) {
-		std::cerr << "Could not read customcmds.json.";
+	if (!(enabled = utils::readJSON("customcmds.json", custom_cmds))) {
+		fprintf(stderr, "Could not read customcmds.json.\n");
 		return;
 	}
 
-	if (!m_commands.isMember("commands")
-			|| !m_commands["commands"].isArray()) {
-		m_active = false;
-		std::cerr << "customcmds.json is improperly configured";
+	if (!custom_cmds.isMember("commands")
+			|| !custom_cmds["commands"].isArray()) {
+		enabled = false;
+		fprintf(stderr, "customcmds.json is improperly configured\n");
 		return;
 	}
 
 	if (!cmdcheck())
-		std::cerr << "\nCustom commands disabled." << std::endl;
+		fprintf(stderr, "Custom commands disabled.\n");
 }
 
 CustomHandler::~CustomHandler() {}
 
-bool CustomHandler::isActive()
+bool CustomHandler::active()
 {
-	return m_active;
+	return enabled;
 }
 
 /* addcom: add a new custom command cmd with response and cooldown */
-bool CustomHandler::addcom(const std::string &cmd,
-		std::string response, const std::string &nick,
-		time_t cooldown)
+bool CustomHandler::addcom(const char *cmd, char *response,
+		const char *nick, time_t cooldown)
 {
 	time_t t;
+	char resp[MAX_MSG];
+	Json::Value command;
 
-	if (!validName(cmd)) {
-		m_error = "invalid command name: $" + cmd;
+	if (!valid_name(cmd)) {
+		snprintf(err, MAX_LEN, "invalid command name: $%s", cmd);
 		return false;
 	}
-	if (!valid_resp(response, m_error))
+	if (!valid_resp(response, err))
 		return false;
-	if (response[0] == '/')
-		response = " " + response;
-	Json::Value command;
+
+	resp[0] = '\0';
+	if (*response == '/')
+		strcat(resp, " ");
+	strcat(resp, response);
+
 	command["active"] = true;
 	command["cmd"] = cmd;
-	command["response"] = response;
+	command["response"] = resp;
 	command["cooldown"] = (Json::Int64)cooldown;
 	command["ctime"] = (Json::Int64)(t = time(nullptr));
 	command["mtime"] = (Json::Int64)t;
 	command["creator"] = nick;
 	command["uses"] = 0;
 
-	m_commands["commands"].append(command);
-	m_tmp->add(cmd, cooldown);
+	custom_cmds["commands"].append(command);
+	cooldowns->add(cmd, cooldown);
 	write();
 	return true;
 }
 
 /* delCom: delete command cmd if it exists */
-bool CustomHandler::delcom(const std::string &cmd)
+bool CustomHandler::delcom(const char *cmd)
 {
-	Json::ArrayIndex ind = 0;
-	Json::Value def, rem;
-	while (ind < m_commands["commands"].size()) {
-		Json::Value val = m_commands["commands"].get(ind, def);
-		if (val["cmd"] == cmd) break;
-		++ind;
+	Json::ArrayIndex ind;
+	Json::Value val, def, rem;
+
+	for (ind = 0; ind < custom_cmds["commands"].size(); ++ind) {
+		val = custom_cmds["commands"].get(ind, def);
+		if (strcmp(val["cmd"].asCString(), cmd) == 0)
+			break;
 	}
 
-	if (ind == m_commands["commands"].size())
+	if (ind == custom_cmds["commands"].size())
 		return false;
 
-	m_commands["commands"].removeIndex(ind, &rem);
-	m_tmp->remove(cmd);
+	custom_cmds["commands"].removeIndex(ind, &rem);
+	cooldowns->remove(cmd);
 	write();
 	return true;
 }
 
 /* editCom: modify the command cmd with newResp and newcd */
-bool CustomHandler::editcom(const char *cmd, const char *resp, time_t newcd)
+bool CustomHandler::editcom(const char *cmd, const char *response, time_t newcd)
 {
 	Json::Value *com;
-	if ((com = getcom(cmd))->empty()) {
-		m_error = "not a command: $" + std::string(cmd);
+	char resp[MAX_MSG];
+
+	if (!(com = getcom(cmd))) {
+		snprintf(err, MAX_LEN, "not a command: $%s", cmd);
 		return false;
 	}
-	if (resp) {
-		if (!valid_resp(resp, m_error))
+	if (response) {
+		resp[0] = '\0';
+		if (*response == '/')
+			strcat(resp, " ");
+		strcat(resp, response);
+
+		if (!valid_resp(resp, err))
 			return false;
-		(*com)["response"] = (resp[0] == '/' ? " " : "")
-			+ std::string(resp);
+
+		(*com)["response"] = resp;
 	}
 	if (newcd != -1) {
 		(*com)["cooldown"] = (Json::Int64)newcd;
-		m_tmp->remove(cmd);
-		m_tmp->add(cmd, newcd);
+		cooldowns->remove(cmd);
+		cooldowns->add(cmd, newcd);
 	}
 	(*com)["mtime"] = (Json::Int64)time(nullptr);
 	write();
@@ -112,139 +123,146 @@ bool CustomHandler::editcom(const char *cmd, const char *resp, time_t newcd)
 }
 
 /* activate: activate the command cmd */
-bool CustomHandler::activate(const std::string &cmd)
+bool CustomHandler::activate(const char *cmd)
 {
 	Json::Value *com;
 
-	if ((com = getcom(cmd))->empty()) {
-		m_error = "not a command: $" + cmd;
+	if (!(com = getcom(cmd))) {
+		snprintf(err, MAX_LEN, "not a command: $%s", cmd);
 		return false;
 	}
-	if (!valid_resp((*com)["response"].asString(), m_error))
+	if (!valid_resp((*com)["response"].asCString(), err))
 		return false;
+
 	(*com)["active"] = true;
 	write();
 	return true;
 }
 
 /* deactivate: deactivate the command cmd */
-bool CustomHandler::deactivate(const std::string &cmd)
+bool CustomHandler::deactivate(const char *cmd)
 {
 	Json::Value *com;
 
-	if ((com = getcom(cmd))->empty()) {
-		m_error = "not a command: $" + cmd;
+	if (!(com = getcom(cmd))) {
+		snprintf(err, MAX_LEN, "not a command: $%s", cmd);
 		return false;
 	}
+
 	(*com)["active"] = false;
 	write();
 	return true;
 }
 
 /* rename: rename custom command cmd to newcmd */
-bool CustomHandler::rename(const std::string &cmd,
-		const std::string &newcmd)
+bool CustomHandler::rename(const char *cmd, const char *newcmd)
 {
 	Json::Value *com;
 
-	if ((com = getcom(cmd))->empty()) {
-		m_error = "not a command: $" + cmd;
+	if (!(com = getcom(cmd))) {
+		snprintf(err, MAX_LEN, "not a command: $%s", cmd);
 		return false;
 	}
-	if (!validName(newcmd)) {
-		m_error = "invalid command name: $" + newcmd;
+	if (!valid_name(newcmd)) {
+		snprintf(err, MAX_LEN, "invalid command name: $%s", newcmd);
 		return false;
 	}
+
 	(*com)["cmd"] = newcmd;
 	(*com)["mtime"] = (Json::Int64)time(nullptr);
-	m_tmp->remove(cmd);
-	m_tmp->add(newcmd, (*com)["cooldown"].asInt64());
+	cooldowns->remove(cmd);
+	cooldowns->add(newcmd, (*com)["cooldown"].asInt64());
 	write();
 	return true;
 }
 
 /* getcom: return command value if it exists, empty value otherwise */
-Json::Value *CustomHandler::getcom(const std::string &cmd)
+Json::Value *CustomHandler::getcom(const char *cmd)
 {
-	for (auto &val : m_commands["commands"]) {
-		if (val["cmd"] == cmd)
+	for (auto &val : custom_cmds["commands"]) {
+		if (strcmp(val["cmd"].asCString(), cmd) == 0)
 			return &val;
 	}
 
-	/* returns an empty value if the command is not found */
-	return &m_emptyVal;
+	return NULL;
 }
 
 const Json::Value *CustomHandler::commands()
 {
-	return &m_commands;
+	return &custom_cmds;
 }
 
 /* size: return number of custom commands */
 size_t CustomHandler::size()
 {
-	return m_commands["commands"].size();
+	return custom_cmds["commands"].size();
 }
 
 /* write: write all commands to file */
 void CustomHandler::write()
 {
-	utils::writeJSON("customcmds.json", m_commands);
+	utils::writeJSON("customcmds.json", custom_cmds);
 }
 
-/* validName: check if cmd is a valid command name */
-bool CustomHandler::validName(const std::string &cmd, bool loading)
+/* valid_name: check if cmd is a valid command name */
+bool CustomHandler::valid_name(const char *cmd, bool loading)
 {
-	/* if CCH is loading commands from file (in constructor) */
-	/* it doesn't need to check against its stored commands */
-	return m_cmp->find(cmd) == m_cmp->end() && cmd != m_wheelCmd
-		&& cmd.length() < 20 && (loading ? true : getcom(cmd)->empty());
+	/* when loading commands from file, don't check against stored cmds */
+	return default_cmds->find(cmd) == default_cmds->end()
+		&& strcmp(cmd, wheel_cmd) != 0
+		&& strlen(cmd) < 32 && (loading || !getcom(cmd));
 }
 
-std::string CustomHandler::error() const
+char *CustomHandler::error()
 {
-	return m_error;
+	return err;
 }
 
 /* format: format a response for cmd */
-std::string CustomHandler::format(const Json::Value *cmd,
-		const std::string &nick) const
+char *CustomHandler::format(const Json::Value *cmd, const char *nick)
 {
-	size_t ind;
-	std::string out, ins;
-	char c;
+	const char *s;
+	char *t;
+	char num[MAX_LEN];
 
-	ind = 0;
-	out = (*cmd)["response"].asString();
-	while ((ind = out.find('%', ind)) != std::string::npos) {
-		c = out[ind + 1];
-		out.erase(ind, 2);
-		switch (c) {
-		case '%':
-			ins = "%";
-			break;
-		case 'N':
-			ins = "@" + nick + ",";
-			break;
-		case 'b':
-			ins = m_name;
-			break;
-		case 'c':
-			ins = m_channel;
-			break;
-		case 'n':
-			ins = nick;
-			break;
-		case 'u':
-			ins = utils::formatInteger((*cmd)["uses"].asString());
-			break;
-		default:
-			break;
+	t = fmtresp;
+	for (s = (*cmd)["response"].asCString(); *s; ++s) {
+		if (*s == '%') {
+			switch (s[1]) {
+			case '%':
+				strcpy(t, "%");
+				break;
+			case 'N':
+				snprintf(t, MAX_MSG - (t - fmtresp),
+						"@%s,", nick);
+				break;
+			case 'b':
+				strcpy(t, bot_name);
+				break;
+			case 'c':
+				strcpy(t, bot_channel);
+				break;
+			case 'n':
+				strcpy(t, nick);
+				break;
+			case 'u':
+				snprintf(num, MAX_LEN, "%d",
+						(*cmd)["uses"].asInt());
+				fmtnum(t, MAX_LEN, num);
+				break;
+			default:
+				/* should never happen */
+				break;
+			}
+			t = strchr(t, '\0');
+			++s;
+			continue;
 		}
-		out.insert(ind, ins);
-		ind += ins.length();
+		*t++ = *s;
 	}
-	return out;
+	*t = '\0';
+
+	return fmtresp;
 }
 
 /* cmdcheck: check the validity of a command and add missing fields */
@@ -255,7 +273,7 @@ bool CustomHandler::cmdcheck()
 
 	t = time(nullptr);
 	added = false;
-	for (Json::Value &val : m_commands["commands"]) {
+	for (Json::Value &val : custom_cmds["commands"]) {
 		/* add new values to old commands */
 		if (!val.isMember("ctime")) {
 			val["ctime"] = (Json::Int64)t;
@@ -279,60 +297,61 @@ bool CustomHandler::cmdcheck()
 		}
 		if (!(val.isMember("cmd") && val.isMember("response")
 					&& val.isMember("cooldown"))) {
-			m_active = false;
-			std::cerr << "customcmds.json is improperly configured";
+			enabled = false;
+			fprintf(stderr, "command '%s' is missing required fields\n",
+					val["cmd"].asCString());
 			return false;
 		}
-		if (!validName(val["cmd"].asString(), true)) {
-			m_active = false;
-			std::cerr << val["cmd"].asString()
-				<< " is an invalid command name - change "
-				"or remove it";
+		if (!valid_name(val["cmd"].asCString(), true)) {
+			enabled = false;
+			fprintf(stderr, "'%s' is an invalid command name -"
+					" change or remove it\n",
+					val["cmd"].asCString());
 			return false;
 		}
 		if (val["cooldown"].asInt() < 0) {
-			m_active = false;
-			std::cerr << "command \"" << val["cmd"].asString()
-				<< "\" has a negative cooldown - change "
-				"or remove it";
+			enabled = false;
+			fprintf(stderr, "command '%s' has a negative cooldown -"
+					" change or remove it\n",
+					val["cmd"].asCString());
 			return false;
 		}
 		/* check validity of response */
-		if (!valid_resp(val["response"].asString(), m_error)) {
-			std::cerr << "Custom command " << val["cmd"].asString()
-				<< ": " << m_error << std::endl;
+		if (!valid_resp(val["response"].asCString(), err)) {
+			fprintf(stderr, "command '%s': %s\n",
+					val["cmd"].asCString(), err);
 			val["active"] = false;
 			added = true;
 		}
 		if (added)
 			write();
-		m_tmp->add(val["cmd"].asString(), val["cooldown"].asInt64());
+		cooldowns->add(val["cmd"].asString(), val["cooldown"].asInt64());
 	}
 	return true;
 }
 
 /* valid_resp: check if a response has valid format characters */
-static bool valid_resp(const std::string &resp, std::string &err)
+static bool valid_resp(const char *resp, char *err)
 {
-	static const std::string fmt_c = "%Nbcnu";
-	size_t ind;
+	static const char *fmt_c = "%Nbcnu";
+	const char *s;
 	int c;
 
-	ind = -1;
-	while ((ind = resp.find('%', ind + 1)) != std::string::npos) {
-		if (ind == resp.length() - 1) {
-			err = "unexpected end of line after '%' in response";
+	s = resp;
+	while ((s = strchr(s, '%'))) {
+		if (!(c = s[1])) {
+			snprintf(err, MAX_LEN, "unexpected end of line after "
+					"'%%' in response '%s'\n", resp);
 			return false;
 		}
-		c = resp[ind + 1];
-		if (fmt_c.find(c) == std::string::npos) {
-			err = "invalid format sequence '%";
-			err += (char)c;
-			err += "' in response";
+		if (!strchr(fmt_c, c)) {
+			snprintf(err, MAX_LEN, "invalid format sequence '%%%c'"
+					" in reponse '%s'\n", c, resp);
 			return false;
 		}
 		if (c == '%')
-			++ind;
+			++s;
+		++s;
 	}
 	return true;
 }

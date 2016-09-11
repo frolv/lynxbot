@@ -105,7 +105,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 
 	if (strcmp(c->argv[l_optind], "check") == 0) {
 		snprintf(out, MAX_MSG, "@%s, %s", c->nick,
-				m_givp->currentSettings(type).c_str());
+				giveaway->currentSettings(type).c_str());
 		return EXIT_SUCCESS;
 	}
 
@@ -115,7 +115,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 		return EXIT_FAILURE;
 	}
 
-	return process(out, m_givp, c, type, amt);
+	return process(out, giveaway, c, type, amt);
 }
 
 /* process: perform the giveaway setting */
