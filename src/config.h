@@ -18,24 +18,24 @@ struct setting {
 
 class ConfigReader {
 	public:
-		ConfigReader(const std::string &path);
+		ConfigReader(const char *path);
 		bool read();
 		void write();
 		std::string get(const std::string &key);
 		void set(const std::string &key, const std::string &val);
-		std::string path() const;
+		const char *path();
 		std::unordered_map<std::string, std::vector<std::unordered_map<
 			std::string, std::string>>> &olist();
 	private:
-		const std::string m_path;
-		std::unordered_map<std::string, std::string> m_settings;
+		const char *config_path;
+		std::unordered_map<std::string, std::string> setmap;
 		std::unordered_map<std::string, std::vector<std::unordered_map<
-			std::string, std::string>>> m_olist;
-		std::string parseString(const std::string &buf);
-		std::string parseList(const std::string &buf, std::string &err);
-		std::string parseOList(const std::string &key,
+			std::string, std::string>>> olistmap;
+		std::string parse_string(const std::string &buf);
+		std::string parse_list(const std::string &buf, std::string &err);
+		std::string parse_olist(const std::string &key,
 				const std::string &buf, std::string &err);
-		bool parseObj(const std::string &key, std::string &obj,
+		bool parse_obj(const std::string &key, std::string &obj,
 				std::string &err);
-		void writeSetting(std::ofstream &writer, size_t ind);
+		void write_setting(std::ofstream &writer, size_t ind);
 };

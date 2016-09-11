@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 
 	/* read the config file */
 	path = utils::configdir() + utils::config("config");
-	ConfigReader cfgr(path);
+	ConfigReader cfgr(path.c_str());
 	if (!cfgr.read()) {
 		WAIT_INPUT();
 		return 1;

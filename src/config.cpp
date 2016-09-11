@@ -6,7 +6,7 @@
 #include "config.h"
 #include "lynxbot.h"
 
-static void removeLeading(std::string &s);
+static void remove_leading(std::string &s);
 static bool blank(const std::string &s);
 
 static struct setting settings[] = {
@@ -69,15 +69,15 @@ static struct setting settings[] = {
 		"command", false }
 };
 
-ConfigReader::ConfigReader(const std::string &path)
-	: m_path(path)
+ConfigReader::ConfigReader(const char *path)
+	: config_path(path)
 {
 }
 
 bool ConfigReader::read()
 {
 	std::string buf, line, key, val, err;
-	std::ifstream reader(m_path);
+	std::ifstream reader(config_path);
 	uint16_t nline, nsettings;
 	size_t ind, set;
 	int8_t open;
@@ -93,12 +93,12 @@ bool ConfigReader::read()
 		if (blank(line))
 			continue;
 		if (!open) {
-			removeLeading(line);
+			remove_leading(line);
 			if ((ind = line.find('=')) == std::string::npos) {
 				err = "unrecognized token -- ";
 				for (ind = 0; !isspace(line[ind]); ++ind)
 					err += line[ind];
-				std::cerr << m_path << ": line " << nline <<
+				std::cerr << config_path << ": line " << nline <<
 					": " << err << std::endl;
 				return false;
 			}
@@ -110,27 +110,27 @@ bool ConfigReader::read()
 					break;
 			}
 			if (set == nsettings) {
-				std::cerr << m_path << ": line " << nline
+				std::cerr << config_path << ": line " << nline
 					<< ": unrecognized key -- " << key
 					<< std::endl;
 				return false;
 			}
 		}
 		if (settings[set].val_type == STRING) {
-			if ((val = parseString(line)).empty()) {
-				std::cerr << m_path << ": line " << nline <<
+			if ((val = parse_string(line)).empty()) {
+				std::cerr << config_path << ": line " << nline <<
 					": no setting provided for " << key
 					<< std::endl;
 				return false;
 			}
-			m_settings[key] = val;
+			setmap[key] = val;
 		} else {
 			/* reading a list within a brace block */
 			ind = -1;
 			while ((ind = line.find('{', ind + 1)) != std::string::npos)
 				++open;
 			if (open) {
-				removeLeading(line);
+				remove_leading(line);
 				buf += line + '\n';
 				ind = -1;
 				while ((ind = line.find('}', ind + 1))
@@ -138,35 +138,35 @@ bool ConfigReader::read()
 					--open;
 			}
 			if (!open) {
-				if ((val = parseString(buf)).empty()) {
-					std::cerr << m_path << ": line "
+				if ((val = parse_string(buf)).empty()) {
+					std::cerr << config_path << ": line "
 						<< nline << ": no setting "
 						"provided for " << key
 						<< std::endl;
 					return false;
 				}
 				if (settings[set].val_type == LIST)
-					val = parseList(val, err);
+					val = parse_list(val, err);
 				else
-					val = parseOList(key, val, err);
+					val = parse_olist(key, val, err);
 				if (val.empty()) {
-					std::cerr << m_path << ": line "
+					std::cerr << config_path << ": line "
 						<< nline << ": " << err
 						<< std::endl;
 					return false;
 				}
-				m_settings[key] = val;
+				setmap[key] = val;
 				buf = "";
 			}
 		}
 	}
 	if (open) {
-		std::cerr << m_path << ": unexpected end of file" << std::endl;
+		std::cerr << config_path << ": unexpected end of file" << std::endl;
 		return false;
 	}
 	for (set = 0; set < nsettings; ++set) {
-		if (m_settings.find(settings[set].key) == m_settings.end()) {
-			std::cerr << m_path << ": missing required setting: "
+		if (setmap.find(settings[set].key) == setmap.end()) {
+			std::cerr << config_path << ": missing required setting: "
 				<< settings[set].key << std::endl;
 			return false;
 		}
@@ -184,7 +184,7 @@ void ConfigReader::write()
 	nsettings = sizeof(settings) / sizeof(settings[0]);
 	t = time(nullptr);
 	tm = *localtime(&t);
-	std::ofstream writer(m_path);
+	std::ofstream writer(config_path);
 
 	/* header */
 	writer << "# LynxBot configfile" << std::endl;
@@ -197,67 +197,67 @@ void ConfigReader::write()
 	writer << std::endl << "#### General Settings ####" << std::endl
 		<< std::endl;
 	for (set = 0; set < 4; ++set)
-		writeSetting(writer, set);
+		write_setting(writer, set);
 
 	/* moderation settings */
 	writer << std::endl << "#### Moderation Settings ####" << std::endl
 		<< std::endl;
 	for (; set < 11; ++set)
-		writeSetting(writer, set);
+		write_setting(writer, set);
 
 	/* whitelist */
 	writer << std::endl << "#### Whitelisted websites ####" << std::endl
 		<< std::endl;
-	writeSetting(writer, set++);
+	write_setting(writer, set++);
 
 	/* giveaway settings */
 	writer << std::endl << "#### Giveaway settings ####" << std::endl
 		<< std::endl;
 	for (; set < 18; ++set)
-		writeSetting(writer, set);
+		write_setting(writer, set);
 
 	/* recurring */
 	writer << std::endl << "#### Recurring messages ####" << std::endl
 		<< std::endl;
-	writeSetting(writer, set++);
-	writeSetting(writer, set++);
+	write_setting(writer, set++);
+	write_setting(writer, set++);
 
 	/* other */
 	writer << std::endl << "#### Other settings ####" << std::endl
 		<< std::endl;
 	for (; set < nsettings; ++set)
-		writeSetting(writer, set);
+		write_setting(writer, set);
 }
 
 std::string ConfigReader::get(const std::string &key)
 {
-	return m_settings[key];
+	return setmap[key];
 }
 
 void ConfigReader::set(const std::string &key, const std::string &val)
 {
-	m_settings[key] = val;
+	setmap[key] = val;
 }
 
-std::string ConfigReader::path() const
+const char *ConfigReader::path()
 {
-	return m_path;
+	return config_path;
 }
 
 std::unordered_map<std::string, std::vector<std::unordered_map<
 	std::string, std::string>>> &ConfigReader::olist()
 {
-	return m_olist;
+	return olistmap;
 }
 
-std::string ConfigReader::parseString(const std::string &buf)
+std::string ConfigReader::parse_string(const std::string &buf)
 {
 	std::string val = buf.substr(buf.find('=') + 1);
-	removeLeading(val);
+	remove_leading(val);
 	return val;
 }
 
-std::string ConfigReader::parseList(const std::string &buf, std::string &err)
+std::string ConfigReader::parse_list(const std::string &buf, std::string &err)
 {
 	std::string out, s, val;
 	size_t ind, nl;
@@ -269,7 +269,7 @@ std::string ConfigReader::parseList(const std::string &buf, std::string &err)
 
 	ind = 0;
 	while (ind != std::string::npos) {
-		removeLeading(s);
+		remove_leading(s);
 		if ((ind = s.find(',')) == std::string::npos) {
 			val = s;
 		} else {
@@ -292,7 +292,7 @@ std::string ConfigReader::parseList(const std::string &buf, std::string &err)
 	return out;
 }
 
-std::string ConfigReader::parseOList(const std::string &key,
+std::string ConfigReader::parse_olist(const std::string &key,
 		const std::string &buf, std::string &err)
 {
 	std::string s, item;
@@ -307,13 +307,13 @@ std::string ConfigReader::parseOList(const std::string &key,
 
 	end = 0;
 	while (end != std::string::npos) {
-		removeLeading(s);
+		remove_leading(s);
 		if ((end = s.find('}')) != std::string::npos) {
 			item = s.substr(0, end + 1);
-			if (!parseObj(key, item, err))
+			if (!parse_obj(key, item, err))
 				return "";
 			s = s.substr(end + 1);
-			removeLeading(s);
+			remove_leading(s);
 			if (s[0] == ',') {
 				s = s.substr(1);
 				if (s.find('{') == std::string::npos) {
@@ -330,7 +330,7 @@ std::string ConfigReader::parseOList(const std::string &key,
 	return "olist";
 }
 
-bool ConfigReader::parseObj(const std::string &key, std::string &obj,
+bool ConfigReader::parse_obj(const std::string &key, std::string &obj,
 		std::string &err)
 {
 	std::vector<std::string> items;
@@ -340,7 +340,7 @@ bool ConfigReader::parseObj(const std::string &key, std::string &obj,
 
 	/* remove surrounding braces and whitespace */
 	obj = obj.substr(1);
-	removeLeading(obj);
+	remove_leading(obj);
 	while (obj.back() != '}')
 		obj.pop_back();
 	obj.pop_back();
@@ -359,15 +359,15 @@ bool ConfigReader::parseObj(const std::string &key, std::string &obj,
 		okey = s.substr(0, ind);
 		while (isspace(okey.back()))
 			okey.pop_back();
-		oval = parseString(s);
+		oval = parse_string(s);
 		map[okey] = oval;
 	}
-	m_olist[key].emplace_back(map);
+	olistmap[key].emplace_back(map);
 	return true;
 }
 
-/* writeSetting: write the setting specified by ind to writer */
-void ConfigReader::writeSetting(std::ofstream &writer, size_t ind)
+/* write_setting: write the setting specified by ind to writer */
+void ConfigReader::write_setting(std::ofstream &writer, size_t ind)
 {
 	std::vector<std::string> list_elems;
 	size_t i;
@@ -385,9 +385,9 @@ void ConfigReader::writeSetting(std::ofstream &writer, size_t ind)
 
 	if (settings[ind].val_type == STRING) {
 		writer << settings[ind].key << " = "
-			<< m_settings[settings[ind].key] << std::endl;
+			<< setmap[settings[ind].key] << std::endl;
 	} else if (settings[ind].val_type == LIST) {
-		utils::split(m_settings[settings[ind].key], '\n', list_elems);
+		utils::split(setmap[settings[ind].key], '\n', list_elems);
 		writer << settings[ind].key << " = {" << std::endl;
 		for (i = 0; i < list_elems.size(); ++i)
 			writer << '\t' << list_elems[i]
@@ -396,14 +396,14 @@ void ConfigReader::writeSetting(std::ofstream &writer, size_t ind)
 		writer << '}' << std::endl;
 	} else {
 		writer << settings[ind].key << " = {" << std::endl;
-		for (i = 0; i < m_olist[settings[ind].key].size(); ++i) {
-			auto map = m_olist[settings[ind].key][i];
+		for (i = 0; i < olistmap[settings[ind].key].size(); ++i) {
+			auto map = olistmap[settings[ind].key][i];
 			writer << "\t{" << std::endl;
 			for (auto p : map)
 				writer << "\t\t" << p.first << " = " << p.second
 					<< std::endl;
 			writer << "\t}";
-			if (i != m_olist[settings[ind].key].size() - 1)
+			if (i != olistmap[settings[ind].key].size() - 1)
 				writer << ',';
 			writer << std::endl;
 		}
@@ -413,8 +413,8 @@ void ConfigReader::writeSetting(std::ofstream &writer, size_t ind)
 		writer << std::endl;
 }
 
-/* removeLeading: remove all leading whitespace from string */
-static void removeLeading(std::string &s)
+/* remove_leading: remove all leading whitespace from string */
+static void remove_leading(std::string &s)
 {
 	size_t ind = 0;
 	while (ind < s.length() && isspace(s[ind]))

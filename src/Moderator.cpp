@@ -23,44 +23,44 @@ Moderator::Moderator(const char *name, const char *channel, URLParser *urlp,
 	m_pastefmt = m_cfgr->get("whitelist").length() > 300;
 	if (!utils::parseBool(m_active, m_cfgr->get("enable_moderation"), err)) {
 		fprintf(stderr, "%s: enable_moderation: %s (defaulting to "
-				"false)\n", m_cfgr->path().c_str(), err.c_str());
+				"false)\n", m_cfgr->path(), err.c_str());
 		m_active = false;
 		invalid = true;
 	}
 	if (!utils::parseBool(m_ban_urls, m_cfgr->get("ban_urls"), err)) {
 		fprintf(stderr, "%s: ban_urls: %s (defaulting to true)\n",
-				m_cfgr->path().c_str(), err.c_str());
+				m_cfgr->path(), err.c_str());
 		m_ban_urls = true;
 		invalid = true;
 	}
 	if (!utils::parseInt(m_max_message_len, m_cfgr->get("max_message_len"),
 				err)) {
 		fprintf(stderr, "%s: max_message_len: %s (defaulting to 300)\n",
-				m_cfgr->path().c_str(), err.c_str());
+				m_cfgr->path(), err.c_str());
 		m_max_message_len = 300;
 		invalid = true;
 	}
 	if (!utils::parseInt(m_max_pattern, m_cfgr->get("max_pattern"), err)) {
 		fprintf(stderr, "%s: max_pattern: %s (defaulting to 6)\n",
-				m_cfgr->path().c_str(), err.c_str());
+				m_cfgr->path(), err.c_str());
 		m_max_pattern = 6;
 		invalid = true;
 	}
 	if (!utils::parseInt(m_max_char, m_cfgr->get("max_char"), err)) {
 		fprintf(stderr, "%s: max_char: %s (defaulting to 15)\n",
-				m_cfgr->path().c_str(), err.c_str());
+				m_cfgr->path(), err.c_str());
 		m_max_char = 15;
 		invalid = true;
 	}
 	if (!utils::parseInt(m_cap_len, m_cfgr->get("cap_len"), err)) {
 		fprintf(stderr, "%s: cap_len: %s (defaulting to 30)\n",
-				m_cfgr->path().c_str(), err.c_str());
+				m_cfgr->path(), err.c_str());
 		m_cap_len = 30;
 		invalid = true;
 	}
 	if (!utils::parseInt(cap_ratio, m_cfgr->get("cap_ratio"), err)) {
 		fprintf(stderr, "%s: cap_ratio: %s (defaulting to 80)\n",
-				m_cfgr->path().c_str(), err.c_str());
+				m_cfgr->path(), err.c_str());
 		m_cap_ratio = 0.8;
 		invalid = true;
 	} else {

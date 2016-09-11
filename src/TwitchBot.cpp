@@ -43,7 +43,7 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 	error = false;
 	if (!utils::parseBool(m_urltitles, m_cfgr->get("url_titles"), err)) {
 		fprintf(stderr, "%s: url_titles: %s (defaulting to true)\n",
-				m_cfgr->path().c_str(), err.c_str());
+				m_cfgr->path(), err.c_str());
 		m_urltitles = true;
 		error = true;
 	}
@@ -51,13 +51,13 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 				err)) {
 		fprintf(stderr, "%s: familiarity_mode: %s "
 				"(defaulting to false)\n",
-				m_cfgr->path().c_str(), err.c_str());
+				m_cfgr->path(), err.c_str());
 		m_familiarity = false;
 		error = true;
 	}
 	if (!utils::parseBool(m_disable, m_cfgr->get("auto_disable"), err)) {
 		fprintf(stderr, "%s: auto_disable: %s (defaulting to true)\n",
-				m_cfgr->path().c_str(), err.c_str());
+				m_cfgr->path(), err.c_str());
 		m_disable = true;
 		error = true;
 	}
@@ -542,7 +542,7 @@ void TwitchBot::parseSubMsg(std::string &tgt, const std::string &which)
 			++ind;
 	}
 	if (!err.empty()) {
-		fprintf(stderr, "%s: %s: %s\n", m_cfgr->path().c_str(),
+		fprintf(stderr, "%s: %s: %s\n", m_cfgr->path(),
 				which.c_str(), err.c_str());
 		WAIT_INPUT();
 		fmt = "";

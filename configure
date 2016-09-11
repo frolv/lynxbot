@@ -1,5 +1,4 @@
 #!/bin/sh
-#
 # configure - generate a Makefile for lynxbot
 
 debug=false
@@ -10,6 +9,8 @@ cross_prefix=
 progname=lynxbot
 LDFLAGS="-lcurl -lpthread -lcrypto"
 INC="-I./include"
+CC=gcc
+CXX=g++
 CFLAGS="$INC -Wall -Wextra -c -std=c99"
 CXXFLAGS="$INC -Wall -Wextra -c -std=c++14"
 OBJDIR=obj
@@ -17,6 +18,10 @@ winbuild=0
 
 while [ "$1" ]; do
 	case "$1" in
+		--cross-prefix=*)
+			cross_prefix=`echo "$1" | sed 's/--cross-prefix=//'`
+			shift
+			;;
 		--debug)
 			debug=true
 			shift
@@ -24,14 +29,16 @@ while [ "$1" ]; do
 		--help)
 			echo "usage: ./configure [OPTION]..."
 			echo
+			echo "    --cross-prefix=PREFIX"
+			echo "        set prefix for cross-compilation toolchain"
 			echo "    --debug"
 			echo "        compile with debug symbols"
 			echo "    --help"
 			echo "        show this help information"
 			echo "    --prefix=PATH"
 			echo "        set installation prefix to PATH"
-			echo "    --target=TARG"
-			echo "        set target architecture to TARG"
+			echo "    --target=TARGET"
+			echo "        set target architecture to TARGET"
 			echo "        accepted values: native, linux-x86_64, mingw64"
 			exit 0
 			;;
@@ -63,12 +70,12 @@ fi
 
 if [ $arch = "mingw64" ]; then
 	progname="${progname}.exe"
-	cross_prefix="x86_64-w64-mingw32-"
 	LDFLAGS="-L/usr/x86_64-w64-mingw32/lib -lws2_32 -static-libgcc -static-libstdc++ $LDFLAGS"
 	winbuild=1
-elif [ $arch = "linux-x86_64" ]; then
-	cross_prefix="x86_64-pc-linux-gnu-"
 fi
+
+CC=$cross_prefix$CC
+CXX=$cross_prefix$CXX
 
 if $debug; then
 	progname="${progname}-d"
@@ -82,8 +89,8 @@ else
 fi
 
 echo PREFIX=$prefix > Makefile
-echo "CC=${cross_prefix}gcc" >> Makefile
-echo "CXX=${cross_prefix}g++" >> Makefile
+echo "CC=$CC" >> Makefile
+echo "CXX=$CXX" >> Makefile
 echo "CFLAGS=$CFLAGS" >> Makefile
 echo "CXXFLAGS=$CXXFLAGS" >> Makefile
 echo "LDFLAGS=$LDFLAGS" >> Makefile
@@ -104,4 +111,4 @@ echo "Target architecture:	$target"
 echo "Debugging symbols:	$debug"
 echo "Output file:		$progname"
 echo "Installation prefix:	$prefix"
-echo Type \'make\' to build
+echo "Type 'make' to build"

@@ -125,7 +125,7 @@ void EventManager::read_messages()
 	if (max > 5) {
 		max = 5;
 		printf("%s: only reading first five messages\n",
-				m_cfgr->path().c_str());
+				m_cfgr->path());
 	}
 
 	error = false;
@@ -156,8 +156,7 @@ void EventManager::read_messages()
 		if (!valid) {
 			error = true;
 			fprintf(stderr, "%s: recurring message %lu: %s\n"
-					"skipping message\n",
-					m_cfgr->path().c_str(),
+					"skipping message\n", m_cfgr->path(),
 					i + 1, err.c_str());
 			continue;
 		}

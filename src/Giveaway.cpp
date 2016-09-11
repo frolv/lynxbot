@@ -315,13 +315,13 @@ bool Giveaway::readSettings()
 	valid = true;
 	if (!utils::parseBool(m_active, m_cfgr->get("giveaway_active"), err)) {
 		fprintf(stderr, "%s: giveaway_active: %s (defaulting to "
-				"false)\n", m_cfgr->path().c_str(), err.c_str());
+				"false)\n", m_cfgr->path(), err.c_str());
 		m_active = false;
 		valid = false;
 	}
 	if (!utils::parseBool(m_images, m_cfgr->get("image_giveaways"), err)) {
 		fprintf(stderr, "%s: image_giveaways: %s (defaulting to "
-				"false)\n", m_cfgr->path().c_str(), err.c_str());
+				"false)\n", m_cfgr->path(), err.c_str());
 		m_images = false;
 		valid = false;
 	}
@@ -334,28 +334,26 @@ bool Giveaway::readSettings()
 #endif
 	if (!utils::parseBool(m_type[1], m_cfgr->get("follower_giveaway"), err)) {
 		fprintf(stderr, "%s: follower_giveaway: %s (defaulting to "
-				"false)\n", m_cfgr->path().c_str(), err.c_str());
+				"false)\n", m_cfgr->path(), err.c_str());
 		m_type[1] = false;
 		valid = false;
 	}
 	if (!utils::parseInt(m_followerLimit, m_cfgr->get("follower_limit"), err)) {
 		fprintf(stderr, "%s: follower_limit: %s (follower giveaways "
-				"disabled\n", m_cfgr->path().c_str(),
-				err.c_str());
+				"disabled\n", m_cfgr->path(), err.c_str());
 		m_type[1] = false;
 		m_followerLimit = 10;
 		valid = false;
 	}
 	if (!utils::parseBool(m_type[2], m_cfgr->get("timed_giveaway"), err)) {
 		fprintf(stderr, "%s: timed_giveaway: %s (defaulting to false)\n",
-				m_cfgr->path().c_str(), err.c_str());
+				m_cfgr->path(), err.c_str());
 		m_type[2] = false;
 		valid = false;
 	}
 	if (!utils::parseInt(interval, m_cfgr->get("time_interval"), err)) {
 		fprintf(stderr, "%s: time_interval: %s (timed giveaways "
-				"disabled)\n", m_cfgr->path().c_str(),
-				err.c_str());
+				"disabled)\n", m_cfgr->path(), err.c_str());
 		m_type[2] = false;
 		interval = 15;
 		valid = false;
