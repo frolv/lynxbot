@@ -6,10 +6,10 @@
 #include "lynxbot.h"
 
 EventManager::EventManager(ConfigReader *cfgr)
-	: m_cfgr(cfgr), m_msg(false)
+	: cfg(cfgr), messages_active(false)
 {
 	read_messages();
-	m_msg = m_messages.size() > 0;
+	messages_active = message_list.size() > 0;
 }
 
 EventManager::~EventManager() {}
@@ -17,27 +17,27 @@ EventManager::~EventManager() {}
 /* active: return true if recurring messages are active */
 bool EventManager::active()
 {
-	return m_msg;
+	return messages_active;
 }
 
 /* activate: enable recurring messages */
 void EventManager::activate()
 {
-	m_msg = true;
+	messages_active = true;
 }
 
 /* deactivate: disable recurring messages */
 void EventManager::deactivate()
 {
-	m_msg = false;
+	messages_active = false;
 }
 
 /* addmsg: add a recurring message */
 bool EventManager::addmsg(const char *msg, time_t cd, bool write)
 {
-	if (m_messages.size() >= 5 || cd % 300 != 0 || cd > 3600)
+	if (message_list.size() >= 5 || cd % 300 != 0 || cd > 3600)
 		return false;
-	m_messages.push_back({ std::string(msg), cd });
+	message_list.push_back({ std::string(msg), cd });
 	reload_messages();
 	if (write)
 		write_messages();
@@ -47,10 +47,10 @@ bool EventManager::addmsg(const char *msg, time_t cd, bool write)
 /* delmsg: delete a recurring message */
 bool EventManager::delmsg(size_t id)
 {
-	if (id < 1 || id > m_messages.size())
+	if (id < 1 || id > message_list.size())
 		return false;
-	auto it = m_messages.begin() + (id - 1);
-	m_messages.erase(it);
+	auto it = message_list.begin() + (id - 1);
+	message_list.erase(it);
 	reload_messages();
 	write_messages();
 	return true;
@@ -59,9 +59,9 @@ bool EventManager::delmsg(size_t id)
 /* editmsg: modify recurring message id */
 bool EventManager::editmsg(size_t id, const char *msg, time_t cd)
 {
-	if (id < 1 || id > m_messages.size())
+	if (id < 1 || id > message_list.size())
 		return false;
-	auto &pair = m_messages[id - 1];
+	auto &pair = message_list[id - 1];
 	if (msg)
 		pair.first = std::string(msg);
 	if (cd != -1) {
@@ -76,15 +76,15 @@ bool EventManager::editmsg(size_t id, const char *msg, time_t cd)
 std::string EventManager::msglist() const
 {
 	std::string output = "(";
-	output += m_msg ? "active" : "inactive";
+	output += messages_active ? "active" : "inactive";
 	output += ") ";
-	for (size_t i = 0; i < m_messages.size(); ++i) {
+	for (size_t i = 0; i < message_list.size(); ++i) {
 		/* only display first 35 characters of each message */
 		output += std::to_string(i + 1) + ": "
 			+ message(i, 35)
-			+ (i == m_messages.size() - 1 ? "" : ", ");
+			+ (i == message_list.size() - 1 ? "" : ", ");
 	}
-	if (m_messages.empty())
+	if (message_list.empty())
 		output += "No recurring messages exist.";
 	return output;
 }
@@ -94,13 +94,13 @@ std::string EventManager::message(size_t id, int lim) const
 {
 	std::string output;
 
-	const std::string &msg = m_messages[id].first;
+	const std::string &msg = message_list[id].first;
 	if (lim == -1)
 		output += msg;
 	else
 		output += msg.length() < (size_t)lim
 			? msg : (msg.substr(0, lim - 3) + "...");
-	output += " [" + std::to_string(m_messages[id].second / 60) + "m]";
+	output += " [" + std::to_string(message_list[id].second / 60) + "m]";
 
 	return output;
 }
@@ -108,7 +108,7 @@ std::string EventManager::message(size_t id, int lim) const
 /* messages: return a pointer to messages vector */
 std::vector<std::pair<std::string, time_t>> *EventManager::messages()
 {
-	return &m_messages;
+	return &message_list;
 }
 
 /* read_messages: read recurring messages from file */
@@ -119,13 +119,13 @@ void EventManager::read_messages()
 	uint32_t cd;
 	std::string err;
 	std::vector<std::unordered_map<std::string, std::string>> &recurring =
-		m_cfgr->olist()["recurring"];
+		cfg->olist()["recurring"];
 
 	max = recurring.size();
 	if (max > 5) {
 		max = 5;
 		printf("%s: only reading first five messages\n",
-				m_cfgr->path());
+				cfg->path());
 	}
 
 	error = false;
@@ -156,7 +156,7 @@ void EventManager::read_messages()
 		if (!valid) {
 			error = true;
 			fprintf(stderr, "%s: recurring message %lu: %s\n"
-					"skipping message\n", m_cfgr->path(),
+					"skipping message\n", cfg->path(),
 					i + 1, err.c_str());
 			continue;
 		}
@@ -169,27 +169,27 @@ void EventManager::read_messages()
 void EventManager::write_messages()
 {
 	std::vector<std::unordered_map<std::string, std::string>> &recurring =
-		m_cfgr->olist()["recurring"];
+		cfg->olist()["recurring"];
 	recurring.clear();
-	for (auto &p : m_messages) {
+	for (auto &p : message_list) {
 		std::unordered_map<std::string, std::string> map;
 		map["message"] = p.first;
 		map["period"] = std::to_string(p.second / 60);
 		recurring.emplace_back(map);
 	}
-	m_cfgr->write();
+	cfg->write();
 }
 
 /* reload_messages: load all messages into timer */
 void EventManager::reload_messages()
 {
 	for (std::vector<std::string>::size_type i = 0;
-			i < m_messages.size(); ++i) {
+			i < message_list.size(); ++i) {
 		/* update offsets for all existing messages and new message */
 		std::string name = "msg" + std::to_string(i);
 		remove(name);
 		uint16_t offset =
-			static_cast<uint16_t>(i * (300 / m_messages.size()));
-		add(name, m_messages[i].second, time(nullptr) + offset);
+			static_cast<uint16_t>(i * (300 / message_list.size()));
+		add(name, message_list[i].second, time(nullptr) + offset);
 	}
 }

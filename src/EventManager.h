@@ -23,9 +23,9 @@ class EventManager : public TimerManager {
 		std::string message(size_t id, int lim = -1) const;
 		std::vector<std::pair<std::string, time_t>> *messages();
 	private:
-		ConfigReader *m_cfgr;
-		bool m_msg;
-		std::vector<std::pair<std::string, time_t>> m_messages;
+		ConfigReader *cfg;
+		bool messages_active;
+		std::vector<std::pair<std::string, time_t>> message_list;
 		void read_messages();
 		void write_messages();
 		void reload_messages();
