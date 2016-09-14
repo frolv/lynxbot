@@ -24,7 +24,7 @@ int CmdHandler::ge(char *out, struct command *c)
 {
 	int64_t amt, price;
 	cpr::Response resp;
-	Json::Value item;
+	const Json::Value *item;
 	char buf[MAX_MSG];
 	char num[RSN_BUF];
 	char *s;
@@ -83,14 +83,14 @@ int CmdHandler::ge(char *out, struct command *c)
 		*s = ' ';
 
 	/* find item in database */
-	if ((item = gereader.getItem(buf)).empty()) {
+	if (!(item = gereader.find_item(buf))) {
 		snprintf(out, MAX_MSG, "%s: item not found: %s",
 				c->argv[0], buf);
 		return EXIT_FAILURE;
 	}
 
 	/* read ge api and extract data */
-	snprintf(buf, MAX_MSG, "%s%d", EXCHANGE_API, item["id"].asInt());
+	snprintf(buf, MAX_MSG, "%s%d", EXCHANGE_API, (*item)["id"].asInt());
 	resp = cpr::Get(cpr::Url(buf), cpr::Header{{ "Connection", "close" }});
 	strcpy(buf, resp.text.c_str());
 
@@ -118,7 +118,7 @@ int CmdHandler::ge(char *out, struct command *c)
 		snprintf(buf, RSN_BUF, "%ld", amt * price);
 		fmtnum(num, RSN_BUF, buf);
 	}
-	snprintf(out, MAX_MSG, "%s: %s gp", item["name"].asCString(), num);
+	snprintf(out, MAX_MSG, "%s: %s gp", (*item)["name"].asCString(), num);
 
 	return EXIT_SUCCESS;
 }

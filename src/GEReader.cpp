@@ -10,12 +10,12 @@ static int json_bsearch(const Json::Value &a, const std::string &s,
 
 GEReader::GEReader()
 {
-	if (!(m_active = utils::readJSON("itemids.json", m_itemIDs))) {
+	if (!(enabled = utils::readJSON("itemids.json", items))) {
 		fprintf(stderr, "Failed to read itemids.json\n$ge command "
 				"will be disabled for this session\n");
 		return;
 	}
-	readNicks();
+	read_nicks();
 	sort();
 }
 
@@ -24,36 +24,35 @@ GEReader::~GEReader() {};
 /* active: return true if the GEReader is active */
 bool GEReader::active() const
 {
-	return m_active;
+	return enabled;
 }
 
 /* getItem: return the json value of the item with name name */
-Json::Value GEReader::getItem(const char *name) const
+const Json::Value *GEReader::find_item(const char *name)
 {
 	int ind;
-	const Json::Value &arr = m_itemIDs["items"];
+	const Json::Value &arr = items["items"];
 	std::string n(name);
 
 	std::transform(n.begin(), n.end(), n.begin(), tolower);
 	n[0] = toupper(n[0]);
 
-	if (m_nicks.find(n) != m_nicks.end())
-		n = m_nicks.at(n);
+	if (nickmap.find(n) != nickmap.end())
+		n = nickmap.at(n);
 
 	if ((ind = json_bsearch(arr, n, 0, arr.size() - 1)) != -1)
-		return arr[ind];
+		return &arr[ind];
 
-	/* return empty value if item not found */
-	return Json::Value();
+	return NULL;
 }
 
 /* readNicks: read all item nicknames into m_nicks */
-void GEReader::readNicks()
+void GEReader::read_nicks()
 {
-	for (Json::Value &val : m_itemIDs["items"]) {
+	for (Json::Value &val : items["items"]) {
 		if (val.isMember("nick")) {
 			for (Json::Value &nick : val["nick"])
-				m_nicks[nick.asString()]
+				nickmap[nick.asString()]
 					= val["name"].asString();
 		}
 	}
@@ -62,7 +61,7 @@ void GEReader::readNicks()
 /* sort: sort the items array by name */
 void GEReader::sort()
 {
-	Json::Value &arr = m_itemIDs["items"];
+	Json::Value &arr = items["items"];
 	json_qsort(arr, 0, arr.size() - 1);
 }
 

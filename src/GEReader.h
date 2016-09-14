@@ -5,17 +5,15 @@
 #include <unordered_map>
 
 class GEReader {
-
 	public:
 		GEReader();
 		~GEReader();
 		bool active() const;
-		Json::Value getItem(const char *name) const;
+		const Json::Value *find_item(const char *name);
 	private:
-		std::unordered_map<std::string, std::string> m_nicks;
-		Json::Value m_itemIDs;
-		bool m_active;
-		void readNicks();
+		std::unordered_map<std::string, std::string> nickmap;
+		Json::Value items;
+		bool enabled;
+		void read_nicks();
 		void sort();
-
 };
