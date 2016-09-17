@@ -105,7 +105,7 @@ int CmdHandler::setgiv(char *out, struct command *c)
 
 	if (strcmp(c->argv[l_optind], "check") == 0) {
 		snprintf(out, MAX_MSG, "@%s, %s", c->nick,
-				giveaway->currentSettings(type).c_str());
+				giveaway->current_settings(type).c_str());
 		return EXIT_SUCCESS;
 	}
 
@@ -130,17 +130,17 @@ static int process(char *out, Giveaway *g, struct command *c,
 	if (strcmp(c->argv[l_optind], "on") == 0) {
 		switch (type) {
 		case FOLLOW:
-			g->setFollowers(true, amt);
+			g->set_followers(true, amt);
 			snprintf(s, MAX_MSG, "giveaways set to occur every "
 					"%d followers.", g->followers());
 			break;
 		case TIMED:
-			g->setTimer(true, (time_t)amt * 60);
+			g->set_timer(true, (time_t)amt * 60);
 			snprintf(s, MAX_MSG, "giveaways set to occur every "
 					"%d minutes.", amt);
 			break;
 		case IMAGE:
-			g->setImages(true);
+			g->set_images(true);
 			snprintf(s, MAX_MSG, "image-based giveaways enabled.");
 			break;
 		default:
@@ -155,15 +155,15 @@ static int process(char *out, Giveaway *g, struct command *c,
 	} else {
 		switch (type) {
 		case FOLLOW:
-			g->setFollowers(false);
+			g->set_followers(false);
 			snprintf(s, MAX_MSG, "follower giveaways disabled.");
 			break;
 		case TIMED:
-			g->setTimer(false);
+			g->set_timer(false);
 			snprintf(s, MAX_MSG, "timed giveaways disabled.");
 			break;
 		case IMAGE:
-			g->setImages(false);
+			g->set_images(false);
 			snprintf(s, MAX_MSG, "image-based giveaways disabled.");
 			break;
 		default:

@@ -7,45 +7,45 @@ class ConfigReader;
 
 class Giveaway {
 	public:
-		Giveaway(const std::string &channel, time_t initTime,
+		Giveaway(const char *channel, time_t init_time,
 				ConfigReader *cfgr);
 		~Giveaway();
-		bool init(time_t initTime, bool first);
+		bool init(time_t init_time, bool first);
 		bool active() const;
-		bool activate(time_t initTime);
-		void setFollowers(bool setting, uint32_t amt = 0);
-		void setTimer(bool setting, time_t interval = 0);
-		void setImages(bool setting);
+		bool activate(time_t init_time);
+		void set_followers(bool setting, uint32_t amt = 0);
+		void set_timer(bool setting, time_t interval = 0);
+		void set_images(bool setting);
 		void deactivate();
-		/* bool checkSubs(); */
-		bool checkConditions(time_t curr);
+		/* bool check_subs(); */
+		bool check(time_t curr);
 		std::string giveaway();
 		uint32_t followers();
 		time_t interval();
-		std::string currentSettings(int8_t type = -1);
+		std::string current_settings(int8_t type = -1);
 		char *err();
 	private:
-		ConfigReader *m_cfgr;
-		bool m_active;
-		bool m_type[3] = { false, false, false };
-		bool m_images;
-		const std::string m_channel;
-		uint8_t m_reason;
-		uint32_t m_followerLimit;
-		uint32_t m_currFollowers;
-		time_t m_lastRequest;
-		time_t m_interval;
-		time_t m_earliest;
-		time_t m_latest;
-		std::vector<std::string> m_items;
-		char m_error[256];
+		ConfigReader *cfg;
+		bool enabled;
+		bool givtype[3] = { false, false, false };
+		bool images;
+		const char *bot_channel;
+		uint8_t reason;
+		uint32_t follower_limit;
+		uint32_t curr_followers;
+		time_t last_check;
+		time_t timed_interval;
+		time_t earliest;
+		time_t latest;
+		std::vector<std::string> items;
+		char error[256];
 		bool initialize();
-		uint32_t getFollowers() const;
-		void interactiveFollowers();
-		bool readSettings();
-		bool readGiveaway();
-		void writeGiveaway() const;
-		void writeSettings() const;
-		void updateTimes(time_t curr);
-		std::string getItem();
+		uint32_t get_followers() const;
+		void interactive_followers();
+		bool read_settings();
+		bool read_giveaway();
+		void write_giveaway() const;
+		void write_settings() const;
+		void update_times(time_t curr);
+		std::string get_item();
 };

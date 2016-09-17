@@ -15,11 +15,11 @@
 #define _BOT_VER_MAJOR	"1"
 #define _BOT_VER_MINOR	"4"
 #define _BOT_VER_PATCH	"7"
-#define _BOT_VER_SUF	""
+#define _BOT_VER_SUFFIX	""
 
 /* full version string */
 #define BOT_VERSION "v" _BOT_VER_MAJOR "." _BOT_VER_MINOR "."\
-	_BOT_VER_PATCH _BOT_VER_SUF
+	_BOT_VER_PATCH _BOT_VER_SUFFIX
 
 #ifndef MAX_MSG
 /* maximum length of chat message */

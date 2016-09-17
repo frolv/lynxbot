@@ -497,7 +497,7 @@ void TwitchBot::tick()
 			}
 		}
 		if (m_giveaway.active() && m_event.ready("checkgiveaway")) {
-			if (m_giveaway.checkConditions(time(nullptr)))
+			if (m_giveaway.check(time(nullptr)))
 				send_msg(&m_client, m_channel,
 						m_giveaway.giveaway().c_str());
 			m_event.setUsed("checkgiveaway");

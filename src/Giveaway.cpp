@@ -21,6 +21,8 @@
 
 static std::string mkimg(const std::string &item);
 
+const char *CHANNEL_API = "https://api.twitch.tv/kraken/channels/";
+
 #ifdef __linux__
 static int genimg(const char *conf, const char *code, const char *font);
 static int mergeimg(const char *conf);
@@ -29,14 +31,13 @@ static std::string upload(const char *conf);
 static const char *PTPB = "https://ptpb.pw";
 #endif
 
-Giveaway::Giveaway(const std::string &channel, time_t initTime,
-		ConfigReader *cfgr)
-	: m_cfgr(cfgr), m_active(false), m_images(false), m_channel(channel),
-	m_currFollowers(0), m_lastRequest(initTime), m_interval(0)
+Giveaway::Giveaway(const char *channel, time_t init_time, ConfigReader *cfgr)
+	: cfg(cfgr), enabled(false), images(false), bot_channel(channel),
+	curr_followers(0), last_check(init_time), timed_interval(0)
 {
-	init(initTime, true);
-	if (!readGiveaway()) {
-		if (m_active) {
+	init(init_time, true);
+	if (!read_giveaway()) {
+		if (enabled) {
 			printf("Nothing to give away!\n");
 			WAIT_INPUT();
 		}
@@ -46,132 +47,132 @@ Giveaway::Giveaway(const std::string &channel, time_t initTime,
 Giveaway::~Giveaway() {}
 
 /* init: read giveaways settings and initialize giveaway variables */
-bool Giveaway::init(time_t initTime, bool first)
+bool Giveaway::init(time_t init_time, bool first)
 {
-	if (!readSettings())
+	if (!read_settings())
 		WAIT_INPUT();
-	if (!m_active) {
+	if (!enabled) {
 		if (!first)
-			m_active = true;
+			enabled = true;
 		else
 			return false;
 	}
 	/* followers */
-	if (m_type[1]) {
+	if (givtype[1]) {
 		if (first)
-			interactiveFollowers();
+			interactive_followers();
 		else
-			m_currFollowers = getFollowers();
+			curr_followers = get_followers();
 	}
 	/* timer */
-	if (m_type[2])
-		updateTimes(initTime);
+	if (givtype[2])
+		update_times(init_time);
 	return true;
 }
 
 bool Giveaway::active() const
 {
-	return m_active;
+	return enabled;
 }
 
 /* activate: enable giveaways */
-bool Giveaway::activate(time_t initTime)
+bool Giveaway::activate(time_t init_time)
 {
-	if (m_active) {
-		strcpy(m_error, "giveaways are already active.");
+	if (enabled) {
+		strcpy(error, "giveaways are already active.");
 		return false;
 	}
-	if (!init(initTime, false)) {
-		strcpy(m_error, "failed to start giveaway. See "
+	if (!init(init_time, false)) {
+		strcpy(error, "failed to start giveaway. See "
 				"console for details.");
 		return false;
 	}
-	if (m_items.empty()) {
-		strcpy(m_error, "nothing left to give away!");
+	if (items.empty()) {
+		strcpy(error, "nothing left to give away!");
 		return false;
 	}
-	writeSettings();
+	write_settings();
 	return true;
 }
 
 /* deactivate: disable giveaways */
 void Giveaway::deactivate()
 {
-	m_active = false;
-	writeSettings();
+	enabled = false;
+	write_settings();
 }
 
-/* setFollowers: change giveaway follower settings */
-void Giveaway::setFollowers(bool setting, uint32_t amt)
+/* set_followers: change giveaway follower settings */
+void Giveaway::set_followers(bool setting, uint32_t amt)
 {
-	m_type[1] = setting;
+	givtype[1] = setting;
 	if (amt)
-		m_followerLimit = amt;
-	writeSettings();
+		follower_limit = amt;
+	write_settings();
 }
 
-/* setTimer: change giveaway timer settings */
-void Giveaway::setTimer(bool setting, time_t interval)
+/* set_timer: change giveaway timer settings */
+void Giveaway::set_timer(bool setting, time_t interval)
 {
-	m_type[2] = setting;
+	givtype[2] = setting;
 	if (interval) {
-		m_interval = interval;
-		updateTimes(time(NULL));
+		timed_interval = interval;
+		update_times(time(NULL));
 	}
-	writeSettings();
+	write_settings();
 }
 
-/* setImages: turn images on or off */
-void Giveaway::setImages(bool setting)
+/* set_images: turn images on or off */
+void Giveaway::set_images(bool setting)
 {
-	m_images = setting;
-	writeSettings();
+	images = setting;
+	write_settings();
 }
 
 /*
-bool Giveaway::checkSubs()
+bool Giveaway::check_subs()
 {
-	if (!m_active) {
+	if (!enabled) {
 		return false;
 	}
-	if (m_items.empty()) {
-		m_active = false;
+	if (items.empty()) {
+		enabled = false;
 		return false;
 	}
-	return m_type[0];
+	return givtype[0];
 }
 */
 
-/* checkConditions: check if giveaway conditions are satisfied */
-bool Giveaway::checkConditions(time_t curr)
+/* check: check if giveaway conditions are satisfied */
+bool Giveaway::check(time_t curr)
 {
-	if (m_items.empty()) {
-		m_active = false;
+	if (items.empty()) {
+		enabled = false;
 		return false;
 	}
 	/* check all conditions and update stored data */
-	if (m_type[1] && curr >= m_lastRequest + 60) {
+	if (givtype[1] && curr >= last_check + 60) {
 		/* followers */
-		m_lastRequest = curr;
-		uint32_t fol = getFollowers();
-		printf("Followers: %d (%d)\n", m_currFollowers, m_followerLimit);
-		if (fol >= m_currFollowers + m_followerLimit) {
-			m_currFollowers += m_followerLimit;
-			m_reason = 1;
+		last_check = curr;
+		uint32_t fol = get_followers();
+		printf("Followers: %d (%d)\n", curr_followers, follower_limit);
+		if (fol >= curr_followers + follower_limit) {
+			curr_followers += follower_limit;
+			reason = 1;
 			return true;
 		}
 	}
-	if (m_type[2]) {
+	if (givtype[2]) {
 		/* time based */
-		if (curr > m_earliest) {
-			time_t gap = m_latest - m_earliest;
+		if (curr > earliest) {
+			time_t gap = latest - earliest;
 			double prob =
-				static_cast<double>(curr - m_earliest) / gap;
+				static_cast<double>(curr - earliest) / gap;
 			std::random_device rd;
 			std::mt19937 gen(rd());
 			if (std::generate_canonical<double, 10>(gen) <= prob) {
-				updateTimes(curr);
-				m_reason = 2;
+				update_times(curr);
+				reason = 2;
 				return true;
 			}
 		}
@@ -183,19 +184,19 @@ bool Giveaway::checkConditions(time_t curr)
 std::string Giveaway::giveaway()
 {
 	std::string output = "[GIVEAWAY: ";
-	output += m_reason == 1 ? "followers" : "timed";
-	output += "] " + getItem() + " (next code in ";
-	switch (m_reason) {
+	output += reason == 1 ? "followers" : "timed";
+	output += "] " + get_item() + " (next code in ";
+	switch (reason) {
 	case 0:
 		/* subs */
 		break;
 	case 1:
 		/* followers */
-		output += std::to_string(m_followerLimit) + " followers";
+		output += std::to_string(follower_limit) + " followers";
 		break;
 	default:
 		/* timed */
-		output += "~" + std::to_string(m_interval / 60) + " minutes";
+		output += "~" + std::to_string(timed_interval / 60) + " minutes";
 		break;
 	}
 	output += ")";
@@ -204,20 +205,20 @@ std::string Giveaway::giveaway()
 
 uint32_t Giveaway::followers()
 {
-	return m_followerLimit;
+	return follower_limit;
 }
 
 time_t Giveaway::interval()
 {
-	return m_interval;
+	return timed_interval;
 }
 
-/* currentSettings: return a formatted string of current giveaway settings */
-std::string Giveaway::currentSettings(int8_t type)
+/* current_settings: return a formatted string of current giveaway settings */
+std::string Giveaway::current_settings(int8_t type)
 {
-	std::string followers = "every " + std::to_string(m_followerLimit)
+	std::string followers = "every " + std::to_string(follower_limit)
 		+ " followers";
-	std::string timed = "every " + std::to_string(m_interval / 60)
+	std::string timed = "every " + std::to_string(timed_interval / 60)
 		+ " minutes";
 	std::string output;
 
@@ -226,32 +227,32 @@ std::string Giveaway::currentSettings(int8_t type)
 		break;
 	case 1:
 		output = "follower giveaways are currently ";
-		if (!m_type[1])
+		if (!givtype[1])
 			return output + "inactive.";
 		output += "set to occur " + followers + ".";
 		break;
 	case 2:
 		output = "timed giveaways are currently ";
-		if (!m_type[2])
+		if (!givtype[2])
 			return output + "inactive.";
 		output += "set to occur " + timed + ".";
 		break;
 	case 3:
 		output = "image-based giveaways are currently ";
-		output += m_images ? "active." : "inactive.";
+		output += images ? "active." : "inactive.";
 		break;
 	default:
-		if (m_active && m_images)
+		if (enabled && images)
 			output += "image-based ";
 		output += "giveaways are currently ";
-		if (!m_active)
+		if (!enabled)
 			return output + "inactive.";
 		output += "active and set to occur ";
-		if (m_type[1])
-			output += followers + (m_type[2] ? " and " : ".");
-		if (m_type[2])
+		if (givtype[1])
+			output += followers + (givtype[2] ? " and " : ".");
+		if (givtype[2])
 			output += timed + ".";
-		if (!m_type[1] && !m_type[2])
+		if (!givtype[1] && !givtype[2])
 			output += "never.";
 		break;
 	}
@@ -261,38 +262,40 @@ std::string Giveaway::currentSettings(int8_t type)
 
 char *Giveaway::err()
 {
-	return m_error;
+	return error;
 }
 
-/* getFollowers: read channel followers from Twitch API */
-uint32_t Giveaway::getFollowers() const
+/* get_followers: read channel followers from Twitch API */
+uint32_t Giveaway::get_followers() const
 {
-	cpr::Response resp =
-		cpr::Get(cpr::Url("https://api.twitch.tv/kraken/channels/"
-				+ m_channel + "/follows?limit=1"),
-		cpr::Header{{ "Client-ID", "kkjhmekkzbepq0pgn34g671y5nexap8" }});
+	cpr::Response resp;
 	Json::Reader reader;
 	Json::Value val;
+	char url[256];
+
+	snprintf(url, 256, "%s%s/follows?limit=1", CHANNEL_API, bot_channel);
+	resp = cpr::Get(cpr::Url(url), cpr::Header{
+			{ "Client-ID", "kkjhmekkzbepq0pgn34g671y5nexap8" }});
 	if (!reader.parse(resp.text, val)) {
 		fprintf(stderr, "Failed to get followers for #%s.",
-				m_channel.c_str());
+				bot_channel);
 		return 0;
 	}
 	return val["_total"].asInt();
 }
 
-/* interactiveFollowers: continuously prompt user to read followers */
-void Giveaway::interactiveFollowers()
+/* interactive_followers: continuously prompt user to read followers */
+void Giveaway::interactive_followers()
 {
 	int c;
 
-	while (!(m_currFollowers = getFollowers())) {
+	while (!(curr_followers = get_followers())) {
 		printf("Try again? (y/n) ");
 		while ((c = getchar()) != EOF) {
 			if (c == 'y' || c == 'Y') {
 				break;
 			} else if (c == 'n' || c == 'N') {
-				m_type[1] = false;
+				givtype[1] = false;
 				printf("Follower giveaways will be disabled "
 						"for this session\n\n");
 				return;
@@ -305,65 +308,65 @@ void Giveaway::interactiveFollowers()
 	}
 }
 
-/* readSettings: read all giveaway settings */
-bool Giveaway::readSettings()
+/* read_settings: read all giveaway settings */
+bool Giveaway::read_settings()
 {
 	std::string err;
 	bool valid;
 	uint32_t interval;
 
 	valid = true;
-	if (!utils::parseBool(m_active, m_cfgr->get("giveaway_active"), err)) {
+	if (!utils::parseBool(enabled, cfg->get("giveaway_active"), err)) {
 		fprintf(stderr, "%s: giveaway_active: %s (defaulting to "
-				"false)\n", m_cfgr->path(), err.c_str());
-		m_active = false;
+				"false)\n", cfg->path(), err.c_str());
+		enabled = false;
 		valid = false;
 	}
-	if (!utils::parseBool(m_images, m_cfgr->get("image_giveaways"), err)) {
+	if (!utils::parseBool(images, cfg->get("image_giveaways"), err)) {
 		fprintf(stderr, "%s: image_giveaways: %s (defaulting to "
-				"false)\n", m_cfgr->path(), err.c_str());
-		m_images = false;
+				"false)\n", cfg->path(), err.c_str());
+		images = false;
 		valid = false;
 	}
 #ifdef _WIN32
-	if (m_images) {
+	if (images) {
 		printf("Image-based giveaways are not available "
 				"on Windows systems\n");
-		m_images = false;
+		images = false;
 	}
 #endif
-	if (!utils::parseBool(m_type[1], m_cfgr->get("follower_giveaway"), err)) {
+	if (!utils::parseBool(givtype[1], cfg->get("follower_giveaway"), err)) {
 		fprintf(stderr, "%s: follower_giveaway: %s (defaulting to "
-				"false)\n", m_cfgr->path(), err.c_str());
-		m_type[1] = false;
+				"false)\n", cfg->path(), err.c_str());
+		givtype[1] = false;
 		valid = false;
 	}
-	if (!utils::parseInt(m_followerLimit, m_cfgr->get("follower_limit"), err)) {
+	if (!utils::parseInt(follower_limit, cfg->get("follower_limit"), err)) {
 		fprintf(stderr, "%s: follower_limit: %s (follower giveaways "
-				"disabled\n", m_cfgr->path(), err.c_str());
-		m_type[1] = false;
-		m_followerLimit = 10;
+				"disabled\n", cfg->path(), err.c_str());
+		givtype[1] = false;
+		follower_limit = 10;
 		valid = false;
 	}
-	if (!utils::parseBool(m_type[2], m_cfgr->get("timed_giveaway"), err)) {
+	if (!utils::parseBool(givtype[2], cfg->get("timed_giveaway"), err)) {
 		fprintf(stderr, "%s: timed_giveaway: %s (defaulting to false)\n",
-				m_cfgr->path(), err.c_str());
-		m_type[2] = false;
+				cfg->path(), err.c_str());
+		givtype[2] = false;
 		valid = false;
 	}
-	if (!utils::parseInt(interval, m_cfgr->get("time_interval"), err)) {
+	if (!utils::parseInt(interval, cfg->get("time_interval"), err)) {
 		fprintf(stderr, "%s: time_interval: %s (timed giveaways "
-				"disabled)\n", m_cfgr->path(), err.c_str());
-		m_type[2] = false;
+				"disabled)\n", cfg->path(), err.c_str());
+		givtype[2] = false;
 		interval = 15;
 		valid = false;
 	}
-	m_interval = interval * 60;
+	timed_interval = interval * 60;
 	return valid;
 }
 
-/* readGiveaway: read giveaway items from file */
-bool Giveaway::readGiveaway()
+/* read_giveaway: read giveaway items from file */
+bool Giveaway::read_giveaway()
 {
 	std::string path = utils::configdir() + utils::config("giveaway");
 	std::ifstream reader(path);
@@ -378,55 +381,55 @@ bool Giveaway::readGiveaway()
 					path.c_str(), line.c_str());
 			continue;
 		} else {
-			m_items.push_back(line);
+			items.push_back(line);
 		}
 	}
 	reader.close();
 	return true;
 }
 
-/* writeGiveaway: write giveaway items to file */
-void Giveaway::writeGiveaway() const
+/* write_giveaway: write giveaway items to file */
+void Giveaway::write_giveaway() const
 {
 	std::string path = utils::configdir() + utils::config("giveaway");
 	std::ofstream writer(path);
 	if (writer.is_open()) {
-		for (auto &s : m_items)
+		for (auto &s : items)
 			writer << s << std::endl;
 	}
 	writer.close();
 }
 
-/* writeSettings: write giveaway settings to file */
-void Giveaway::writeSettings() const
+/* write_settings: write giveaway settings to file */
+void Giveaway::write_settings() const
 {
-	m_cfgr->set("giveaway_active", m_active ? "true" : "false");
-	m_cfgr->set("image_giveaways", m_images ? "true" : "false");
-	m_cfgr->set("follower_giveaway", m_type[1] ? "true" : "false");
-	m_cfgr->set("follower_limit", std::to_string(m_followerLimit));
-	m_cfgr->set("timed_giveaway", m_type[2] ? "true" : "false");
-	m_cfgr->set("time_interval", std::to_string(m_interval / 60));
-	m_cfgr->write();
+	cfg->set("giveaway_active", enabled ? "true" : "false");
+	cfg->set("image_giveaways", images ? "true" : "false");
+	cfg->set("follower_giveaway", givtype[1] ? "true" : "false");
+	cfg->set("follower_limit", std::to_string(follower_limit));
+	cfg->set("timed_giveaway", givtype[2] ? "true" : "false");
+	cfg->set("time_interval", std::to_string(timed_interval / 60));
+	cfg->write();
 }
 
 /* update times: update interval in which timed giveaway will occur */
-void Giveaway::updateTimes(time_t curr)
+void Giveaway::update_times(time_t curr)
 {
 	/* timed giveaways are done within an interval to allow for variation */
-	m_earliest = curr + static_cast<time_t>(m_interval * 0.8);
-	m_latest = curr + static_cast<time_t>(m_interval * 1.2);
+	earliest = curr + static_cast<time_t>(timed_interval * 0.8);
+	latest = curr + static_cast<time_t>(timed_interval * 1.2);
 }
 
-/* getItem: return the last item in m_items */
-std::string Giveaway::getItem()
+/* get_item: return the last item in items */
+std::string Giveaway::get_item()
 {
 	std::string item;
-	if (!m_items.empty()) {
-		item = m_items[m_items.size() - 1];
-		m_items.pop_back();
-		writeGiveaway();
+	if (!items.empty()) {
+		item = items[items.size() - 1];
+		items.pop_back();
+		write_giveaway();
 	}
-	if (m_images)
+	if (images)
 		item = mkimg(item);
 	return item;
 }
