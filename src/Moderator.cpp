@@ -21,44 +21,44 @@ Moderator::Moderator(const char *name, const char *channel, URLParser *urlp,
 	invalid = false;
 	utils::split(cfg->get("whitelist"), '\n', whitelisted_sites);
 	pastefmt = cfg->get("whitelist").length() > 300;
-	if (!utils::parseBool(enabled, cfg->get("enable_moderation"), err)) {
+	if (!utils::parse_bool(enabled, cfg->get("enable_moderation"), err)) {
 		fprintf(stderr, "%s: enable_moderation: %s (defaulting to "
 				"false)\n", cfg->path(), err.c_str());
 		enabled = false;
 		invalid = true;
 	}
-	if (!utils::parseBool(ban_urls, cfg->get("ban_urls"), err)) {
+	if (!utils::parse_bool(ban_urls, cfg->get("ban_urls"), err)) {
 		fprintf(stderr, "%s: ban_urls: %s (defaulting to true)\n",
 				cfg->path(), err.c_str());
 		ban_urls = true;
 		invalid = true;
 	}
-	if (!utils::parseInt(max_message_len, cfg->get("max_message_len"),
+	if (!utils::parse_int(max_message_len, cfg->get("max_message_len"),
 				err)) {
 		fprintf(stderr, "%s: max_message_len: %s (defaulting to 300)\n",
 				cfg->path(), err.c_str());
 		max_message_len = 300;
 		invalid = true;
 	}
-	if (!utils::parseInt(max_pattern, cfg->get("max_pattern"), err)) {
+	if (!utils::parse_int(max_pattern, cfg->get("max_pattern"), err)) {
 		fprintf(stderr, "%s: max_pattern: %s (defaulting to 6)\n",
 				cfg->path(), err.c_str());
 		max_pattern = 6;
 		invalid = true;
 	}
-	if (!utils::parseInt(max_char, cfg->get("max_char"), err)) {
+	if (!utils::parse_int(max_char, cfg->get("max_char"), err)) {
 		fprintf(stderr, "%s: max_char: %s (defaulting to 15)\n",
 				cfg->path(), err.c_str());
 		max_char = 15;
 		invalid = true;
 	}
-	if (!utils::parseInt(cap_len, cfg->get("cap_len"), err)) {
+	if (!utils::parse_int(cap_len, cfg->get("cap_len"), err)) {
 		fprintf(stderr, "%s: cap_len: %s (defaulting to 30)\n",
 				cfg->path(), err.c_str());
 		cap_len = 30;
 		invalid = true;
 	}
-	if (!utils::parseInt(cratio, cfg->get("cratio"), err)) {
+	if (!utils::parse_int(cratio, cfg->get("cap_ratio"), err)) {
 		fprintf(stderr, "%s: cratio: %s (defaulting to 80)\n",
 				cfg->path(), err.c_str());
 		cap_ratio = 0.8;

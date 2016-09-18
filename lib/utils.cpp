@@ -32,16 +32,6 @@ static std::unordered_map<std::string, std::string> configs = {
 
 static const std::string PB = "https://ptpb.pw/";
 
-bool utils::startsWith(const std::string &str, const std::string &prefix)
-{
-	return str.find(prefix) == 0;
-}
-
-bool utils::endsWith(const std::string &str, const std::string &suffix)
-{
-	return str.find(suffix) == str.length() - suffix.length();
-}
-
 std::vector<std::string> &utils::split(const std::string &str,
 		char delim, std::vector<std::string> &elems)
 {
@@ -54,7 +44,7 @@ std::vector<std::string> &utils::split(const std::string &str,
 	return elems;
 }
 
-std::string utils::formatInteger(std::string integer)
+std::string utils::format_int(std::string integer)
 {
 	int pos = integer.length() - 3;
 	if (pos < 1)
@@ -121,7 +111,7 @@ std::string utils::config(const std::string &cfg)
 	return path;
 }
 
-bool utils::readJSON(const std::string &filename, Json::Value &val)
+bool utils::read_json(const std::string &filename, Json::Value &val)
 {
 	Json::Reader reader;
 	std::ifstream fileStream(configdir() + "/json/" + filename,
@@ -134,7 +124,7 @@ bool utils::readJSON(const std::string &filename, Json::Value &val)
 	return true;
 }
 
-void utils::writeJSON(const std::string &filename, Json::Value &val)
+void utils::write_json(const std::string &filename, Json::Value &val)
 {
 	std::ofstream ofile(configdir() + "/json/" + filename);
 	Json::StyledWriter sw;
@@ -142,7 +132,7 @@ void utils::writeJSON(const std::string &filename, Json::Value &val)
 	ofile.close();
 }
 
-bool utils::parseBool(bool &b, const std::string &s, std::string &err)
+bool utils::parse_bool(bool &b, const std::string &s, std::string &err)
 {
 	if (s == "true") {
 		b = true;
@@ -156,7 +146,7 @@ bool utils::parseBool(bool &b, const std::string &s, std::string &err)
 	return false;
 }
 
-bool utils::parseInt(uint32_t &i, const std::string &s, std::string &err)
+bool utils::parse_int(uint32_t &i, const std::string &s, std::string &err)
 {
 	try {
 		i = std::stoi(s);
@@ -168,8 +158,8 @@ bool utils::parseInt(uint32_t &i, const std::string &s, std::string &err)
 }
 
 #define MIN	 60
-#define HOUR	 3600
-#define DAY	 86400
+#define HOUR	 (60 * MIN)
+#define DAY	 (24 * HOUR)
 
 /* conv_time: convert t to days, hours, minutes and seconds */
 std::string utils::conv_time(time_t t)

@@ -10,7 +10,7 @@ static int json_bsearch(const Json::Value &a, const std::string &s,
 
 GEReader::GEReader()
 {
-	if (!(enabled = utils::readJSON("itemids.json", items))) {
+	if (!(enabled = utils::read_json("itemids.json", items))) {
 		fprintf(stderr, "Failed to read itemids.json\n$ge command "
 				"will be disabled for this session\n");
 		return;

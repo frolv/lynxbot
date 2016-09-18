@@ -9,7 +9,7 @@ SelectionWheel::SelectionWheel()
 		"desc", "usage", "cooldown"};
 
 	srand(static_cast<uint32_t>(time(nullptr)));
-	if (!utils::readJSON("wheel.json", wheeldata)) {
+	if (!utils::read_json("wheel.json", wheeldata)) {
 		fprintf(stderr, "Could not read wheel.json. Wheel will "
 				"be disabled for this session\n");
 		enabled = false;

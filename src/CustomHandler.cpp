@@ -12,7 +12,7 @@ CustomHandler::CustomHandler(CmdHandler::cmdmap *cmap, TimerManager *tm,
 	: default_cmds(cmap), cooldowns(tm), wheel_cmd(wheelcmd),
 	bot_name(name), bot_channel(channel)
 {
-	if (!(enabled = utils::readJSON("customcmds.json", custom_cmds))) {
+	if (!(enabled = utils::read_json("customcmds.json", custom_cmds))) {
 		fprintf(stderr, "Could not read customcmds.json.\n");
 		return;
 	}
@@ -201,7 +201,7 @@ size_t CustomHandler::size()
 /* write: write all commands to file */
 void CustomHandler::write()
 {
-	utils::writeJSON("customcmds.json", custom_cmds);
+	utils::write_json("customcmds.json", custom_cmds);
 }
 
 /* valid_name: check if cmd is a valid command name */

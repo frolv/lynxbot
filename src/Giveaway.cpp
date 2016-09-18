@@ -316,13 +316,13 @@ bool Giveaway::read_settings()
 	uint32_t interval;
 
 	valid = true;
-	if (!utils::parseBool(enabled, cfg->get("giveaway_active"), err)) {
+	if (!utils::parse_bool(enabled, cfg->get("giveaway_active"), err)) {
 		fprintf(stderr, "%s: giveaway_active: %s (defaulting to "
 				"false)\n", cfg->path(), err.c_str());
 		enabled = false;
 		valid = false;
 	}
-	if (!utils::parseBool(images, cfg->get("image_giveaways"), err)) {
+	if (!utils::parse_bool(images, cfg->get("image_giveaways"), err)) {
 		fprintf(stderr, "%s: image_giveaways: %s (defaulting to "
 				"false)\n", cfg->path(), err.c_str());
 		images = false;
@@ -335,26 +335,26 @@ bool Giveaway::read_settings()
 		images = false;
 	}
 #endif
-	if (!utils::parseBool(givtype[1], cfg->get("follower_giveaway"), err)) {
+	if (!utils::parse_bool(givtype[1], cfg->get("follower_giveaway"), err)) {
 		fprintf(stderr, "%s: follower_giveaway: %s (defaulting to "
 				"false)\n", cfg->path(), err.c_str());
 		givtype[1] = false;
 		valid = false;
 	}
-	if (!utils::parseInt(follower_limit, cfg->get("follower_limit"), err)) {
+	if (!utils::parse_int(follower_limit, cfg->get("follower_limit"), err)) {
 		fprintf(stderr, "%s: follower_limit: %s (follower giveaways "
 				"disabled\n", cfg->path(), err.c_str());
 		givtype[1] = false;
 		follower_limit = 10;
 		valid = false;
 	}
-	if (!utils::parseBool(givtype[2], cfg->get("timed_giveaway"), err)) {
+	if (!utils::parse_bool(givtype[2], cfg->get("timed_giveaway"), err)) {
 		fprintf(stderr, "%s: timed_giveaway: %s (defaulting to false)\n",
 				cfg->path(), err.c_str());
 		givtype[2] = false;
 		valid = false;
 	}
-	if (!utils::parseInt(interval, cfg->get("time_interval"), err)) {
+	if (!utils::parse_int(interval, cfg->get("time_interval"), err)) {
 		fprintf(stderr, "%s: time_interval: %s (timed giveaways "
 				"disabled)\n", cfg->path(), err.c_str());
 		givtype[2] = false;

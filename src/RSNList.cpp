@@ -29,7 +29,7 @@ int RSNList::add(const char *nick, const char *rsn)
 	user["rsn"] = rsn;
 	user["prev"] = prev;
 	rsns["rsns"].append(user);
-	utils::writeJSON("rsns.json", rsns);
+	utils::write_json("rsns.json", rsns);
 	return 1;
 }
 
@@ -46,7 +46,7 @@ int RSNList::edit(const char *nick, const char *rsn)
 	}
 	(*user)["prev"].append((*user)["rsn"].asString());
 	(*user)["rsn"] = rsn;
-	utils::writeJSON("rsns.json", rsns);
+	utils::write_json("rsns.json", rsns);
 	return 1;
 }
 
@@ -67,7 +67,7 @@ int RSNList::del(const char *nick)
 		return 0;
 
 	rsns["rsns"].removeIndex(ind, &rem);
-	utils::writeJSON("rsns.json", rsns);
+	utils::write_json("rsns.json", rsns);
 	return 1;
 }
 
@@ -148,7 +148,7 @@ Json::Value *RSNList::find_nick(const char *rsn)
 /* read the rsns file into rsns */
 int RSNList::read_rsns()
 {
-	if (!utils::readJSON("rsns.json", rsns) || !rsns.isMember("rsns")
+	if (!utils::read_json("rsns.json", rsns) || !rsns.isMember("rsns")
 			|| !rsns["rsns"].isArray())
 		return 0;
 	for (auto &val : rsns["rsns"]) {

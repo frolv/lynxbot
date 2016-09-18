@@ -143,7 +143,7 @@ void EventManager::read_messages()
 		}
 
 		if (valid) {
-			if (!utils::parseInt(cd, map["period"], err)) {
+			if (!utils::parse_int(cd, map["period"], err)) {
 				valid = false;
 			} else if (!addmsg(map["message"].c_str(),
 						cd * 60, false)) {

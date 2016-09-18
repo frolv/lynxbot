@@ -28,7 +28,7 @@ CmdHandler::CmdHandler(const char *name, const char *channel, const char *token,
 	}
 
 	/* read all responses from file */
-	if ((responding = utils::readJSON("responses.json", responses))) {
+	if ((responding = utils::read_json("responses.json", responses))) {
 		/* add response cooldowns to TimerManager */
 		for (auto &val : responses["responses"])
 			cooldowns.add('_' + val["name"].asString(),
@@ -43,7 +43,7 @@ CmdHandler::CmdHandler(const char *name, const char *channel, const char *token,
 	utils::split(cfg->get("extra8ballresponses"), '\n', eightball_responses);
 
 	/* read fashion.json */
-	if (!utils::readJSON("fashion.json", fashion))
+	if (!utils::read_json("fashion.json", fashion))
 		fprintf(stderr, "Could not read fashion.json\n");
 
 	populate_help();

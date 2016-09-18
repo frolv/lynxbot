@@ -41,13 +41,13 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 	parse_submsg(resubmsg, "resubmessage");
 
 	error = false;
-	if (!utils::parseBool(url_titles, cfg->get("url_titles"), err)) {
+	if (!utils::parse_bool(url_titles, cfg->get("url_titles"), err)) {
 		fprintf(stderr, "%s: url_titles: %s (defaulting to true)\n",
 				cfg->path(), err.c_str());
 		url_titles = true;
 		error = true;
 	}
-	if (!utils::parseBool(familiarity_mode, cfg->get("familiarity_mode"),
+	if (!utils::parse_bool(familiarity_mode, cfg->get("familiarity_mode"),
 				err)) {
 		fprintf(stderr, "%s: familiarity_mode: %s "
 				"(defaulting to false)\n",
@@ -55,7 +55,7 @@ TwitchBot::TwitchBot(const char *name, const char *channel,
 		familiarity_mode = false;
 		error = true;
 	}
-	if (!utils::parseBool(auto_disable, cfg->get("auto_disable"), err)) {
+	if (!utils::parse_bool(auto_disable, cfg->get("auto_disable"), err)) {
 		fprintf(stderr, "%s: auto_disable: %s (defaulting to true)\n",
 				cfg->path(), err.c_str());
 		auto_disable = true;
