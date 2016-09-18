@@ -246,7 +246,7 @@ bool TwitchBot::process_privmsg(char *privmsg)
 	}
 
 	/* get URL information */
-	if (parser.wasModified()) {
+	if (parser.modified()) {
 		if (!process_url(out))
 			return false;
 		if (*out) {
@@ -265,16 +265,16 @@ bool TwitchBot::process_privmsg(char *privmsg)
 /* process_url: extract url information and store in out */
 bool TwitchBot::process_url(char *out)
 {
-	URLParser::URL *url;
+	struct URLParser::url *url;
 	cpr::Response resp;
 	std::string title;
 	char buf[MAX_MSG];
 
-	url = parser.getLast();
-	if (url->twitter && !url->tweetID.empty()) {
+	url = parser.last();
+	if (url->twitter && !url->tweet_id.empty()) {
 		/* print info about twitter statuses */
 		tw::Reader twr(&auth);
-		if (twr.read_tweet(url->tweetID)) {
+		if (twr.read_tweet(url->tweet_id)) {
 			snprintf(out, MAX_MSG, "%s", twr.result().c_str());
 			return true;
 		}
@@ -492,7 +492,7 @@ void TwitchBot::tick()
 					send_msg(&client, bot_channel,
 							((*evtman.messages())[i])
 							.first.c_str());
-				evtman.setUsed("msg" + std::to_string(i));
+				evtman.set_used("msg" + std::to_string(i));
 				break;
 			}
 		}
@@ -500,11 +500,11 @@ void TwitchBot::tick()
 			if (giveaway.check(time(nullptr)))
 				send_msg(&client, bot_channel,
 						giveaway.giveaway().c_str());
-			evtman.setUsed("checkgiveaway");
+			evtman.set_used("checkgiveaway");
 		}
 		if (evtman.ready("checkuptime")) {
 			check_channel(bot_channel + 1, bot_token);
-			evtman.setUsed("checkuptime");
+			evtman.set_used("checkuptime");
 			if (auto_disable) {
 				if (channel_uptime())
 					evtman.activate();

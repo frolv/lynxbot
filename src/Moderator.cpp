@@ -92,7 +92,7 @@ bool Moderator::validmsg(const std::string &msg, const char *nick,
 				max_message_len);
 		valid = false;
 	}
-	if (valid && ban_urls && parser->wasModified() && check_wl()) {
+	if (valid && ban_urls && parser->modified() && check_wl()) {
 		if (permitted.find(nick) != permitted.end()
 				&& permitted[nick] != 0) {
 			/* -1 indicates session long permission */
@@ -101,7 +101,7 @@ bool Moderator::validmsg(const std::string &msg, const char *nick,
 		} else {
 			reason = "no posting links!";
 			snprintf(logmsg, LOG_LEN, "posted unauthorized link: %s",
-					parser->getLast()->full.c_str());
+					parser->last()->full.c_str());
 			valid = false;
 		}
 	}
@@ -271,8 +271,8 @@ bool Moderator::check_wl() const
 {
 	std::string domain, sub;
 
-	domain = parser->getLast()->domain;
-	sub = parser->getLast()->subdomain + domain;
+	domain = parser->last()->domain;
+	sub = parser->last()->subdomain + domain;
 
 	return std::find(whitelisted_sites.begin(), whitelisted_sites.end(), domain)
 		== whitelisted_sites.end() && std::find(whitelisted_sites.begin(),

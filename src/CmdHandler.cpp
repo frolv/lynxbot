@@ -106,7 +106,7 @@ int CmdHandler::process_resp(char *out, char *msg, char *nick)
 		}
 		if (std::regex_search(message.begin(), message.end(), match,
 				respreg) && cooldowns.ready(name)) {
-			cooldowns.setUsed(name);
+			cooldowns.set_used(name);
 			snprintf(out, MAX_MSG, "@%s, %s", nick,
 					val["response"].asCString());
 			return 1;
@@ -143,7 +143,7 @@ void CmdHandler::process_default(char *out, struct command *c)
 {
 	if (P_ALSUB(c->privileges) || cooldowns.ready(c->argv[0])) {
 		return_status = (this->*default_cmds[c->argv[0]])(out, c);
-		cooldowns.setUsed(c->argv[0]);
+		cooldowns.set_used(c->argv[0]);
 	} else {
 		snprintf(out, MAX_MSG, "/w %s command is on cooldown: %s",
 				c->nick, c->argv[0]);
@@ -163,7 +163,7 @@ void CmdHandler::process_custom(char *out, struct command *c)
 		(*ccmd)["atime"] = (Json::Int64)time(nullptr);
 		(*ccmd)["uses"] = (*ccmd)["uses"].asInt() + 1;
 		snprintf(out, MAX_MSG, "%s", custom_cmds->format(ccmd, c->nick));
-		cooldowns.setUsed((*ccmd)["cmd"].asString());
+		cooldowns.set_used((*ccmd)["cmd"].asString());
 		custom_cmds->write();
 		return_status = EXIT_SUCCESS;
 		return;

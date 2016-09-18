@@ -77,8 +77,8 @@ int CmdHandler::whitelist(char *out, struct command *c)
 	if (urlparser->parse(c->argv[l_optind])) {
 		/* extract domain and add to whitelist */
 		snprintf(url, MAX_URL, "%s%s",
-				urlparser->getLast()->subdomain.c_str(),
-				urlparser->getLast()->domain.c_str());
+				urlparser->last()->subdomain.c_str(),
+				urlparser->last()->domain.c_str());
 		if (del) {
 			if (moderator->delurl(url))
 				snprintf(s, MAX_MSG, "%s has been removed "

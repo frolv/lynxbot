@@ -4,19 +4,19 @@
 
 class URLParser {
 	public:
-		struct URL {
+		struct url {
 			std::string full;
 			std::string domain;
 			std::string subdomain;
 			bool twitter;
-			std::string tweetID;
+			std::string tweet_id;
 		};
 		URLParser();
 		bool parse(const std::string &url);
-		URL *getLast();
-		bool wasModified();
+		struct url *last();
+		bool modified();
 
 	private:
-		URL m_last;
-		bool m_modified;
+		struct url last_url;
+		bool url_modified;
 };
