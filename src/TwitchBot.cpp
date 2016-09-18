@@ -18,47 +18,47 @@ static std::string urltitle(const std::string &resp);
 TwitchBot::TwitchBot(const char *name, const char *channel,
 		const char *password, const char *token,
 		ConfigReader *cfgr)
-	: m_connected(false), m_password(password), m_nick(name),
-	m_channel(channel), m_token(token),
-	m_cmdhnd(name, channel + 1, token, &m_mod, &m_parser, &m_event,
-			&m_giveaway, cfgr, &m_auth),
-	m_cfgr(cfgr), m_event(cfgr),
-	m_giveaway(channel + 1, time(nullptr), cfgr),
-	m_mod(name, channel, &m_parser, cfgr, &m_client, &m_names)
+	: bot_connected(false), bot_password(password), bot_name(name),
+	bot_channel(channel), bot_token(token),
+	cmdhnd(name, channel + 1, token, &mod, &parser, &evtman,
+			&giveaway, cfgr, &auth),
+	cfg(cfgr), evtman(cfgr),
+	giveaway(channel + 1, time(nullptr), cfgr),
+	mod(name, channel, &parser, cfgr, &client, &active_users)
 {
 	std::string err;
 	bool error;
 
 	/* create uptime checking event */
 	if (strcmp(token, "NULL") != 0)
-		m_event.add("checkuptime", 60, time(nullptr));
+		evtman.add("checkuptime", 60, time(nullptr));
 
 	/* create giveaway checking event */
-	m_event.add("checkgiveaway", 10, time(nullptr));
+	evtman.add("checkgiveaway", 10, time(nullptr));
 
 	/* read the subscriber messages */
-	parseSubMsg(m_subMsg, "submessage");
-	parseSubMsg(m_resubMsg, "resubmessage");
+	parse_submsg(submsg, "submessage");
+	parse_submsg(resubmsg, "resubmessage");
 
 	error = false;
-	if (!utils::parseBool(m_urltitles, m_cfgr->get("url_titles"), err)) {
+	if (!utils::parseBool(url_titles, cfg->get("url_titles"), err)) {
 		fprintf(stderr, "%s: url_titles: %s (defaulting to true)\n",
-				m_cfgr->path(), err.c_str());
-		m_urltitles = true;
+				cfg->path(), err.c_str());
+		url_titles = true;
 		error = true;
 	}
-	if (!utils::parseBool(m_familiarity, m_cfgr->get("familiarity_mode"),
+	if (!utils::parseBool(familiarity_mode, cfg->get("familiarity_mode"),
 				err)) {
 		fprintf(stderr, "%s: familiarity_mode: %s "
 				"(defaulting to false)\n",
-				m_cfgr->path(), err.c_str());
-		m_familiarity = false;
+				cfg->path(), err.c_str());
+		familiarity_mode = false;
 		error = true;
 	}
-	if (!utils::parseBool(m_disable, m_cfgr->get("auto_disable"), err)) {
+	if (!utils::parseBool(auto_disable, cfg->get("auto_disable"), err)) {
 		fprintf(stderr, "%s: auto_disable: %s (defaulting to true)\n",
-				m_cfgr->path(), err.c_str());
-		m_disable = true;
+				cfg->path(), err.c_str());
+		auto_disable = true;
 		error = true;
 	}
 	if (error)
@@ -72,7 +72,7 @@ TwitchBot::~TwitchBot()
 
 bool TwitchBot::connected() const
 {
-	return m_connected;
+	return bot_connected;
 }
 
 /* connect: connect to IRC */
@@ -80,41 +80,41 @@ bool TwitchBot::connect()
 {
 	char buf[MAX_MSG];
 
-	if (!(m_connected = !cconnect(&m_client, TWITCH_SERV, TWITCH_PORT)))
+	if (!(bot_connected = !cconnect(&client, TWITCH_SERV, TWITCH_PORT)))
 		return false;
 
 	/* send required IRC data: PASS, NICK, USER */
-	snprintf(buf, MAX_MSG, "PASS %s", m_password);
-	send_raw(&m_client, buf);
-	snprintf(buf, MAX_MSG, "NICK %s", m_nick);
-	send_raw(&m_client, buf);
-	snprintf(buf, MAX_MSG, "USER %s", m_nick);
-	send_raw(&m_client, buf);
+	snprintf(buf, MAX_MSG, "PASS %s", bot_password);
+	send_raw(&client, buf);
+	snprintf(buf, MAX_MSG, "NICK %s", bot_name);
+	send_raw(&client, buf);
+	snprintf(buf, MAX_MSG, "USER %s", bot_name);
+	send_raw(&client, buf);
 
 	/* enable tags in PRIVMSGs */
 	snprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/tags");
-	send_raw(&m_client, buf);
+	send_raw(&client, buf);
 
 	/* receive join and part information */
 	snprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/membership");
-	send_raw(&m_client, buf);
+	send_raw(&client, buf);
 
 	/* allow access to additional twitch commands */
 	snprintf(buf, MAX_MSG, "CAP REQ :twitch.tv/commands");
-	send_raw(&m_client, buf);
+	send_raw(&client, buf);
 
-	if (strlen(m_channel) > 32) {
+	if (strlen(bot_channel) > 32) {
 		fprintf(stderr, "error: channel name too long\n");
 		disconnect();
 		return false;
 	}
 
 	/* join channel */
-	snprintf(buf, MAX_MSG, "JOIN %s", m_channel);
-	send_raw(&m_client, buf);
+	snprintf(buf, MAX_MSG, "JOIN %s", bot_channel);
+	send_raw(&client, buf);
 
-	m_tick = std::thread(&TwitchBot::tick, this);
-	init_timers(m_channel + 1, m_token);
+	tick_thread = std::thread(&TwitchBot::tick, this);
+	init_timers(bot_channel + 1, bot_token);
 
 	return true;
 }
@@ -122,12 +122,12 @@ bool TwitchBot::connect()
 /* disconnect: disconnect from Twitch server */
 void TwitchBot::disconnect()
 {
-	if (m_connected) {
-		cdisconnect(&m_client);
-		m_connected = false;
+	if (bot_connected) {
+		cdisconnect(&client);
+		bot_connected = false;
 	}
-	if (m_tick.joinable())
-		m_tick.join();
+	if (tick_thread.joinable())
+		tick_thread.join();
 }
 
 /* server_loop: continously receive and process data */
@@ -143,7 +143,7 @@ void TwitchBot::server_loop()
 	/* continously receive data from server */
 	while (1) {
 		shift = 0;
-		if ((bytes = cread(&m_client, pos, BUFFER_SIZE - len)) < 0) {
+		if ((bytes = cread(&client, pos, BUFFER_SIZE - len)) < 0) {
 			perror("read");
 			fprintf(stderr, "LynxBot exiting.\n");
 			disconnect();
@@ -177,7 +177,7 @@ void TwitchBot::server_loop()
 			len = 0;
 		}
 
-		if (!m_connected)
+		if (!bot_connected)
 			break;
 	}
 }
@@ -188,7 +188,7 @@ void TwitchBot::process_data(char *data)
 	if (strstr(data, "PRIVMSG")) {
 		process_privmsg(data);
 	} else if (strstr(data, "PING")) {
-		pong(&m_client, data);
+		pong(&client, data);
 	} else if (strstr(data, "353")) {
 		extract_names_list(data);
 	} else if (strstr(data, "JOIN") || strstr(data, "PART")) {
@@ -213,7 +213,7 @@ bool TwitchBot::process_privmsg(char *privmsg)
 
 	if (strstr(privmsg, ":twitchnotify") == privmsg) {
 		if (process_submsg(out, privmsg))
-			send_msg(&m_client, m_channel, out);
+			send_msg(&client, bot_channel, out);
 		return true;
 	}
 
@@ -224,40 +224,40 @@ bool TwitchBot::process_privmsg(char *privmsg)
 
 	/* JOIN and PART messages on Twitch are not sent immediately */
 	/* add everyone who sends a message to names to keep it up to date */
-	m_names[nick] = 1;
+	active_users[nick] = 1;
 
 	/* check if message contains a URL */
-	m_parser.parse(msg);
+	parser.parse(msg);
 
 	/* perform message moderation */
-	if (P_ISREG(p) && m_mod.active() && moderate(nick, msg))
+	if (P_ISREG(p) && mod.active() && moderate(nick, msg))
 		return true;
 
-	if ((msg[0] == '$' || (m_familiarity && msg[0] == '!')) && msg[1]) {
-		m_cmdhnd.process_cmd(out, nick, msg + 1, p);
-		send_msg(&m_client, m_channel, out);
+	if ((msg[0] == '$' || (familiarity_mode && msg[0] == '!')) && msg[1]) {
+		cmdhnd.process_cmd(out, nick, msg + 1, p);
+		send_msg(&client, bot_channel, out);
 		return true;
 	}
 
 	/* count */
-	if (m_cmdhnd.counting() && msg[0] == '+' && msg[1]) {
-		m_cmdhnd.count(nick, msg + 1);
+	if (cmdhnd.counting() && msg[0] == '+' && msg[1]) {
+		cmdhnd.count(nick, msg + 1);
 		return true;
 	}
 
 	/* get URL information */
-	if (m_parser.wasModified()) {
+	if (parser.wasModified()) {
 		if (!process_url(out))
 			return false;
 		if (*out) {
-			send_msg(&m_client, m_channel, out);
+			send_msg(&client, bot_channel, out);
 			return true;
 		}
 	}
 
 	/* check for responses */
-	if (m_cmdhnd.process_resp(out, msg, nick))
-		send_msg(&m_client, m_channel, out);
+	if (cmdhnd.process_resp(out, msg, nick))
+		send_msg(&client, bot_channel, out);
 
 	return true;
 }
@@ -270,10 +270,10 @@ bool TwitchBot::process_url(char *out)
 	std::string title;
 	char buf[MAX_MSG];
 
-	url = m_parser.getLast();
+	url = parser.getLast();
 	if (url->twitter && !url->tweetID.empty()) {
 		/* print info about twitter statuses */
-		tw::Reader twr(&m_auth);
+		tw::Reader twr(&auth);
 		if (twr.read_tweet(url->tweetID)) {
 			snprintf(out, MAX_MSG, "%s", twr.result().c_str());
 			return true;
@@ -282,7 +282,7 @@ bool TwitchBot::process_url(char *out)
 		return false;
 	}
 	/* get title of url if url_titles is active */
-	if (m_urltitles) {
+	if (url_titles) {
 		resp = cpr::Get(cpr::Url(url->full),
 				cpr::Header{{ "Connection", "close" }});
 		strcat(buf, url->subdomain.c_str());
@@ -312,7 +312,7 @@ bool TwitchBot::parse_privmsg(char *privmsg, char **nick, char **msg, perm_t *p)
 
 	/* set user privileges */
 	P_RESET(*p);
-	if (strcmp(*nick, m_channel + 1) == 0
+	if (strcmp(*nick, bot_channel + 1) == 0
 			|| strcmp(*nick, "brainsoldier") == 0)
 		P_STOWN(*p);
 	tok = strstr(privmsg, "mod=");
@@ -326,7 +326,7 @@ bool TwitchBot::parse_privmsg(char *privmsg, char **nick, char **msg, perm_t *p)
 	tok = strchr(s + 1, '#');
 	s = strchr(tok, ' ');
 	*s = '\0';
-	if (strcmp(tok, m_channel) != 0)
+	if (strcmp(tok, bot_channel) != 0)
 		return false;
 
 	/* read actual message into msg */
@@ -338,56 +338,56 @@ bool TwitchBot::parse_privmsg(char *privmsg, char **nick, char **msg, perm_t *p)
 }
 
 /* process_submsg: extract data from subscription message and write to out */
-bool TwitchBot::process_submsg(char *out, char *submsg)
+bool TwitchBot::process_submsg(char *out, char *msgbuf)
 {
 	char *nick, *s, *t;
 	const char *msg;
 
-	if (!strstr(submsg, "subscribed!")) {
+	if (!strstr(msgbuf, "subscribed!")) {
 		*out = '\0';
 		return false;
 	}
 
-	s = strchr(submsg, '#');
+	s = strchr(msgbuf, '#');
 	t = strchr(s, ' ');
 	*t = '\0';
-	if (strcmp(s, m_channel) != 0)
+	if (strcmp(s, bot_channel) != 0)
 		return false;
 
 	nick = t + 2;
 	t = strchr(nick, ' ');
 	*t = '\0';
-	msg = m_subMsg.c_str();
+	msg = submsg.c_str();
 
-	snprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, "1").c_str());
+	snprintf(out, MAX_MSG, "%s", format_submsg(msg, nick, "1").c_str());
 	return true;
 }
 
 /* process_resub: extract data from resub message send response */
-bool TwitchBot::process_resub(char *resubmsg)
+bool TwitchBot::process_resub(char *msgbuf)
 {
 	char *nick, *months, *s;
 	const char *msg;
 	char out[MAX_MSG];
 
-	if (!strstr(resubmsg, "msg-id=resub"))
+	if (!strstr(msgbuf, "msg-id=resub"))
 		return false;
 
-	nick = strstr(resubmsg, "display-name") + 13;
+	nick = strstr(msgbuf, "display-name") + 13;
 	s = strchr(nick, ';');
 	*s = '\0';
 
 	months = strstr(s + 1, "msg-param-months") + 17;
 	s = strchr(months, ';');
 	*s = '\0';
-	msg = m_resubMsg.c_str();
+	msg = resubmsg.c_str();
 
-	snprintf(out, MAX_MSG, "%s", formatSubMsg(msg, nick, months).c_str());
-	send_msg(&m_client, m_channel, out);
+	snprintf(out, MAX_MSG, "%s", format_submsg(msg, nick, months).c_str());
+	send_msg(&client, bot_channel, out);
 	return true;
 }
 
-/* extract_names_list: extract names from data into m_names */
+/* extract_names_list: extract names from data into active_users */
 void TwitchBot::extract_names_list(char *data)
 {
 	char *s;
@@ -406,7 +406,7 @@ void TwitchBot::extract_names_list(char *data)
 	}
 }
 
-/* read_names: read channel names list and add to m_names */
+/* read_names: read channel names list and add to active_users */
 void TwitchBot::read_names(char *names)
 {
 	char *s;
@@ -416,11 +416,11 @@ void TwitchBot::read_names(char *names)
 	for (; s; names = s + 1) {
 		if ((s = strchr(names, ' ')))
 			*s = '\0';
-		m_names[names] = 1;
+		active_users[names] = 1;
 	}
 }
 
-/* process_user: read joins and parts into m_names */
+/* process_user: read joins and parts into active_users */
 void TwitchBot::process_user(char *data)
 {
 	char *s, *t;
@@ -439,14 +439,14 @@ void TwitchBot::process_user(char *data)
 
 		/* confirm join channel is bot's channel */
 		if (!(t = strchr(data, '#')) ||
-				strncmp(t, m_channel, strlen(m_channel)) != 0)
+				strncmp(t, bot_channel, strlen(bot_channel)) != 0)
 			continue;
 
 		if (!(t = strchr(data, '!')))
 			continue;
 		*t = '\0';
 
-		m_names[++data] = type;
+		active_users[++data] = type;
 	}
 }
 
@@ -458,22 +458,22 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 	char out[MAX_MSG];
 	int offenses, t;
 
-	if (!m_mod.validmsg(msg, nick.c_str(), reason)) {
-		offenses = m_mod.offenses(nick);
+	if (!mod.validmsg(msg, nick.c_str(), reason)) {
+		offenses = mod.offenses(nick);
 		if (offenses < 4) {
 			/* timeout for 2^(offenses - 1) minutes */
 			t = 60 * (int)pow(2, offenses - 1);
 			snprintf(out, MAX_MSG, "/timeout %s %d", nick.c_str(), t);
-			send_msg(&m_client, m_channel, out);
+			send_msg(&client, bot_channel, out);
 			warning = warnings[offenses - 1] + " warning";
 		} else {
 			snprintf(out, MAX_MSG, "/ban %s", nick.c_str());
-			send_msg(&m_client, m_channel, out);
+			send_msg(&client, bot_channel, out);
 			warning = "Permanently banned";
 		}
 		snprintf(out, MAX_MSG, "%s - %s (%s)", nick.c_str(),
 				reason.c_str(), warning.c_str());
-		send_msg(&m_client, m_channel, out);
+		send_msg(&client, bot_channel, out);
 		return true;
 	}
 
@@ -484,40 +484,40 @@ bool TwitchBot::moderate(const std::string &nick, const std::string &msg)
 void TwitchBot::tick()
 {
 	/* check every second */
-	while (m_connected) {
+	while (bot_connected) {
 		for (std::vector<std::string>::size_type i = 0;
-				i < m_event.messages()->size(); ++i) {
-			if (m_event.ready("msg" + std::to_string(i))) {
-				if (m_event.active())
-					send_msg(&m_client, m_channel,
-							((*m_event.messages())[i])
+				i < evtman.messages()->size(); ++i) {
+			if (evtman.ready("msg" + std::to_string(i))) {
+				if (evtman.active())
+					send_msg(&client, bot_channel,
+							((*evtman.messages())[i])
 							.first.c_str());
-				m_event.setUsed("msg" + std::to_string(i));
+				evtman.setUsed("msg" + std::to_string(i));
 				break;
 			}
 		}
-		if (m_giveaway.active() && m_event.ready("checkgiveaway")) {
-			if (m_giveaway.check(time(nullptr)))
-				send_msg(&m_client, m_channel,
-						m_giveaway.giveaway().c_str());
-			m_event.setUsed("checkgiveaway");
+		if (giveaway.active() && evtman.ready("checkgiveaway")) {
+			if (giveaway.check(time(nullptr)))
+				send_msg(&client, bot_channel,
+						giveaway.giveaway().c_str());
+			evtman.setUsed("checkgiveaway");
 		}
-		if (m_event.ready("checkuptime")) {
-			check_channel(m_channel + 1, m_token);
-			m_event.setUsed("checkuptime");
-			if (m_disable) {
+		if (evtman.ready("checkuptime")) {
+			check_channel(bot_channel + 1, bot_token);
+			evtman.setUsed("checkuptime");
+			if (auto_disable) {
 				if (channel_uptime())
-					m_event.activate();
+					evtman.activate();
 				else
-					m_event.deactivate();
+					evtman.deactivate();
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 }
 
-/* parseSubMsg: read which from m_cfgr into tgt and verify validity */
-void TwitchBot::parseSubMsg(std::string &tgt, const std::string &which)
+/* parse_submsg: read which from cfg into tgt and verify validity */
+void TwitchBot::parse_submsg(std::string &tgt, const std::string &which)
 {
 	static const std::string fmt_c = "%Ncmn";
 	size_t ind;
@@ -525,7 +525,7 @@ void TwitchBot::parseSubMsg(std::string &tgt, const std::string &which)
 	char c;
 
 	ind = -1;
-	fmt = m_cfgr->get(which);
+	fmt = cfg->get(which);
 	while ((ind = fmt.find('%', ind + 1)) != std::string::npos) {
 		if (ind == fmt.length() - 1) {
 			err = "unexpected end of line after '%'";
@@ -542,7 +542,7 @@ void TwitchBot::parseSubMsg(std::string &tgt, const std::string &which)
 			++ind;
 	}
 	if (!err.empty()) {
-		fprintf(stderr, "%s: %s: %s\n", m_cfgr->path(),
+		fprintf(stderr, "%s: %s: %s\n", cfg->path(),
 				which.c_str(), err.c_str());
 		WAIT_INPUT();
 		fmt = "";
@@ -550,8 +550,8 @@ void TwitchBot::parseSubMsg(std::string &tgt, const std::string &which)
 	tgt = fmt;
 }
 
-/* formatSubMsg: replace placeholders in format string with data */
-std::string TwitchBot::formatSubMsg(const std::string &format,
+/* format_submsg: replace placeholders in format string with data */
+std::string TwitchBot::format_submsg(const std::string &format,
 		const std::string &n, const std::string &m)
 {
 	size_t ind;
@@ -571,7 +571,7 @@ std::string TwitchBot::formatSubMsg(const std::string &format,
 			ins = "@" + n + ",";
 			break;
 		case 'c':
-			ins = m_channel + 1;
+			ins = bot_channel + 1;
 			break;
 		case 'm':
 			ins = m;
