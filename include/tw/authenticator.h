@@ -21,16 +21,16 @@ class Authenticator {
 		void siggen(const std::string &method, const std::string &URL,
 				const param_vec &head_params,
 				const param_vec &body_params);
-		struct oauth_data authData();
+		struct oauth_data auth_data();
 	private:
-		std::string m_configpath;
-		std::string m_consumerkey;
-		std::string m_consumersecret;
-		std::string m_token;
-		std::string m_tokensecret;
-		struct oauth_data m_data;
-		int readKeys();
-		void interactiveSetup();
+		std::string configpath;
+		std::string consumerkey;
+		std::string consumersecret;
+		std::string token;
+		std::string tokensecret;
+		struct oauth_data odata;
+		int read_keys();
+		void interactive_setup();
 };
 
 }

@@ -11,7 +11,7 @@ static std::string format_tweet(const Json::Value &resp);
 static std::string format_user(const Json::Value &resp);
 
 tw::Reader::Reader(Authenticator *auth)
-	: m_auth(auth)
+	: tw_auth(auth)
 {
 }
 
@@ -23,15 +23,15 @@ bool tw::Reader::read_tweet(const std::string &tweetID)
 	cpr::Response resp = cpr::Get(cpr::Url(path),
 			cpr::Header{{ "Authorization", auth_str }});
 	Json::Reader reader;
-	if (!reader.parse(resp.text, m_response)) {
-		m_type = ERR;
+	if (!reader.parse(resp.text, response)) {
+		type = ERR;
 		return false;
 	}
-	if (m_response.isMember("errors")) {
-		m_type = ERR;
+	if (response.isMember("errors")) {
+		type = ERR;
 		return false;
 	}
-	m_type = TWEET;
+	type = TWEET;
 	return true;
 }
 
@@ -43,34 +43,34 @@ bool tw::Reader::read_user(const std::string &user)
 	cpr::Response resp = cpr::Get(cpr::Url(path),
 			cpr::Header{{ "Authorization", auth_str }});
 	Json::Reader reader;
-	if (!reader.parse(resp.text, m_response)) {
-		m_type = ERR;
+	if (!reader.parse(resp.text, response)) {
+		type = ERR;
 		return false;
 	}
-	if (m_response.isMember("errors")) {
-		m_type = ERR;
+	if (response.isMember("errors")) {
+		type = ERR;
 		return false;
 	}
-	m_type = USER;
+	type = USER;
 	return true;
 }
 
 /* read_recent: read the most recent tweet of last read user */
 bool tw::Reader::read_recent()
 {
-	if (m_type != USER)
+	if (type != USER)
 		return false;
-	return read_tweet(m_response["status"]["id_str"].asString());
+	return read_tweet(response["status"]["id_str"].asString());
 }
 
 /* result: build a formatted result string from the currently stored tweet */
 std::string tw::Reader::result()
 {
-	switch (m_type) {
+	switch (type) {
 	case TWEET:
-		return format_tweet(m_response);
+		return format_tweet(response);
 	case USER:
-		return format_user(m_response);
+		return format_user(response);
 	default:
 		return "";
 	}
@@ -84,8 +84,8 @@ std::string tw::Reader::authenticate(const std::string &api,
 	struct tw::Authenticator::oauth_data data;
 
 	/* generate an oauth singature and receive data */
-	m_auth->siggen("GET", api, hparams, {});
-	data = m_auth->authData();
+	tw_auth->siggen("GET", api, hparams, {});
+	data = tw_auth->auth_data();
 
 	/* add all components to string */
 	auth_str += "OAuth ";

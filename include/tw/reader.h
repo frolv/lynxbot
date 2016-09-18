@@ -20,9 +20,9 @@ class Reader {
 			"https://api.twitter.com/1.1/statuses/show.json";
 		const std::string USER_API =
 			"https://api.twitter.com/1.1/users/show.json";
-		Authenticator *m_auth;
-		Json::Value m_response;
-		int m_type;
+		Authenticator *tw_auth;
+		Json::Value response;
+		int type;
 		std::string authenticate(const std::string &api,
 				Authenticator::param_vec hparams);
 };
