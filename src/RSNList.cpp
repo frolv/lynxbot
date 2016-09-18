@@ -21,15 +21,15 @@ int RSNList::add(const char *nick, const char *rsn)
 
 	if (!valid(rsn))
 		return 0;
-	if (!(t = find_rsn(nick))->empty()) {
-		strcpy(m_error, "you already have a RSN set");
+	if ((t = find_rsn(nick))) {
+		strcpy(error, "you already have a RSN set");
 		return 0;
 	}
 	user["nick"] = nick;
 	user["rsn"] = rsn;
 	user["prev"] = prev;
-	m_rsns["rsns"].append(user);
-	utils::writeJSON("rsns.json", m_rsns);
+	rsns["rsns"].append(user);
+	utils::writeJSON("rsns.json", rsns);
 	return 1;
 }
 
@@ -40,13 +40,13 @@ int RSNList::edit(const char *nick, const char *rsn)
 
 	if (!valid(rsn))
 		return 0;
-	if ((user = find_rsn(nick))->empty()) {
-		strcpy(m_error, "you don't have a RSN set");
+	if (!(user = find_rsn(nick))) {
+		strcpy(error, "you don't have a RSN set");
 		return 0;
 	}
 	(*user)["prev"].append((*user)["rsn"].asString());
 	(*user)["rsn"] = rsn;
-	utils::writeJSON("rsns.json", m_rsns);
+	utils::writeJSON("rsns.json", rsns);
 	return 1;
 }
 
@@ -57,17 +57,17 @@ int RSNList::del(const char *nick)
 	Json::Value def, rem, val;
 
 	ind = 0;
-	while (ind < m_rsns["rsns"].size()) {
-		val = m_rsns["rsns"].get(ind, def);
+	while (ind < rsns["rsns"].size()) {
+		val = rsns["rsns"].get(ind, def);
 		if (strcmp(val["nick"].asCString(), nick) == 0) break;
 		++ind;
 	}
 
-	if (ind == m_rsns["rsns"].size())
+	if (ind == rsns["rsns"].size())
 		return 0;
 
-	m_rsns["rsns"].removeIndex(ind, &rem);
-	utils::writeJSON("rsns.json", m_rsns);
+	rsns["rsns"].removeIndex(ind, &rem);
+	utils::writeJSON("rsns.json", rsns);
 	return 1;
 }
 
@@ -76,7 +76,7 @@ const char *RSNList::rsn(const char *nick)
 {
 	Json::Value *user;
 
-	if ((user = find_rsn(nick))->empty())
+	if (!(user = find_rsn(nick)))
 		return NULL;
 	return (*user)["rsn"].asCString();
 }
@@ -86,14 +86,14 @@ const char *RSNList::nick(const char *rsn)
 {
 	Json::Value *user;
 
-	if ((user = find_nick(rsn))->empty())
+	if (!(user = find_nick(rsn)))
 		return NULL;
 	return (*user)["nick"].asCString();
 }
 
 const char *RSNList::err()
 {
-	return m_error;
+	return error;
 }
 
 /* check if the given rsn is valid */
@@ -104,21 +104,21 @@ int RSNList::valid(const char *rsn)
 
 	for (s = rsn; *s; ++s) {
 		if (!isalnum(*s) && *s != '_' && *s != '-') {
-			snprintf(m_error, 256, "'%s' contains invalid "
+			snprintf(error, 256, "'%s' contains invalid "
 					"characters", rsn);
 			return 0;
 		}
 	}
 	if (strcmp(rsn, "lynx_titan") == 0) {
-		strcpy(m_error, "nice try");
+		strcpy(error, "nice try");
 		return 0;
 	}
 	if (strlen(rsn) > 12) {
-		strcpy(m_error, "invalid RSN - too long");
+		strcpy(error, "invalid RSN - too long");
 		return 0;
 	}
 	if (!(t = find_nick(rsn))->empty()) {
-		snprintf(m_error, 256, "the RSN '%s' is already taken by %s",
+		snprintf(error, 256, "the RSN '%s' is already taken by %s",
 				rsn, (*t)["nick"].asCString());
 		return 0;
 	}
@@ -128,30 +128,30 @@ int RSNList::valid(const char *rsn)
 /* find the value with the given nick if it exists */
 Json::Value *RSNList::find_rsn(const char *nick)
 {
-	for (auto &val : m_rsns["rsns"]) {
+	for (auto &val : rsns["rsns"]) {
 		if (strcmp(val["nick"].asCString(), nick) == 0)
 			return &val;
 	}
-	return &m_empty;
+	return NULL;
 }
 
 /* find the value with the given rsn if it exists */
 Json::Value *RSNList::find_nick(const char *rsn)
 {
-	for (auto &val : m_rsns["rsns"]) {
+	for (auto &val : rsns["rsns"]) {
 		if (strcmp(val["rsn"].asCString(), rsn) == 0)
 			return &val;
 	}
-	return &m_empty;
+	return NULL;
 }
 
-/* read the rsns file into m_rsns */
+/* read the rsns file into rsns */
 int RSNList::read_rsns()
 {
-	if (!utils::readJSON("rsns.json", m_rsns) || !m_rsns.isMember("rsns")
-			|| !m_rsns["rsns"].isArray())
+	if (!utils::readJSON("rsns.json", rsns) || !rsns.isMember("rsns")
+			|| !rsns["rsns"].isArray())
 		return 0;
-	for (auto &val : m_rsns["rsns"]) {
+	for (auto &val : rsns["rsns"]) {
 		if (!val.isMember("nick") && !val.isMember("curr")
 			&& !val.isMember("prev")) {
 			fprintf(stderr, "rsns.json is improperly configured\n");

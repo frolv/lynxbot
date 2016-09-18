@@ -14,9 +14,8 @@ class RSNList {
 		const char *nick(const char *rsn);
 		const char *err();
 	private:
-		Json::Value m_rsns;
-		Json::Value m_empty;
-		char m_error[256];
+		Json::Value rsns;
+		char error[256];
 		int valid(const char *rsn);
 		Json::Value *find_rsn(const char *nick);
 		Json::Value *find_nick(const char *rsn);

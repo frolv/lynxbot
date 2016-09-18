@@ -5,7 +5,7 @@
 #include <map>
 #include <json/json.h>
 
-typedef std::map<std::string, std::pair<std::string, time_t>> WheelMap;
+typedef std::map<std::string, std::pair<std::string, time_t>> wheel_map;
 
 class SelectionWheel {
 
@@ -23,10 +23,10 @@ class SelectionWheel {
 		const char *selection(const char *nick) const;
 
 	private:
-		Json::Value m_data;
-		WheelMap m_stored;
-		time_t m_cooldown;
-		bool m_active;
+		Json::Value wheeldata;
+		wheel_map stored;
+		time_t cooldown;
+		bool enabled;
 		void add(const std::string &nick, const std::string &selection);
 		time_t lastUsed(const std::string &nick) const;
 

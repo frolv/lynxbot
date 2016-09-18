@@ -9,25 +9,25 @@ SelectionWheel::SelectionWheel()
 		"desc", "usage", "cooldown"};
 
 	srand(static_cast<uint32_t>(time(nullptr)));
-	if (!utils::readJSON("wheel.json", m_data)) {
+	if (!utils::readJSON("wheel.json", wheeldata)) {
 		fprintf(stderr, "Could not read wheel.json. Wheel will "
 				"be disabled for this session\n");
-		m_active = false;
+		enabled = false;
 		WAIT_INPUT();
 	} else {
 		for (auto &s : reqs) {
-			if (!m_data.isMember("wheel" + s)) {
+			if (!wheeldata.isMember("wheel" + s)) {
 				fprintf(stderr, "wheel%s variable is missing "
 						"from wheel.json. Wheel will "
 						"be disabled for this session\n",
 						s.c_str());
-				m_active = false;
+				enabled = false;
 				WAIT_INPUT();
 				return;
 			}
 		}
-		m_active = m_data["wheelactive"].asBool();
-		m_cooldown = m_data["wheelcooldown"].asInt() * 60;
+		enabled = wheeldata["wheelactive"].asBool();
+		cooldown = wheeldata["wheelcooldown"].asInt() * 60;
 	}
 }
 
@@ -35,33 +35,33 @@ SelectionWheel::~SelectionWheel() {}
 
 bool SelectionWheel::active()
 {
-	return m_active;
+	return enabled;
 }
 
 /* valid: return true if category is valid */
 bool SelectionWheel::valid(const char *category) const
 {
-	return m_data["categories"].isMember(category);
+	return wheeldata["categories"].isMember(category);
 }
 
 const char *SelectionWheel::name() const
 {
-	return m_data["wheelname"].asCString();
+	return wheeldata["wheelname"].asCString();
 }
 
 const char *SelectionWheel::cmd() const
 {
-	return m_data["wheelcmd"].asCString();
+	return wheeldata["wheelcmd"].asCString();
 }
 
 const char *SelectionWheel::desc() const
 {
-	return m_data["wheeldesc"].asCString();
+	return wheeldata["wheeldesc"].asCString();
 }
 
 const char *SelectionWheel::usage() const
 {
-	return m_data["wheelusage"].asCString();
+	return wheeldata["wheelusage"].asCString();
 }
 
 /* choose: select an item from category for user nick */
@@ -70,11 +70,11 @@ const char *SelectionWheel::choose(const char *nick, const char *category)
 	int ind;
 	const char *selection;
 
-	Json::Value &arr = m_data["categories"][category];
+	Json::Value &arr = wheeldata["categories"][category];
 	if (!arr.isArray()) {
 		fprintf(stderr, "wheel.json is improperly configured. "
 				"Wheel will be disabled.\n");
-		m_active = false;
+		enabled = false;
 		return "";
 	}
 
@@ -89,35 +89,35 @@ const char *SelectionWheel::choose(const char *nick, const char *category)
 /* ready: check if nick can make another selection */
 bool SelectionWheel::ready(const char *nick) const
 {
-	return m_stored.find(nick) == m_stored.end()
-		|| time(nullptr) - lastUsed(nick) >= m_cooldown;
+	return stored.find(nick) == stored.end()
+		|| time(nullptr) - lastUsed(nick) >= cooldown;
 }
 
 /* add: add a selection to stored map */
 void SelectionWheel::add(const std::string &nick, const std::string &selection)
 {
-	if (m_stored.find(nick) != m_stored.end()) {
+	if (stored.find(nick) != stored.end()) {
 		/* update if aleady exists */
-		auto &r = m_stored.find(nick)->second;
+		auto &r = stored.find(nick)->second;
 		r.first = selection;
 		r.second = time(nullptr);
 	} else {
 		/* create otherwise */
-		WheelMap::value_type val =
+		wheel_map::value_type val =
 			{ nick, std::make_pair(selection, time(nullptr)) };
-		m_stored.insert(val);
+		stored.insert(val);
 	}
 }
 
 /* selection: get nick's current selection */
 const char *SelectionWheel::selection(const char *nick) const
 {
-	if (m_stored.find(nick) == m_stored.end())
+	if (stored.find(nick) == stored.end())
 		return "";
-	return m_stored.find(nick)->second.first.c_str();
+	return stored.find(nick)->second.first.c_str();
 }
 
 time_t SelectionWheel::lastUsed(const std::string &nick) const
 {
-	return m_stored.find(nick)->second.second;
+	return stored.find(nick)->second.second;
 }

@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include <sstream>
 #include "ExpressionParser.h"
-#include "OpMap.h"
+#include "opmap.h"
 
 static bool isop(char c);
 static bool isparen(char c);
@@ -61,10 +61,10 @@ void ExpressionParser::shuntingYard()
 			if (!m_opstack.empty()) {
 				token top = m_opstack.top();
 				/* compare precendece of the two operators */
-				while (top.isOp && ((isAssociative(t.c, LEFT_ASSOC)
-						&& comparePrecedence(t.c, top.c) <= 0)
-						|| (isAssociative(t.c, RIGHT_ASSOC)
-						&& comparePrecedence(t.c, top.c) < 0))) {
+				while (top.isOp && ((is_associative(t.c, LEFT_ASSOC)
+						&& compare_precedence(t.c, top.c) <= 0)
+						|| (is_associative(t.c, RIGHT_ASSOC)
+						&& compare_precedence(t.c, top.c) < 0))) {
 
 					/* pop from stack into queue */
 					m_opstack.pop();
