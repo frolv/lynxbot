@@ -17,7 +17,7 @@ class Moderator {
 		Moderator(const char *name, const char *channel,
 				URLParser *urlp, ConfigReader *cfgr,
 				struct client *cl,
-				std::unordered_map<std::string, int> *names);
+				std::unordered_map<std::string, int> *users);
 		~Moderator();
 		bool active() const;
 		bool validmsg(const std::string &msg, const char *nick,
@@ -33,23 +33,23 @@ class Moderator {
 		bool mod_action(int type, const char *name, const char *by,
 				const char *reason, int len);
 	private:
-		const char *m_name;
-		const char *m_channel;
-		URLParser *m_parsep;
-		ConfigReader *m_cfgr;
-		struct client *m_client;
-		std::unordered_map<std::string, int> *m_names;
-		std::unordered_map<std::string, uint8_t> m_offenses;
-		std::vector<std::string> m_whitelist;
-		std::unordered_map<std::string, int> m_perm;
-		bool m_active;
-		bool m_ban_urls;
-		uint32_t m_max_message_len;
-		uint32_t m_max_pattern;
-		uint32_t m_max_char;
-		uint32_t m_cap_len;
-		double m_cap_ratio;
-		bool m_pastefmt;
+		const char *bot_name;
+		const char *bot_channel;
+		URLParser *parser;
+		ConfigReader *cfg;
+		struct client *client;
+		std::unordered_map<std::string, int> *active_users;
+		std::unordered_map<std::string, uint8_t> offense_map;
+		std::vector<std::string> whitelisted_sites;
+		std::unordered_map<std::string, int> permitted;
+		bool enabled;
+		bool ban_urls;
+		uint32_t max_message_len;
+		uint32_t max_pattern;
+		uint32_t max_char;
+		uint32_t cap_len;
+		double cap_ratio;
+		bool pastefmt;
 		bool check_wl() const;
 		bool check_spam(const std::string &msg) const;
 		bool check_str(const std::string &msg, std::string &reason,

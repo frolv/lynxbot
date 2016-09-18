@@ -108,6 +108,8 @@ echo CONFDIR=$HOME/.lynxbot >> Makefile
 cat Makefile.in >> Makefile
 echo "LynxBot configured"
 echo "Target architecture:	$target"
+echo "C compiler:		$CC"
+echo "C++ compiler:		$CXX"
 echo "Debugging symbols:	$debug"
 echo "Output file:		$progname"
 echo "Installation prefix:	$prefix"

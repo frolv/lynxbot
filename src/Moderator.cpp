@@ -11,60 +11,60 @@
 Moderator::Moderator(const char *name, const char *channel, URLParser *urlp,
 		ConfigReader *cfgr, struct client *cl,
 		std::unordered_map<std::string, int> *names)
-	: m_name(name), m_channel(channel), m_parsep(urlp), m_cfgr(cfgr),
-	m_client(cl), m_names(names)
+	: bot_name(name), bot_channel(channel), parser(urlp), cfg(cfgr),
+	client(cl), active_users(names)
 {
 	std::string err;
 	bool invalid;
-	uint32_t cap_ratio;
+	uint32_t cratio;
 
 	invalid = false;
-	utils::split(m_cfgr->get("whitelist"), '\n', m_whitelist);
-	m_pastefmt = m_cfgr->get("whitelist").length() > 300;
-	if (!utils::parseBool(m_active, m_cfgr->get("enable_moderation"), err)) {
+	utils::split(cfg->get("whitelist"), '\n', whitelisted_sites);
+	pastefmt = cfg->get("whitelist").length() > 300;
+	if (!utils::parseBool(enabled, cfg->get("enable_moderation"), err)) {
 		fprintf(stderr, "%s: enable_moderation: %s (defaulting to "
-				"false)\n", m_cfgr->path(), err.c_str());
-		m_active = false;
+				"false)\n", cfg->path(), err.c_str());
+		enabled = false;
 		invalid = true;
 	}
-	if (!utils::parseBool(m_ban_urls, m_cfgr->get("ban_urls"), err)) {
+	if (!utils::parseBool(ban_urls, cfg->get("ban_urls"), err)) {
 		fprintf(stderr, "%s: ban_urls: %s (defaulting to true)\n",
-				m_cfgr->path(), err.c_str());
-		m_ban_urls = true;
+				cfg->path(), err.c_str());
+		ban_urls = true;
 		invalid = true;
 	}
-	if (!utils::parseInt(m_max_message_len, m_cfgr->get("max_message_len"),
+	if (!utils::parseInt(max_message_len, cfg->get("max_message_len"),
 				err)) {
 		fprintf(stderr, "%s: max_message_len: %s (defaulting to 300)\n",
-				m_cfgr->path(), err.c_str());
-		m_max_message_len = 300;
+				cfg->path(), err.c_str());
+		max_message_len = 300;
 		invalid = true;
 	}
-	if (!utils::parseInt(m_max_pattern, m_cfgr->get("max_pattern"), err)) {
+	if (!utils::parseInt(max_pattern, cfg->get("max_pattern"), err)) {
 		fprintf(stderr, "%s: max_pattern: %s (defaulting to 6)\n",
-				m_cfgr->path(), err.c_str());
-		m_max_pattern = 6;
+				cfg->path(), err.c_str());
+		max_pattern = 6;
 		invalid = true;
 	}
-	if (!utils::parseInt(m_max_char, m_cfgr->get("max_char"), err)) {
+	if (!utils::parseInt(max_char, cfg->get("max_char"), err)) {
 		fprintf(stderr, "%s: max_char: %s (defaulting to 15)\n",
-				m_cfgr->path(), err.c_str());
-		m_max_char = 15;
+				cfg->path(), err.c_str());
+		max_char = 15;
 		invalid = true;
 	}
-	if (!utils::parseInt(m_cap_len, m_cfgr->get("cap_len"), err)) {
+	if (!utils::parseInt(cap_len, cfg->get("cap_len"), err)) {
 		fprintf(stderr, "%s: cap_len: %s (defaulting to 30)\n",
-				m_cfgr->path(), err.c_str());
-		m_cap_len = 30;
+				cfg->path(), err.c_str());
+		cap_len = 30;
 		invalid = true;
 	}
-	if (!utils::parseInt(cap_ratio, m_cfgr->get("cap_ratio"), err)) {
-		fprintf(stderr, "%s: cap_ratio: %s (defaulting to 80)\n",
-				m_cfgr->path(), err.c_str());
-		m_cap_ratio = 0.8;
+	if (!utils::parseInt(cratio, cfg->get("cratio"), err)) {
+		fprintf(stderr, "%s: cratio: %s (defaulting to 80)\n",
+				cfg->path(), err.c_str());
+		cap_ratio = 0.8;
 		invalid = true;
 	} else {
-		m_cap_ratio = (double)cap_ratio / 100.0;
+		cap_ratio = (double)cratio / 100.0;
 	}
 	if (invalid)
 		WAIT_INPUT();
@@ -74,7 +74,7 @@ Moderator::~Moderator() {}
 
 bool Moderator::active() const
 {
-	return m_active;
+	return enabled;
 }
 
 /* validmsg: check if msg is valid according to moderation settings */
@@ -85,43 +85,44 @@ bool Moderator::validmsg(const std::string &msg, const char *nick,
 	bool valid = true;
 	uint8_t off;
 
-	if (msg.length() > m_max_message_len) {
+	if (msg.length() > max_message_len) {
 		reason = "message too long!";
 		snprintf(logmsg, LOG_LEN, "message length of %lu characters "
 				"exceeded limit of %u", msg.length(),
-				m_max_message_len);
+				max_message_len);
 		valid = false;
 	}
-	if (valid && m_ban_urls && m_parsep->wasModified() && check_wl()) {
-		if (m_perm.find(nick) != m_perm.end() && m_perm[nick] != 0) {
+	if (valid && ban_urls && parser->wasModified() && check_wl()) {
+		if (permitted.find(nick) != permitted.end()
+				&& permitted[nick] != 0) {
 			/* -1 indicates session long permission */
-			if (m_perm[nick] != -1)
-				m_perm[nick]--;
+			if (permitted[nick] != -1)
+				permitted[nick]--;
 		} else {
 			reason = "no posting links!";
 			snprintf(logmsg, LOG_LEN, "posted unauthorized link: %s",
-					m_parsep->getLast()->full.c_str());
+					parser->getLast()->full.c_str());
 			valid = false;
 		}
 	}
 	if (valid && check_spam(msg)) {
 		reason = "no spamming words!";
 		snprintf(logmsg, LOG_LEN, "pattern repeated in message "
-				"more than limit of %u times", m_max_pattern);
+				"more than limit of %u times", max_pattern);
 		valid = false;
 	}
 	if (valid && check_str(msg, reason, logmsg))
 		valid = false;
 	if (!valid) {
 		/* update user's offenses if message is invalid */
-		auto it = m_offenses.find(nick);
-		if (it == m_offenses.end()) {
+		auto it = offense_map.find(nick);
+		if (it == offense_map.end()) {
 			off = 1;
-			m_offenses.insert({ nick, 1 });
+			offense_map.insert({ nick, 1 });
 		} else {
 			off = ++(it->second);
 		}
-		log(off > 3 ? BAN : TIMEOUT, nick, m_name, logmsg);
+		log(off > 3 ? BAN : TIMEOUT, nick, bot_name, logmsg);
 	}
 	/* if none of the above are found, the message is valid */
 	return valid;
@@ -130,8 +131,8 @@ bool Moderator::validmsg(const std::string &msg, const char *nick,
 /* offenses: return how many offenses nick has committed */
 uint8_t Moderator::offenses(const std::string &nick) const
 {
-	auto it = m_offenses.find(nick);
-	return it == m_offenses.end() ? 0 : it->second;
+	auto it = offense_map.find(nick);
+	return it == offense_map.end() ? 0 : it->second;
 }
 
 /* whitelist: add site to whitelist */
@@ -139,15 +140,15 @@ bool Moderator::whitelist(const std::string &site)
 {
 	std::string wl;
 
-	if (std::find(m_whitelist.begin(), m_whitelist.end(), site)
-			!= m_whitelist.end())
+	if (std::find(whitelisted_sites.begin(), whitelisted_sites.end(), site)
+			!= whitelisted_sites.end())
 		return false;
-	m_whitelist.push_back(site);
-	wl = m_cfgr->get("whitelist");
+	whitelisted_sites.push_back(site);
+	wl = cfg->get("whitelist");
 	wl += '\n' + site;
-	m_pastefmt = wl.length() > 300;
-	m_cfgr->set("whitelist", wl);
-	m_cfgr->write();
+	pastefmt = wl.length() > 300;
+	cfg->set("whitelist", wl);
+	cfg->write();
 	return true;
 }
 
@@ -157,17 +158,18 @@ bool Moderator::delurl(const std::string &site)
 	std::string wl;
 	size_t i;
 
-	wl = m_cfgr->get("whitelist");
+	wl = cfg->get("whitelist");
 	if ((i = wl.find(site)) == std::string::npos)
 		return false;
 
 	/* remove the newline too */
 	wl.erase(i, site.length() + 1);
-	m_pastefmt = wl.length() > 300;
-	m_whitelist.erase(std::remove(m_whitelist.begin(), m_whitelist.end(),
-				site), m_whitelist.end());
-	m_cfgr->set("whitelist", wl);
-	m_cfgr->write();
+	pastefmt = wl.length() > 300;
+	whitelisted_sites.erase(std::remove(whitelisted_sites.begin(),
+				whitelisted_sites.end(), site),
+			whitelisted_sites.end());
+	cfg->set("whitelist", wl);
+	cfg->write();
 	return true;
 }
 
@@ -180,14 +182,14 @@ bool Moderator::permit(char *nick, int amt)
 		*s = tolower(*s);
 
 	try {
-		if (!m_names->at(nick))
+		if (!active_users->at(nick))
 			return false;
 	} catch (std::out_of_range) {
-		(*m_names)[nick] = 0;
+		(*active_users)[nick] = 0;
 		return false;
 	}
 
-	m_perm[nick] = amt;
+	permitted[nick] = amt;
 	return true;
 }
 
@@ -196,20 +198,20 @@ std::string Moderator::fmt_whitelist() const
 {
 	std::string output = "Whitelisted sites:";
 
-	if (m_pastefmt)
-		return output + "\n\n" + m_cfgr->get("whitelist");
+	if (pastefmt)
+		return output + "\n\n" + cfg->get("whitelist");
 
 	output += ' ';
-	for (auto itr = m_whitelist.begin(); itr != m_whitelist.end(); ++itr) {
+	for (auto itr = whitelisted_sites.begin(); itr != whitelisted_sites.end(); ++itr) {
 		/* add commas after all but last */
-		output += *itr + (itr == m_whitelist.end() - 1 ? "." : ", ");
+		output += *itr + (itr == whitelisted_sites.end() - 1 ? "." : ", ");
 	}
 	return output;
 }
 
 bool Moderator::paste() const
 {
-	return m_pastefmt;
+	return pastefmt;
 }
 
 /* log: write a message detailing moderation action to log file */
@@ -247,10 +249,10 @@ bool Moderator::mod_action(int type, const char *name,
 	char msg[MAX_MSG];
 
 	try {
-		if (!m_names->at(name))
+		if (!active_users->at(name))
 			return false;
 	} catch (std::out_of_range) {
-		(*m_names)[name] = 0;
+		(*active_users)[name] = 0;
 		return false;
 	}
 
@@ -259,7 +261,7 @@ bool Moderator::mod_action(int type, const char *name,
 	else
 		snprintf(msg, MAX_MSG, "/ban %s", name);
 
-	send_msg(m_client, m_channel, msg);
+	send_msg(client, bot_channel, msg);
 	log(type, name, by, *reason ? reason : NULL);
 	return true;
 }
@@ -269,19 +271,19 @@ bool Moderator::check_wl() const
 {
 	std::string domain, sub;
 
-	domain = m_parsep->getLast()->domain;
-	sub = m_parsep->getLast()->subdomain + domain;
+	domain = parser->getLast()->domain;
+	sub = parser->getLast()->subdomain + domain;
 
-	return std::find(m_whitelist.begin(), m_whitelist.end(), domain)
-		== m_whitelist.end() && std::find(m_whitelist.begin(),
-		m_whitelist.end(), sub) == m_whitelist.end();
+	return std::find(whitelisted_sites.begin(), whitelisted_sites.end(), domain)
+		== whitelisted_sites.end() && std::find(whitelisted_sites.begin(),
+		whitelisted_sites.end(), sub) == whitelisted_sites.end();
 }
 
 /* check_spam: check if msg contains word spam */
 bool Moderator::check_spam(const std::string &msg) const
 {
 	std::regex spamRegex("(.{2,}\\b)\\1{"
-			+ std::to_string(m_max_pattern - 1) + ",}");
+			+ std::to_string(max_pattern - 1) + ",}");
 	std::smatch match;
 	return std::regex_search(msg.begin(), msg.end(), match, spamRegex);
 }
@@ -306,18 +308,18 @@ bool Moderator::check_str(const std::string &msg, std::string &reason,
 			repeated = 0;
 			last = c;
 		}
-		if (repeated == m_max_char) {
+		if (repeated == max_char) {
 			reason = "no spamming characters!";
 			snprintf(logmsg, LOG_LEN, "character '%c' repeated in "
 					"message over limit of %u times",
-					c, m_max_char);
+					c, max_char);
 			return true;
 		}
 		caps += (c >= 'A' && c <= 'Z') ? 1 : 0;
 	}
 	/* messages longer than cap_len with over cap_ratio% caps are invalid */
 	ratio = caps / (double)len;
-	if (msg.length() > m_cap_len && (ratio > m_cap_ratio)) {
+	if (msg.length() > cap_len && (ratio > cap_ratio)) {
 		reason = "turn off your caps lock!";
 		snprintf(logmsg, LOG_LEN, "%u out of %u non-whitespace "
 				"characters in message were uppercase",
