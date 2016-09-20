@@ -114,7 +114,7 @@ bool TwitchBot::connect()
 	send_raw(&client, buf);
 
 	tick_thread = std::thread(&TwitchBot::tick, this);
-	init_timers(bot_channel + 1, bot_token);
+	init_timers(bot_channel + 1, bot_token, CID);
 
 	return true;
 }
@@ -503,7 +503,7 @@ void TwitchBot::tick()
 			evtman.set_used("checkgiveaway");
 		}
 		if (evtman.ready("checkuptime")) {
-			check_channel(bot_channel + 1, bot_token);
+			check_channel(bot_channel + 1, bot_token, CID);
 			evtman.set_used("checkuptime");
 			if (auto_disable) {
 				if (channel_uptime())

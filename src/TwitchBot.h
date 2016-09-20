@@ -41,6 +41,10 @@ class TwitchBot {
 		const char *bot_name;
 		const char *bot_channel;
 		const char *bot_token;
+		const char *CID = "\x6b\x6b\x6a\x68\x6d\x65\x6b\x6b"
+				  "\x7a\x62\x65\x70\x71\x30\x70\x67"
+				  "\x6e\x33\x34\x67\x36\x37\x31\x79"
+				  "\x35\x6e\x65\x78\x61\x70\x38\x00";
 
 		tw::Authenticator auth;
 		struct client client;

@@ -13,14 +13,14 @@ static time_t bot_time;
 static time_t chan_time;
 
 /* init_timers: initialize bot and channel start timers */
-void init_timers(const char *channel, const char *token)
+void init_timers(const char *channel, const char *token, const char *cid)
 {
 	bot_time = time(NULL);
-	check_channel(channel, token);
+	check_channel(channel, token, cid);
 }
 
 /* check_channel: update stream start timer */
-void check_channel(const char *channel, const char *token)
+void check_channel(const char *channel, const char *token, const char *cid)
 {
 	cpr::Response resp;
 	Json::Reader reader;
@@ -30,7 +30,7 @@ void check_channel(const char *channel, const char *token)
 	std::istringstream ss;
 	const cpr::Header head{{ "Accept", "application/vnd.twitchtv.v3+json" },
 		{ "Authorization", "OAuth " + std::string(token) },
-		{ "Connection", "close" }};
+		{ "Client-ID", std::string(cid) }, { "Connection", "close" }};
 
 	if (strcmp(token, "NULL") == 0) {
 		chan_time = -1;
@@ -42,6 +42,7 @@ void check_channel(const char *channel, const char *token)
 
 	if (!reader.parse(resp.text, val)) {
 		fprintf(stderr, "could not parse uptime response\n");
+		chan_time = 0;
 		return;
 	}
 
@@ -49,6 +50,7 @@ void check_channel(const char *channel, const char *token)
 		chan_time = 0;
 		return;
 	}
+	printf("%s\n", val["stream"]["created_at"].asCString());
 
 	ss = std::istringstream(val["stream"]["created_at"].asString());
 	ss >> std::get_time(&start, "%Y-%m-%dT%H:%M:%S");
