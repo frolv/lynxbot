@@ -66,7 +66,7 @@ int CmdHandler::wheel(char *out, struct command *c)
 				"assigned something!", c->nick);
 	} else {
 		/* make a new selection */
-		snprintf(out, MAX_MSG, "@%s, for entertainment for "
+		snprintf(out, MAX_MSG, "@%s, your entertainment for "
 				"tonight is %s.", c->nick,
 				swheel.choose(c->nick, c->argv[l_optind]));
 	}
