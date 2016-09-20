@@ -21,6 +21,8 @@
 #define BOT_VERSION "v" _BOT_VER_MAJOR "." _BOT_VER_MINOR "."\
 	_BOT_VER_PATCH _BOT_VER_SUFFIX
 
+#define __STDC_FORMAT_MACROS
+
 #ifndef MAX_MSG
 /* maximum length of chat message */
 # define MAX_MSG 1024

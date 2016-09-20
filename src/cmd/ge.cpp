@@ -3,9 +3,12 @@
 #include <utils.h>
 #include "command.h"
 #include "../CmdHandler.h"
+#include "../lynxbot.h"
 #include "../option.h"
 #include "../stringparse.h"
 #include "../strfmt.h"
+
+#include <inttypes.h>
 
 /* full name of the command */
 CMDNAME("ge");
@@ -104,18 +107,18 @@ int CmdHandler::ge(char *out, struct command *c)
 	out = strchr(out, '\0');
 	if (amt != 1) {
 		if (hex) {
-			snprintf(out, RSN_BUF, "0x%lX", amt);
+			snprintf(out, RSN_BUF, "0x%" PRIX64, amt);
 		} else {
-			snprintf(buf, RSN_BUF, "%ld", amt);
+			snprintf(buf, RSN_BUF, "%" PRIu64, amt);
 			fmtnum(out, RSN_BUF, buf);
 		}
 		strcat(out, "x ");
 		out = strchr(out, '\0');
 	}
 	if (hex) {
-		snprintf(num, RSN_BUF, "0x%lX", (uint64_t)(amt * price));
+		snprintf(num, RSN_BUF, "0x%" PRIX64, (uint64_t)(amt * price));
 	} else {
-		snprintf(buf, RSN_BUF, "%ld", amt * price);
+		snprintf(buf, RSN_BUF, "%" PRIu64, amt * price);
 		fmtnum(num, RSN_BUF, buf);
 	}
 	snprintf(out, MAX_MSG, "%s: %s gp", (*item)["name"].asCString(), num);
