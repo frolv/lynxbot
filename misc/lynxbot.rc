@@ -1,19 +1,19 @@
 //id ICON "lynx.ico"
 
 1 VERSIONINFO
-FILEVERSION	1,4,7
-PRODUCTVERSION	1,4,7
+FILEVERSION	1,4,8
+PRODUCTVERSION	1,4,8
 BEGIN
 	BLOCK "StringFileInfo"
 	BEGIN
 		BLOCK "040904E4"
 		BEGIN
 			VALUE "FileDescription", "A Twitch.tv IRC bot for Oldschool Runescape"
-			VALUE "FileVersion", "1.4.7"
+			VALUE "FileVersion", "1.4.8"
 			VALUE "LegalCopyright", "LynxBot"
 			VALUE "OriginalFilename", "lynxbot.exe"
 			VALUE "ProductName", "LynxBot"
-			VALUE "ProductVersion", "1.4.7"
+			VALUE "ProductVersion", "1.4.8"
 		END
 	END
 
