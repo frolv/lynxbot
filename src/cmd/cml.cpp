@@ -172,7 +172,7 @@ int CmdHandler::cml(char *out, struct command *c)
 	if (update) {
 		if (updatecml(buf, err) == 1) {
 			snprintf(out, MAX_MSG, "@%s, %s's CML tracker has "
-					"been updated", c->nick, buf);
+					"been updated.", c->nick, buf);
 		} else {
 			snprintf(out, MAX_MSG, "%s: %s", c->argv[0], err);
 			status = EXIT_FAILURE;

@@ -76,7 +76,7 @@ int CmdHandler::cmdinfo(char *out, struct command *c)
 
 	switch (source(c->argv[l_optind])) {
 	case DEFAULT:
-		snprintf(out, MAX_MSG, "[CMDINFO] %s is a default command",
+		snprintf(out, MAX_MSG, "[CMDINFO] %s is a default command.",
 				c->argv[l_optind]);
 		break;
 	case CUSTOM:
