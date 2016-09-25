@@ -19,6 +19,14 @@ ExpressionParser::ExpressionParser(const std::string &expr) : m_expr(expr)
 
 ExpressionParser::~ExpressionParser() {}
 
+double ExpressionParser::eval()
+{
+	tokenizeExpr();
+	shuntingYard();
+	evalRevPol();
+	return m_output.top();
+}
+
 /* split the expression into its various tokens */
 void ExpressionParser::tokenizeExpr()
 {
@@ -45,13 +53,6 @@ void ExpressionParser::tokenizeExpr()
 	}
 
 	tokens.pop_back();
-}
-
-double ExpressionParser::eval()
-{
-	shuntingYard();
-	evalRevPol();
-	return m_output.top();
 }
 
 void ExpressionParser::shuntingYard()

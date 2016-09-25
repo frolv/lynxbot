@@ -9,7 +9,6 @@ class ExpressionParser {
 	public:
 		ExpressionParser(const std::string &expr);
 		~ExpressionParser();
-		void tokenizeExpr();
 		double eval();
 
 	private:
@@ -25,6 +24,7 @@ class ExpressionParser {
 		std::stack<token> m_opstack;
 		std::queue<token> m_revpol;
 		std::stack<double> m_output;
+		void tokenizeExpr();
 		void shuntingYard();
 		void evalRevPol();
 

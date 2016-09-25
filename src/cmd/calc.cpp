@@ -51,7 +51,6 @@ int CmdHandler::calc(char *out, struct command *c)
 
 	try {
 		ExpressionParser exp(expr);
-		exp.tokenizeExpr();
 		snprintf(out, MAX_MSG, "[CALC] %f", exp.eval());
 	} catch (std::runtime_error &e) {
 		snprintf(out, MAX_MSG, "%s: %s", c->argv[0], e.what());
