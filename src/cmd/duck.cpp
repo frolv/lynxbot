@@ -42,6 +42,6 @@ int CmdHandler::duck(char *out, struct command *c)
 	}
 
 	argvcat(query, c->argc, c->argv, l_optind, 1);
-	snprintf(out, MAX_MSG, "%s%s", DDG_QUERY, tw::pencode(query).c_str());
+	snprintf(out, MAX_MSG, "[DUCK] %s%s", DDG_QUERY, tw::pencode(query).c_str());
 	return EXIT_SUCCESS;
 }
