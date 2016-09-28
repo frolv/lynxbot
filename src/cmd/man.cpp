@@ -50,7 +50,7 @@ int CmdHandler::man(char *out, struct command *c)
 	else if (default_cmds.find(c->argv[l_optind]) != default_cmds.end())
 		snprintf(out, MAX_MSG, "[MAN] %s%s.html", url, c->argv[l_optind]);
 	else if ((ccmd = custom_cmds->getcom(c->argv[l_optind])))
-		snprintf(out, MAX_MSG, "[MAN] '%s' is a custom command",
+		snprintf(out, MAX_MSG, "[MAN] '%s' is a custom command.",
 				c->argv[l_optind]);
 	else
 		snprintf(out, MAX_MSG, "%s: no manual entry for '%s'",

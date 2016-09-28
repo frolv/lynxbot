@@ -166,7 +166,7 @@ static int edit(char *out, CustomHandler *cch, struct command *c, char *resp)
 		return EXIT_FAILURE;
 	}
 	if (cooldown == -1 && !resp && !set) {
-		snprintf(out, MAX_MSG, "@%s, command $%s was unchanged",
+		snprintf(out, MAX_MSG, "@%s, command $%s was unchanged.",
 				c->nick, c->argv[l_optind]);
 		return EXIT_SUCCESS;
 	}
@@ -193,7 +193,7 @@ static int rename(char *out, CustomHandler *cch, struct command *c)
 		status = EXIT_FAILURE;
 	} else {
 		snprintf(out, MAX_MSG, "@%s, command $%s has been renamed "
-				"to $%s", c->nick, c->argv[l_optind],
+				"to $%s.", c->nick, c->argv[l_optind],
 				c->argv[l_optind + 1]);
 		status = EXIT_SUCCESS;
 	}
