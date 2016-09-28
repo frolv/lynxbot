@@ -290,6 +290,7 @@ void CmdHandler::populate_help()
 	help["ar"] = "addrec";
 	help["dr"] = "delrec";
 	help["er"] = "editrec";
+	help["lsrec"] = "showrec";
 	help["lvl"] = "level";
 	help["sp"] = "strawpoll";
 	help["automated-responses"] = "automated-responses";
