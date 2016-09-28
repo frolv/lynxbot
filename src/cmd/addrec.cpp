@@ -80,7 +80,7 @@ int CmdHandler::addrec(char *out, struct command *c)
 				"messages reached", c->argv[0]);
 	else
 		snprintf(out, MAX_MSG, "@%s, recurring message \"%s\" has been "
-				"added at a %ld min interval", c->nick, msg,
+				"added at a %ld min interval.", c->nick, msg,
 				cooldown / 60);
 	return EXIT_SUCCESS;
 }

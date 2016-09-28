@@ -92,6 +92,6 @@ static int create(char *out, CustomHandler *cch, struct command *c,
 		return EXIT_FAILURE;
 	}
 	snprintf(out, MAX_MSG, "@%s, command $%s has been added with a %ld"
-			"s cooldown", c->nick, cmd, cooldown);
+			"s cooldown.", c->nick, cmd, cooldown);
 	return EXIT_SUCCESS;
 }

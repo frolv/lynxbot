@@ -141,7 +141,7 @@ static int findcmds(char *out, const CmdHandler::cmdmap *cmap,
 	cus[j] = NULL;
 
 	if (!nmatch) {
-		snprintf(out, MAX_MSG, "[CGREP] no matches found for '%s'", pat);
+		snprintf(out, MAX_MSG, "[CGREP] no matches found for '%s'.", pat);
 		return EXIT_FAILURE;
 	}
 
