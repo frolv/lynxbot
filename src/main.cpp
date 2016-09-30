@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 
 	opt_init();
 	update = 1;
-	while ((c = l_getopt_long(argc, argv, "hv", long_opts)) != EOF) {
+	while ((c = l_getopt_long(argc, argv, "hnv", long_opts)) != EOF) {
 		switch (c) {
 		case 'h':
 			printf("usage: lynxbot [CHANNEL]\n%s - A Twitch.tv IRC "
