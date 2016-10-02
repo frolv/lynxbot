@@ -59,7 +59,8 @@ int RSNList::del(const char *nick)
 	ind = 0;
 	while (ind < rsns["rsns"].size()) {
 		val = rsns["rsns"].get(ind, def);
-		if (strcmp(val["nick"].asCString(), nick) == 0) break;
+		if (strcmp(val["nick"].asCString(), nick) == 0)
+			break;
 		++ind;
 	}
 
@@ -153,7 +154,7 @@ int RSNList::read_rsns()
 		return 0;
 	for (auto &val : rsns["rsns"]) {
 		if (!val.isMember("nick") && !val.isMember("curr")
-			&& !val.isMember("prev")) {
+				&& !val.isMember("prev")) {
 			fprintf(stderr, "rsns.json is improperly configured\n");
 			return 0;
 		}
