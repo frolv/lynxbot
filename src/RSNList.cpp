@@ -117,7 +117,7 @@ int RSNList::valid(const char *rsn)
 		strcpy(error, "invalid RSN - too long");
 		return 0;
 	}
-	if (!(t = find_nick(rsn))->empty()) {
+	if ((t = find_nick(rsn))) {
 		snprintf(error, 256, "the RSN '%s' is already taken by %s",
 				rsn, (*t)["nick"].asCString());
 		return 0;
