@@ -13316,6 +13316,42 @@
     {
       "id": 20595,
       "name": "Elder chaos hood"
+    },
+    {
+      "id": 20716,
+      "name": "Tome of fire (empty)"
+    },
+    {
+      "id": 20718,
+      "name": "Burnt page"
+    },
+    {
+      "id": 20724,
+      "name": "Imbued heart"
+    },
+    {
+      "id": 20727,
+      "name": "Leaf-bladed battleaxe"
+    },
+    {
+      "id": 20730,
+      "name": "Mist battlestaff"
+    },
+    {
+      "id": 20733,
+      "name": "Mystic mist staff"
+    },
+    {
+      "id": 20736,
+      "name": "Dust battlestaff"
+    },
+    {
+      "id": 20739,
+      "name": "Mystic dust staff"
+    },
+    {
+      "id": 20749,
+      "name": "Zamorak's grapes"
     }
   ]
 }

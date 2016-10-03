@@ -50,11 +50,10 @@ const Json::Value *GEReader::find_item(const char *name)
 void GEReader::read_nicks()
 {
 	for (Json::Value &val : items["items"]) {
-		if (val.isMember("nick")) {
-			for (Json::Value &nick : val["nick"])
-				nickmap[nick.asString()]
-					= val["name"].asString();
-		}
+		if (!val.isMember("nick"))
+			continue;
+		for (Json::Value &nick : val["nick"])
+			nickmap[nick.asString()] = val["name"].asString();
 	}
 }
 
