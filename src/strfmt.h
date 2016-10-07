@@ -9,6 +9,12 @@
 extern "C" {
 #endif
 
+struct format {
+	int	val;
+	void	*data;
+	char	(*fmtfun)(void *);
+};
+
 /* fmtnum: format a number with commas */
 void fmtnum(char *out, size_t size, const char *num);
 
