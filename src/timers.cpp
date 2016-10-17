@@ -50,7 +50,6 @@ void check_channel(const char *channel, const char *token, const char *cid)
 		chan_time = 0;
 		return;
 	}
-	printf("%s\n", val["stream"]["created_at"].asCString());
 
 	ss = std::istringstream(val["stream"]["created_at"].asString());
 	ss >> std::get_time(&start, "%Y-%m-%dT%H:%M:%S");
