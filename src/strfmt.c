@@ -42,9 +42,14 @@ void fmtnum(char *out, size_t size, const char *num)
  * characters given replace fmtchars. Replace format sequences with
  * the return value of fmtfun replace the format struct. Write
  * resulting string to out, with at most size chars.
+ *
+ * Returns 0 on success, or one of the following errors:
+ * EFMT - invalid format character found in str
+ * EEOL - str ends with a '%'
+ * EINV - could not use format function
  */
-char *strfmt(char *out, size_t size, const char *str,
-			const struct format *fmtchars)
+int strfmt(char *out, size_t size, const char *str,
+		      const struct format *fmtchars)
 {
 	char *s, *replace;
 	size_t i, len;
@@ -56,7 +61,7 @@ char *strfmt(char *out, size_t size, const char *str,
 	for (; *str && i < size - 1; ++str) {
 		if (*str == '%') {
 			if (!str[1])
-				return NULL;
+				return EEOL;
 
 			if (str[1] == '%') {
 				*s++ = *str++;
@@ -64,9 +69,9 @@ char *strfmt(char *out, size_t size, const char *str,
 			}
 
 			if (!fmtchars || !(f = find_format(fmtchars, str[1])))
-				return NULL;
+				return EFMT;
 			if (!(replace = f->fmtfun(f->data)))
-				return NULL;
+				return EINV;
 
 			snprintf(s, size - i, "%s", replace);
 			len = strlen(replace);
@@ -83,14 +88,14 @@ char *strfmt(char *out, size_t size, const char *str,
 		++i;
 	}
 	/*
-	 * This difference is greater than len if the length of the string
+	 * This difference is greater than size if the length of the string
 	 * replace exceeds the amount of remaining space, at which point
 	 * snprintf truncates replace and null terminates the result.
 	 */
-	if (s - out < len)
+	if ((size_t)(s - out) < size)
 		*s = '\0';
 
-	return out;
+	return 0;
 }
 
 static const struct format *find_format(const struct format *fmt, int c)

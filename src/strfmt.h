@@ -7,6 +7,7 @@
 
 #define EFMT 1
 #define EEOL 2
+#define EINV 3
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,8 +29,20 @@ struct format {
 /* fmtnum: format a number with commas */
 void fmtnum(char *out, size_t size, const char *num);
 
-char *strfmt(char *out, size_t size, const char *str,
-			const struct format *fmtchars);
+/*
+ * strfmt:
+ * scan a string for percent format sequences with the format
+ * characters given replace fmtchars. Replace format sequences with
+ * the return value of fmtfun replace the format struct. Write
+ * resulting string to out, with at most size chars.
+ *
+ * Returns 0 on success, or one of the following errors:
+ * EFMT - invalid format character found in str
+ * EEOL - str ends with a '%'
+ * EINV - could not use format function
+ */
+int strfmt(char *out, size_t size, const char *str,
+		      const struct format *fmtchars);
 
 #ifdef __cplusplus
 } /* extern "C" */
