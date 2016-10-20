@@ -98,6 +98,32 @@ int strfmt(char *out, size_t size, const char *str,
 	return 0;
 }
 
+char *dupstr(const void *a)
+{
+	return strdup((const char *)a);
+}
+
+char *plainnum(const void *a)
+{
+	size_t len;
+	int i;
+	char *num;
+
+	i = *(int *)a;
+	len = 1;
+	while ((i /= 10))
+		++len;
+
+	num = malloc(len + 1);
+	sprintf(num, "%d", *(int *)a);
+	return num;
+}
+
+char *commanum(const void *a)
+{
+	return NULL;
+}
+
 static const struct format *find_format(const struct format *fmt, int c)
 {
 	for (; fmt->val && fmt->data && fmt->fmtfun; ++fmt) {

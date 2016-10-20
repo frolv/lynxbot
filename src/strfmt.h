@@ -44,6 +44,12 @@ void fmtnum(char *out, size_t size, const char *num);
 int strfmt(char *out, size_t size, const char *str,
 		      const struct format *fmtchars);
 
+
+/* strfmt format functions for common data types */
+char *dupstr(const void *a);
+char *plainnum(const void *a);
+char *commanum(const void *a);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
