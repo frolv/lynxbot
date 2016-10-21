@@ -11,7 +11,7 @@ LDFLAGS="-lcurl -lpthread -lcrypto"
 INC="-I./include"
 CC=gcc
 CXX=g++
-CFLAGS="$INC -Wall -Wextra -c -std=c99"
+CFLAGS="$INC -Wall -Wextra -c"
 CXXFLAGS="$INC -Wall -Wextra -c -std=c++14"
 OBJDIR=obj
 winbuild=0
