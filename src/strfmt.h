@@ -31,7 +31,7 @@ void fmtnum(char *out, size_t size, const char *num);
 
 /*
  * strfmt:
- * scan a string for percent format sequences with the format
+ * Scan a string for percent format sequences with the format
  * characters given replace fmtchars. Replace format sequences with
  * the return value of fmtfun replace the format struct. Write
  * resulting string to out, with at most size chars.

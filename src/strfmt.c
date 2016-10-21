@@ -38,7 +38,7 @@ void fmtnum(char *out, size_t size, const char *num)
 
 /*
  * strfmt:
- * scan a string for percent format sequences with the format
+ * Scan a string for percent format sequences with the format
  * characters given replace fmtchars. Replace format sequences with
  * the return value of fmtfun replace the format struct. Write
  * resulting string to out, with at most size chars.
@@ -89,7 +89,7 @@ int strfmt(char *out, size_t size, const char *str,
 		++i;
 	}
 	/*
-	 * This difference is greater than size if the length of the string
+	 * The length i is greater than size if the length of the string
 	 * replace exceeds the amount of remaining space, at which point
 	 * snprintf truncates replace and null terminates the result.
 	 */
