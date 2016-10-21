@@ -221,46 +221,20 @@ char *CustomHandler::error()
 /* format: format a response for cmd */
 char *CustomHandler::format(const Json::Value *cmd, const char *nick)
 {
-	const char *s;
-	char *t;
-	char num[MAX_LEN];
+	int uses = (*cmd)["uses"].asInt();
+	const char *resp = (*cmd)["response"].asCString();
 
-	t = fmtresp;
-	for (s = (*cmd)["response"].asCString(); *s; ++s) {
-		if (*s == '%') {
-			switch (s[1]) {
-			case '%':
-				strcpy(t, "%");
-				break;
-			case 'N':
-				snprintf(t, MAX_MSG - (t - fmtresp),
-						"@%s,", nick);
-				break;
-			case 'b':
-				strcpy(t, bot_name);
-				break;
-			case 'c':
-				strcpy(t, bot_channel);
-				break;
-			case 'n':
-				strcpy(t, nick);
-				break;
-			case 'u':
-				snprintf(num, MAX_LEN, "%d",
-						(*cmd)["uses"].asInt());
-				fmtnum(t, MAX_LEN, num);
-				break;
-			default:
-				/* should never happen */
-				break;
-			}
-			t = strchr(t, '\0');
-			++s;
-			continue;
-		}
-		*t++ = *s;
-	}
-	*t = '\0';
+	struct format fmtchars[] = {
+		{ 'N', nick, atnick },
+		{ 'b', bot_name, dupstr },
+		{ 'c', bot_channel, dupstr },
+		{ 'n', nick, dupstr },
+		{ 'u', &uses, commanum },
+		{ 0, 0, 0 }
+	};
+
+	if (strfmt(fmtresp, MAX_MSG, resp, fmtchars) != 0)
+		return NULL;
 
 	return fmtresp;
 }
