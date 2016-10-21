@@ -65,6 +65,7 @@ int strfmt(char *out, size_t size, const char *str,
 
 			if (str[1] == '%') {
 				*s++ = *str++;
+				++i;
 				continue;
 			}
 
@@ -92,7 +93,7 @@ int strfmt(char *out, size_t size, const char *str,
 	 * replace exceeds the amount of remaining space, at which point
 	 * snprintf truncates replace and null terminates the result.
 	 */
-	if ((size_t)(s - out) < size)
+	if (i < size)
 		*s = '\0';
 
 	return 0;
@@ -114,14 +115,46 @@ char *plainnum(const void *a)
 	while ((i /= 10))
 		++len;
 
-	num = malloc(len + 1);
+	if (!(num = malloc(len + 1)))
+		return NULL;
 	sprintf(num, "%d", *(int *)a);
 	return num;
 }
 
 char *commanum(const void *a)
 {
-	return NULL;
+	size_t len;
+	int i;
+	char *num;
+	char buf[128];
+
+	i = *(int *)a;
+	len = 1;
+	while ((i /= 10))
+		++len;
+
+	/* comma after every 3 digits */
+	len += (len - 1) / 3;
+
+	if (!(num = malloc(len + 1)))
+		return NULL;
+	snprintf(buf, 128, "%d", *(int *)a);
+	fmtnum(num, len + 1, buf);
+
+	return num;
+}
+
+char *atnick(const void *a)
+{
+	size_t len;
+	char *out;
+
+	len = strlen((const char *)a) + 2;
+	if (!(out = malloc(len + 1)))
+		return NULL;
+	sprintf(out, "@%s,", (const char *)a);
+
+	return out;
 }
 
 static const struct format *find_format(const struct format *fmt, int c)

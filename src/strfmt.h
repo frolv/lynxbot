@@ -49,6 +49,7 @@ int strfmt(char *out, size_t size, const char *str,
 char *dupstr(const void *a);
 char *plainnum(const void *a);
 char *commanum(const void *a);
+char *atnick(const void *a);
 
 #ifdef __cplusplus
 } /* extern "C" */
