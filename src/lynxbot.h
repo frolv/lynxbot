@@ -14,7 +14,7 @@
 /* version information */
 #define _BOT_VER_MAJOR	"1"
 #define _BOT_VER_MINOR	"4"
-#define _BOT_VER_PATCH	"8"
+#define _BOT_VER_PATCH	"9"
 #define _BOT_VER_SUFFIX	""
 
 /* full version string */
