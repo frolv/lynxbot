@@ -76,8 +76,8 @@ class TwitchBot {
 		bool moderate(const std::string &nick, const std::string &msg);
 		void tick();
 		void parse_submsg(std::string &fmt, const std::string &which);
-		std::string format_submsg(const std::string &format,
-				const std::string &n, const std::string &m);
+		int format_submsg(char *out, size_t size, const char *format,
+				  const char *nick, const char *months);
 
 };
 

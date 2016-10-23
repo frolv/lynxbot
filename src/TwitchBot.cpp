@@ -5,6 +5,7 @@
 #include <tw/reader.h>
 #include <utils.h>
 #include "lynxbot.h"
+#include "strfmt.h"
 #include "timers.h"
 #include "TwitchBot.h"
 
@@ -359,7 +360,7 @@ bool TwitchBot::process_submsg(char *out, char *msgbuf)
 	*t = '\0';
 	msg = submsg.c_str();
 
-	snprintf(out, MAX_MSG, "%s", format_submsg(msg, nick, "1").c_str());
+	format_submsg(out, MAX_MSG, msg, nick, "1");
 	return true;
 }
 
@@ -382,7 +383,7 @@ bool TwitchBot::process_resub(char *msgbuf)
 	*s = '\0';
 	msg = resubmsg.c_str();
 
-	snprintf(out, MAX_MSG, "%s", format_submsg(msg, nick, months).c_str());
+	format_submsg(out, MAX_MSG, msg, nick, months);
 	send_msg(&client, bot_channel, out);
 	return true;
 }
@@ -551,41 +552,19 @@ void TwitchBot::parse_submsg(std::string &tgt, const std::string &which)
 }
 
 /* format_submsg: replace placeholders in format string with data */
-std::string TwitchBot::format_submsg(const std::string &format,
-		const std::string &n, const std::string &m)
+int TwitchBot::format_submsg(char *out, size_t size, const char *format,
+			     const char *nick, const char *months)
 {
-	size_t ind;
-	std::string out, ins;
-	char c;
+	struct format fmtchars[] = {
+		{ 'N', nick, atnick },
+		{ 'b', bot_name, dupstr },
+		{ 'c', bot_channel, dupstr },
+		{ 'm', months, dupstr },
+		{ 'n', nick, dupstr },
+		{ 0, 0, 0 }
+	};
 
-	ind = 0;
-	out = format;
-	while ((ind = out.find('%', ind)) != std::string::npos) {
-		c = out[ind + 1];
-		out.erase(ind, 2);
-		switch (c) {
-		case '%':
-			ins = "%";
-			break;
-		case 'N':
-			ins = "@" + n + ",";
-			break;
-		case 'c':
-			ins = bot_channel + 1;
-			break;
-		case 'm':
-			ins = m;
-			break;
-		case 'n':
-			ins = n;
-			break;
-		default:
-			break;
-		}
-		out.insert(ind, ins);
-		ind += ins.length();
-	}
-	return out;
+	return strfmt(out, size, format, fmtchars);
 }
 
 /* urltitle: extract webpage title from html */
