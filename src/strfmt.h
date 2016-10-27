@@ -32,9 +32,9 @@ void fmtnum(char *out, size_t size, const char *num);
 /*
  * strfmt:
  * Scan a string for percent format sequences with the format
- * characters given replace fmtchars. Replace format sequences with
- * the return value of fmtfun replace the format struct. Write
- * resulting string to out, with at most size chars.
+ * characters given in fmtchars. Replace format sequences in the
+ * string with the return value of fmtfun when called with data.
+ * Write the resulting string to out, with at most size chars.
  *
  * Returns 0 on success, or one of the following errors:
  * EFMT - invalid format character found in str
