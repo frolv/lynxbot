@@ -558,7 +558,7 @@ int TwitchBot::format_submsg(char *out, size_t size, const char *format,
 	struct format fmtchars[] = {
 		{ 'N', nick, atnick },
 		{ 'b', bot_name, dupstr },
-		{ 'c', bot_channel, dupstr },
+		{ 'c', bot_channel + 1, dupstr },
 		{ 'm', months, dupstr },
 		{ 'n', nick, dupstr },
 		{ 0, 0, 0 }
