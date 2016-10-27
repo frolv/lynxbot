@@ -263,6 +263,7 @@ void CmdHandler::add_commands()
 	default_cmds["editcom"] = &CmdHandler::editcom;
 	default_cmds["er"] = &CmdHandler::editrec;
 	default_cmds["editrec"] = &CmdHandler::editrec;
+	default_cmds["lsrec"] = &CmdHandler::showrec;
 	default_cmds["mod"] = &CmdHandler::mod;
 	default_cmds["permit"] = &CmdHandler::permit;
 	default_cmds["setgiv"] = &CmdHandler::setgiv;

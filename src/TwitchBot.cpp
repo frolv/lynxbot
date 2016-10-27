@@ -141,7 +141,7 @@ void TwitchBot::server_loop()
 
 	pos = buf;
 	len = 0;
-	/* continously receive data from server */
+	/* continuously receive data from server */
 	while (1) {
 		shift = 0;
 		if ((bytes = cread(&client, pos, BUFFER_SIZE - len)) < 0) {
@@ -170,9 +170,9 @@ void TwitchBot::server_loop()
 		printf("[RECV] %s\n", buf);
 		process_data(buf);
 		if (shift) {
-			strcpy(buf, s + 1);
-			len = BUFFER_SIZE - len - 1;
+			len = BUFFER_SIZE - 1 - len;
 			pos = buf + len;
+			memmove(buf, s + 1, len + 1);
 		} else {
 			pos = buf;
 			len = 0;
