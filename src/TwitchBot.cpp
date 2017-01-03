@@ -163,7 +163,10 @@ void TwitchBot::server_loop()
 			s = pos;
 			while (*--s != '\n' && len)
 				--len;
-			*s = '\0';
+			if (s == '\n')
+				s[1] = '\0';
+			else
+				*s = '\0';
 			shift = 1;
 		}
 
