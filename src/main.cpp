@@ -1,6 +1,6 @@
 /*
  * LynxBot: a Twitch.tv IRC bot for Old School Runescape
- * Copyright (C) 2016 Alexei Frolov
+ * Copyright (C) 2016-2017 Alexei Frolov
  */
 
 #include <cpr/cpr.h>
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 			update = 0;
 			break;
 		case 'v':
-			printf("%s %s\nCopyright (C) 2016 Alexei Frolov\n"
+			printf("%s %s\nCopyright (C) 2016-2017 Alexei Frolov\n"
 					"This program is distributed as free "
 					"software\nunder the terms of the MIT "
 					"License.\n", BOT_NAME, BOT_VERSION);
